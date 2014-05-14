@@ -1,16 +1,11 @@
+#include <ulmblas.h>
 #include <math.h>
 
 double
-dnrm2_(const int     *_n,
-       const double  *x,
-       const int     *_incX)
+ULMBLAS(dnrm2)(const int     n,
+               const double  *x,
+               const int     incX)
 {
-//
-//  Dereference scalar parameters
-//
-    int n    = *_n;
-    int incX = *_incX;
-
 //
 //  Local scalars
 //
@@ -39,4 +34,18 @@ dnrm2_(const int     *_n,
     }
 
     return result;
+}
+
+double
+F77BLAS(dnrm2)(const int     *_n,
+               const double  *x,
+               const int     *_incX)
+{
+//
+//  Dereference scalar parameters
+//
+    int n    = *_n;
+    int incX = *_incX;
+
+    return ULMBLAS(dnrm2)(n, x, incX);
 }

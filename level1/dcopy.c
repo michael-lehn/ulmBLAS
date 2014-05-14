@@ -1,17 +1,12 @@
-void
-dcopy_(const int    *_n,
-       const double *x,
-       const int    *_incX,
-       double       *y,
-       const int    *_incY)
-{
-//
-//  Dereference scalar parameters
-//
-    int n    = *_n;
-    int incX = *_incX;
-    int incY = *_incY;
+#include <ulmblas.h>
 
+void
+ULMBLAS(dcopy)(const int    n,
+               const double *x,
+               const int    incX,
+               double       *y,
+               const int    incY)
+{
 //
 //  Local scalars
 //
@@ -59,4 +54,21 @@ dcopy_(const int    *_n,
             (*y) = (*x);
         }
     }
+}
+
+void
+F77BLAS(dcopy)(const int    *_n,
+               const double *x,
+               const int    *_incX,
+               double       *y,
+               const int    *_incY)
+{
+//
+//  Dereference scalar parameters
+//
+    int n    = *_n;
+    int incX = *_incX;
+    int incY = *_incY;
+
+    ULMBLAS(dcopy)(n, x, incX, y, incY);
 }

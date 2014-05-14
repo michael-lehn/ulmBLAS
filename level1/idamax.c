@@ -1,20 +1,15 @@
+#include <ulmblas.h>
 #include <math.h>
 
 int
-idamax_(const int       *_n,
-        const double    *x,
-        const int       *_incX)
+ULMBLAS(idamax)(const int       n,
+                const double    *x,
+                const int       incX)
 {
-//
-//  Dereference scalar parameters
-//
-    int n    = *_n;
-    int incX = *_incX;
-
 //
 //  Local scalars
 //
-    int    i, iamax;
+    int    i, iamax = 0;
     double amax;
 
 //
@@ -51,4 +46,18 @@ idamax_(const int       *_n,
         }
     }
     return iamax+1;
+}
+
+int
+F77BLAS(idamax)(const int       *_n,
+                const double    *x,
+                const int       *_incX)
+{
+//
+//  Dereference scalar parameters
+//
+    int n    = *_n;
+    int incX = *_incX;
+
+    return ULMBLAS(idamax)(n, x, incX);
 }

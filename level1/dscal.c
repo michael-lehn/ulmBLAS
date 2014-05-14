@@ -1,16 +1,11 @@
-void
-dscal_(const int    *_n,
-       const double *_alpha,
-       double       *x,
-       const int    *_incX)
-{
-//
-//  Dereference scalar parameters
-//
-    int n        = *_n;
-    double alpha = *_alpha;
-    int incX     = *_incX;
+#include <ulmblas.h>
 
+void
+ULMBLAS(dscal)(const int    n,
+               const double alpha,
+               double       *x,
+               const int    incX)
+{
 //
 //  Local scalars
 //
@@ -50,4 +45,20 @@ dscal_(const int    *_n,
             (*x) *= alpha;
         }
     }
+}
+
+void
+F77BLAS(dscal)(const int    *_n,
+               const double *_alpha,
+               double       *x,
+               const int    *_incX)
+{
+//
+//  Dereference scalar parameters
+//
+    int n        = *_n;
+    double alpha = *_alpha;
+    int incX     = *_incX;
+
+    ULMBLAS(dscal)(n, alpha, x, incX);
 }

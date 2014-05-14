@@ -1,3 +1,4 @@
+#include <ulmblas.h>
 #include <math.h>
 
 static double
@@ -11,12 +12,12 @@ sign(const double x, const double y)
 }
 
 void
-drotg_(double *a,
-       double *b,
-       double *c,
-       double *s)
+ULMBLAS(drotg)(double *a,
+               double *b,
+               double *c,
+               double *s)
 {
-    double r, roe, scale, z;
+    double r, roe = 0.0, scale, z;
 
     if (fabs(*a)>fabs(*b)) {
         roe = *a;
@@ -42,4 +43,13 @@ drotg_(double *a,
     }
     *a = r;
     *b = z;
+}
+
+void
+F77BLAS(drotg)(double *a,
+               double *b,
+               double *c,
+               double *s)
+{
+    ULMBLAS(drotg)(a, b, c, s);
 }

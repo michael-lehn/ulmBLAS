@@ -1,21 +1,14 @@
-void
-drot_(const int      *_n,
-      double         *x,
-      const int      *_incX,
-      double         *y,
-      const int      *_incY,
-      const double   *_c,
-      const double   *_s)
-{
-//
-//  Dereference scalar parameters
-//
-    int n    = *_n;
-    int incX = *_incX;
-    int incY = *_incY;
-    double c = *_c;
-    double s = *_s;
+#include <ulmblas.h>
 
+void
+ULMBLAS(drot)(const int      n,
+              double         *x,
+              const int      incX,
+              double         *y,
+              const int      incY,
+              const double   c,
+              const double   s)
+{
 //
 //  Local scalars
 //
@@ -53,4 +46,25 @@ drot_(const int      *_n,
             (*x) = tmp;
         }
     }
+}
+
+void
+F77BLAS(drot)(const int      *_n,
+              double         *x,
+              const int      *_incX,
+              double         *y,
+              const int      *_incY,
+              const double   *_c,
+              const double   *_s)
+{
+//
+//  Dereference scalar parameters
+//
+    int n    = *_n;
+    int incX = *_incX;
+    int incY = *_incY;
+    double c = *_c;
+    double s = *_s;
+
+    ULMBLAS(drot)(n, x, incX, y, incY, c, s);
 }

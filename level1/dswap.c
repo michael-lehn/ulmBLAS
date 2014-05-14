@@ -1,17 +1,12 @@
-void
-dswap_(const int *_n,
-       double    *x,
-       const int *_incX,
-       double    *y,
-       const int *_incY)
-{
-//
-//  Dereference scalar parameters
-//
-    int n    = *_n;
-    int incX = *_incX;
-    int incY = *_incY;
+#include <ulmblas.h>
 
+void
+ULMBLAS(dswap)(const int n,
+               double    *x,
+               const int incX,
+               double    *y,
+               const int incY)
+{
 //
 //  Local scalars
 //
@@ -68,4 +63,21 @@ dswap_(const int *_n,
             *y  = tmp;
         }
     }
+}
+
+void
+F77BLAS(dswap)(const int *_n,
+               double    *x,
+               const int *_incX,
+               double    *y,
+               const int *_incY)
+{
+//
+//  Dereference scalar parameters
+//
+    int n    = *_n;
+    int incX = *_incX;
+    int incY = *_incY;
+
+    ULMBLAS(dswap)(n, x, incX, y, incY);
 }

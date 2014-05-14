@@ -1,19 +1,14 @@
-void
-daxpy_(const int     *_n,
-       const double  *_alpha,
-       const double  *x,
-       const int     *_incX,    // <- wer hat den Fehler noch gefunden? :-)
-       double        *y,
-       int           *_incY)
-{
-//
-//  Dereference scalar parameters
-//
-    int     n     = *_n;
-    double  alpha = *_alpha;
-    int     incX  = *_incX;
-    int     incY  = *_incY;
+#include <ulmblas.h>
+#include <stdio.h>
 
+void
+ULMBLAS(daxpy)(const int     n,
+               const double  alpha,
+               const double  *x,
+               const int     incX,
+               double        *y,
+               int           incY)
+{
 //
 //  Local scalars
 //
@@ -61,4 +56,23 @@ daxpy_(const int     *_n,
             (*y) += alpha * (*x);
         }
     }
+}
+
+void
+F77BLAS(daxpy)(const int     *_n,
+               const double  *_alpha,
+               const double  *x,
+               const int     *_incX,
+               double        *y,
+               int           *_incY)
+{
+//
+//  Dereference scalar parameters
+//
+    int     n     = *_n;
+    double  alpha = *_alpha;
+    int     incX  = *_incX;
+    int     incY  = *_incY;
+
+    ULMBLAS(daxpy)(n, alpha, x, incX, y, incY);
 }

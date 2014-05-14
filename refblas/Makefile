@@ -1,5 +1,5 @@
 FC      = gfortran
-FFLAGS  += -fimplicit-none
+FFLAGS  += -fimplicit-none -O3
 
 SOURCE_FILES = $(wildcard *.f)
 OBJECT_FILES = $(patsubst %.f,%.o,$(SOURCE_FILES))

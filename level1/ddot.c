@@ -1,17 +1,12 @@
-double
-ddot_(const int     *_n,
-      const double  *x,
-      const int     *_incX,
-      const double  *y,
-      const int     *_incY)
-{
-//
-//  Dereference scalar parameters
-//
-    int n    = *_n;
-    int incX = *_incX;
-    int incY = *_incY;
+#include <ulmblas.h>
 
+double
+ULMBLAS(ddot)(const int     n,
+              const double  *x,
+              const int     incX,
+              const double  *y,
+              const int     incY)
+{
 //
 //  Local scalars
 //
@@ -61,3 +56,22 @@ ddot_(const int     *_n,
     }
     return result;
 }
+
+double
+F77BLAS(ddot)(const int     *_n,
+              const double  *x,
+              const int     *_incX,
+              const double  *y,
+              const int     *_incY)
+{
+//
+//  Dereference scalar parameters
+//
+    int n    = *_n;
+    int incX = *_incX;
+    int incY = *_incY;
+
+    return ULMBLAS(ddot)(n, x, incX, y, incY);
+}
+
+

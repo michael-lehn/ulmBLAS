@@ -1,16 +1,11 @@
+#include <ulmblas.h>
 #include <math.h>
 
 double
-dasum_(const int    *_n,
-       const double *x,
-       const int    *_incX)
+ULMBLAS(dasum)(const int     n,
+               const double  *x,
+               const int     incX)
 {
-//
-//  Dereference scalar parameters
-//
-    int n    = *_n;
-    int incX = *_incX;
-
 //
 //  Local scalars
 //
@@ -58,3 +53,19 @@ dasum_(const int    *_n,
 
     return result;
 }
+
+double
+F77BLAS(dasum)(const int    *_n,
+               const double *x,
+               const int    *_incX)
+{
+//
+//  Dereference scalar parameters
+//
+    int n    = *_n;
+    int incX = *_incX;
+
+    return ULMBLAS(dasum)(n, x, incX);
+}
+
+
