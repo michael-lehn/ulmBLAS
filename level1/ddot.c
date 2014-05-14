@@ -30,11 +30,13 @@ ddot_(const int     *_n,
 //      Code for both increments equal to 1
 //
         m = n % 5;
-        for (i=0; i<m; ++i) {
-            result += x[i] * y[i];
-        }
-        if (n<5) {
-            return result;
+        if (m!=0) {
+            for (i=0; i<m; ++i) {
+                result += x[i] * y[i];
+            }
+            if (n<5) {
+                return result;
+            }
         }
         for (i=m; i<n; i+=5) {
             result += x[i  ] * y[i  ] ;
