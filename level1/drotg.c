@@ -17,7 +17,7 @@ ULMBLAS(drotg)(double *a,
                double *c,
                double *s)
 {
-    double r, roe = 0.0, scale, z;
+    double r, roe = *b, scale, z;
 
     if (fabs(*a)>fabs(*b)) {
         roe = *a;
