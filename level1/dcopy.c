@@ -16,6 +16,7 @@ dcopy_(const int    *_n,
 //  Local scalars
 //
     int    i, m;
+
 //
 //  Quick return if possible
 //
