@@ -1,5 +1,5 @@
 CC       = gcc-4.8
-CFLAGS  += -Wall
+CFLAGS  += -Wall -I..
 
 SOURCE_FILES = $(wildcard *.c)
 OBJECT_FILES = $(patsubst %.c,%.o,$(SOURCE_FILES))
