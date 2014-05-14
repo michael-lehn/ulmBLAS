@@ -17,15 +17,13 @@ daxpy_(const int     *_n,
 //
 //  Local scalars
 //
-    double result = 0.0;
-
     int    i, m;
 
 //
 //  Quick return if possible
 //
     if (n<=0) {
-        return 0;
+        return;
     }
     if (alpha==0.0) {
         return;
@@ -41,7 +39,7 @@ daxpy_(const int     *_n,
             }
         }
         if (n<4) {
-            return result;
+            return;
         }
         for (i=m; i<n; i+=4) {
             y[i  ] += alpha*x[i  ];
