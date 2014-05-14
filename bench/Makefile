@@ -20,4 +20,4 @@ libtstatlas.a : $(ATL_OBJECTFILES)
 	ranlib libtstatlas.a
 
 clean:
-	rm -f xdl1blastst libtstatlas.a $(ATL_OBJECTFILES)
+	rm -f xdl1blastst libtstatlas.a l1blastst.o $(ATL_OBJECTFILES)
