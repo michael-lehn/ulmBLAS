@@ -1,9 +1,15 @@
 CC       = gcc-4.8
-CFLAGS  += -Wall -I.. -O3
+CFLAGS  += -Wall -I. -O3
 
-SOURCE_FILES     = $(wildcard *.c)
-OBJECT_FILES     = $(patsubst %.c,%.o,$(SOURCE_FILES))
-ATL_OBJECT_FILES = $(patsubst %.c,atl_%.o,$(SOURCE_FILES))
+DIRS = auxiliary level1 level3
+
+SOURCE_FILES     = $(foreach DIR, $(DIRS), $(wildcard $(DIR)/*.c))
+OBJECT_FILES     = $(foreach DIR, $(DIRS), \
+                       $(patsubst $(DIR)/%.c,$(DIR)/%.o, \
+                           $(filter $(DIR)/%.c, $(SOURCE_FILES))))
+ATL_OBJECT_FILES = $(foreach DIR, $(DIRS), \
+                       $(patsubst $(DIR)/%.c,$(DIR)/atl_%.o, \
+                           $(filter $(DIR)/%.c, $(SOURCE_FILES))))
 
 ULMBLAS      = ../libulmblas.a
 ATLULMBLAS   = ../libatlulmblas.a

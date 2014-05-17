@@ -21,10 +21,12 @@ all : $(TEST_REFBLAS) $(TEST_ULMBLAS)
 check_ulm:
 	$(RM) *.SUMM
 	./dblat1_ulm
+	./dblat3_ulm < dblat3.dat
 
 check_ref:
 	$(RM) *.SUMM
 	./dblat1_ref
+	./dblat3_ulm < dblat3.dat
 
 clean:
 	$(RM) $(TEST_REFBLAS) $(TEST_ULMBLAS) *.SUMM

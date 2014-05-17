@@ -1,6 +1,6 @@
 /*
  *             Automatically Tuned Linear Algebra Software v3.10.1
- *                    (C) Copyright 1997 R. Clint Whaley
+ *                    (C) Copyright 1999 R. Clint Whaley
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,20 +28,23 @@
  *
  */
 #include "atlas_misc.h"
-#include <stdarg.h>
-void ATL_xerbla(int p, char *rout, char *form, ...)
-{
-   va_list argptr;
+#include "atlas_tst.h"
+#include "atlas_level1.h"
 
-   va_start(argptr, form);
-#ifdef GCCWIN
-   if (p) printf("Parameter %d to routine %s was incorrect\n", p, rout);
-   vprintf(form, argptr);
-#else
-   if (p)
-      fprintf(stderr, "Parameter %d to routine %s was incorrect\n", p, rout);
-   vfprintf(stderr, form, argptr);
-#endif
-   va_end(argptr);
-   exit(-1);
+TYPE Mjoin(PATL,genrm1)(const int M, const int N, const TYPE *A, const int lda)
+/*
+ * Calculates the 1-norm of a general rectangular matrix
+ */
+{
+   const int lda2 = lda SHIFT;
+   int j;
+   TYPE max=0.0, t0;
+
+   for (j=0; j < N; j++)
+   {
+      t0 = Mjoin(PATL,asum)(M, A, 1);
+      if (t0 > max) max = t0;
+      A += lda2;
+   }
+   return(max);
 }
