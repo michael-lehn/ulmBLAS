@@ -42,49 +42,23 @@ pack_A(const int      m,
     double *p = _A;
     int    i, j, I;
 
-    for (I=0; I<M; ++I) {
-        for (j=0; j<n; ++j) {
+    for (j=0; j<n; ++j) {
+        for (I=0; I<M; ++I) {
             for (i=0; i<MR; ++i) {
-                *(p++) = A[i+I*MR+j*ldA];
+                p[i+(j+n*I)*MR] = A[i+I*MR+j*ldA];
             }
         }
     }
-    if (_MR==0) {
-        return;
-    } else if (_MR==1) {
-        for (j=0; j<n; ++j) {
-            *(p++) = A[M*MR+j*ldA];
-            for (i=1; i<MR; ++i) {
-                *(p++) = 0.0;
-            }
-        }
-    } else if (_MR==2) {
-        for (j=0; j<n; ++j) {
-            *(p++) = A[0+M*MR+j*ldA];
-            *(p++) = A[1+M*MR+j*ldA];
-            for (i=2; i<MR; ++i) {
-                *(p++) = 0.0;
-            }
-        }
-    } else if (_MR==3) {
-        for (j=0; j<n; ++j) {
-            *(p++) = A[0+M*MR+j*ldA];
-            *(p++) = A[1+M*MR+j*ldA];
-            *(p++) = A[2+M*MR+j*ldA];
-            for (i=3; i<MR; ++i) {
-                *(p++) = 0.0;
-            }
-        }
-     } else {
+    if (_MR>0) {
         for (j=0; j<n; ++j) {
             for (i=0; i<_MR; ++i) {
-                *(p++) = A[i+M*MR+j*ldA];
+                p[i+(j+n*M)*MR] = A[i+M*MR+j*ldA];
             }
             for (i=_MR; i<MR; ++i) {
-                *(p++) = 0.0;
+                p[i+(j+n*M)*MR] = 0.0;
             }
         }
-     }
+    }
 }
 
 //
@@ -104,65 +78,47 @@ pack_B(const int      m,
     const int N   = n / NR;
     const int _NR = n % NR;
 
-    double *p = _B;
     int    i, j, J;
+
+    double *p = _B;
 
     if (alpha!=1.0) {
         for (J=0; J<N; ++J) {
-            for (i=0; i<m; ++i) {
-                for (j=0; j<NR; ++j) {
-                    *(p++) = alpha*B[i+(J*NR+j)*ldB];
+            for (j=0; j<NR; ++j) {
+                for (i=0; i<m; ++i) {
+                    p[NR*(m*J+i)+j] = alpha*B[i+(J*NR+j)*ldB];
                 }
             }
         }
         if (_NR>0) {
-            for (i=0; i<m; ++i) {
-                for (j=0; j<_NR; ++j) {
-                    *(p++) = alpha*B[i+(N*NR+j)*ldB];
+            for (j=0; j<_NR; ++j) {
+                for (i=0; i<m; ++i) {
+                    p[NR*(m*N+i)+j] = alpha*B[i+(N*NR+j)*ldB];
                 }
-                for (j=_NR; j<NR; ++j) {
-                    *(p++) = 0.0;
+            }
+            for (j=_NR; j<NR; ++j) {
+                for (i=0; i<m; ++i) {
+                    p[NR*(m*N+i)+j] = 0.0;
                 }
             }
         }
     } else {
         for (J=0; J<N; ++J) {
-            for (i=0; i<m; ++i) {
-                for (j=0; j<NR; ++j) {
-                    *(p++) = B[i+(J*NR+j)*ldB];
+            for (j=0; j<NR; ++j) {
+                for (i=0; i<m; ++i) {
+                    p[NR*(m*J+i)+j] = B[i+(J*NR+j)*ldB];
                 }
             }
         }
-        if (_NR==0) {
-            return;
-        } else if (_NR==1) {
-            for (i=0; i<m; ++i) {
-                *(p++) = B[i+(N*NR+0)*ldB];
-                *(p++) = 0.0;
-                *(p++) = 0.0;
-                *(p++) = 0.0;
-            }
-         } else if (_NR==2) {
-            for (i=0; i<m; ++i) {
-                *(p++) = B[i+(N*NR+0)*ldB];
-                *(p++) = B[i+(N*NR+1)*ldB];
-                *(p++) = 0.0;
-                *(p++) = 0.0;
-            }
-         } else if (_NR==3) {
-            for (i=0; i<m; ++i) {
-                *(p++) = B[i+(N*NR+0)*ldB];
-                *(p++) = B[i+(N*NR+1)*ldB];
-                *(p++) = B[i+(N*NR+2)*ldB];
-                *(p++) = 0.0;
-            }
-         } else {
-            for (i=0; i<m; ++i) {
-                for (j=0; j<_NR; ++j) {
-                    *(p++) = B[i+(N*NR+j)*ldB];
+        if (_NR>0) {
+            for (j=0; j<_NR; ++j) {
+                for (i=0; i<m; ++i) {
+                    p[NR*(m*N+i)+j] = B[i+(N*NR+j)*ldB];
                 }
-                for (j=_NR; j<NR; ++j) {
-                    *(p++) = 0.0;
+            }
+            for (j=_NR; j<NR; ++j) {
+                for (i=0; i<m; ++i) {
+                    p[NR*(m*N+i)+j] = 0.0;
                 }
             }
         }
