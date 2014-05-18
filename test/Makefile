@@ -10,7 +10,7 @@ LIBULMBLAS = ../libulmblas.a
 REF_LDFLAGS  += -L.. -lrefblas
 ULM_LDFLAGS  += -L.. -lulmblas
 
-all : $(TEST_REFBLAS) $(TEST_ULMBLAS)
+all :  $(LIBREFBLAS) $(LIBULMBLAS) $(TEST_REFBLAS) $(TEST_ULMBLAS)
 
 %_ref: %.f $(LIBREFBLAS)
 	$(FC) $< $(REF_LDFLAGS) -o $@

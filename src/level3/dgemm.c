@@ -1,6 +1,6 @@
 #include <ulmblas.h>
 #include <auxiliary/xerbla.h>
-#include <math.h>
+#include <level3/dgemm_nn.h>
 
 void
 ULMBLAS(dgemm)(const enum Trans  transA,
@@ -49,6 +49,7 @@ ULMBLAS(dgemm)(const enum Trans  transA,
         }
         return;
     }
+
 //
 //  Start the operations.
 //
@@ -57,6 +58,7 @@ ULMBLAS(dgemm)(const enum Trans  transA,
 //
 //          Form  C := alpha*A*B + beta*C.
 //
+#if defined(ULM_REFERENCE)
             for (j=0; j<n; ++j) {
                 if (beta==0.0) {
                     for (i=0; i<m; ++i) {
@@ -76,6 +78,9 @@ ULMBLAS(dgemm)(const enum Trans  transA,
                     }
                 }
             }
+#elif defined(ULM_BLOCKED)
+            dgemm_nn(m, n, k, alpha, A, ldA, B, ldB, beta, C, ldC);
+#endif
         } else {
 //
 //          Form  C := alpha*A**T*B + beta*C

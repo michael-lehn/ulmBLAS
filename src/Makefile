@@ -1,5 +1,5 @@
 CC       = gcc-4.8
-CFLAGS  += -Wall -I. -O3
+CFLAGS  += -Wall -I. -O3 -std=c99 -msse3
 
 DIRS = auxiliary level1 level3
 
