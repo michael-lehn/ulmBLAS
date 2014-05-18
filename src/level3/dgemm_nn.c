@@ -39,7 +39,7 @@ pack_A(const int      m,
     const int M   = m / MR;
     const int _MR = m % MR;
 
-    double * restrict p = _A;
+    double *p = _A;
     int    i, j, I;
 
     for (I=0; I<M; ++I) {
@@ -104,7 +104,7 @@ pack_B(const int      m,
     const int N   = n / NR;
     const int _NR = n % NR;
 
-    double * restrict p = _B;
+    double *p = _B;
     int    i, j, J;
 
     if (alpha!=1.0) {
@@ -176,7 +176,7 @@ pack_B(const int      m,
 void
 unpack_C(const int     m,
          const int     n,
-         double        * restrict C,
+         double        *C,
          const int     ldC)
 {
     int i, j;
@@ -196,7 +196,7 @@ void
 dscale(const int    m,
       const int     n,
       const double  alpha,
-      double        * restrict X,
+      double        *X,
       const int     ldX)
 {
     int i,j;
@@ -251,7 +251,7 @@ void
 dgemm_macro_kernel(const int      mc,
                    const int      nc,
                    const int      kc,
-                   double         * restrict C,
+                   double         *C,
                    const int      ldC)
 {
     const int M = mc / MR;
