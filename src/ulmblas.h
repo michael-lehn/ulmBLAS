@@ -3,8 +3,6 @@
 
 #include <ctype.h>
 
-#define ULM_BLOCKED
-
 #ifdef FAKE_ATLAS
 #   define ULMBLAS(x) ATL_##x
 #   define F77BLAS(x) x##_intern

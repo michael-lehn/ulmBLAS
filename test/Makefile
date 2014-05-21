@@ -4,7 +4,8 @@ SOURCE_FILES = $(wildcard *.f)
 TEST_REFBLAS = $(patsubst %.f, %_ref, $(SOURCE_FILES))
 TEST_ULMBLAS = $(patsubst %.f, %_ulm, $(SOURCE_FILES))
 
-LIBREFBLAS = ../librefblas.a
+#LIBREFBLAS = ../librefblas.a
+LIBREFBLAS = $(HOME)/work/blis/lib/dunnington/libblis.a
 LIBULMBLAS = ../libulmblas.a
 
 REF_LDFLAGS  += -L.. -lrefblas

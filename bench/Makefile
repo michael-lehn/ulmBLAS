@@ -10,7 +10,13 @@ CFLAGS = -c -DL2SIZE=4194304 -DAdd_ -DF77_INTEGER=int -DStringSunStyle \
          -DATL_SSE2 -DDREAL
 
 ATLAS_LIB = ../libatlulmblas.a
-REF_LIB   = ../librefblas.a
+#ATLAS_LIB = $(HOME)/work/ATLAS/build/lib/libatlas.a
+
+#REF_LIB   = ../librefblas.a
+#REF_LIB   = ../libulmblas.a
+#REF_LIB   = $(HOME)/work/blis/lib/reference/libblis.a
+#REF_LIB   = $(HOME)/work/blis/lib/dunnington/libblis.a
+REF_LIB   = $(HOME)/work/OpenBLAS/libopenblas.a
 
 all: xdl1blastst xdl3blastst
 

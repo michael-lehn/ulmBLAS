@@ -1,5 +1,7 @@
-CC       = gcc-4.8
-CFLAGS  += -Wall -I. -O3
+#CC       = gcc-4.8
+CC       = clang
+#CC       = gcc
+CFLAGS  += -Wall -I. -O3 -msse3 -mfpmath=sse -fomit-frame-pointer
 
 DIRS = auxiliary level1 level3
 
@@ -25,10 +27,10 @@ $(ATLULMBLAS) : $(ATL_OBJECT_FILES)
 	ranlib $(ATLULMBLAS)
 
 %.o : %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -DULM_BLOCKED -c -o $@ $<
 
 atl_%.o : %.c
-	$(CC) $(CFLAGS) -DFAKE_ATLAS -c -o $@ $<
+	$(CC) $(CFLAGS) -DULM_BLOCKED -DFAKE_ATLAS -c -o $@ $<
 
 clean :
 	rm -f $(OBJECT_FILES)
