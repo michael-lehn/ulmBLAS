@@ -3,15 +3,15 @@
 
 void
 ULMBLAS(dgemm_nn)(const int         m,
-                  const int         n,
-                  const int         k,
+                  const long         n,
+                  const long         k,
                   const double      alpha,
                   const double      *A,
-                  const int         ldA,
+                  const long         ldA,
                   const double      *B,
-                  const int         ldB,
+                  const long         ldB,
                   const double      beta,
                   double            *C,
-                  const int         ldC);
+                  const long         ldC);
 
 #endif // LEVEL3_DGEMM_NN_H

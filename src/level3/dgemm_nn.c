@@ -24,43 +24,129 @@ static double _A[MC*KC] __attribute__ ((aligned (16)));
 static double _B[KC*NC] __attribute__ ((aligned (16)));
 static double _C[MR*NR] __attribute__ ((aligned (16)));
 
+void
+ULMBLAS(pack_kx4)(long          m,
+                  const double  * restrict A,
+                  double        * restrict p,
+                  long          panelSize)
+{
+    for (; m!=0; --m) {
+        *(p+0) = *(A+0);
+        *(p+1) = *(A+1);
+        *(p+2) = *(A+2);
+        *(p+3) = *(A+3);
+        p+=panelSize;
+        A += 4;
+    }
+}
+
+void
+ULMBLAS(pack_A_)(const long     m,
+                const long     n,
+                const double   * restrict A,
+                const long     ldA)
+{
+    long j, panelSize;
+
+    panelSize = 4*n;
+    for (j=0; j<n; ++j) {
+        ULMBLAS(pack_kx4)(m/4, A+ldA*j, _A+j*4, panelSize);
+    }
+    if (m%4 != 0) {
+        fprintf(stderr, "(m%%4 != 0)\n");
+    }
+}
+
+void
+ULMBLAS(pack_4xk)(long          n,
+                  const double  * restrict B,
+                  const long    bRowInc,
+                  const long    bColInc,
+                  double        * restrict p)
+{
+    for (; n!=0; --n) {
+        *(p+0) = *(B+0*bColInc);
+        *(p+1) = *(B+1*bColInc);
+        *(p+2) = *(B+2*bColInc);
+        *(p+3) = *(B+3*bColInc);
+        p+=4;
+        B += bRowInc;
+    }
+}
+
 //
-//  Packing, scaling  and padding panels from A into macro kernel buffer _A
+//  Packing and padding panels from A into macro kernel buffer _A
 //
 
 void
-pack_A(const int      m,
-       const int      n,
-       const double   *A,
-       const int      ldA)
+ULMBLAS(packA_4xk)(long          n,                // %rdi
+                   const double  * restrict A,     // %rsi
+                   const long    ldA,              // %rdx
+                   double        * restrict p)     // %rcx
+{
+    for (; n!=0; --n) {
+        p[0] = A[0];
+        p[1] = A[1];
+        p[2] = A[2];
+        p[3] = A[3];
+        p+=4;
+        A+=ldA;
+    }
+}
+
+void
+ULMBLAS(pack_A)(const long     m,
+                const long     n,
+                const double   * restrict A,
+                const long     ldA)
 {
 //
 //  m = M*MR + _MR with (0<=_MR<MR)
 //
-    const int M   = m / MR;
-    const int _MR = m % MR;
+    const long M   = m / MR;
+    const long _MR = m % MR;
 
-    //double *p = _A;
-    int    i, j, I;
+    long         j, I;
 
-    for (j=0; j<n; ++j) {
-        double *p = &_A[j*MR];
-        const double *q = &A[j*ldA];
-        for (I=0; I<M; ++I, p+=n*MR, q+=MR) {
-            for (i=0; i<MR; ++i) {
-                p[i] = q[i];
-            }
-        }
+    const double * restrict a  = A;
+    double       * restrict _a = _A;
+
+    for (I=0; I<M; ++I) {
+        //ULMBLAS(packA_4xk)(n, a, ldA, _a);
+        ULMBLAS(pack_4xk)(n, a, ldA, 1, _a);
+        a  += MR;
+        _a += MR*n;
     }
     if (_MR>0) {
-        double *p = _A;
-        for (j=0; j<n; ++j) {
-            for (i=0; i<_MR; ++i) {
-                p[i+(j+n*M)*MR] = A[i+M*MR+j*ldA];
-            }
-            for (i=_MR; i<MR; ++i) {
-                p[i+(j+n*M)*MR] = 0.0;
-            }
+        _a = &_A[n*M*MR];
+        a = &A[M*MR];
+        if (_MR==1) {
+             for (j=0; j<n; ++j) {
+                _a[0] = a[0];
+                _a[1] = 0.0;
+                _a[2] = 0.0;
+                _a[3] = 0.0;
+                _a += MR;
+                a  += ldA;
+             }
+        } else if (_MR==2) {
+             for (j=0; j<n; ++j) {
+                _a[0] = a[0];
+                _a[1] = a[1];
+                _a[2] = 0.0;
+                _a[3] = 0.0;
+                _a += MR;
+                a  += ldA;
+             }
+        } else if (_MR==3) {
+             for (j=0; j<n; ++j) {
+                _a[0] = a[0];
+                _a[1] = a[1];
+                _a[2] = a[2];
+                _a[3] = 0.0;
+                _a += MR;
+                a  += ldA;
+             }
         }
     }
 }
@@ -70,104 +156,91 @@ pack_A(const int      m,
 //
 
 void
-pack_B(const int      m,
-       const int      n,
-       const double   *B,
-       const int      ldB)
+ULMBLAS(packB_4xk)(long          m,
+                   const double  * restrict B,
+                   const long    ldB,
+                   double        * restrict p)
+{
+    for (; m!=0; --m) {
+        p[0] = B[0*ldB];
+        p[1] = B[1*ldB];
+        p[2] = B[2*ldB];
+        p[3] = B[3*ldB];
+        p+=4;
+        ++B;
+    }
+}
+
+void
+ULMBLAS(pack_B)(const long     m,
+                const long     n,
+                const double   * restrict B,
+                const long     ldB)
 {
 //
 //  n = N*NR + _NR with (0<=_NR<NR)
 //
-    const int N   = n / NR;
-    const int _NR = n % NR;
+    const long N   = n / NR;
+    const long _NR = n % NR;
 
-    int    i, j, J;
+    long    i, J;
 
-    double       *p = _B;
-    const double *q = B;
+    const double * restrict b  = B;
+    double       * restrict _b = _B;
 
-    for (J=0; J<N; ++J, q+=NR*ldB) {
-        for (i=0; i<m; ++i, p+=NR) {
-            const double *_q = &q[i];
-            for (j=0; j<NR; ++j) {
-                p[j] = _q[j*ldB];
-            }
-        }
+    for (J=0; J<N; ++J) {
+        //ULMBLAS(packB_4xk)(m, b, ldB, _b);
+        ULMBLAS(pack_4xk)(m, b, 1, ldB, _b);
+        b  += NR*ldB;
+        _b += NR*m;
     }
+
     if (_NR>0) {
-        double *p = _B;
-        for (j=0; j<_NR; ++j) {
+        b  = &B[N*NR*ldB];
+        _b = &_B[NR*m*N];
+        if (_NR==1) {
             for (i=0; i<m; ++i) {
-                p[NR*(m*N+i)+j] = B[i+(N*NR+j)*ldB];
+                _b[0] = b[0*ldB];
+                _b[1] = 0.0;
+                _b[2] = 0.0;
+                _b[3] = 0.0;
+                _b += NR;
+                ++b;
+            }
+        } else if (_NR==2) {
+            for (i=0; i<m; ++i) {
+                _b[0] = b[0*ldB];
+                _b[1] = b[1*ldB];
+                _b[2] = 0.0;
+                _b[3] = 0.0;
+                _b += NR;
+                ++b;
+            }
+        } else if (_NR==3) {
+            for (i=0; i<m; ++i) {
+                _b[0] = b[0*ldB];
+                _b[1] = b[1*ldB];
+                _b[2] = b[2*ldB];
+                _b[3] = 0.0;
+                _b += NR;
+                ++b;
             }
         }
-        for (j=_NR; j<NR; ++j) {
-            for (i=0; i<m; ++i) {
-                p[NR*(m*N+i)+j] = 0.0;
-            }
-        }
     }
 }
-//
-//  Pack C into buffer _C
-//
-
-void
-init_C()
-{
-    int i, j;
-
-    for (j=0; j<NR; ++j) {
-        for (i=0; i<MR; ++i) {
-            _C[i+MR*j] = 0.0;
-        }
-    }
-}
-
-void
-pack_C(const int     m,
-       const int     n,
-       double        *C,
-       const int     ldC)
-{
-    int i, j;
-
-    for (j=0; j<n; ++j) {
-        for (i=0; i<m; ++i) {
-            _C[i+j*MR] = C[i+j*ldC];
-        }
-    }
-}
-
-void
-pack_bC(const int     m,
-       const int     n,
-       const double  beta,
-       double        *C,
-       const int     ldC)
-{
-    int i, j;
-
-    for (j=0; j<n; ++j) {
-        for (i=0; i<m; ++i) {
-            _C[i+j*MR] = beta*C[i+j*ldC];
-        }
-    }
-}
-
 
 //
 //  Unpack C from buffer _C
 //
 
 void
-unpack_C(const int     m,
-         const int     n,
-         const double  beta,
-         double        *C,
-         const int     ldC)
+ULMBLAS(unpack_C)(const long    m,
+                  const long    n,
+                  const double  beta,
+                  double        * restrict C,
+                  const long    ldC)
 {
-    int i, j;
+    long i, j;
 
     if (beta!=0.0) {
         for (j=0; j<n; ++j) {
@@ -178,30 +251,10 @@ unpack_C(const int     m,
     } else {
         for (j=0; j<n; ++j) {
             for (i=0; i<m; ++i) {
-                C[i+j*ldC] = 2* _C[i+j*MR];
+                C[i+j*ldC] = _C[i+j*MR];
             }
         }
      }
-}
-
-//
-//  Scale matrix X
-//
-
-void
-dscale(const int    m,
-      const int     n,
-      const double  alpha,
-      double        *X,
-      const int     ldX)
-{
-    int i,j;
-
-    for (j=0; j<n; ++j) {
-        for (i=0; i<m; ++i) {
-            X[i+j*ldX] *= alpha;
-        }
-    }
 }
 
 //
@@ -210,17 +263,17 @@ dscale(const int    m,
 
 /*
 void
-dgemm_micro_kernel(const int     kc,
-                   const double  alpha,
-                   const double  *A,
-                   const double  *B,
-                   const double  beta,
-                   double        *C,
-                   const int     ldC,
-                   const double  *,
-                   const double  *)
+ULMBLAS(dgemm_micro_kernel)(const long    kc,
+                            const double  alpha,
+                            const double  *A,
+                            const double  *B,
+                            const double  beta,
+                            double        *C,
+                            const long    ldC,
+                            const double  *,
+                            const double  *)
 {
-    int    i, j, l;
+    long    i, j, l;
     double register b;
 
     if (beta==0.0) {
@@ -252,23 +305,23 @@ dgemm_micro_kernel(const int     kc,
 
 /*
 void
-dgemm_micro_kernel(const int     k,
-                   const double  alpha,
-                   const double  *A,
-                   const double  *B,
-                   const double  beta,
-                   double        *C,
-                   const int     ldC,
-                   const double  *,
-                   const double  *)
+ULMBLAS(dgemm_micro_kernel)(const long    k,
+                            const double  alpha,
+                            const double  *A,
+                            const double  *B,
+                            const double  beta,
+                            double        *C,
+                            const long    ldC,
+                            const double  *,
+                            const double  *)
 {
     double a0;
     double a1;
     double a2;
     double a3;
 
-    unsigned int pA = (unsigned long) A;
-    unsigned int pB = (unsigned long) B;
+    unsigned long pA = (unsigned long) A;
+    unsigned long pB = (unsigned long) B;
 
     if (pA%16 != 0) {
         fprintf(stderr, "A is not aligned\n");
@@ -292,7 +345,7 @@ dgemm_micro_kernel(const int     k,
     double *c20, *c21, *c22, *c23;
     double *c30, *c31, *c32, *c33;
 
-    int i;
+    long i;
 
     c00 = &C[0+0*ldC];
     c10 = &C[1+0*ldC];
@@ -407,15 +460,15 @@ dgemm_micro_kernel(const int     k,
 
 /*
 void
-dgemm_micro_kernel(const int     k,
-                   const double  _alpha,
-                   const double  *A,
-                   const double  *B,
-                   const double  _beta,
-                   double        *C,
-                   const int     ldC,
-                   const double  *nextA,
-                   const double  *nextB)
+ULMBLAS(dgemm_micro_kernel)(const long    k,
+                            const double  _alpha,
+                            const double  *A,
+                            const double  *B,
+                            const double  _beta,
+                            double        *C,
+                            const long    ldC,
+                            const double  *nextA,
+                            const double  *nextB)
 {
     __m128d A0;
     __m128d A2;
@@ -430,7 +483,7 @@ dgemm_micro_kernel(const int     k,
 
     __m128d alpha, beta;
 
-    int i;
+    long i;
 
     _mm_prefetch(nextA, 2);
     _mm_prefetch(nextB, 1);
@@ -533,16 +586,676 @@ dgemm_micro_kernel(const int     k,
 }
 */
 
+//extern long count_dgemm_micro_kernel;
+
+/*
 void
-dgemm_micro_kernel(const long    k,
-                   const double  _alpha,
-                   const double  *a,
-                   const double  *b,
-                   const double  _beta,
-                   double        *c,
-                   const long    ldC,
-                   const double  *nextA,
-                   const double  *nextB);
+ULMBLAS(dgemm_micro_kernel)(const long    k,
+                            const double  * restrict alpha,
+                            const double  * restrict a,
+                            const double  * restrict b,
+                            const double  * restrict beta,
+                            double        * restrict c,
+                            const long    ldC,
+                            const void    *a_next,
+                            const void    *b_next)
+*/
+
+typedef struct
+{
+    const void*  a_next;
+    const void*  b_next;
+
+    // The panel strides of A and B.
+    long  ps_a;
+    long  ps_b;
+
+} auxinfo_t;
+
+void
+ULMBLAS(dgemm_micro_kernel)(long                    k,
+                            const double* restrict  alpha,
+                            const double* restrict  a,
+                            const double* restrict  b,
+                            const double* restrict  beta,
+                            double* restrict        c,
+                            long                    rs_c,
+                            long                    cs_c,
+                            auxinfo_t*              data)
+{
+    const void *a_next = data->a_next;
+    const void *b_next = data->b_next;
+
+    const long k_iter = k / 4;
+    const long k_left = k % 4;
+
+    /*
+    const long rs_c = 1;
+    const long cs_c = ldC;
+
+    count_dgemm_micro_kernel += k;
+
+    fprintf(stderr, "a_next-a = %ld, b_next -b =%ld\n",
+            (unsigned long)(nextA -a),
+            (unsigned long)(nextB -b));
+    */
+
+    __asm__ volatile
+	(
+		"                                \n\t"
+		"                                \n\t"
+		"movq          %2, %%rax         \n\t" // load address of a.
+		"movq          %3, %%rbx         \n\t" // load address of b.
+		"movq          %9, %%r9          \n\t" // load address of b_next.
+		"movq         %10, %%r11         \n\t" // load address of a_next.
+		"                                \n\t"
+		"subq    $-8 * 16, %%rax         \n\t" // increment pointers to allow byte
+		"subq    $-8 * 16, %%rbx         \n\t" // offsets in the unrolled iterations.
+		"                                \n\t"
+		"movaps  -8 * 16(%%rax), %%xmm0  \n\t" // initialize loop by pre-loading elements
+		"movaps  -7 * 16(%%rax), %%xmm1  \n\t" // of a and b.
+		"movaps  -8 * 16(%%rbx), %%xmm2  \n\t"
+		"                                \n\t"
+		"movq          %6, %%rcx         \n\t" // load address of c
+		"movq          %8, %%rdi         \n\t" // load cs_c
+		"leaq        (,%%rdi,8), %%rdi   \n\t" // cs_c *= sizeof(double)
+		"leaq   (%%rcx,%%rdi,2), %%r10   \n\t" // load address of c + 2*cs_c;
+		"                                \n\t"
+		"prefetcht2   0 * 8(%%r9)        \n\t" // prefetch b_next
+		"                                \n\t"
+		"xorpd     %%xmm3,  %%xmm3       \n\t"
+		"xorpd     %%xmm4,  %%xmm4       \n\t"
+		"xorpd     %%xmm5,  %%xmm5       \n\t"
+		"xorpd     %%xmm6,  %%xmm6       \n\t"
+		"                                \n\t"
+		"prefetcht2   3 * 8(%%rcx)       \n\t" // prefetch c + 0*cs_c
+		"xorpd     %%xmm8,  %%xmm8       \n\t"
+		"movaps    %%xmm8,  %%xmm9       \n\t"
+		"prefetcht2   3 * 8(%%rcx,%%rdi) \n\t" // prefetch c + 1*cs_c
+		"movaps    %%xmm8, %%xmm10       \n\t"
+		"movaps    %%xmm8, %%xmm11       \n\t"
+		"prefetcht2   3 * 8(%%r10)       \n\t" // prefetch c + 2*cs_c
+		"movaps    %%xmm8, %%xmm12       \n\t"
+		"movaps    %%xmm8, %%xmm13       \n\t"
+		"prefetcht2   3 * 8(%%r10,%%rdi) \n\t" // prefetch c + 3*cs_c
+		"movaps    %%xmm8, %%xmm14       \n\t"
+		"movaps    %%xmm8, %%xmm15       \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"movq      %0, %%rsi             \n\t" // i = k_iter;
+		"testq  %%rsi, %%rsi             \n\t" // check i via logical AND.
+		"je     .DCONSIDKLEFT            \n\t" // if i == 0, jump to code that
+		"                                \n\t" // contains the k_left loop.
+		"                                \n\t"
+		"                                \n\t"
+		".DLOOPKITER:                    \n\t" // MAIN LOOP
+		"                                \n\t"
+		"prefetcht0  (4*35+1) * 8(%%rax) \n\t"
+		//"prefetcht0  (8*97+4) * 8(%%rax) \n\t"
+		"                                \n\t"
+		//"prefetcht0  67*4 * 8(%%r11)       \n\t" // prefetch a_next[0]
+		"                                \n\t"
+		"addpd   %%xmm3, %%xmm11         \n\t" // iteration 0
+		"movaps  -7 * 16(%%rbx), %%xmm3  \n\t"
+		"addpd   %%xmm4, %%xmm15         \n\t"
+		"movaps  %%xmm2, %%xmm4          \n\t"
+		"pshufd   $0x4e, %%xmm2, %%xmm7  \n\t"
+		"mulpd   %%xmm0, %%xmm2          \n\t"
+		"mulpd   %%xmm1, %%xmm4          \n\t"
+		"                                \n\t"
+		"addpd   %%xmm5, %%xmm10         \n\t"
+		"addpd   %%xmm6, %%xmm14         \n\t"
+		"movaps  %%xmm7, %%xmm6          \n\t"
+		"mulpd   %%xmm0, %%xmm7          \n\t"
+		"mulpd   %%xmm1, %%xmm6          \n\t"
+		"                                \n\t"
+		"addpd   %%xmm2, %%xmm9          \n\t"
+		"movaps  -6 * 16(%%rbx), %%xmm2  \n\t"
+		"addpd   %%xmm4, %%xmm13         \n\t"
+		"movaps  %%xmm3, %%xmm4          \n\t"
+		"pshufd   $0x4e, %%xmm3, %%xmm5  \n\t"
+		"mulpd   %%xmm0, %%xmm3          \n\t"
+		"mulpd   %%xmm1, %%xmm4          \n\t"
+		"                                \n\t"
+		"addpd   %%xmm7, %%xmm8          \n\t"
+		"addpd   %%xmm6, %%xmm12         \n\t"
+		"movaps  %%xmm5, %%xmm6          \n\t"
+		"mulpd   %%xmm0, %%xmm5          \n\t"
+		"movaps  -6 * 16(%%rax), %%xmm0  \n\t"
+		"mulpd   %%xmm1, %%xmm6          \n\t"
+		"movaps  -5 * 16(%%rax), %%xmm1  \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"addpd   %%xmm3, %%xmm11         \n\t" // iteration 1
+		"movaps  -5 * 16(%%rbx), %%xmm3  \n\t"
+		"addpd   %%xmm4, %%xmm15         \n\t"
+		"movaps  %%xmm2, %%xmm4          \n\t"
+		"pshufd   $0x4e, %%xmm2, %%xmm7  \n\t"
+		"mulpd   %%xmm0, %%xmm2          \n\t"
+		"mulpd   %%xmm1, %%xmm4          \n\t"
+		"                                \n\t"
+		"addpd   %%xmm5, %%xmm10         \n\t"
+		"addpd   %%xmm6, %%xmm14         \n\t"
+		"movaps  %%xmm7, %%xmm6          \n\t"
+		"mulpd   %%xmm0, %%xmm7          \n\t"
+		"mulpd   %%xmm1, %%xmm6          \n\t"
+		"                                \n\t"
+		"addpd   %%xmm2, %%xmm9          \n\t"
+		"movaps  -4 * 16(%%rbx), %%xmm2  \n\t"
+		"addpd   %%xmm4, %%xmm13         \n\t"
+		"movaps  %%xmm3, %%xmm4          \n\t"
+		"pshufd   $0x4e, %%xmm3, %%xmm5  \n\t"
+		"mulpd   %%xmm0, %%xmm3          \n\t"
+		"mulpd   %%xmm1, %%xmm4          \n\t"
+		"                                \n\t"
+		"addpd   %%xmm7, %%xmm8          \n\t"
+		"addpd   %%xmm6, %%xmm12         \n\t"
+		"movaps  %%xmm5, %%xmm6          \n\t"
+		"mulpd   %%xmm0, %%xmm5          \n\t"
+		"movaps  -4 * 16(%%rax), %%xmm0  \n\t"
+		"mulpd   %%xmm1, %%xmm6          \n\t"
+		"movaps  -3 * 16(%%rax), %%xmm1  \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"prefetcht0  (4*37+1) * 8(%%rax) \n\t"
+		//"prefetcht0  (8*97+12)* 8(%%rax) \n\t"
+		"                                \n\t"
+		//"prefetcht0  69*4 * 8(%%r11)       \n\t" // prefetch a_next[8]
+		//"subq  $-4 * 4 * 8, %%r11        \n\t" // a_next += 4*4 (unroll x mr)
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"addpd   %%xmm3, %%xmm11         \n\t" // iteration 2
+		"movaps  -3 * 16(%%rbx), %%xmm3  \n\t"
+		"addpd   %%xmm4, %%xmm15         \n\t"
+		"movaps  %%xmm2, %%xmm4          \n\t"
+		"pshufd   $0x4e, %%xmm2, %%xmm7  \n\t"
+		"mulpd   %%xmm0, %%xmm2          \n\t"
+		"mulpd   %%xmm1, %%xmm4          \n\t"
+		"                                \n\t"
+		"addpd   %%xmm5, %%xmm10         \n\t"
+		"addpd   %%xmm6, %%xmm14         \n\t"
+		"movaps  %%xmm7, %%xmm6          \n\t"
+		"mulpd   %%xmm0, %%xmm7          \n\t"
+		"mulpd   %%xmm1, %%xmm6          \n\t"
+		"                                \n\t"
+		"addpd   %%xmm2, %%xmm9          \n\t"
+		"movaps  -2 * 16(%%rbx), %%xmm2  \n\t"
+		"addpd   %%xmm4, %%xmm13         \n\t"
+		"movaps  %%xmm3, %%xmm4          \n\t"
+		"pshufd   $0x4e, %%xmm3, %%xmm5  \n\t"
+		"mulpd   %%xmm0, %%xmm3          \n\t"
+		"mulpd   %%xmm1, %%xmm4          \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"addpd   %%xmm7, %%xmm8          \n\t"
+		"addpd   %%xmm6, %%xmm12         \n\t"
+		"movaps  %%xmm5, %%xmm6          \n\t"
+		"mulpd   %%xmm0, %%xmm5          \n\t"
+		"movaps  -2 * 16(%%rax), %%xmm0  \n\t"
+		"mulpd   %%xmm1, %%xmm6          \n\t"
+		"movaps  -1 * 16(%%rax), %%xmm1  \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"addpd   %%xmm3, %%xmm11         \n\t" // iteration 3
+		"movaps  -1 * 16(%%rbx), %%xmm3  \n\t"
+		"addpd   %%xmm4, %%xmm15         \n\t"
+		"movaps  %%xmm2, %%xmm4          \n\t"
+		"pshufd   $0x4e, %%xmm2, %%xmm7  \n\t"
+		"mulpd   %%xmm0, %%xmm2          \n\t"
+		"mulpd   %%xmm1, %%xmm4          \n\t"
+		"                                \n\t"
+		"subq  $-4 * 4 * 8, %%rax        \n\t" // a += 4*4 (unroll x mr)
+		"                                \n\t"
+		"addpd   %%xmm5, %%xmm10         \n\t"
+		"addpd   %%xmm6, %%xmm14         \n\t"
+		"movaps  %%xmm7, %%xmm6          \n\t"
+		"mulpd   %%xmm0, %%xmm7          \n\t"
+		"mulpd   %%xmm1, %%xmm6          \n\t"
+		"                                \n\t"
+		"subq  $-4 * 4 * 8, %%r9         \n\t" // b_next += 4*4 (unroll x nr)
+		"                                \n\t"
+		"addpd   %%xmm2, %%xmm9          \n\t"
+		"movaps   0 * 16(%%rbx), %%xmm2  \n\t"
+		"addpd   %%xmm4, %%xmm13         \n\t"
+		"movaps  %%xmm3, %%xmm4          \n\t"
+		"pshufd   $0x4e, %%xmm3, %%xmm5  \n\t"
+		"mulpd   %%xmm0, %%xmm3          \n\t"
+		"mulpd   %%xmm1, %%xmm4          \n\t"
+		"                                \n\t"
+		"subq  $-4 * 4 * 8, %%rbx        \n\t" // b += 4*4 (unroll x nr)
+		"                                \n\t"
+		"addpd   %%xmm7, %%xmm8          \n\t"
+		"addpd   %%xmm6, %%xmm12         \n\t"
+		"movaps  %%xmm5, %%xmm6          \n\t"
+		"mulpd   %%xmm0, %%xmm5          \n\t"
+		"movaps  -8 * 16(%%rax), %%xmm0  \n\t"
+		"mulpd   %%xmm1, %%xmm6          \n\t"
+		"movaps  -7 * 16(%%rax), %%xmm1  \n\t"
+		"                                \n\t"
+		"prefetcht2        0 * 8(%%r9)   \n\t" // prefetch b_next[0]
+		"prefetcht2        8 * 8(%%r9)   \n\t" // prefetch b_next[8]
+		"                                \n\t"
+		"decq   %%rsi                    \n\t" // i -= 1;
+		"jne    .DLOOPKITER              \n\t" // iterate again if i != 0.
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		//"prefetcht2       -8 * 8(%%r9)   \n\t" // prefetch b_next[-8]
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		".DCONSIDKLEFT:                  \n\t"
+		"                                \n\t"
+		"movq      %1, %%rsi             \n\t" // i = k_left;
+		"testq  %%rsi, %%rsi             \n\t" // check i via logical AND.
+		"je     .DPOSTACCUM              \n\t" // if i == 0, we're done; jump to end.
+		"                                \n\t" // else, we prepare to enter k_left loop.
+		"                                \n\t"
+		"                                \n\t"
+		".DLOOPKLEFT:                    \n\t" // EDGE LOOP
+		"                                \n\t"
+		"addpd   %%xmm3, %%xmm11         \n\t" // iteration 0
+		"movaps  -7 * 16(%%rbx), %%xmm3  \n\t"
+		"addpd   %%xmm4, %%xmm15         \n\t"
+		"movaps  %%xmm2, %%xmm4          \n\t"
+		"pshufd   $0x4e, %%xmm2, %%xmm7  \n\t"
+		"mulpd   %%xmm0, %%xmm2          \n\t"
+		"mulpd   %%xmm1, %%xmm4          \n\t"
+		"                                \n\t"
+		"addpd   %%xmm5, %%xmm10         \n\t"
+		"addpd   %%xmm6, %%xmm14         \n\t"
+		"movaps  %%xmm7, %%xmm6          \n\t"
+		"mulpd   %%xmm0, %%xmm7          \n\t"
+		"mulpd   %%xmm1, %%xmm6          \n\t"
+		"                                \n\t"
+		"addpd   %%xmm2, %%xmm9          \n\t"
+		"movaps  -6 * 16(%%rbx), %%xmm2  \n\t"
+		"addpd   %%xmm4, %%xmm13         \n\t"
+		"movaps  %%xmm3, %%xmm4          \n\t"
+		"pshufd   $0x4e, %%xmm3, %%xmm5  \n\t"
+		"mulpd   %%xmm0, %%xmm3          \n\t"
+		"mulpd   %%xmm1, %%xmm4          \n\t"
+		"                                \n\t"
+		"addpd   %%xmm7, %%xmm8          \n\t"
+		"addpd   %%xmm6, %%xmm12         \n\t"
+		"movaps  %%xmm5, %%xmm6          \n\t"
+		"mulpd   %%xmm0, %%xmm5          \n\t"
+		"movaps  -6 * 16(%%rax), %%xmm0  \n\t"
+		"mulpd   %%xmm1, %%xmm6          \n\t"
+		"movaps  -5 * 16(%%rax), %%xmm1  \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"subq  $-4 * 1 * 8, %%rax        \n\t" // a += 4 (1 x mr)
+		"subq  $-4 * 1 * 8, %%rbx        \n\t" // b += 4 (1 x nr)
+		"                                \n\t"
+		"                                \n\t"
+		"decq   %%rsi                    \n\t" // i -= 1;
+		"jne    .DLOOPKLEFT              \n\t" // iterate again if i != 0.
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		".DPOSTACCUM:                    \n\t"
+		"                                \n\t"
+		"addpd   %%xmm3, %%xmm11         \n\t"
+		"addpd   %%xmm4, %%xmm15         \n\t"
+		"addpd   %%xmm5, %%xmm10         \n\t"
+		"addpd   %%xmm6, %%xmm14         \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"movq    %4, %%rax               \n\t" // load address of alpha
+		"movq    %5, %%rbx               \n\t" // load address of beta 
+		"movddup (%%rax), %%xmm6         \n\t" // load alpha and duplicate
+		"movddup (%%rbx), %%xmm7         \n\t" // load beta and duplicate
+		"                                \n\t"
+		"                                \n\t"
+		"movq    %7, %%rsi               \n\t" // load rs_c
+		"movq    %%rsi, %%r8             \n\t" // make a copy of rs_c
+		"                                \n\t"
+		"leaq    (,%%rsi,8), %%rsi       \n\t" // rsi = rs_c * sizeof(double)
+		"                                \n\t"
+		"leaq   (%%rcx,%%rsi,2), %%rdx   \n\t" // load address of c + 2*rs_c;
+		"                                \n\t"
+		"                                \n\t" // xmm8:   xmm9:   xmm10:  xmm11:
+		"                                \n\t" // ( ab01  ( ab00  ( ab03  ( ab02
+		"                                \n\t" //   ab10 )  ab11 )  ab12 )  ab13 )
+		"                                \n\t" //
+		"                                \n\t" // xmm12:  xmm13:  xmm14:  xmm15:
+		"                                \n\t" // ( ab21  ( ab20  ( ab23  ( ab22
+		"                                \n\t" //   ab30 )  ab31 )  ab32 )  ab33 )
+		"movaps   %%xmm8,  %%xmm0        \n\t"
+		"movsd    %%xmm9,  %%xmm8        \n\t"
+		"movsd    %%xmm0,  %%xmm9        \n\t"
+		"                                \n\t"
+		"movaps  %%xmm10,  %%xmm0        \n\t"
+		"movsd   %%xmm11, %%xmm10        \n\t"
+		"movsd    %%xmm0, %%xmm11        \n\t"
+		"                                \n\t"
+		"movaps  %%xmm12,  %%xmm0        \n\t"
+		"movsd   %%xmm13, %%xmm12        \n\t"
+		"movsd    %%xmm0, %%xmm13        \n\t"
+		"                                \n\t"
+		"movaps  %%xmm14,  %%xmm0        \n\t"
+		"movsd   %%xmm15, %%xmm14        \n\t"
+		"movsd    %%xmm0, %%xmm15        \n\t"
+		"                                \n\t" // xmm8:   xmm9:   xmm10:  xmm11:
+		"                                \n\t" // ( ab00  ( ab01  ( ab02  ( ab03
+		"                                \n\t" //   ab10 )  ab11 )  ab12 )  ab13 )
+		"                                \n\t" //
+		"                                \n\t" // xmm12:  xmm13:  xmm14:  xmm15:
+		"                                \n\t" // ( ab20  ( ab21  ( ab22  ( ab23
+		"                                \n\t" //   ab30 )  ab31 )  ab32 )  ab33 )
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t" // determine if
+		"                                \n\t" //   c % 16 == 0, AND
+		"                                \n\t" //   rs_c == 1
+		"                                \n\t" // ie: aligned and column-stored
+		"                                \n\t"
+		"cmpq       $1, %%r8             \n\t" // set ZF if rs_c == 1.
+		"sete           %%bl             \n\t" // bl = ( ZF == 1 ? 1 : 0 );
+		"testq     $15, %%rcx            \n\t" // set ZF if c & 16 is zero.
+		"setz           %%bh             \n\t" // bh = ( ZF == 1 ? 1 : 0 );
+		"                                \n\t" // and(bl,bh) will reveal result
+		"                                \n\t"
+		"                                \n\t" // now avoid loading C if beta == 0
+		"                                \n\t"
+		"xorpd     %%xmm0,  %%xmm0       \n\t" // set xmm0 to zero.
+		"ucomisd   %%xmm0,  %%xmm7       \n\t" // check if beta == 0.
+		"je      .DBETAZERO              \n\t" // if ZF = 1, jump to beta == 0 case
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t" // check if aligned/column-stored
+		"andb     %%bl, %%bh             \n\t" // set ZF if bl & bh == 1.
+		"jne     .DCOLSTORED             \n\t" // jump to column storage case
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		".DGENSTORED:                    \n\t"
+		"                                \n\t"
+		"movlpd  (%%rcx),       %%xmm0   \n\t" // load c00 and c10,
+		"movhpd  (%%rcx,%%rsi), %%xmm0   \n\t"
+		"mulpd   %%xmm6,  %%xmm8         \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm0         \n\t" // scale by beta,
+		"addpd   %%xmm8,  %%xmm0         \n\t" // add the gemm result,
+		"movlpd  %%xmm0,  (%%rcx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm0,  (%%rcx,%%rsi)  \n\t"
+		"addq     %%rdi, %%rcx           \n\t"
+		"                                \n\t"
+		"movlpd  (%%rdx),       %%xmm1   \n\t" // load c20 and c30,
+		"movhpd  (%%rdx,%%rsi), %%xmm1   \n\t"
+		"mulpd   %%xmm6,  %%xmm12        \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm1         \n\t" // scale by beta,
+		"addpd  %%xmm12,  %%xmm1         \n\t" // add the gemm result,
+		"movlpd  %%xmm1,  (%%rdx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm1,  (%%rdx,%%rsi)  \n\t"
+		"addq     %%rdi, %%rdx           \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"movlpd  (%%rcx),       %%xmm0   \n\t" // load c01 and c11,
+		"movhpd  (%%rcx,%%rsi), %%xmm0   \n\t"
+		"mulpd   %%xmm6,  %%xmm9         \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm0         \n\t" // scale by beta,
+		"addpd   %%xmm9,  %%xmm0         \n\t" // add the gemm result,
+		"movlpd  %%xmm0,  (%%rcx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm0,  (%%rcx,%%rsi)  \n\t"
+		"addq     %%rdi, %%rcx           \n\t"
+		"                                \n\t"
+		"movlpd  (%%rdx),       %%xmm1   \n\t" // load c21 and c31,
+		"movhpd  (%%rdx,%%rsi), %%xmm1   \n\t"
+		"mulpd   %%xmm6,  %%xmm13        \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm1         \n\t" // scale by beta,
+		"addpd  %%xmm13,  %%xmm1         \n\t" // add the gemm result,
+		"movlpd  %%xmm1,  (%%rdx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm1,  (%%rdx,%%rsi)  \n\t"
+		"addq     %%rdi, %%rdx           \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"movlpd  (%%rcx),       %%xmm0   \n\t" // load c02 and c12,
+		"movhpd  (%%rcx,%%rsi), %%xmm0   \n\t"
+		"mulpd   %%xmm6,  %%xmm10        \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm0         \n\t" // scale by beta,
+		"addpd  %%xmm10,  %%xmm0         \n\t" // add the gemm result,
+		"movlpd  %%xmm0,  (%%rcx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm0,  (%%rcx,%%rsi)  \n\t"
+		"addq     %%rdi, %%rcx           \n\t"
+		"                                \n\t"
+		"movlpd  (%%rdx),       %%xmm1   \n\t" // load c22 and c32,
+		"movhpd  (%%rdx,%%rsi), %%xmm1   \n\t"
+		"mulpd   %%xmm6,  %%xmm14        \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm1         \n\t" // scale by beta,
+		"addpd  %%xmm14,  %%xmm1         \n\t" // add the gemm result,
+		"movlpd  %%xmm1,  (%%rdx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm1,  (%%rdx,%%rsi)  \n\t"
+		"addq     %%rdi, %%rdx           \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"movlpd  (%%rcx),       %%xmm0   \n\t" // load c03 and c13,
+		"movhpd  (%%rcx,%%rsi), %%xmm0   \n\t"
+		"mulpd   %%xmm6,  %%xmm11        \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm0         \n\t" // scale by beta,
+		"addpd  %%xmm11,  %%xmm0         \n\t" // add the gemm result,
+		"movlpd  %%xmm0,  (%%rcx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm0,  (%%rcx,%%rsi)  \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"movlpd  (%%rdx),       %%xmm1   \n\t" // load c23 and c33,
+		"movhpd  (%%rdx,%%rsi), %%xmm1   \n\t"
+		"mulpd   %%xmm6,  %%xmm15        \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm1         \n\t" // scale by beta,
+		"addpd  %%xmm15,  %%xmm1         \n\t" // add the gemm result,
+		"movlpd  %%xmm1,  (%%rdx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm1,  (%%rdx,%%rsi)  \n\t"
+		"                                \n\t"
+		"jmp    .DDONE                   \n\t" // jump to end.
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		".DCOLSTORED:                    \n\t"
+		"                                \n\t"
+		"movaps  (%%rcx),       %%xmm0   \n\t" // load c00 and c10,
+		"mulpd   %%xmm6,  %%xmm8         \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm0         \n\t" // scale by beta,
+		"addpd   %%xmm8,  %%xmm0         \n\t" // add the gemm result,
+		"movaps  %%xmm0,  (%%rcx)        \n\t" // and store back to memory.
+		"addq     %%rdi, %%rcx           \n\t"
+		"                                \n\t"
+		"movaps  (%%rdx),       %%xmm1   \n\t" // load c20 and c30,
+		"mulpd   %%xmm6,  %%xmm12        \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm1         \n\t" // scale by beta,
+		"addpd  %%xmm12,  %%xmm1         \n\t" // add the gemm result,
+		"movaps  %%xmm1,  (%%rdx)        \n\t" // and store back to memory.
+		"addq     %%rdi, %%rdx           \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"movaps  (%%rcx),       %%xmm0   \n\t" // load c01 and c11,
+		"mulpd   %%xmm6,  %%xmm9         \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm0         \n\t" // scale by beta,
+		"addpd   %%xmm9,  %%xmm0         \n\t" // add the gemm result,
+		"movaps  %%xmm0,  (%%rcx)        \n\t" // and store back to memory.
+		"addq     %%rdi, %%rcx           \n\t"
+		"                                \n\t"
+		"movaps  (%%rdx),       %%xmm1   \n\t" // load c21 and c31,
+		"mulpd   %%xmm6,  %%xmm13        \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm1         \n\t" // scale by beta,
+		"addpd  %%xmm13,  %%xmm1         \n\t" // add the gemm result,
+		"movaps  %%xmm1,  (%%rdx)        \n\t" // and store back to memory.
+		"addq     %%rdi, %%rdx           \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"movaps  (%%rcx),       %%xmm0   \n\t" // load c02 and c12,
+		"mulpd   %%xmm6,  %%xmm10        \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm0         \n\t" // scale by beta,
+		"addpd  %%xmm10,  %%xmm0         \n\t" // add the gemm result,
+		"movaps  %%xmm0,  (%%rcx)        \n\t" // and store back to memory.
+		"addq     %%rdi, %%rcx           \n\t"
+		"                                \n\t"
+		"movaps  (%%rdx),       %%xmm1   \n\t" // load c22 and c32,
+		"mulpd   %%xmm6,  %%xmm14        \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm1         \n\t" // scale by beta,
+		"addpd  %%xmm14,  %%xmm1         \n\t" // add the gemm result,
+		"movaps  %%xmm1,  (%%rdx)        \n\t" // and store back to memory.
+		"addq     %%rdi, %%rdx           \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"movaps  (%%rcx),       %%xmm0   \n\t" // load c03 and c13,
+		"mulpd   %%xmm6,  %%xmm11        \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm0         \n\t" // scale by beta,
+		"addpd  %%xmm11,  %%xmm0         \n\t" // add the gemm result,
+		"movaps  %%xmm0,  (%%rcx)        \n\t" // and store back to memory.
+		"                                \n\t"
+		"                                \n\t"
+		"movaps  (%%rdx),       %%xmm1   \n\t" // load c23 and c33,
+		"mulpd   %%xmm6,  %%xmm15        \n\t" // scale by alpha,
+		"mulpd   %%xmm7,  %%xmm1         \n\t" // scale by beta,
+		"addpd  %%xmm15,  %%xmm1         \n\t" // add the gemm result,
+		"movaps  %%xmm1,  (%%rdx)        \n\t" // and store back to memory.
+		"                                \n\t"
+		"jmp    .DDONE                   \n\t" // jump to end.
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		".DBETAZERO:                     \n\t"
+		"                                \n\t" // check if aligned/column-stored
+		"andb     %%bl, %%bh             \n\t" // set ZF if bl & bh == 1.
+		"jne     .DCOLSTORBZ             \n\t" // jump to column storage case
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		".DGENSTORBZ:                    \n\t"
+		"                                \n\t" // skip loading c00 and c10,
+		"mulpd   %%xmm6,  %%xmm8         \n\t" // scale by alpha,
+		"movlpd  %%xmm8,  (%%rcx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm8,  (%%rcx,%%rsi)  \n\t"
+		"addq     %%rdi, %%rcx           \n\t"
+		"                                \n\t" // skip loading c20 and c30,
+		"mulpd   %%xmm6,  %%xmm12        \n\t" // scale by alpha,
+		"movlpd  %%xmm12, (%%rdx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm12, (%%rdx,%%rsi)  \n\t"
+		"addq     %%rdi, %%rdx           \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t" // skip loading c01 and c11,
+		"mulpd   %%xmm6,  %%xmm9         \n\t" // scale by alpha,
+		"movlpd  %%xmm9,  (%%rcx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm9,  (%%rcx,%%rsi)  \n\t"
+		"addq     %%rdi, %%rcx           \n\t"
+		"                                \n\t" // skip loading c21 and c31,
+		"mulpd   %%xmm6,  %%xmm13        \n\t" // scale by alpha,
+		"movlpd  %%xmm13, (%%rdx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm13, (%%rdx,%%rsi)  \n\t"
+		"addq     %%rdi, %%rdx           \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t" // skip loading c02 and c12,
+		"mulpd   %%xmm6,  %%xmm10        \n\t" // scale by alpha,
+		"movlpd  %%xmm10, (%%rcx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm10, (%%rcx,%%rsi)  \n\t"
+		"addq     %%rdi, %%rcx           \n\t"
+		"                                \n\t" // skip loading c22 and c32,
+		"mulpd   %%xmm6,  %%xmm14        \n\t" // scale by alpha,
+		"movlpd  %%xmm14, (%%rdx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm14, (%%rdx,%%rsi)  \n\t"
+		"addq     %%rdi, %%rdx           \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t" // skip loading c03 and c13,
+		"mulpd   %%xmm6,  %%xmm11        \n\t" // scale by alpha,
+		"movlpd  %%xmm11, (%%rcx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm11, (%%rcx,%%rsi)  \n\t"
+		"                                \n\t"
+		"                                \n\t" // skip loading c23 and c33,
+		"mulpd   %%xmm6,  %%xmm15        \n\t" // scale by alpha,
+		"movlpd  %%xmm15, (%%rdx)        \n\t" // and store back to memory.
+		"movhpd  %%xmm15, (%%rdx,%%rsi)  \n\t"
+		"                                \n\t"
+		"jmp    .DDONE                   \n\t" // jump to end.
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		".DCOLSTORBZ:                    \n\t"
+		"                                \n\t"
+		"                                \n\t" // skip loading c00 and c10,
+		"mulpd   %%xmm6,  %%xmm8         \n\t" // scale by alpha,
+		"movaps  %%xmm8,  (%%rcx)        \n\t" // and store back to memory.
+		"addq     %%rdi, %%rcx           \n\t"
+		"                                \n\t" // skip loading c20 and c30,
+		"mulpd   %%xmm6,  %%xmm12        \n\t" // scale by alpha,
+		"movaps  %%xmm12, (%%rdx)        \n\t" // and store back to memory.
+		"addq     %%rdi, %%rdx           \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t" // skip loading c01 and c11,
+		"mulpd   %%xmm6,  %%xmm9         \n\t" // scale by alpha,
+		"movaps  %%xmm9,  (%%rcx)        \n\t" // and store back to memory.
+		"addq     %%rdi, %%rcx           \n\t"
+		"                                \n\t" // skip loading c21 and c31,
+		"mulpd   %%xmm6,  %%xmm13        \n\t" // scale by alpha,
+		"movaps  %%xmm13, (%%rdx)        \n\t" // and store back to memory.
+		"addq     %%rdi, %%rdx           \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t" // skip loading c02 and c12,
+		"mulpd   %%xmm6,  %%xmm10        \n\t" // scale by alpha,
+		"movaps  %%xmm10, (%%rcx)        \n\t" // and store back to memory.
+		"addq     %%rdi, %%rcx           \n\t"
+		"                                \n\t" // skip loading c22 and c32,
+		"mulpd   %%xmm6,  %%xmm14        \n\t" // scale by alpha,
+		"movaps  %%xmm14, (%%rdx)        \n\t" // and store back to memory.
+		"addq     %%rdi, %%rdx           \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t" // skip loading c03 and c13,
+		"mulpd   %%xmm6,  %%xmm11        \n\t" // scale by alpha,
+		"movaps  %%xmm11, (%%rcx)        \n\t" // and store back to memory.
+		"                                \n\t"
+		"                                \n\t" // skip loading c23 and c33,
+		"mulpd   %%xmm6,  %%xmm15        \n\t" // scale by alpha,
+		"movaps  %%xmm15, (%%rdx)        \n\t" // and store back to memory.
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		"                                \n\t"
+		".DDONE:                         \n\t"
+		"                                \n\t"
+
+		: // output operands (none)
+		: // input operands
+		  "m" (k_iter), // 0
+		  "m" (k_left), // 1
+		  "m" (a),      // 2
+		  "m" (b),      // 3
+		  "m" (alpha),  // 4
+		  "m" (beta),   // 5
+		  "m" (c),      // 6
+		  "m" (rs_c),   // 7
+		  "m" (cs_c),   // 8
+		  "m" (b_next), // 9
+		  "m" (a_next)  // 10
+		: // register clobber list
+		  "rax", "rbx", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11",
+		  "xmm0", "xmm1", "xmm2", "xmm3",
+		  "xmm4", "xmm5", "xmm6", "xmm7",
+		  "xmm8", "xmm9", "xmm10", "xmm11",
+		  "xmm12", "xmm13", "xmm14", "xmm15",
+		  "memory"
+	);
+}
 
 
 //
@@ -550,140 +1263,185 @@ dgemm_micro_kernel(const long    k,
 //
 
 void
-dgemm_macro_kernel(const int      mc,
-                   const int      nc,
-                   const int      kc,
-                   const double   alpha,
-                   const double   beta,
-                   double         *C,
-                   const int      ldC)
+ULMBLAS(dgemm_macro_kernel)(const long     mc,
+                            const long     nc,
+                            const long     kc,
+                            const double   alpha,
+                            const double   beta,
+                            double         * restrict C,
+                            const long     ldC)
 {
-    const int M = mc / MR;
-    const int N = nc / NR;
+    const long M = (mc+MR-1) / MR;
+    const long N = (nc+NR-1) / NR;
 
-    const int _MR = mc % MR;
-    const int _NR = nc % NR;
+    const long _MR = mc % MR;
+    const long _NR = nc % NR;
 
-    const double *a, *aNext;
-    const double *b, *bNext;
+    const double * restrict a, * restrict aNext;
+    const double * restrict b, * restrict bNext;
+    double       * restrict cj, * restrict cij;
 
-    const int alignedC = ((unsigned long)C % 16 == 0) && (ldC % 4 == 0);
+    //const long alignedC = ((unsigned long)C % 16 == 0) && (ldC % 4 == 0);
 
-    int i, j, I, J, mr, nr;
+    long  I, J, mr, nr;
 
-    for (J=0, j=0, b=_B; J<=N; ++J, j+=NR, b+=NR*kc) {
-        nr = (J<N) ? NR : _NR;
-        for (I=0, i=0, a=_A; I<=M; ++I, i+=MR, a+=MR*kc) {
-            mr = (I<M) ? MR : _MR;
+    const double zero = 0.0;
 
-            aNext = a;
-            bNext = b;
-            if (I<M) {
-                aNext = a + MR*kc;
-            } else {
-                if (J<N) {
-                    bNext = b + NR*kc;
+    const double * restrict palpha = &alpha;
+    const double * restrict pbeta = &beta;
+
+    const long incA = MR*kc;
+    const long incB = NR*kc;
+    const long incRowC = MR;
+    const long incColC = NR*ldC;
+
+    auxinfo_t  data;
+
+    data.ps_a = incA;
+    data.ps_b = incB;
+
+    b = _B;
+    cj = C;
+
+    for (J=0; J<N; ++J) {
+        nr = (J!=N-1 || _NR==0) ? NR : _NR;
+
+        a     = _A;
+        cij   = cj;
+        bNext = b;
+
+        for (I=0; I<M; ++I) {
+            mr = (I!=M-1 || _MR==0) ? MR : _MR;
+
+            aNext = a + incA;
+            if (I==M-1) {
+                aNext = _A;
+                bNext = b + incB;
+                if (J==N-1) {
+                    bNext = _B;
                 }
             }
 
-            if (alignedC && J<N && I<M) {
-                dgemm_micro_kernel(kc,
-                                   alpha,
-                                   a, b,
-                                   beta,
-                                   &C[i+j*ldC], ldC,
-                                   aNext, bNext);
+            data.a_next = aNext;
+            data.b_next = bNext;
+
+            if (mr==MR && nr==NR) {
+                ULMBLAS(dgemm_micro_kernel)(kc,
+                                            palpha,
+                                            a,
+                                            b,
+                                            pbeta,
+                                            cij,
+                                            1,
+                                            ldC,
+                                            &data);
+                /*
+                ULMBLAS(dgemm_micro_kernel)(kc,
+                                            palpha,
+                                            a, b,
+                                            pbeta,
+                                            cij, ldC,
+                                            aNext, bNext);
+                */
             } else {
-                //pack_C(mr, nr, &C[i+j*ldC], ldC);
-                dgemm_micro_kernel(kc,
-                                   alpha,
-                                   a, b,
-                                   0.0,
-                                   _C, MR,
-                                   aNext, bNext);
-                unpack_C(mr, nr, beta, &C[i+j*ldC], ldC);
+                ULMBLAS(dgemm_micro_kernel)(kc,
+                                            palpha,
+                                            a,
+                                            b,
+                                            &zero,
+                                            cij,
+                                            1,
+                                            ldC,
+                                            &data);
+                 /*
+                ULMBLAS(dgemm_micro_kernel)(kc,
+                                            palpha,
+                                            a, b,
+                                            &zero,
+                                            _C, MR,
+                                            aNext, bNext);
+                ULMBLAS(unpack_C)(mr, nr, beta, cij, ldC);
+                */
             }
+            a+=incA;
+            cij+=incRowC;
         }
+        b+=incB;
+        cj+=incColC;
     }
 }
 
 //
 //  Computation of C <- beta*C + alpha*A*B
 //
-
 void
-ULMBLAS(dgemm_nn)(const int         m,
-                  const int         n,
-                  const int         k,
+ULMBLAS(dgemm_nn)(const long        m,
+                  const long        n,
+                  const long        k,
                   const double      alpha,
-                  const double      *A,
-                  const int         ldA,
-                  const double      *B,
-                  const int         ldB,
+                  const double      * restrict A,
+                  const long        ldA,
+                  const double      * restrict B,
+                  const long        ldB,
                   const double      beta,
-                  double            *C,
-                  const int         ldC)
+                  double            * restrict C,
+                  const long        ldC)
 {
 //
 //  Number of panels
 //
-    const int N = n / NC;
-    const int K = k / KC;
-    const int M = m / MC;
+    const long N = (n+NC-1) / NC;
+    const long K = (k+KC-1) / KC;
+    const long M = (m+MC-1) / MC;
 
 //
 //  Width/height of panels at the bottom or right side
 //
-    const int _NC = n % NC;
-    const int _KC = k % KC;
-    const int _MC = m % MC;
+    const long _NC = n % NC;
+    const long _KC = k % KC;
+    const long _MC = m % MC;
 
 //
 //  For holding the actual panel width/height
 //
-    int mc, nc, kc;
+    long mc, nc, kc;
 
 //
 //  Upper case letters are used for indexing matrix panels.  Lower case letters
 //  are used for indexing matrix elements.
 //
-    int J, L, I;
-    int j, l, i;
+    long J, L, I;
+    long j, l, i;
 
 //
 //  Start the operation on the macro level
 //
-    for (J=0, j=0; J<=N; ++J, j+=NC) {
-        nc = (J<N) ? NC : _NC;
+    for (J=0, j=0; J<N; ++J, j+=NC) {
+        nc = (J!=N-1 || _NC==0) ? NC : _NC;
 
-        for (L=0, l=0; L<=K; ++L, l+=KC) {
-            kc = (L<K) ? KC : _KC;
+        for (L=0, l=0; L<K; ++L, l+=KC) {
+            kc = (L!=K-1 || _KC==0) ? KC : _KC;
+
 //
 //          Pack matrix block alpha*B(l:l+kc-1,j:j+nc-1) into buffer _B
 //
-            //fprintf(stderr, "pack B(%d:%d,%d:%d)\n", l, l+kc-1, j, j+nc-1);
-            pack_B(kc, nc, &B[l+j*ldB], ldB);
+            ULMBLAS(pack_B)(kc, nc, &B[l+j*ldB], ldB);
 
-            for (I=0, i=0; I<=M; ++I, i+=MC) {
-                mc = (I<M) ? MC : _MC;
+            for (I=0, i=0; I<M; ++I, i+=MC) {
+                mc = (I!=M-1 || _MC==0) ? MC : _MC;
+
 //
 //              Pack block A(i:i+mc-1,l:l+kc-1) into buffer _A
 //
-                //fprintf(stderr, "pack A(%d:%d,%d:%d)\n", i, i+mc-1, l, l+kc-1);
-                pack_A(mc, kc, &A[i+l*ldA], ldA);
-
-//
-//              Before the micro kernel does any computation update
-//              C(i:i+mc,j:j+nc-1) <- beta*C(i:i+mc,j:j+nc-1)
-//
-//              if (L==0 && beta!=1.0) {
-//                  dscale(mc, nc, beta, &C[i+j*ldC], ldC);
-//              }
+                ULMBLAS(pack_A)(mc, kc, &A[i+l*ldA], ldA);
 
 //
 //              C(i:i+mc,j:j+nc-1) <- C(i:i+mc,j:j+nc-1) + _A*_B
 //
-                dgemm_macro_kernel(mc, nc, kc, alpha, beta, &C[i+j*ldC], ldC);
+                ULMBLAS(dgemm_macro_kernel)(mc, nc, kc,
+                                            alpha,
+                                            beta,
+                                            &C[i+j*ldC], ldC);
             }
         }
     }

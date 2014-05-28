@@ -1,7 +1,7 @@
 #CC       = gcc-4.8
-CC       = clang
-#CC       = gcc
-CFLAGS  += -Wall -I. -O3 -msse3 -mfpmath=sse -fomit-frame-pointer
+#CC       = clang
+CC       = gcc
+CFLAGS  += -Wall -I. -O2 -march=native -msse3 -mfpmath=sse -fomit-frame-pointer -std=c99 -D_POSIX_C_SOURCE=200112L
 
 DIRS = auxiliary level1 level3
 

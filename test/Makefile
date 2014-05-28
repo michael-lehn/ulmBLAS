@@ -27,7 +27,7 @@ check_ulm:
 check_ref:
 	$(RM) *.SUMM
 	./dblat1_ref
-	./dblat3_ulm < dblat3.dat
+	./dblat3_ref < dblat3.dat
 
 clean:
 	$(RM) $(TEST_REFBLAS) $(TEST_ULMBLAS) *.SUMM
