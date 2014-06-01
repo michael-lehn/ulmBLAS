@@ -59,7 +59,6 @@ ULMBLAS(dgemm)(const enum Trans  transA,
 //          Form  C := alpha*A*B + beta*C.
 //
 #if defined(ULM_REFERENCE)
-            /*
             for (j=0; j<n; ++j) {
                 if (beta==0.0) {
                     for (i=0; i<m; ++i) {
@@ -79,9 +78,8 @@ ULMBLAS(dgemm)(const enum Trans  transA,
                     }
                 }
             }
-            */
 #elif defined(ULM_BLOCKED)
-            ULMBLAS(dgemm_nn)(m, n, k, alpha, A, ldA, B, ldB, beta, C, ldC);
+           ULMBLAS(dgemm_nn)(m, n, k, alpha, A, ldA, B, ldB, beta, C, ldC);
             return;
 #else
 #error      "no implementation specified!\n"

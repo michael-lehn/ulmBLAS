@@ -1,7 +1,14 @@
-#CC       = gcc-4.8
+CC       = gcc-4.8
 #CC       = clang
-CC       = gcc
-CFLAGS  += -Wall -I. -O2 -march=native -msse3 -mfpmath=sse -fomit-frame-pointer -std=c99 -D_POSIX_C_SOURCE=200112L
+#CC       = gcc
+CFLAGS  += -Wall -I. -O3 -msse3 -mfpmath=sse -fomit-frame-pointer
+
+#
+#  Select one micro kernel:
+#
+CFLAGS += -DREFERENCE_MICRO_KERNEL
+#CFLAGS += -DUNROLLED_C_MICRO_KERNEL_4x4
+#CFLAGS += -DSSE_INTRINSICS_MICRO_KERNEL_4X4
 
 DIRS = auxiliary level1 level3
 
