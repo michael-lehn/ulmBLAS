@@ -23,6 +23,8 @@ ATLAS_LIB = ../libatlulmblas.a
 #  Select the reference implementation
 #
 REF_LIB   = ../librefblas.a
+#REF_LIB = $(HOME)/work/ATLAS/build/lib/libf77blas.a
+
 #REF_LIB   = ../libulmblas.a
 #REF_LIB   = $(HOME)/work/EigenBuild/blas/libeigen_blas_static.a
 #REF_LIB   = $(HOME)/work/blis/lib/reference/libblis.a

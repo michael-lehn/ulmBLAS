@@ -6,9 +6,10 @@ CFLAGS  += -Wall -I. -O3 -msse3 -mfpmath=sse -fomit-frame-pointer
 #
 #  Select one micro kernel:
 #
-CFLAGS += -DREFERENCE_MICRO_KERNEL
+#CFLAGS += -DREFERENCE_MICRO_KERNEL
 #CFLAGS += -DUNROLLED_C_MICRO_KERNEL_4x4
 #CFLAGS += -DSSE_INTRINSICS_MICRO_KERNEL_4X4
+CFLAGS += -DSSE_ASM_MICRO_KERNEL_4X4
 
 DIRS = auxiliary level1 level3
 
@@ -34,10 +35,10 @@ $(ATLULMBLAS) : $(ATL_OBJECT_FILES)
 	ranlib $(ATLULMBLAS)
 
 %.o : %.c
-	$(CC) $(CFLAGS) -DULM_BLOCKED -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 atl_%.o : %.c
-	$(CC) $(CFLAGS) -DULM_BLOCKED -DFAKE_ATLAS -c -o $@ $<
+	$(CC) $(CFLAGS) -DFAKE_ATLAS -c -o $@ $<
 
 clean :
 	rm -f $(OBJECT_FILES)
