@@ -22,7 +22,7 @@ double _A[MC*KC];
 double _B[KC*NC];
 double _C[MC*NC];
 
-void
+static void
 pack_MRxk(int k, const double *A, int incRowA, int incColA,
           double *buffer)
 {
@@ -37,7 +37,7 @@ pack_MRxk(int k, const double *A, int incRowA, int incColA,
     }
 }
 
-void
+static void
 pack_A(int mc, int kc, const double *A, int incRowA, int incColA,
        double *buffer)
 {
@@ -65,7 +65,7 @@ pack_A(int mc, int kc, const double *A, int incRowA, int incColA,
     }
 }
 
-void
+static void
 pack_kxNR(int k, const double *B, int incRowB, int incColB,
           double *buffer)
 {
@@ -80,7 +80,7 @@ pack_kxNR(int k, const double *B, int incRowB, int incColB,
     }
 }
 
-void
+static void
 pack_B(int kc, int nc, const double *B, int incRowB, int incColB,
        double *buffer)
 {
@@ -108,7 +108,7 @@ pack_B(int kc, int nc, const double *B, int incRowB, int incColB,
     }
 }
 
-void
+static void
 dgemm_micro_kernel(int kc,
                    double alpha, const double *A, const double *B,
                    double beta,
@@ -161,7 +161,7 @@ dgemm_micro_kernel(int kc,
     }
 }
 
-void
+static void
 dgeaxpy(int           m,
         int           n,
         double        alpha,
@@ -190,7 +190,7 @@ dgeaxpy(int           m,
     }
 }
 
-void
+static void
 dgescal(int     m,
         int     n,
         double  alpha,
@@ -215,7 +215,7 @@ dgescal(int     m,
     }
 }
 
-void
+static void
 dgemm_macro_kernel(int     mc,
                    int     nc,
                    int     kc,
