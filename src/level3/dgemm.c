@@ -78,8 +78,14 @@ ULMBLAS(dgemm)(const enum Trans  transA,
                     }
                 }
             }
+            return;
 #elif defined(ULM_BLOCKED)
-           ULMBLAS(dgemm_nn)(m, n, k, alpha, A, ldA, B, ldB, beta, C, ldC);
+            ULMBLAS(dgemm_nn)(m, n, k,
+                              alpha,
+                              A, 1, ldA,
+                              B, 1, ldB,
+                              beta,
+                              C, 1, ldC);
             return;
 #else
 #error      "no implementation specified!\n"

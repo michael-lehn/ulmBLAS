@@ -3,13 +3,6 @@ CC       = gcc-4.8
 #CC       = gcc
 CFLAGS  += -Wall -I. -O3 -msse3 -mfpmath=sse -fomit-frame-pointer
 
-#
-#  Select one micro kernel:
-#
-CFLAGS += -DREFERENCE_MICRO_KERNEL
-#CFLAGS += -DUNROLLED_C_MICRO_KERNEL_4x4
-#CFLAGS += -DSSE_INTRINSICS_MICRO_KERNEL_4X4
-
 DIRS = auxiliary level1 level3
 
 SOURCE_FILES     = $(foreach DIR, $(DIRS), $(wildcard $(DIR)/*.c))
