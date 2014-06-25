@@ -125,8 +125,7 @@ dgemm_micro_kernel(int kc,
                    const double *nextA, const double *nextB)
 {
     double AB[MR*NR];
-
-    int i, j, l;
+    int    i, j, l;
 
     for (i=0; i<MR*NR; ++i) {
         AB[i] = 0.0;
@@ -254,21 +253,36 @@ dgemm_macro_kernel(int     mc,
     int mr, nr;
     int i, j;
 
+    const double *nextA;
+    const double *nextB;
+
     for (j=0; j<np; ++j) {
-        nr = (j!=np-1 || _nr==0) ? NR : _nr;
+        nr    = (j!=np-1 || _nr==0) ? NR : _nr;
+        nextB = &_B[j*kc*NR];
 
         for (i=0; i<mp; ++i) {
-            mr = (i!=mp-1 || _mr==0) ? MR : _mr;
+            mr    = (i!=mp-1 || _mr==0) ? MR : _mr;
+            nextA = &_A[(i+1)*kc*MR];
+
+            if (i==mp-1) {
+                nextA = _A;
+                nextB = &_B[(j+1)*kc*NR];
+                if (j==np-1) {
+                    nextB = _B;
+                }
+            }
 
             if (mr==MR && nr==NR) {
                 dgemm_micro_kernel(kc, alpha, &_A[i*kc*MR], &_B[j*kc*NR],
                                    beta,
                                    &C[i*MR*incRowC+j*NR*incColC],
-                                   incRowC, incColC);
+                                   incRowC, incColC,
+                                   nextA, nextB);
             } else {
                 dgemm_micro_kernel(kc, alpha, &_A[i*kc*MR], &_B[j*kc*NR],
                                    0.0,
-                                   _C, 1, MR);
+                                   _C, 1, MR,
+                                   nextA, nextB);
                 dgescal(mr, nr, beta,
                         &C[i*MR*incRowC+j*NR*incColC], incRowC, incColC);
                 dgeaxpy(mr, nr, 1.0, _C, 1, MR,
@@ -314,17 +328,17 @@ ULMBLAS(dgemm_nn)(int            m,
         dgescal(m, n, beta, C, incRowC, incColC);
         return;
     }
+
     for (j=0; j<nb; ++j) {
         nc = (j!=nb-1 || _nc==0) ? NC : _nc;
 
         for (l=0; l<kb; ++l) {
             kc    = (l!=kb-1 || _kc==0) ? KC   : _kc;
+            _beta = (l==0) ? beta : 1.0;
 
             pack_B(kc, nc,
                    &B[l*KC*incRowB+j*NC*incColB], incRowB, incColB,
                    _B);
-
-            _beta = (l==0) ? beta : 1.0;
 
             for (i=0; i<mb; ++i) {
                 mc = (i!=mb-1 || _mc==0) ? MC : _mc;
