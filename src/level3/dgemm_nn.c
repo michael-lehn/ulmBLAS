@@ -1,16 +1,6 @@
 #include <ulmblas.h>
 #include <stdio.h>
 
-/*
-// For testing/debugging
-#define MC  8
-#define KC  11
-#define NC  12
-
-#define MR  4
-#define NR  6
-*/
-
 #define MC  384
 #define KC  384
 #define NC  4096
@@ -18,10 +8,16 @@
 #define MR  4
 #define NR  4
 
+//
+//  Local buffers for storing panels from A, B and C
+//
 double _A[MC*KC];
 double _B[KC*NC];
 double _C[MC*NC];
 
+//
+//  Packing complete panels from A (i.e. without padding)
+//
 static void
 pack_MRxk(int k, const double *A, int incRowA, int incColA,
           double *buffer)
@@ -37,6 +33,9 @@ pack_MRxk(int k, const double *A, int incRowA, int incColA,
     }
 }
 
+//
+//  Packing panels from A with padding if required
+//
 static void
 pack_A(int mc, int kc, const double *A, int incRowA, int incColA,
        double *buffer)
@@ -65,6 +64,9 @@ pack_A(int mc, int kc, const double *A, int incRowA, int incColA,
     }
 }
 
+//
+//  Packing complete panels from B (i.e. without padding)
+//
 static void
 pack_kxNR(int k, const double *B, int incRowB, int incColB,
           double *buffer)
@@ -80,6 +82,9 @@ pack_kxNR(int k, const double *B, int incRowB, int incColB,
     }
 }
 
+//
+//  Packing panels from B with padding if required
+//
 static void
 pack_B(int kc, int nc, const double *B, int incRowB, int incColB,
        double *buffer)
@@ -108,11 +113,16 @@ pack_B(int kc, int nc, const double *B, int incRowB, int incColB,
     }
 }
 
+//
+//  Micro kernel for multiplying panels from A and B.  With nextA, nextB
+//  we give the possibility of prefetching.
+//
 static void
 dgemm_micro_kernel(int kc,
                    double alpha, const double *A, const double *B,
                    double beta,
-                   double *C, int incRowC, int incColC)
+                   double *C, int incRowC, int incColC,
+                   const double *nextA, const double *nextB)
 {
     double AB[MR*NR];
 
@@ -161,6 +171,9 @@ dgemm_micro_kernel(int kc,
     }
 }
 
+//
+//  Compute Y += alpha*X
+//
 static void
 dgeaxpy(int           m,
         int           n,
@@ -190,6 +203,9 @@ dgeaxpy(int           m,
     }
 }
 
+//
+//  Compute X *= alpha
+//
 static void
 dgescal(int     m,
         int     n,
@@ -215,6 +231,10 @@ dgescal(int     m,
     }
 }
 
+//
+//  Macro Kernel for the multiplication of blocks of A and B.  We assume that
+//  these blocks were previously packed to buffers _A and _B.
+//
 static void
 dgemm_macro_kernel(int     mc,
                    int     nc,
@@ -258,6 +278,9 @@ dgemm_macro_kernel(int     mc,
     }
 }
 
+//
+//  Compute C <- beta*C + alpha*A*B
+//
 void
 ULMBLAS(dgemm_nn)(int            m,
                   int            n,
@@ -296,11 +319,12 @@ ULMBLAS(dgemm_nn)(int            m,
 
         for (l=0; l<kb; ++l) {
             kc    = (l!=kb-1 || _kc==0) ? KC   : _kc;
-            _beta = (l==0)              ? beta : 1.0;
 
             pack_B(kc, nc,
                    &B[l*KC*incRowB+j*NC*incColB], incRowB, incColB,
                    _B);
+
+            _beta = (l==0) ? beta : 1.0;
 
             for (i=0; i<mb; ++i) {
                 mc = (i!=mb-1 || _mc==0) ? MC : _mc;
