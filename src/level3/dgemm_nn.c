@@ -15,7 +15,7 @@
 //
 double _A[MC*KC];
 double _B[KC*NC];
-double _C[MC*NC];
+double _C[MR*NR];
 
 //
 //  Packing complete panels from A (i.e. without padding)
