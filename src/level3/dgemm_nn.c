@@ -1,5 +1,7 @@
 #include <ulmblas.h>
 #include <stdio.h>
+#include <emmintrin.h>
+#include <immintrin.h>
 
 #define MC  384
 #define KC  384
@@ -117,6 +119,7 @@ pack_B(int kc, int nc, const double *B, int incRowB, int incColB,
 //  Micro kernel for multiplying panels from A and B.  With nextA, nextB
 //  we give the possibility of prefetching.
 //
+#if (MR==4) && (NR==4)
 static void
 dgemm_micro_kernel(int kc,
                    double alpha, const double *A, const double *B,
@@ -124,51 +127,137 @@ dgemm_micro_kernel(int kc,
                    double *C, int incRowC, int incColC,
                    const double *nextA, const double *nextB)
 {
-    double AB[MR*NR];
-    int    i, j, l;
+    double AB[4*4] __attribute__ ((aligned (16)));
 
-    for (i=0; i<MR*NR; ++i) {
-        AB[i] = 0.0;
-    }
+    __m128d  a_0_1, a_2_3, b_0_1, b_1_0;
+    __m128d  d_00_11, d_01_10;
+    __m128d  d_20_31, d_21_30;
+
+    __m128d  ab_00_11, ab_01_10, ab_02_13, ab_03_12;
+    __m128d  ab_20_31, ab_21_30, ab_22_33, ab_23_32;
+
+    int  i, j, l;
+
+    ab_00_11 = _mm_setzero_pd();
+    ab_01_10 = _mm_setzero_pd();
+    ab_02_13 = _mm_setzero_pd();
+    ab_03_12 = _mm_setzero_pd();
+
+    ab_20_31 = _mm_setzero_pd();
+    ab_21_30 = _mm_setzero_pd();
+    ab_22_33 = _mm_setzero_pd();
+    ab_23_32 = _mm_setzero_pd();
+
 
     for (l=0; l<kc; ++l) {
-        for (j=0; j<NR; ++j) {
-            for (i=0; i<MR; ++i) {
-                AB[i+j*MR] += A[i]*B[j];
-            }
-        }
-        A += MR;
-        B += NR;
+        // compute diag pairs (a[0]*b[0],a[1]*b[1]) and (a[2]*b[0],a[3]*b[1])
+        a_0_1 = _mm_load_pd(A);
+        a_2_3 = _mm_load_pd(A+2);
+
+        b_0_1 = _mm_load_pd(B);
+
+        d_00_11 = a_0_1;
+        d_20_31 = a_2_3;
+
+        d_00_11 = _mm_mul_pd(d_00_11, b_0_1);
+        d_20_31 = _mm_mul_pd(d_20_31, b_0_1);
+
+        ab_00_11 = _mm_add_pd(ab_00_11, d_00_11);
+        ab_20_31 = _mm_add_pd(ab_20_31, d_20_31);
+
+
+        // compute diag pairs (a[0]*b[1],a[1]*b[0]) and (a[2]*b[1],a[3]*b[0])
+        b_1_0 = _mm_shuffle_pd(b_0_1, b_0_1, _MM_SHUFFLE2(0, 1));
+
+        d_01_10 = a_0_1;
+        d_21_30 = a_2_3;
+
+        d_01_10 = _mm_mul_pd(d_01_10, b_1_0);
+        d_21_30 = _mm_mul_pd(d_21_30, b_1_0);
+
+        ab_01_10 = _mm_add_pd(ab_01_10, d_01_10);
+        ab_21_30 = _mm_add_pd(ab_21_30, d_21_30);
+
+        // compute diag pairs (a[0]*b[2],a[1]*b[3]) and (a[2]*b[2],a[3]*b[3])
+        b_0_1 = _mm_load_pd(B+2);
+
+        d_00_11 = a_0_1;
+        d_20_31 = a_2_3;
+
+        d_00_11 = _mm_mul_pd(d_00_11, b_0_1);
+        d_20_31 = _mm_mul_pd(d_20_31, b_0_1);
+
+        ab_02_13 = _mm_add_pd(ab_02_13, d_00_11);
+        ab_22_33 = _mm_add_pd(ab_22_33, d_20_31);
+
+        // compute diag pairs (a[0]*b[3],a[1]*b[2]) and (a[2]*b[3],a[3]*b[2])
+        b_1_0 = _mm_shuffle_pd(b_0_1, b_0_1, _MM_SHUFFLE2(0, 1));
+
+        d_01_10 = a_0_1;
+        d_21_30 = a_2_3;
+
+        d_01_10 = _mm_mul_pd(d_01_10, b_1_0);
+        d_21_30 = _mm_mul_pd(d_21_30, b_1_0);
+
+        ab_03_12 = _mm_add_pd(ab_03_12, d_01_10);
+        ab_23_32 = _mm_add_pd(ab_23_32, d_21_30);
+
+        // move on
+        A += 4;
+        B += 4;
     }
 
+    _mm_storel_pd(&AB[0+0*4], ab_00_11);
+    _mm_storeh_pd(&AB[1+0*4], ab_01_10);
+    _mm_storel_pd(&AB[2+0*4], ab_20_31);
+    _mm_storeh_pd(&AB[3+0*4], ab_21_30);
+
+    _mm_storel_pd(&AB[0+1*4], ab_01_10);
+    _mm_storeh_pd(&AB[1+1*4], ab_00_11);
+    _mm_storel_pd(&AB[2+1*4], ab_21_30);
+    _mm_storeh_pd(&AB[3+1*4], ab_20_31);
+
+    _mm_storel_pd(&AB[0+2*4], ab_02_13);
+    _mm_storeh_pd(&AB[1+2*4], ab_03_12);
+    _mm_storel_pd(&AB[2+2*4], ab_22_33);
+    _mm_storeh_pd(&AB[3+2*4], ab_23_32);
+
+    _mm_storel_pd(&AB[0+3*4], ab_03_12);
+    _mm_storeh_pd(&AB[1+3*4], ab_02_13);
+    _mm_storel_pd(&AB[2+3*4], ab_23_32);
+    _mm_storeh_pd(&AB[3+3*4], ab_22_33);
+
     if (beta==0.0) {
-        for (j=0; j<NR; ++j) {
-            for (i=0; i<MR; ++i) {
+        for (j=0; j<4; ++j) {
+            for (i=0; i<4; ++i) {
                 C[i*incRowC+j*incColC] = 0.0;
             }
         }
     } else {
-        for (j=0; j<NR; ++j) {
-            for (i=0; i<MR; ++i) {
+        for (j=0; j<4; ++j) {
+            for (i=0; i<4; ++i) {
                 C[i*incRowC+j*incColC] *= beta;
             }
         }
     }
 
     if (alpha==1.0) {
-        for (j=0; j<NR; ++j) {
-            for (i=0; i<MR; ++i) {
-                C[i*incRowC+j*incColC] += AB[i+j*MR];
+        for (j=0; j<4; ++j) {
+            for (i=0; i<4; ++i) {
+                C[i*incRowC+j*incColC] += AB[i+j*4];
             }
         }
     } else {
-        for (j=0; j<NR; ++j) {
-            for (i=0; i<MR; ++i) {
-                C[i*incRowC+j*incColC] += alpha*AB[i+j*MR];
+        for (j=0; j<4; ++j) {
+            for (i=0; i<4; ++i) {
+                C[i*incRowC+j*incColC] += alpha*AB[i+j*4];
             }
         }
     }
 }
+#else
+#error "In this branch we use a hard coded micro kernel.  It requires MR=NR=4\n"
+#endif
 
 //
 //  Compute Y += alpha*X

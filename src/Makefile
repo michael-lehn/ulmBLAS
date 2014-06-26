@@ -1,7 +1,7 @@
-CC       = gcc-4.8
+#CC       = gcc-4.8
 #CC       = clang
-#CC       = gcc
-CFLAGS  += -Wall -I. -O3
+CC       = gcc
+CFLAGS  += -Wall -I. -O3  -msse3 -mfpmath=sse -fomit-frame-pointer
 
 DIRS = auxiliary level1 level3
 
