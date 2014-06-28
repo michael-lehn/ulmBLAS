@@ -13,9 +13,9 @@
 //
 //  Local buffers for storing panels from A, B and C
 //
-double _A[MC*KC];
-double _B[KC*NC];
-double _C[MR*NR];
+static double _A[MC*KC];
+static double _B[KC*NC];
+static double _C[MR*NR];
 
 //
 //  Packing complete panels from A (i.e. without padding)
@@ -120,112 +120,135 @@ pack_B(int kc, int nc, const double *B, int incRowB, int incColB,
 //  we give the possibility of prefetching.
 //
 #if (MR==4) && (NR==4)
+
+
 static void
-dgemm_micro_kernel(int kc,
+dgemm_micro_kernel(long kc,
                    double alpha, const double *A, const double *B,
                    double beta,
                    double *C, int incRowC, int incColC,
                    const double *nextA, const double *nextB)
 {
-    double AB[4*4] __attribute__ ((aligned (16)));
+    double _AB[4*4] __attribute__ ((aligned (16)));
+    double *AB = _AB;
+    int    i, j;
 
-    __m128d  a_0_1, a_2_3, b_0_1, b_1_0;
-    __m128d  d_00_11, d_01_10;
-    __m128d  d_20_31, d_21_30;
-
-    __m128d  ab_00_11, ab_01_10, ab_02_13, ab_03_12;
-    __m128d  ab_20_31, ab_21_30, ab_22_33, ab_23_32;
-
-    int  i, j, l;
-
-    ab_00_11 = _mm_setzero_pd();
-    ab_01_10 = _mm_setzero_pd();
-    ab_02_13 = _mm_setzero_pd();
-    ab_03_12 = _mm_setzero_pd();
-
-    ab_20_31 = _mm_setzero_pd();
-    ab_21_30 = _mm_setzero_pd();
-    ab_22_33 = _mm_setzero_pd();
-    ab_23_32 = _mm_setzero_pd();
-
-
-    for (l=0; l<kc; ++l) {
-        // compute diag pairs (a[0]*b[0],a[1]*b[1]) and (a[2]*b[0],a[3]*b[1])
-        a_0_1 = _mm_load_pd(A);
-        a_2_3 = _mm_load_pd(A+2);
-
-        b_0_1 = _mm_load_pd(B);
-
-        d_00_11 = a_0_1;
-        d_20_31 = a_2_3;
-
-        d_00_11 = _mm_mul_pd(d_00_11, b_0_1);
-        d_20_31 = _mm_mul_pd(d_20_31, b_0_1);
-
-        ab_00_11 = _mm_add_pd(ab_00_11, d_00_11);
-        ab_20_31 = _mm_add_pd(ab_20_31, d_20_31);
-
-
-        // compute diag pairs (a[0]*b[1],a[1]*b[0]) and (a[2]*b[1],a[3]*b[0])
-        b_1_0 = _mm_shuffle_pd(b_0_1, b_0_1, _MM_SHUFFLE2(0, 1));
-
-        d_01_10 = a_0_1;
-        d_21_30 = a_2_3;
-
-        d_01_10 = _mm_mul_pd(d_01_10, b_1_0);
-        d_21_30 = _mm_mul_pd(d_21_30, b_1_0);
-
-        ab_01_10 = _mm_add_pd(ab_01_10, d_01_10);
-        ab_21_30 = _mm_add_pd(ab_21_30, d_21_30);
-
-        // compute diag pairs (a[0]*b[2],a[1]*b[3]) and (a[2]*b[2],a[3]*b[3])
-        b_0_1 = _mm_load_pd(B+2);
-
-        d_00_11 = a_0_1;
-        d_20_31 = a_2_3;
-
-        d_00_11 = _mm_mul_pd(d_00_11, b_0_1);
-        d_20_31 = _mm_mul_pd(d_20_31, b_0_1);
-
-        ab_02_13 = _mm_add_pd(ab_02_13, d_00_11);
-        ab_22_33 = _mm_add_pd(ab_22_33, d_20_31);
-
-        // compute diag pairs (a[0]*b[3],a[1]*b[2]) and (a[2]*b[3],a[3]*b[2])
-        b_1_0 = _mm_shuffle_pd(b_0_1, b_0_1, _MM_SHUFFLE2(0, 1));
-
-        d_01_10 = a_0_1;
-        d_21_30 = a_2_3;
-
-        d_01_10 = _mm_mul_pd(d_01_10, b_1_0);
-        d_21_30 = _mm_mul_pd(d_21_30, b_1_0);
-
-        ab_03_12 = _mm_add_pd(ab_03_12, d_01_10);
-        ab_23_32 = _mm_add_pd(ab_23_32, d_21_30);
-
-        // move on
-        A += 4;
-        B += 4;
-    }
-
-    _mm_storel_pd(&AB[0+0*4], ab_00_11);
-    _mm_storeh_pd(&AB[1+0*4], ab_01_10);
-    _mm_storel_pd(&AB[2+0*4], ab_20_31);
-    _mm_storeh_pd(&AB[3+0*4], ab_21_30);
-
-    _mm_storel_pd(&AB[0+1*4], ab_01_10);
-    _mm_storeh_pd(&AB[1+1*4], ab_00_11);
-    _mm_storel_pd(&AB[2+1*4], ab_21_30);
-    _mm_storeh_pd(&AB[3+1*4], ab_20_31);
-
-    _mm_storel_pd(&AB[0+2*4], ab_02_13);
-    _mm_storeh_pd(&AB[1+2*4], ab_03_12);
-    _mm_storel_pd(&AB[2+2*4], ab_22_33);
-    _mm_storeh_pd(&AB[3+2*4], ab_23_32);
-
-    _mm_storel_pd(&AB[0+3*4], ab_03_12);
-    _mm_storeh_pd(&AB[1+3*4], ab_02_13);
-    _mm_storel_pd(&AB[2+3*4], ab_23_32);
-    _mm_storeh_pd(&AB[3+3*4], ab_22_33);
+    __asm__ volatile
+    (
+    " movq         %1,             %%rax     \n\t" // load address of A
+    " movq         %2,             %%rbx     \n\t" // load address of B
+    " movq         %3,             %%rcx     \n\t" // load address of AB
+    "                                        \n\t"
+    " xorpd        %%xmm8,         %%xmm8    \n\t"
+    " xorpd        %%xmm9,         %%xmm9    \n\t"
+    " xorpd        %%xmm10,        %%xmm10   \n\t"
+    " xorpd        %%xmm11,        %%xmm11   \n\t"
+    " xorpd        %%xmm12,        %%xmm12   \n\t"
+    " xorpd        %%xmm13,        %%xmm13   \n\t"
+    " xorpd        %%xmm14,        %%xmm14   \n\t"
+    " xorpd        %%xmm15,        %%xmm15   \n\t"
+    "                                        \n\t"
+    " movq         %0,             %%rsi     \n\t" // i = kc
+    " testq        %%rsi,          %%rsi     \n\t" // check i via logical AND.
+    " je           .DDONE                    \n\t" // if i == 0 we are done
+    "                                        \n\t"
+    ".DLOOP:                                 \n\t"
+    "                                        \n\t"
+    // compute diag pairs (a[0]*b[0],a[1]*b[1]) and (a[2]*b[0],a[3]*b[1])
+    "                                        \n\t"
+    " movaps       (%%rax),        %%xmm0    \n\t" // load (a[0],a[1])
+    " movaps     16(%%rax),        %%xmm1    \n\t" // load (a[2],a[3])
+    "                                        \n\t"
+    " movaps       (%%rbx),        %%xmm2    \n\t" // load (b[0],b[1])
+    "                                        \n\t"
+    " movaps       %%xmm0,         %%xmm4    \n\t"
+    " movaps       %%xmm1,         %%xmm6    \n\t"
+    "                                        \n\t"
+    " mulpd        %%xmm2,         %%xmm4    \n\t" // (a[0]*b[0],a[1]*b[1])
+    " mulpd        %%xmm2,         %%xmm6    \n\t" // (a[2]*b[0],a[3]*b[1])
+    "                                        \n\t"
+    " addpd        %%xmm4,         %%xmm8    \n\t" // update ab_00_11
+    " addpd        %%xmm6,         %%xmm12   \n\t" // update ab_20_31
+    "                                        \n\t"
+    // compute diag pairs (a[0]*b[1],a[1]*b[0]) and (a[2]*b[1],a[3]*b[0])
+    "                                        \n\t"
+    " pshufd       $0x4e, %%xmm2,  %%xmm3    \n\t" // swap -> (b[1],b[0])
+    "                                        \n\t"
+    " movaps       %%xmm0,         %%xmm5    \n\t"
+    " movaps       %%xmm1,         %%xmm7    \n\t"
+    "                                        \n\t"
+    " mulpd        %%xmm3,         %%xmm5    \n\t" // (a[0]*b[1],a[1]*b[0])
+    " mulpd        %%xmm3,         %%xmm7    \n\t" // (a[2]*b[1],a[3]*b[0])
+    "                                        \n\t"
+    " addpd        %%xmm5,         %%xmm9    \n\t" // update ab_01_10
+    " addpd        %%xmm7,         %%xmm13   \n\t" // update ab_21_30
+    "                                        \n\t"
+    // compute diag pairs (a[0]*b[2],a[1]*b[3]) and (a[2]*b[2],a[3]*b[3])
+    "                                        \n\t"
+    " movaps     16(%%rbx),        %%xmm2    \n\t" // load (b[2],b[3])
+    "                                        \n\t"
+    " movaps       %%xmm0,         %%xmm4    \n\t"
+    " movaps       %%xmm1,         %%xmm6    \n\t"
+    "                                        \n\t"
+    " mulpd        %%xmm2,         %%xmm4    \n\t" // (a[0]*b[2],a[1]*b[3])
+    " mulpd        %%xmm2,         %%xmm6    \n\t" // (a[2]*b[2],a[3]*b[3])
+    "                                        \n\t"
+    " addpd        %%xmm4,         %%xmm10   \n\t" // update ab_02_13
+    " addpd        %%xmm6,         %%xmm14   \n\t" // update ab_22_33
+    "                                        \n\t"
+    // compute diag pairs (a[0]*b[3],a[1]*b[2]) and (a[2]*b[3],a[3]*b[2])
+    "                                        \n\t"
+    " pshufd       $0x4e, %%xmm2,  %%xmm3    \n\t" // swap -> (b[3],b[2])
+    "                                        \n\t"
+    " movaps       %%xmm0,         %%xmm5    \n\t"
+    " movaps       %%xmm1,         %%xmm7    \n\t"
+    "                                        \n\t"
+    " mulpd        %%xmm3,         %%xmm5    \n\t" // (a[0]*b[3],a[1]*b[2])
+    " mulpd        %%xmm3,         %%xmm7    \n\t" // (a[2]*b[3],a[3]*b[2])
+    "                                        \n\t"
+    " addpd        %%xmm5,         %%xmm11   \n\t" // update ab_03_12
+    " addpd        %%xmm7,         %%xmm15   \n\t" // update ab_23_32
+    "                                        \n\t"
+    " addq         $4 * 8,        %%rax     \n\t" // A += 4
+    " addq         $4 * 8,        %%rbx     \n\t" // B += 4
+    "                                        \n\t"
+    " decq         %%rsi                     \n\t" // --i
+    " jne          .DLOOP                    \n\t" // iterate again if i != 0.
+    "                                        \n\t"
+    ".DDONE:                                 \n\t"
+    "                                        \n\t"
+    " movlpd       %%xmm8,         0*8(%%rcx)\n\t" // copy ab_00
+    " movhpd       %%xmm9,         1*8(%%rcx)\n\t" // copy ab_10
+    " movlpd       %%xmm12,        2*8(%%rcx)\n\t" // copy ab_20
+    " movhpd       %%xmm13,        3*8(%%rcx)\n\t" // copy ab_30
+    "                                        \n\t"
+    " movlpd       %%xmm9,  (0*8+1*32)(%%rcx)\n\t" // copy ab_01
+    " movhpd       %%xmm8,  (1*8+1*32)(%%rcx)\n\t" // copy ab_11
+    " movlpd       %%xmm13, (2*8+1*32)(%%rcx)\n\t" // copy ab_21
+    " movhpd       %%xmm12, (3*8+1*32)(%%rcx)\n\t" // copy ab_31
+    "                                        \n\t"
+    " movlpd       %%xmm10, (0*8+2*32)(%%rcx)\n\t" // copy ab_02
+    " movhpd       %%xmm11, (1*8+2*32)(%%rcx)\n\t" // copy ab_12
+    " movlpd       %%xmm14, (2*8+2*32)(%%rcx)\n\t" // copy ab_22
+    " movhpd       %%xmm15, (3*8+2*32)(%%rcx)\n\t" // copy ab_32
+    "                                        \n\t"
+    " movlpd       %%xmm11, (0*8+3*32)(%%rcx)\n\t" // copy ab_03
+    " movhpd       %%xmm10, (1*8+3*32)(%%rcx)\n\t" // copy ab_13
+    " movlpd       %%xmm15, (2*8+3*32)(%%rcx)\n\t" // copy ab_23
+    " movhpd       %%xmm14, (3*8+3*32)(%%rcx)\n\t" // copy ab_33
+    "                                        \n\t"
+    :  // output
+    :  // input
+        "m" (kc), // 0
+        "m" (A),  // 1
+        "m" (B),  // 2
+        "m" (AB)  // 3
+    :  // register
+        "rax", "rbx", "rcx", "rsi",
+        "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7",
+        "xmm8", "xmm9", "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15",
+        "memory"
+    );
 
     if (beta==0.0) {
         for (j=0; j<4; ++j) {
