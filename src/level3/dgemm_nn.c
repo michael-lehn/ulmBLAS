@@ -139,10 +139,10 @@ dgemm_micro_kernel(long kc,
     " movq         %2,             %%rbx     \n\t" // load address of B
     " movq         %3,             %%rcx     \n\t" // load address of AB
     "                                        \n\t"
+    " xorpd        %%xmm3,         %%xmm3    \n\t"
     " xorpd        %%xmm4,         %%xmm4    \n\t"
     " xorpd        %%xmm5,         %%xmm5    \n\t"
     " xorpd        %%xmm6,         %%xmm6    \n\t"
-    " xorpd        %%xmm7,         %%xmm7    \n\t"
     "                                        \n\t"
     " xorpd        %%xmm8,         %%xmm8    \n\t"
     " xorpd        %%xmm9,         %%xmm9    \n\t"
@@ -157,103 +157,90 @@ dgemm_micro_kernel(long kc,
     " testq        %%rsi,          %%rsi     \n\t" // check i via logical AND.
     " je           .DDONE                    \n\t" // if i == 0 we are done
     "                                        \n\t"
-    ".DLOOP:                                 \n\t"
-    "                                        \n\t"
-    // compute diag pairs (a[0]*b[0],a[1]*b[1]) and (a[2]*b[0],a[3]*b[1])
-    "                                        \n\t"
     " movaps       (%%rax),        %%xmm0    \n\t" // load (a[0],a[1])
     " movaps     16(%%rax),        %%xmm1    \n\t" // load (a[2],a[3])
     "                                        \n\t"
     " movaps       (%%rbx),        %%xmm2    \n\t" // load (b[0],b[1])
     "                                        \n\t"
-    " addpd        %%xmm4,         %%xmm10   \n\t" // update ab_02_13
+    ".DLOOP:                                 \n\t"
+    "                                        \n\t"
+    " addpd        %%xmm3,         %%xmm11   \n\t" // update ab_02_13
+    " movaps     16(%%rbx),        %%xmm3    \n\t" // load (b[2],b[3])
+    " addpd        %%xmm4,         %%xmm15   \n\t" // update ab_22_33
+    "                                        \n\t"
+    // compute diag pairs (a[0]*b[0],a[1]*b[1]) and (a[2]*b[0],a[3]*b[1])
+    "                                        \n\t"
+    " movaps       %%xmm2,         %%xmm4    \n\t"
+    " pshufd $0x4e,%%xmm2,         %%xmm7    \n\t" // swap -> (b[1],b[0])
+    "                                        \n\t"
+    " mulpd        %%xmm0,         %%xmm2    \n\t" // (a[0]*b[0],a[1]*b[1])
+    " mulpd        %%xmm1,         %%xmm4    \n\t" // (a[2]*b[0],a[3]*b[1])
+    "                                        \n\t"
+    " addpd        %%xmm5,         %%xmm10   \n\t" // update ab_03_12
     " addpd        %%xmm6,         %%xmm14   \n\t" // update ab_22_33
-    " movaps       %%xmm0,         %%xmm4    \n\t"
-    " movaps       %%xmm1,         %%xmm6    \n\t"
-    "                                        \n\t"
-    " mulpd        %%xmm2,         %%xmm4    \n\t" // (a[0]*b[0],a[1]*b[1])
-    " mulpd        %%xmm2,         %%xmm6    \n\t" // (a[2]*b[0],a[3]*b[1])
-    "                                        \n\t"
-    //" addpd        %%xmm4,         %%xmm8    \n\t" // update ab_00_11
-    //" addpd        %%xmm6,         %%xmm12   \n\t" // update ab_20_31
-    "                                        \n\t"
     // compute diag pairs (a[0]*b[1],a[1]*b[0]) and (a[2]*b[1],a[3]*b[0])
     "                                        \n\t"
-    " pshufd       $0x4e, %%xmm2,  %%xmm3    \n\t" // swap -> (b[1],b[0])
+    " movaps       %%xmm7,         %%xmm6    \n\t"
+    " mulpd        %%xmm0,         %%xmm7    \n\t" // (a[0]*b[1],a[1]*b[0])
+    " mulpd        %%xmm1,         %%xmm6    \n\t" // (a[2]*b[1],a[3]*b[0])
     "                                        \n\t"
-    " addpd        %%xmm5,         %%xmm11   \n\t" // update ab_03_12
-    " addpd        %%xmm7,         %%xmm15   \n\t" // update ab_23_32
-    " movaps       %%xmm0,         %%xmm5    \n\t"
-    " movaps       %%xmm1,         %%xmm7    \n\t"
-    "                                        \n\t"
-    " mulpd        %%xmm3,         %%xmm5    \n\t" // (a[0]*b[1],a[1]*b[0])
-    " mulpd        %%xmm3,         %%xmm7    \n\t" // (a[2]*b[1],a[3]*b[0])
-    "                                        \n\t"
-    //" addpd        %%xmm5,         %%xmm9    \n\t" // update ab_01_10
-    //" addpd        %%xmm7,         %%xmm13   \n\t" // update ab_21_30
+    " addpd        %%xmm2,         %%xmm9    \n\t" // update ab_00_11
+    " movaps     32(%%rbx),        %%xmm2    \n\t" // load *next* (b[0],b[1])
+    " addpd        %%xmm4,         %%xmm13   \n\t" // update ab_20_31
     "                                        \n\t"
     // compute diag pairs (a[0]*b[2],a[1]*b[3]) and (a[2]*b[2],a[3]*b[3])
     "                                        \n\t"
-    " movaps     16(%%rbx),        %%xmm2    \n\t" // load (b[2],b[3])
+    " movaps       %%xmm3,         %%xmm4    \n\t"
+    " pshufd $0x4e,%%xmm3,         %%xmm5    \n\t" // swap -> (b[3],b[2])
     "                                        \n\t"
-    " addpd        %%xmm4,         %%xmm8    \n\t" // update ab_00_11
-    " addpd        %%xmm6,         %%xmm12   \n\t" // update ab_20_31
-    " movaps       %%xmm0,         %%xmm4    \n\t"
-    " movaps       %%xmm1,         %%xmm6    \n\t"
+    " mulpd        %%xmm0,         %%xmm3    \n\t" // (a[0]*b[2],a[1]*b[3])
+    " mulpd        %%xmm1,         %%xmm4    \n\t" // (a[2]*b[2],a[3]*b[3])
     "                                        \n\t"
-    " mulpd        %%xmm2,         %%xmm4    \n\t" // (a[0]*b[2],a[1]*b[3])
-    " mulpd        %%xmm2,         %%xmm6    \n\t" // (a[2]*b[2],a[3]*b[3])
-    "                                        \n\t"
-    //" addpd        %%xmm4,         %%xmm10   \n\t" // update ab_02_13
-    //" addpd        %%xmm6,         %%xmm14   \n\t" // update ab_22_33
+    " addpd        %%xmm7,         %%xmm8    \n\t" // update ab_01_10
+    " addpd        %%xmm6,         %%xmm12   \n\t" // update ab_21_30
     "                                        \n\t"
     // compute diag pairs (a[0]*b[3],a[1]*b[2]) and (a[2]*b[3],a[3]*b[2])
     "                                        \n\t"
-    " pshufd       $0x4e, %%xmm2,  %%xmm3    \n\t" // swap -> (b[3],b[2])
+    " movaps       %%xmm5,         %%xmm6    \n\t"
     "                                        \n\t"
-    " addpd        %%xmm5,         %%xmm9    \n\t" // update ab_01_10
-    " addpd        %%xmm7,         %%xmm13   \n\t" // update ab_21_30
-    " movaps       %%xmm0,         %%xmm5    \n\t"
-    " movaps       %%xmm1,         %%xmm7    \n\t"
+    " mulpd        %%xmm0,         %%xmm5    \n\t" // (a[0]*b[3],a[1]*b[2])
+    " movaps     32(%%rax),        %%xmm0    \n\t" // load *next* (a[0],a[1])
+    " mulpd        %%xmm1,         %%xmm6    \n\t" // (a[2]*b[3],a[3]*b[2])
+    " movaps     48(%%rax),        %%xmm1    \n\t" // load *next* (a[2],a[3])
     "                                        \n\t"
-    " mulpd        %%xmm3,         %%xmm5    \n\t" // (a[0]*b[3],a[1]*b[2])
-    " mulpd        %%xmm3,         %%xmm7    \n\t" // (a[2]*b[3],a[3]*b[2])
-    "                                        \n\t"
-    //" addpd        %%xmm5,         %%xmm11   \n\t" // update ab_03_12
-    //" addpd        %%xmm7,         %%xmm15   \n\t" // update ab_23_32
-    "                                        \n\t"
-    " addq         $4 * 8,        %%rax     \n\t" // A += 4
-    " addq         $4 * 8,        %%rbx     \n\t" // B += 4
+    " addq         $4 * 8,         %%rax     \n\t" // A += 4
+    " addq         $4 * 8,         %%rbx     \n\t" // B += 4
     "                                        \n\t"
     " decq         %%rsi                     \n\t" // --i
     " jne          .DLOOP                    \n\t" // iterate again if i != 0.
     "                                        \n\t"
     ".DDONE:                                 \n\t"
     "                                        \n\t"
-    " addpd        %%xmm4,         %%xmm10   \n\t" // update ab_02_13
+    " addpd        %%xmm3,         %%xmm11   \n\t" // update ab_02_13
+    " addpd        %%xmm4,         %%xmm15   \n\t" // update ab_22_33
+    "                                        \n\t"
+    " addpd        %%xmm5,         %%xmm10   \n\t" // update ab_03_12
     " addpd        %%xmm6,         %%xmm14   \n\t" // update ab_22_33
-    " addpd        %%xmm5,         %%xmm11   \n\t" // update ab_03_12
-    " addpd        %%xmm7,         %%xmm15   \n\t" // update ab_23_32
     "                                        \n\t"
-    " movlpd       %%xmm8,         0*8(%%rcx)\n\t" // copy ab_00
-    " movhpd       %%xmm9,         1*8(%%rcx)\n\t" // copy ab_10
-    " movlpd       %%xmm12,        2*8(%%rcx)\n\t" // copy ab_20
-    " movhpd       %%xmm13,        3*8(%%rcx)\n\t" // copy ab_30
+    " movlpd       %%xmm9,         0*8(%%rcx)\n\t" // copy ab_00
+    " movhpd       %%xmm8,         1*8(%%rcx)\n\t" // copy ab_10
+    " movlpd       %%xmm13,        2*8(%%rcx)\n\t" // copy ab_20
+    " movhpd       %%xmm12,        3*8(%%rcx)\n\t" // copy ab_30
     "                                        \n\t"
-    " movlpd       %%xmm9,  (0*8+1*32)(%%rcx)\n\t" // copy ab_01
-    " movhpd       %%xmm8,  (1*8+1*32)(%%rcx)\n\t" // copy ab_11
-    " movlpd       %%xmm13, (2*8+1*32)(%%rcx)\n\t" // copy ab_21
-    " movhpd       %%xmm12, (3*8+1*32)(%%rcx)\n\t" // copy ab_31
+    " movlpd       %%xmm8,  (0*8+1*32)(%%rcx)\n\t" // copy ab_01
+    " movhpd       %%xmm9,  (1*8+1*32)(%%rcx)\n\t" // copy ab_11
+    " movlpd       %%xmm12, (2*8+1*32)(%%rcx)\n\t" // copy ab_21
+    " movhpd       %%xmm13, (3*8+1*32)(%%rcx)\n\t" // copy ab_31
     "                                        \n\t"
-    " movlpd       %%xmm10, (0*8+2*32)(%%rcx)\n\t" // copy ab_02
-    " movhpd       %%xmm11, (1*8+2*32)(%%rcx)\n\t" // copy ab_12
-    " movlpd       %%xmm14, (2*8+2*32)(%%rcx)\n\t" // copy ab_22
-    " movhpd       %%xmm15, (3*8+2*32)(%%rcx)\n\t" // copy ab_32
+    " movlpd       %%xmm11, (0*8+2*32)(%%rcx)\n\t" // copy ab_02
+    " movhpd       %%xmm10, (1*8+2*32)(%%rcx)\n\t" // copy ab_12
+    " movlpd       %%xmm15, (2*8+2*32)(%%rcx)\n\t" // copy ab_22
+    " movhpd       %%xmm14, (3*8+2*32)(%%rcx)\n\t" // copy ab_32
     "                                        \n\t"
-    " movlpd       %%xmm11, (0*8+3*32)(%%rcx)\n\t" // copy ab_03
-    " movhpd       %%xmm10, (1*8+3*32)(%%rcx)\n\t" // copy ab_13
-    " movlpd       %%xmm15, (2*8+3*32)(%%rcx)\n\t" // copy ab_23
-    " movhpd       %%xmm14, (3*8+3*32)(%%rcx)\n\t" // copy ab_33
+    " movlpd       %%xmm10, (0*8+3*32)(%%rcx)\n\t" // copy ab_03
+    " movhpd       %%xmm11, (1*8+3*32)(%%rcx)\n\t" // copy ab_13
+    " movlpd       %%xmm14, (2*8+3*32)(%%rcx)\n\t" // copy ab_23
+    " movhpd       %%xmm15, (3*8+3*32)(%%rcx)\n\t" // copy ab_33
     "                                        \n\t"
     :  // output
     :  // input
