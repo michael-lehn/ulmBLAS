@@ -128,13 +128,12 @@ dgemm_micro_kernel(long kc,
 
     int i, j, l;
 
-    for (l=0; l<MR*NR; ++l) {
-        AB[l] = 0;
-    }
-
 //
 //  Compute AB = A*B
 //
+    for (l=0; l<MR*NR; ++l) {
+        AB[l] = 0;
+    }
     for (l=0; l<kc; ++l) {
         for (j=0; j<NR; ++j) {
             for (i=0; i<MR; ++i) {
