@@ -132,24 +132,19 @@ dgemm_micro_kernel(long kc,
     double _AB[4*4] __attribute__ ((aligned (16)));
     double *AB = _AB;
 
-    long kb = kc / 4;
-    long kl = kc % 4;
-
     int i, j;
 
     __asm__ volatile
     (
         "                                \n\t"
         "                                \n\t"
-        "movq          %2, %%rax         \n\t" // load address of a.
-        "movq          %3, %%rbx         \n\t" // load address of b.
+        "movq          %1, %%rax         \n\t" // load address of a.
+        "movq          %2, %%rbx         \n\t" // load address of b.
         "                                \n\t"
-        "subq    $-8 * 16, %%rax         \n\t" // increment pointers to allow byte
-        "subq    $-8 * 16, %%rbx         \n\t" // offsets in the unrolled iterations.
         "                                \n\t"
-        "movaps  -8 * 16(%%rax), %%xmm0  \n\t" // initialize loop by pre-loading elements
-        "movaps  -7 * 16(%%rax), %%xmm1  \n\t" // of a and b.
-        "movaps  -8 * 16(%%rbx), %%xmm2  \n\t"
+        "movaps         (%%rax), %%xmm0  \n\t" // initialize loop by pre-loading elements
+        "movaps       16(%%rax), %%xmm1  \n\t" // of a and b.
+        "movaps         (%%rbx), %%xmm2  \n\t"
         "                                \n\t"
         "                                \n\t"
         "xorpd     %%xmm3,  %%xmm3       \n\t"
@@ -168,170 +163,16 @@ dgemm_micro_kernel(long kc,
         "                                \n\t"
         "                                \n\t"
         "                                \n\t"
-        "movq      %0, %%rsi             \n\t" // i = k_iter;
+        "movq      %0, %%rsi             \n\t" // i = k_left;
         "testq  %%rsi, %%rsi             \n\t" // check i via logical AND.
-        "je     .DCONSIDKLEFT            \n\t" // if i == 0, jump to code that
-        "                                \n\t" // contains the k_left loop.
-        "                                \n\t"
-        "                                \n\t"
-        ".DLOOPKITER:                    \n\t" // MAIN LOOP
-        "                                \n\t"
-        "addpd   %%xmm3, %%xmm11         \n\t" // iteration 0
-        "movaps  -7 * 16(%%rbx), %%xmm3  \n\t"
-        "addpd   %%xmm4, %%xmm15         \n\t"
-        "movaps  %%xmm2, %%xmm4          \n\t"
-        "pshufd   $0x4e, %%xmm2, %%xmm7  \n\t"
-        "mulpd   %%xmm0, %%xmm2          \n\t"
-        "mulpd   %%xmm1, %%xmm4          \n\t"
-        "                                \n\t"
-        "addpd   %%xmm5, %%xmm10         \n\t"
-        "addpd   %%xmm6, %%xmm14         \n\t"
-        "movaps  %%xmm7, %%xmm6          \n\t"
-        "mulpd   %%xmm0, %%xmm7          \n\t"
-        "mulpd   %%xmm1, %%xmm6          \n\t"
-        "                                \n\t"
-        "addpd   %%xmm2, %%xmm9          \n\t"
-        "movaps  -6 * 16(%%rbx), %%xmm2  \n\t"
-        "addpd   %%xmm4, %%xmm13         \n\t"
-        "movaps  %%xmm3, %%xmm4          \n\t"
-        "pshufd   $0x4e, %%xmm3, %%xmm5  \n\t"
-        "mulpd   %%xmm0, %%xmm3          \n\t"
-        "mulpd   %%xmm1, %%xmm4          \n\t"
-        "                                \n\t"
-        "addpd   %%xmm7, %%xmm8          \n\t"
-        "addpd   %%xmm6, %%xmm12         \n\t"
-        "movaps  %%xmm5, %%xmm6          \n\t"
-        "mulpd   %%xmm0, %%xmm5          \n\t"
-        "movaps  -6 * 16(%%rax), %%xmm0  \n\t"
-        "mulpd   %%xmm1, %%xmm6          \n\t"
-        "movaps  -5 * 16(%%rax), %%xmm1  \n\t"
-        "                                \n\t"
-        "                                \n\t"
-        "                                \n\t"
-        "addpd   %%xmm3, %%xmm11         \n\t" // iteration 1
-        "movaps  -5 * 16(%%rbx), %%xmm3  \n\t"
-        "addpd   %%xmm4, %%xmm15         \n\t"
-        "movaps  %%xmm2, %%xmm4          \n\t"
-        "pshufd   $0x4e, %%xmm2, %%xmm7  \n\t"
-        "mulpd   %%xmm0, %%xmm2          \n\t"
-        "mulpd   %%xmm1, %%xmm4          \n\t"
-        "                                \n\t"
-        "addpd   %%xmm5, %%xmm10         \n\t"
-        "addpd   %%xmm6, %%xmm14         \n\t"
-        "movaps  %%xmm7, %%xmm6          \n\t"
-        "mulpd   %%xmm0, %%xmm7          \n\t"
-        "mulpd   %%xmm1, %%xmm6          \n\t"
-        "                                \n\t"
-        "addpd   %%xmm2, %%xmm9          \n\t"
-        "movaps  -4 * 16(%%rbx), %%xmm2  \n\t"
-        "addpd   %%xmm4, %%xmm13         \n\t"
-        "movaps  %%xmm3, %%xmm4          \n\t"
-        "pshufd   $0x4e, %%xmm3, %%xmm5  \n\t"
-        "mulpd   %%xmm0, %%xmm3          \n\t"
-        "mulpd   %%xmm1, %%xmm4          \n\t"
-        "                                \n\t"
-        "addpd   %%xmm7, %%xmm8          \n\t"
-        "addpd   %%xmm6, %%xmm12         \n\t"
-        "movaps  %%xmm5, %%xmm6          \n\t"
-        "mulpd   %%xmm0, %%xmm5          \n\t"
-        "movaps  -4 * 16(%%rax), %%xmm0  \n\t"
-        "mulpd   %%xmm1, %%xmm6          \n\t"
-        "movaps  -3 * 16(%%rax), %%xmm1  \n\t"
-        "                                \n\t"
-        "                                \n\t"
-        "addpd   %%xmm3, %%xmm11         \n\t" // iteration 2
-        "movaps  -3 * 16(%%rbx), %%xmm3  \n\t"
-        "addpd   %%xmm4, %%xmm15         \n\t"
-        "movaps  %%xmm2, %%xmm4          \n\t"
-        "pshufd   $0x4e, %%xmm2, %%xmm7  \n\t"
-        "mulpd   %%xmm0, %%xmm2          \n\t"
-        "mulpd   %%xmm1, %%xmm4          \n\t"
-        "                                \n\t"
-        "addpd   %%xmm5, %%xmm10         \n\t"
-        "addpd   %%xmm6, %%xmm14         \n\t"
-        "movaps  %%xmm7, %%xmm6          \n\t"
-        "mulpd   %%xmm0, %%xmm7          \n\t"
-        "mulpd   %%xmm1, %%xmm6          \n\t"
-        "                                \n\t"
-        "addpd   %%xmm2, %%xmm9          \n\t"
-        "movaps  -2 * 16(%%rbx), %%xmm2  \n\t"
-        "addpd   %%xmm4, %%xmm13         \n\t"
-        "movaps  %%xmm3, %%xmm4          \n\t"
-        "pshufd   $0x4e, %%xmm3, %%xmm5  \n\t"
-        "mulpd   %%xmm0, %%xmm3          \n\t"
-        "mulpd   %%xmm1, %%xmm4          \n\t"
-        "                                \n\t"
-        "                                \n\t"
-        "addpd   %%xmm7, %%xmm8          \n\t"
-        "addpd   %%xmm6, %%xmm12         \n\t"
-        "movaps  %%xmm5, %%xmm6          \n\t"
-        "mulpd   %%xmm0, %%xmm5          \n\t"
-        "movaps  -2 * 16(%%rax), %%xmm0  \n\t"
-        "mulpd   %%xmm1, %%xmm6          \n\t"
-        "movaps  -1 * 16(%%rax), %%xmm1  \n\t"
-        "                                \n\t"
-        "                                \n\t"
-        "                                \n\t"
-        "addpd   %%xmm3, %%xmm11         \n\t" // iteration 3
-        "movaps  -1 * 16(%%rbx), %%xmm3  \n\t"
-        "addpd   %%xmm4, %%xmm15         \n\t"
-        "movaps  %%xmm2, %%xmm4          \n\t"
-        "pshufd   $0x4e, %%xmm2, %%xmm7  \n\t"
-        "mulpd   %%xmm0, %%xmm2          \n\t"
-        "mulpd   %%xmm1, %%xmm4          \n\t"
-        "                                \n\t"
-        "subq  $-4 * 4 * 8, %%rax        \n\t" // a += 4*4 (unroll x mr)
-        "                                \n\t"
-        "addpd   %%xmm5, %%xmm10         \n\t"
-        "addpd   %%xmm6, %%xmm14         \n\t"
-        "movaps  %%xmm7, %%xmm6          \n\t"
-        "mulpd   %%xmm0, %%xmm7          \n\t"
-        "mulpd   %%xmm1, %%xmm6          \n\t"
-        "                                \n\t"
-        "subq  $-4 * 4 * 8, %%r9         \n\t" // b_next += 4*4 (unroll x nr)
-        "                                \n\t"
-        "addpd   %%xmm2, %%xmm9          \n\t"
-        "movaps   0 * 16(%%rbx), %%xmm2  \n\t"
-        "addpd   %%xmm4, %%xmm13         \n\t"
-        "movaps  %%xmm3, %%xmm4          \n\t"
-        "pshufd   $0x4e, %%xmm3, %%xmm5  \n\t"
-        "mulpd   %%xmm0, %%xmm3          \n\t"
-        "mulpd   %%xmm1, %%xmm4          \n\t"
-        "                                \n\t"
-        "subq  $-4 * 4 * 8, %%rbx        \n\t" // b += 4*4 (unroll x nr)
-        "                                \n\t"
-        "addpd   %%xmm7, %%xmm8          \n\t"
-        "addpd   %%xmm6, %%xmm12         \n\t"
-        "movaps  %%xmm5, %%xmm6          \n\t"
-        "mulpd   %%xmm0, %%xmm5          \n\t"
-        "movaps  -8 * 16(%%rax), %%xmm0  \n\t"
-        "mulpd   %%xmm1, %%xmm6          \n\t"
-        "movaps  -7 * 16(%%rax), %%xmm1  \n\t"
-        "                                \n\t"
-//      "prefetcht2        0 * 8(%%r9)   \n\t" // prefetch b_next[0]
-//      "prefetcht2        8 * 8(%%r9)   \n\t" // prefetch b_next[8]
-        "                                \n\t"
-        "decq   %%rsi                    \n\t" // i -= 1;
-        "jne    .DLOOPKITER              \n\t" // iterate again if i != 0.
-        "                                \n\t"
-        "                                \n\t"
-        "                                \n\t"
-        //"prefetcht2       -8 * 8(%%r9)   \n\t" // prefetch b_next[-8]
-        "                                \n\t"
-        "                                \n\t"
-        "                                \n\t"
-        ".DCONSIDKLEFT:                  \n\t"
-        "                                \n\t"
-        "movq      %1, %%rsi             \n\t" // i = k_left;
-        "testq  %%rsi, %%rsi             \n\t" // check i via logical AND.
-        "je     .DPOSTACCUM              \n\t" // if i == 0, we're done; jump to end.
+        "je     .DPOSTACCUM%=            \n\t" // if i == 0, we're done; jump to end.
         "                                \n\t" // else, we prepare to enter k_left loop.
         "                                \n\t"
         "                                \n\t"
-        ".DLOOPKLEFT:                    \n\t" // EDGE LOOP
+        ".DLOOPKLEFT%=:                  \n\t" // EDGE LOOP
         "                                \n\t"
         "addpd   %%xmm3, %%xmm11         \n\t" // iteration 0
-        "movaps  -7 * 16(%%rbx), %%xmm3  \n\t"
+        "movaps       16(%%rbx), %%xmm3  \n\t"
         "addpd   %%xmm4, %%xmm15         \n\t"
         "movaps  %%xmm2, %%xmm4          \n\t"
         "pshufd   $0x4e, %%xmm2, %%xmm7  \n\t"
@@ -345,7 +186,7 @@ dgemm_micro_kernel(long kc,
         "mulpd   %%xmm1, %%xmm6          \n\t"
         "                                \n\t"
         "addpd   %%xmm2, %%xmm9          \n\t"
-        "movaps  -6 * 16(%%rbx), %%xmm2  \n\t"
+        "movaps       32(%%rbx), %%xmm2  \n\t"
         "addpd   %%xmm4, %%xmm13         \n\t"
         "movaps  %%xmm3, %%xmm4          \n\t"
         "pshufd   $0x4e, %%xmm3, %%xmm5  \n\t"
@@ -356,21 +197,21 @@ dgemm_micro_kernel(long kc,
         "addpd   %%xmm6, %%xmm12         \n\t"
         "movaps  %%xmm5, %%xmm6          \n\t"
         "mulpd   %%xmm0, %%xmm5          \n\t"
-        "movaps  -6 * 16(%%rax), %%xmm0  \n\t"
+        "movaps       32(%%rax), %%xmm0  \n\t"
         "mulpd   %%xmm1, %%xmm6          \n\t"
-        "movaps  -5 * 16(%%rax), %%xmm1  \n\t"
+        "movaps       48(%%rax), %%xmm1  \n\t"
         "                                \n\t"
         "                                \n\t"
-        "subq  $-4 * 1 * 8, %%rax        \n\t" // a += 4 (1 x mr)
-        "subq  $-4 * 1 * 8, %%rbx        \n\t" // b += 4 (1 x nr)
+        "addq   $4 * 1 * 8, %%rax        \n\t" // a += 4 (1 x mr)
+        "addq   $4 * 1 * 8, %%rbx        \n\t" // b += 4 (1 x nr)
         "                                \n\t"
         "                                \n\t"
         "decq   %%rsi                    \n\t" // i -= 1;
-        "jne    .DLOOPKLEFT              \n\t" // iterate again if i != 0.
+        "jne    .DLOOPKLEFT%=            \n\t" // iterate again if i != 0.
         "                                \n\t"
         "                                \n\t"
         "                                \n\t"
-        ".DPOSTACCUM:                    \n\t"
+        ".DPOSTACCUM%=:                  \n\t"
         "                                \n\t"
         "addpd   %%xmm3, %%xmm11         \n\t"
         "addpd   %%xmm4, %%xmm15         \n\t"
@@ -410,8 +251,8 @@ dgemm_micro_kernel(long kc,
         "                                \n\t"
         "                                \n\t"
         "                                \n\t"
-        ".DDONE:                         \n\t"
-        "movq          %4,      %%r8     \n\t" // load address of AB.
+        ".DDONE%=:                       \n\t"
+        "movq          %3,      %%r8     \n\t" // load address of AB.
         "movaps   %%xmm8,      (%%r8)    \n\t"
         "movaps   %%xmm12,   16(%%r8)    \n\t"
         "                                \n\t"
@@ -427,11 +268,10 @@ dgemm_micro_kernel(long kc,
 
         : // output operands (none)
         : // input operands
-          "m" (kb),     // 0
-          "m" (kl),     // 1
-          "m" (A),      // 2
-          "m" (B),      // 3
-          "m" (AB)      // 4
+          "m" (kc),     // 0
+          "m" (A),      // 1
+          "m" (B),      // 2
+          "m" (AB)      // 3
         : // register clobber list
           "rax", "rbx", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11",
           "xmm0", "xmm1", "xmm2", "xmm3",
