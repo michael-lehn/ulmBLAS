@@ -13,9 +13,9 @@
 //
 //  Local buffers for storing panels from A, B and C
 //
-static double _A[MC*KC] __attribute__ ((aligned (16)));
-static double _B[KC*NC] __attribute__ ((aligned (16)));
-static double _C[MR*NR] __attribute__ ((aligned (16)));
+static double _A[MC*KC];
+static double _B[KC*NC];
+static double _C[MR*NR];
 
 //
 //  Packing complete panels from A (i.e. without padding)
