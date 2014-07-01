@@ -114,20 +114,6 @@ pack_B(int kc, int nc, const double *B, int incRowB, int incColB,
         }
     }
 }
-static void
-printMatrix(int m, int n, const double *X, int incRowX, int incColX)
-{
-    int i, j;
-
-    for (i=0; i<m; ++i) {
-        for (j=0; j<n; ++j) {
-            printf("   %7.6lf", X[i*incRowX+j*incColX]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
-
 
 #if MR==4 && NR==4
 //
@@ -143,11 +129,6 @@ dgemm_micro_kernel(int kc,
     double *AB = _AB;
 
     int i, j;
-
-    printf("A = \n");
-    printMatrix(4, kc, A, 1, 4);
-    printf("B = \n");
-    printMatrix(4, kc, B, 1, 4);
 
 //
 //  Compute AB = A*B
@@ -170,6 +151,7 @@ dgemm_micro_kernel(int kc,
         "xorpd   %%xmm12, %%xmm12        \n\t"
         "xorpd   %%xmm13, %%xmm13        \n\t"
         "xorpd   %%xmm14, %%xmm14        \n\t"
+        "xorpd   %%xmm15, %%xmm15        \n\t"
         "                                \n\t"
         "movaps    (%%rax), %%xmm0       \n\t"
         "movaps  16(%%rax), %%xmm1       \n\t"
@@ -262,9 +244,6 @@ dgemm_micro_kernel(int kc,
         "xmm8", "xmm9", "xmm10", "xmm11",
         "xmm12", "xmm13", "xmm14", "xmm15"
     );
-
-    printf("AB = \n");
-    printMatrix(4, 4, AB, 1, 4);
 
 //
 //  Update C <- beta*C
@@ -450,10 +429,6 @@ ULMBLAS(dgemm_nn)(int            m,
         return;
     }
 
-    printf("A=\n");
-    printMatrix(m, k, A, incRowA, incColA);
-    printf("B=\n");
-    printMatrix(k, n, B, incRowB, incColB);
 
     for (j=0; j<nb; ++j) {
         nc = (j!=nb-1 || _nc==0) ? NC : _nc;
