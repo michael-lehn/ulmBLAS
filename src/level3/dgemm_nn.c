@@ -114,105 +114,157 @@ pack_B(int kc, int nc, const double *B, int incRowB, int incColB,
         }
     }
 }
+static void
+printMatrix(int m, int n, const double *X, int incRowX, int incColX)
+{
+    int i, j;
 
+    for (i=0; i<m; ++i) {
+        for (j=0; j<n; ++j) {
+            printf("   %7.6lf", X[i*incRowX+j*incColX]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+
+#if MR==4 && NR==4
 //
 //  Micro kernel for multiplying panels from A and B.
 //
 static void
-dgemm_micro_kernel(long kc,
+dgemm_micro_kernel(int kc,
                    double alpha, const double *A, const double *B,
                    double beta,
-                   double *C, long incRowC, long incColC)
+                   double *C, int incRowC, int incColC)
 {
-    double AB[MR*NR] __attribute__ ((aligned (16)));
+    double _AB[MR*NR] __attribute__ ((aligned (16)));
+    double *AB = _AB;
 
-    int i, j, l;
+    int i, j;
+
+    printf("A = \n");
+    printMatrix(4, kc, A, 1, 4);
+    printf("B = \n");
+    printMatrix(4, kc, B, 1, 4);
 
 //
 //  Compute AB = A*B
 //
-    __m128d ab_00_11, ab_20_31;
-    __m128d ab_01_10, ab_21_30;
-    __m128d ab_02_13, ab_22_33;
-    __m128d ab_03_12, ab_23_32;
+    __asm__ volatile
+    (
+        "movq        %1, %%rax           \n\t"
+        "movq        %2, %%rbx           \n\t"
+        "movq        %3, %%rcx           \n\t"
+        "                                \n\t"
+        "xorpd   %%xmm3, %%xmm3          \n\t"
+        "xorpd   %%xmm4, %%xmm4          \n\t"
+        "xorpd   %%xmm5, %%xmm5          \n\t"
+        "xorpd   %%xmm6, %%xmm6          \n\t"
+        "                                \n\t"
+        "xorpd   %%xmm8, %%xmm8          \n\t"
+        "xorpd   %%xmm9, %%xmm9          \n\t"
+        "xorpd   %%xmm10, %%xmm10        \n\t"
+        "xorpd   %%xmm11, %%xmm11        \n\t"
+        "xorpd   %%xmm12, %%xmm12        \n\t"
+        "xorpd   %%xmm13, %%xmm13        \n\t"
+        "xorpd   %%xmm14, %%xmm14        \n\t"
+        "                                \n\t"
+        "movaps    (%%rax), %%xmm0       \n\t"
+        "movaps  16(%%rax), %%xmm1       \n\t"
+        "movaps    (%%rbx), %%xmm2       \n\t"
+        "                                \n\t"
+        "movl        %0, %%esi           \n\t"
+        "testl    %%esi, %%esi           \n\t"
+        "je      .DWRITEBACK%=           \n\t"
+        "                                \n\t"
+        ".DLOOP%=:                       \n\t"
+        "                                \n\t"
+        "addpd   %%xmm3, %%xmm11         \n\t"
+        "movaps  16(%%rbx), %%xmm3       \n\t"
+        "addpd   %%xmm4, %%xmm15         \n\t"
+        "movaps  %%xmm2, %%xmm4          \n\t"
+        "pshufd   $0x4e, %%xmm2, %%xmm7  \n\t"
+        "mulpd   %%xmm0, %%xmm2          \n\t"
+        "mulpd   %%xmm1, %%xmm4          \n\t"
+        "                                \n\t"
+        "addpd   %%xmm5, %%xmm10         \n\t"
+        "addpd   %%xmm6, %%xmm14         \n\t"
+        "movaps  %%xmm7, %%xmm6          \n\t"
+        "mulpd   %%xmm0, %%xmm7          \n\t"
+        "mulpd   %%xmm1, %%xmm6          \n\t"
+        "                                \n\t"
+        "addpd   %%xmm2, %%xmm9          \n\t"
+        "movaps  32(%%rbx), %%xmm2       \n\t"
+        "addpd   %%xmm4, %%xmm13         \n\t"
+        "movaps  %%xmm3, %%xmm4          \n\t"
+        "pshufd   $0x4e, %%xmm3, %%xmm5  \n\t"
+        "mulpd   %%xmm0, %%xmm3          \n\t"
+        "mulpd   %%xmm1, %%xmm4          \n\t"
+        "                                \n\t"
+        "addpd   %%xmm7, %%xmm8          \n\t"
+        "addpd   %%xmm6, %%xmm12         \n\t"
+        "movaps  %%xmm5, %%xmm6          \n\t"
+        "mulpd   %%xmm0, %%xmm5          \n\t"
+        "movaps  32(%%rax), %%xmm0       \n\t"
+        "mulpd   %%xmm1, %%xmm6          \n\t"
+        "movaps  48(%%rax), %%xmm1       \n\t"
+        "                                \n\t"
+        "                                \n\t"
+        "addq    $32, %%rax              \n\t"
+        "addq    $32, %%rbx              \n\t"
+        "                                \n\t"
+        "                                \n\t"
+        "decl   %%esi                    \n\t"
+        "jne    .DLOOP%=                 \n\t"
+        "                                \n\t"
+        "                                \n\t"
+        "addpd   %%xmm3, %%xmm11         \n\t"
+        "addpd   %%xmm4, %%xmm15         \n\t"
+        "addpd   %%xmm5, %%xmm10         \n\t"
+        "addpd   %%xmm6, %%xmm14         \n\t"
+        "                                \n\t"
+        ".DWRITEBACK%=:                  \n\t"
+        "                                \n\t"
+        "movlpd  %%xmm9,    (%%rcx)      \n\t"
+        "movhpd  %%xmm8,   8(%%rcx)      \n\t"
+        "movlpd  %%xmm13, 16(%%rcx)      \n\t"
+        "movhpd  %%xmm12, 24(%%rcx)      \n\t"
+        "                                \n\t"
+        "addq  $32, %%rcx                \n\t"
+        "movlpd  %%xmm8,    (%%rcx)      \n\t"
+        "movhpd  %%xmm9,   8(%%rcx)      \n\t"
+        "movlpd  %%xmm12, 16(%%rcx)      \n\t"
+        "movhpd  %%xmm13, 24(%%rcx)      \n\t"
+        "                                \n\t"
+        "addq  $32, %%rcx                \n\t"
+        "movlpd  %%xmm11,   (%%rcx)      \n\t"
+        "movhpd  %%xmm10,  8(%%rcx)      \n\t"
+        "movlpd  %%xmm15, 16(%%rcx)      \n\t"
+        "movhpd  %%xmm14, 24(%%rcx)      \n\t"
+        "                                \n\t"
+        "addq  $32, %%rcx                \n\t"
+        "movlpd  %%xmm10,   (%%rcx)      \n\t"
+        "movhpd  %%xmm11,  8(%%rcx)      \n\t"
+        "movlpd  %%xmm14, 16(%%rcx)      \n\t"
+        "movhpd  %%xmm15, 24(%%rcx)      \n\t"
+    : // output
+    : // input
+        "m" (kc),     // 0
+        "m" (A),      // 1
+        "m" (B),      // 2
+        "m" (AB)      // 3
+    : // register clobber list
+        "rax", "rbx", "rcx", "esi",
+        "xmm0", "xmm1", "xmm2", "xmm3",
+        "xmm4", "xmm5", "xmm6", "xmm7",
+        "xmm8", "xmm9", "xmm10", "xmm11",
+        "xmm12", "xmm13", "xmm14", "xmm15"
+    );
 
-    __m128d tmp0, tmp1, tmp2, tmp3;
-    __m128d tmp4, tmp5, tmp6, tmp7;
-
-    ab_00_11 = _mm_setzero_pd(); ab_20_31 = _mm_setzero_pd();
-    ab_01_10 = _mm_setzero_pd(); ab_21_30 = _mm_setzero_pd();
-    ab_02_13 = _mm_setzero_pd(); ab_22_33 = _mm_setzero_pd();
-    ab_03_12 = _mm_setzero_pd(); ab_23_32 = _mm_setzero_pd();
-
-    tmp0 = _mm_load_pd(A);
-    tmp1 = _mm_load_pd(A+2);
-    tmp2 = _mm_load_pd(B);
-    tmp3 = _mm_setzero_pd();
-    tmp4 = _mm_setzero_pd();
-    tmp5 = _mm_setzero_pd();
-    tmp6 = _mm_setzero_pd();
-    tmp7 = _mm_setzero_pd();
-
-    for (l=0; l<kc; ++l) {
-        ab_02_13 = _mm_add_pd(ab_02_13, tmp3);
-        tmp3     = _mm_load_pd(B+2);
-        ab_22_33 = _mm_add_pd(ab_22_33, tmp4);
-        tmp4     = tmp2;
-        tmp7     = _mm_shuffle_pd(tmp2, tmp2, _MM_SHUFFLE2(0, 1));
-        tmp2     = _mm_mul_pd(tmp2, tmp0);
-        tmp4     = _mm_mul_pd(tmp4, tmp1);
-
-        ab_03_12 = _mm_add_pd(ab_03_12, tmp5);
-        ab_23_32 = _mm_add_pd(ab_23_32, tmp6);
-        tmp6     = tmp7;
-        tmp7     = _mm_mul_pd(tmp7, tmp0);
-        tmp6     = _mm_mul_pd(tmp6, tmp1);
-
-        ab_00_11 = _mm_add_pd(ab_00_11, tmp2);
-        tmp2     = _mm_load_pd(B+4);
-        ab_20_31 = _mm_add_pd(ab_20_31, tmp4);
-        tmp4     = tmp3;
-        tmp5     = _mm_shuffle_pd(tmp3, tmp3, _MM_SHUFFLE2(0, 1));
-        tmp3     = _mm_mul_pd(tmp3, tmp0);
-        tmp4     = _mm_mul_pd(tmp4, tmp1);
-
-        ab_01_10 = _mm_add_pd(ab_01_10, tmp7);
-        ab_21_30 = _mm_add_pd(ab_21_30, tmp6);
-        tmp6     = tmp5;
-        tmp5     = _mm_mul_pd(tmp5, tmp0);
-        tmp0     = _mm_load_pd(A+4);
-        tmp6     = _mm_mul_pd(tmp6, tmp1);
-        tmp1     = _mm_load_pd(A+6);
-
-        A += 4;
-        B += 4;
-    }
-
-    ab_02_13 = _mm_add_pd(ab_02_13, tmp3);
-    ab_22_33 = _mm_add_pd(ab_22_33, tmp4);
-
-    ab_03_12 = _mm_add_pd(ab_03_12, tmp5);
-    ab_23_32 = _mm_add_pd(ab_23_32, tmp6);
-
-    _mm_storel_pd(&AB[0+4*0], ab_00_11);
-    _mm_storeh_pd(&AB[1+4*0], ab_01_10);
-    _mm_storel_pd(&AB[2+4*0], ab_20_31);
-    _mm_storeh_pd(&AB[3+4*0], ab_21_30);
-
-    _mm_storel_pd(&AB[0+4*1], ab_01_10);
-    _mm_storeh_pd(&AB[1+4*1], ab_00_11);
-    _mm_storel_pd(&AB[2+4*1], ab_21_30);
-    _mm_storeh_pd(&AB[3+4*1], ab_20_31);
-
-    _mm_storel_pd(&AB[0+4*2], ab_02_13);
-    _mm_storeh_pd(&AB[1+4*2], ab_03_12);
-    _mm_storel_pd(&AB[2+4*2], ab_22_33);
-    _mm_storeh_pd(&AB[3+4*2], ab_23_32);
-
-    _mm_storel_pd(&AB[0+4*3], ab_03_12);
-    _mm_storeh_pd(&AB[1+4*3], ab_02_13);
-    _mm_storel_pd(&AB[2+4*3], ab_23_32);
-    _mm_storeh_pd(&AB[3+4*3], ab_22_33);
+    printf("AB = \n");
+    printMatrix(4, 4, AB, 1, 4);
 
 //
 //  Update C <- beta*C
@@ -249,6 +301,10 @@ dgemm_micro_kernel(long kc,
         }
     }
 }
+#else
+#   error "This micro kernel requires MR==4 and NR==4"
+#endif
+
 
 //
 //  Compute Y += alpha*X
@@ -393,6 +449,11 @@ ULMBLAS(dgemm_nn)(int            m,
         dgescal(m, n, beta, C, incRowC, incColC);
         return;
     }
+
+    printf("A=\n");
+    printMatrix(m, k, A, incRowA, incColA);
+    printf("B=\n");
+    printMatrix(k, n, B, incRowB, incColB);
 
     for (j=0; j<nb; ++j) {
         nc = (j!=nb-1 || _nc==0) ? NC : _nc;
