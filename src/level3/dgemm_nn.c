@@ -147,11 +147,11 @@ dgemm_micro_kernel(long kc,
     tmp0 = _mm_load_pd(A);
     tmp1 = _mm_load_pd(A+2);
     tmp2 = _mm_load_pd(B);
+
     tmp3 = _mm_setzero_pd();
     tmp4 = _mm_setzero_pd();
     tmp5 = _mm_setzero_pd();
     tmp6 = _mm_setzero_pd();
-    tmp7 = _mm_setzero_pd();
 
     for (l=0; l<kc; ++l) {
         ab_02_13 = _mm_add_pd(ab_02_13, tmp3);
@@ -194,25 +194,28 @@ dgemm_micro_kernel(long kc,
     ab_03_12 = _mm_add_pd(ab_03_12, tmp5);
     ab_23_32 = _mm_add_pd(ab_23_32, tmp6);
 
-    _mm_storel_pd(&AB[0+4*0], ab_00_11);
-    _mm_storeh_pd(&AB[1+4*0], ab_01_10);
-    _mm_storel_pd(&AB[2+4*0], ab_20_31);
-    _mm_storeh_pd(&AB[3+4*0], ab_21_30);
+    _mm_storel_pd(&AB[0], ab_00_11);
+    _mm_storeh_pd(&AB[1], ab_01_10);
+    _mm_storel_pd(&AB[2], ab_20_31);
+    _mm_storeh_pd(&AB[3], ab_21_30);
 
-    _mm_storel_pd(&AB[0+4*1], ab_01_10);
-    _mm_storeh_pd(&AB[1+4*1], ab_00_11);
-    _mm_storel_pd(&AB[2+4*1], ab_21_30);
-    _mm_storeh_pd(&AB[3+4*1], ab_20_31);
+    AB += 4;
+    _mm_storel_pd(&AB[0], ab_01_10);
+    _mm_storeh_pd(&AB[1], ab_00_11);
+    _mm_storel_pd(&AB[2], ab_21_30);
+    _mm_storeh_pd(&AB[3], ab_20_31);
 
-    _mm_storel_pd(&AB[0+4*2], ab_02_13);
-    _mm_storeh_pd(&AB[1+4*2], ab_03_12);
-    _mm_storel_pd(&AB[2+4*2], ab_22_33);
-    _mm_storeh_pd(&AB[3+4*2], ab_23_32);
+    AB += 4;
+    _mm_storel_pd(&AB[0], ab_02_13);
+    _mm_storeh_pd(&AB[1], ab_03_12);
+    _mm_storel_pd(&AB[2], ab_22_33);
+    _mm_storeh_pd(&AB[3], ab_23_32);
 
-    _mm_storel_pd(&AB[0+4*3], ab_03_12);
-    _mm_storeh_pd(&AB[1+4*3], ab_02_13);
-    _mm_storel_pd(&AB[2+4*3], ab_23_32);
-    _mm_storeh_pd(&AB[3+4*3], ab_22_33);
+    AB += 4;
+    _mm_storel_pd(&AB[0], ab_03_12);
+    _mm_storeh_pd(&AB[1], ab_02_13);
+    _mm_storel_pd(&AB[2], ab_23_32);
+    _mm_storeh_pd(&AB[3], ab_22_33);
 
 //
 //  Update C <- beta*C
