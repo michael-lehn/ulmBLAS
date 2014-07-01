@@ -194,28 +194,25 @@ dgemm_micro_kernel(long kc,
     ab_03_12 = _mm_add_pd(ab_03_12, tmp5);
     ab_23_32 = _mm_add_pd(ab_23_32, tmp6);
 
-    _mm_storel_pd(&AB[0], ab_00_11);
-    _mm_storeh_pd(&AB[1], ab_01_10);
-    _mm_storel_pd(&AB[2], ab_20_31);
-    _mm_storeh_pd(&AB[3], ab_21_30);
+    _mm_storel_pd(&AB[0+0*4], ab_00_11);
+    _mm_storeh_pd(&AB[1+0*4], ab_01_10);
+    _mm_storel_pd(&AB[2+0*4], ab_20_31);
+    _mm_storeh_pd(&AB[3+0*4], ab_21_30);
 
-    AB += 4;
-    _mm_storel_pd(&AB[0], ab_01_10);
-    _mm_storeh_pd(&AB[1], ab_00_11);
-    _mm_storel_pd(&AB[2], ab_21_30);
-    _mm_storeh_pd(&AB[3], ab_20_31);
+    _mm_storel_pd(&AB[0+1*4], ab_01_10);
+    _mm_storeh_pd(&AB[1+1*4], ab_00_11);
+    _mm_storel_pd(&AB[2+1*4], ab_21_30);
+    _mm_storeh_pd(&AB[3+1*4], ab_20_31);
 
-    AB += 4;
-    _mm_storel_pd(&AB[0], ab_02_13);
-    _mm_storeh_pd(&AB[1], ab_03_12);
-    _mm_storel_pd(&AB[2], ab_22_33);
-    _mm_storeh_pd(&AB[3], ab_23_32);
+    _mm_storel_pd(&AB[0+2*4], ab_02_13);
+    _mm_storeh_pd(&AB[1+2*4], ab_03_12);
+    _mm_storel_pd(&AB[2+2*4], ab_22_33);
+    _mm_storeh_pd(&AB[3+2*4], ab_23_32);
 
-    AB += 4;
-    _mm_storel_pd(&AB[0], ab_03_12);
-    _mm_storeh_pd(&AB[1], ab_02_13);
-    _mm_storel_pd(&AB[2], ab_23_32);
-    _mm_storeh_pd(&AB[3], ab_22_33);
+    _mm_storel_pd(&AB[0+3*4], ab_03_12);
+    _mm_storeh_pd(&AB[1+3*4], ab_02_13);
+    _mm_storel_pd(&AB[2+3*4], ab_23_32);
+    _mm_storeh_pd(&AB[3+3*4], ab_22_33);
 
 //
 //  Update C <- beta*C
