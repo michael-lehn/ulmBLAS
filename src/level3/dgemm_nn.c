@@ -131,13 +131,13 @@ dgemm_micro_kernel(long kc,
 //
 //  Compute AB = A*B
 //
-    __m128d ab_00_11, ab_20_31;
-    __m128d ab_01_10, ab_21_30;
-    __m128d ab_02_13, ab_22_33;
-    __m128d ab_03_12, ab_23_32;
+    register __m128d ab_00_11, ab_20_31;
+    register __m128d ab_01_10, ab_21_30;
+    register __m128d ab_02_13, ab_22_33;
+    register __m128d ab_03_12, ab_23_32;
 
-    __m128d tmp0, tmp1, tmp2, tmp3;
-    __m128d tmp4, tmp5, tmp6, tmp7;
+    register __m128d tmp0, tmp1, tmp2, tmp3;
+    register __m128d tmp4, tmp5, tmp6, tmp7;
 
     ab_00_11 = _mm_setzero_pd(); ab_20_31 = _mm_setzero_pd();
     ab_01_10 = _mm_setzero_pd(); ab_21_30 = _mm_setzero_pd();
@@ -152,6 +152,7 @@ dgemm_micro_kernel(long kc,
     tmp4 = _mm_setzero_pd();
     tmp5 = _mm_setzero_pd();
     tmp6 = _mm_setzero_pd();
+    tmp7 = _mm_setzero_pd();
 
     for (l=0; l<kc; ++l) {
         ab_02_13 = _mm_add_pd(ab_02_13, tmp3);
