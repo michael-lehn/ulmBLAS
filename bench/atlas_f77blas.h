@@ -2,6 +2,7 @@
 #define ATLAS_F77_LVLS
 
 #include "atlas_f77.h"
+#include "atlas_misc.h"
 
 #if   defined( StringSunStyle  )
 #define F77_CHAR_DECL          F77_CHAR          /* input character*1 */

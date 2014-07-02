@@ -1,6 +1,8 @@
 #ifndef LEVEL3_DGEMM_NN_H
 #define LEVEL3_DGEMM_NN_H 1
 
+#include <ulmblas.h>
+
 void
 ULMBLAS(dgemm_nn)(int            m,
                   int            n,
