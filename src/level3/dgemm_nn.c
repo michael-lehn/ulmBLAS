@@ -154,7 +154,7 @@ dgemm_micro_kernel(int kc,
         a_23 = _mm_load_pd(A+2);
 
         b_01 = _mm_load_pd(B);
-        b_23 = _mm_load_pd(B+2)
+        b_23 = _mm_load_pd(B+2);
 
         tmp1 = a_01;
         tmp1 = _mm_mul_pd(tmp1, b_01);
