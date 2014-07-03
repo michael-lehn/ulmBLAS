@@ -1,4 +1,4 @@
-set terminal png
+set terminal png size 940,480
 set output "bench.png"
 set xlabel "Matrix dimensions N=M=K"
 set ylabel "MFLOPS"
