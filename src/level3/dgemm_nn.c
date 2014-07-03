@@ -126,25 +126,25 @@ dgemm_micro_kernel(int kc,
     double AB[MR*NR];
 
     // Cols of AB in SSE registers
-    __m128d   ab_00_10, ab_20_30;
-    __m128d   ab_01_11, ab_21_31;
-    __m128d   ab_02_12, ab_22_32;
-    __m128d   ab_03_13, ab_23_33;
+    __m128d   ab_00_11, ab_20_31;
+    __m128d   ab_01_10, ab_21_30;
+    __m128d   ab_02_13, ab_22_33;
+    __m128d   ab_03_12, ab_23_32;
 
     __m128d   a_01, a_23;
-    __m128d   b_00, b_11, b_22, b_33;
-    __m128d   tmp1, tmp2;
+    __m128d   b_01, b_23;
+    __m128d   tmp1, tmp2, tmp3, tmp4;
 
     int i, j, l;
 
-    ab_00_10 = _mm_setzero_pd();
-    ab_20_30 = _mm_setzero_pd();
-    ab_01_11 = _mm_setzero_pd();
-    ab_21_31 = _mm_setzero_pd();
-    ab_02_12 = _mm_setzero_pd();
-    ab_22_32 = _mm_setzero_pd();
-    ab_03_13 = _mm_setzero_pd();
-    ab_23_33 = _mm_setzero_pd();
+    ab_00_11 = _mm_setzero_pd();
+    ab_20_31 = _mm_setzero_pd();
+    ab_01_10 = _mm_setzero_pd();
+    ab_21_30 = _mm_setzero_pd();
+    ab_02_13 = _mm_setzero_pd();
+    ab_22_33 = _mm_setzero_pd();
+    ab_03_12 = _mm_setzero_pd();
+    ab_23_32 = _mm_setzero_pd();
 
 //
 //  Compute AB = A*B
@@ -153,59 +153,76 @@ dgemm_micro_kernel(int kc,
         a_01 = _mm_load_pd(A);
         a_23 = _mm_load_pd(A+2);
 
-        b_00 = _mm_load_pd1(B);
-        b_11 = _mm_load_pd1(B+1);
-        b_22 = _mm_load_pd1(B+2);
-        b_33 = _mm_load_pd1(B+3);
+        b_01 = _mm_load_pd(B);
+        b_23 = _mm_load_pd(B+2)
 
         tmp1 = a_01;
+        tmp1 = _mm_mul_pd(tmp1, b_01);
+
         tmp2 = a_23;
+        tmp2 = _mm_mul_pd(tmp2, b_01);
 
-        // col 0 of AB
-        tmp1 = _mm_mul_pd(tmp1, b_00);
-        tmp2 = _mm_mul_pd(tmp2, b_00);
-        ab_00_10 = _mm_add_pd(tmp1, ab_00_10);
-        ab_20_30 = _mm_add_pd(tmp2, ab_20_30);
+        tmp3 = a_01;
+        tmp3 = _mm_mul_pd(tmp3, b_23);
 
-        // col 1 of AB
+        tmp4 = a_23;
+        tmp4 = _mm_mul_pd(tmp4, b_23);
+
+        ab_00_11 = _mm_add_pd(ab_00_11, tmp1);
+        ab_20_31 = _mm_add_pd(ab_20_31, tmp2);
+        ab_02_13 = _mm_add_pd(ab_02_13, tmp3);
+        ab_22_33 = _mm_add_pd(ab_22_33, tmp4);
+
+        tmp1 = b_01;
+        b_01 = _mm_shuffle_pd(tmp1, tmp1, _MM_SHUFFLE2(0, 1));
+
+        tmp2 = b_23;
+        b_23 = _mm_shuffle_pd(tmp2, tmp2, _MM_SHUFFLE2(0, 1));
+
         tmp1 = a_01;
-        tmp2 = a_23;
-        tmp1 = _mm_mul_pd(tmp1, b_11);
-        tmp2 = _mm_mul_pd(tmp2, b_11);
-        ab_01_11 = _mm_add_pd(tmp1, ab_01_11);
-        ab_21_31 = _mm_add_pd(tmp2, ab_21_31);
+        tmp1 = _mm_mul_pd(tmp1, b_01);
 
-        // col 2 of AB
-        tmp1 = a_01;
         tmp2 = a_23;
-        tmp1 = _mm_mul_pd(tmp1, b_22);
-        tmp2 = _mm_mul_pd(tmp2, b_22);
-        ab_02_12 = _mm_add_pd(tmp1, ab_02_12);
-        ab_22_32 = _mm_add_pd(tmp2, ab_22_32);
+        tmp2 = _mm_mul_pd(tmp2, b_01);
 
-        // col 3 of AB
-        tmp1 = a_01;
-        tmp2 = a_23;
-        tmp1 = _mm_mul_pd(tmp1, b_33);
-        tmp2 = _mm_mul_pd(tmp2, b_33);
-        ab_03_13 = _mm_add_pd(tmp1, ab_03_13);
-        ab_23_33 = _mm_add_pd(tmp2, ab_23_33);
+        tmp3 = a_01;
+        tmp3 = _mm_mul_pd(tmp3, b_23);
+
+        tmp4 = a_23;
+        tmp4 = _mm_mul_pd(tmp4, b_23);
+
+        ab_01_10 = _mm_add_pd(ab_01_10, tmp1);
+        ab_21_30 = _mm_add_pd(ab_21_30, tmp2);
+        ab_03_12 = _mm_add_pd(ab_03_12, tmp3);
+        ab_23_32 = _mm_add_pd(ab_23_32, tmp4);
 
         A += 4;
         B += 4;
     }
 
-    _mm_store_pd(AB+ 0, ab_00_10);
-    _mm_store_pd(AB+ 2, ab_20_30);
+    _mm_storel_pd(AB+ 0, ab_00_11);
+    _mm_storeh_pd(AB+ 5, ab_00_11);
 
-    _mm_store_pd(AB+ 4, ab_01_11);
-    _mm_store_pd(AB+ 6, ab_21_31);
+    _mm_storel_pd(AB+ 2, ab_20_31);
+    _mm_storeh_pd(AB+ 7, ab_20_31);
 
-    _mm_store_pd(AB+ 8, ab_02_12);
-    _mm_store_pd(AB+10, ab_22_32);
+    _mm_storel_pd(AB+ 8, ab_02_13);
+    _mm_storeh_pd(AB+13, ab_02_13);
 
-    _mm_store_pd(AB+12, ab_03_13);
-    _mm_store_pd(AB+14, ab_23_33);
+    _mm_storel_pd(AB+10, ab_22_33);
+    _mm_storeh_pd(AB+15, ab_22_33);
+
+    _mm_storel_pd(AB+ 4, ab_01_10);
+    _mm_storeh_pd(AB+ 1, ab_01_10);
+
+    _mm_storel_pd(AB+ 6, ab_21_30);
+    _mm_storeh_pd(AB+ 3, ab_21_30);
+
+    _mm_storel_pd(AB+12, ab_03_12);
+    _mm_storeh_pd(AB+ 9, ab_03_12);
+
+    _mm_storel_pd(AB+14, ab_23_32);
+    _mm_storeh_pd(AB+11, ab_23_32);
 
 //
 //  Update C <- beta*C
