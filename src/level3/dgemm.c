@@ -83,12 +83,12 @@ ULMBLAS(dgemm)(const enum Trans  transA,
                 }
             }
 #elif defined(ULM_BLOCKED)
-            ULMBLAS(dgemm_nn)(m, n, k,
-                              alpha,
-                              A, 1, ldA,
-                              B, 1, ldB,
-                              beta,
-                              C, 1, ldC);
+            dgemm_nn(m, n, k,
+                     alpha,
+                     A, 1, ldA,
+                     B, 1, ldB,
+                     beta,
+                     C, 1, ldC);
 #else
 #error      "no implementation specified!\n"
 #endif
@@ -111,12 +111,12 @@ ULMBLAS(dgemm)(const enum Trans  transA,
                 }
             }
 #elif defined(ULM_BLOCKED)
-            ULMBLAS(dgemm_nn)(m, n, k,
-                              alpha,
-                              A, ldA, 1,
-                              B, 1, ldB,
-                              beta,
-                              C, 1, ldC);
+            dgemm_nn(m, n, k,
+                     alpha,
+                     A, ldA, 1,
+                     B, 1, ldB,
+                     beta,
+                     C, 1, ldC);
 #else
 #error      "no implementation specified!\n"
 #endif
@@ -147,12 +147,12 @@ ULMBLAS(dgemm)(const enum Trans  transA,
                 }
             }
 #elif defined(ULM_BLOCKED)
-            ULMBLAS(dgemm_nn)(m, n, k,
-                              alpha,
-                              A, 1, ldA,
-                              B, ldB, 1,
-                              beta,
-                              C, 1, ldC);
+            dgemm_nn(m, n, k,
+                     alpha,
+                     A, 1, ldA,
+                     B, ldB, 1,
+                     beta,
+                     C, 1, ldC);
 #else
 #error      "no implementation specified!\n"
 #endif
@@ -175,12 +175,12 @@ ULMBLAS(dgemm)(const enum Trans  transA,
                 }
             }
 #elif defined(ULM_BLOCKED)
-            ULMBLAS(dgemm_nn)(m, n, k,
-                              alpha,
-                              A, ldA, 1,
-                              B, ldB, 1,
-                              beta,
-                              C, 1, ldC);
+            dgemm_nn(m, n, k,
+                     alpha,
+                     A, ldA, 1,
+                     B, ldB, 1,
+                     beta,
+                     C, 1, ldC);
 #else
 #error      "no implementation specified!\n"
 #endif

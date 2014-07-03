@@ -354,20 +354,20 @@ dgemm_macro_kernel(int     mc,
 //  Compute C <- beta*C + alpha*A*B
 //
 void
-ULMBLAS(dgemm_nn)(int            m,
-                  int            n,
-                  int            k,
-                  double         alpha,
-                  const double   *A,
-                  int            incRowA,
-                  int            incColA,
-                  const double   *B,
-                  int            incRowB,
-                  int            incColB,
-                  double         beta,
-                  double         *C,
-                  int            incRowC,
-                  int            incColC)
+dgemm_nn(int            m,
+         int            n,
+         int            k,
+         double         alpha,
+         const double   *A,
+         int            incRowA,
+         int            incColA,
+         const double   *B,
+         int            incRowB,
+         int            incColB,
+         double         beta,
+         double         *C,
+         int            incRowC,
+         int            incColC)
 {
     int mb = (m+MC-1) / MC;
     int nb = (n+NC-1) / NC;
