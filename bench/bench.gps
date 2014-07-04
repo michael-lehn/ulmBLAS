@@ -3,4 +3,4 @@ set output "bench.png"
 set xlabel "Matrix dimensions N=M=K"
 set ylabel "MFLOPS"
 set key outside
-plot "refBLAS" using 4:13 with linespoints lt 2 title "Netlib RefBLAS", "demo-pure-c" using 4:13 with linespoints lt 4 title "demo-pure-c  
+plot "refBLAS" using 4:13 with linespoints lt 2 title "Netlib RefBLAS", "demo-pure-c" using 4:13 with linespoints lt 4 title "demo-pure-c"
