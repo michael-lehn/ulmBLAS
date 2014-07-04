@@ -17,7 +17,6 @@ LDFLAGS = -lm
 #
 ATLAS_LIB = ../libatlulmblas.a
 
-
 #
 #  Select the reference implementation
 #
