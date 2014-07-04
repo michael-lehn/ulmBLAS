@@ -149,7 +149,185 @@ dgemm_micro_kernel(int kc,
 //
 //  Compute AB = A*B
 //
-    for (l=0; l<kc; ++l) {
+    for (l=0; l<kc/4; ++l) {
+        a_01 = _mm_load_pd(A);
+        a_23 = _mm_load_pd(A+2);
+
+        b_00 = _mm_load_pd1(B);
+        b_11 = _mm_load_pd1(B+1);
+        b_22 = _mm_load_pd1(B+2);
+        b_33 = _mm_load_pd1(B+3);
+
+        tmp1 = a_01;
+        tmp2 = a_23;
+
+        // col 0 of AB
+        tmp1 = _mm_mul_pd(tmp1, b_00);
+        tmp2 = _mm_mul_pd(tmp2, b_00);
+        ab_00_10 = _mm_add_pd(tmp1, ab_00_10);
+        ab_20_30 = _mm_add_pd(tmp2, ab_20_30);
+
+        // col 1 of AB
+        tmp1 = a_01;
+        tmp2 = a_23;
+        tmp1 = _mm_mul_pd(tmp1, b_11);
+        tmp2 = _mm_mul_pd(tmp2, b_11);
+        ab_01_11 = _mm_add_pd(tmp1, ab_01_11);
+        ab_21_31 = _mm_add_pd(tmp2, ab_21_31);
+
+        // col 2 of AB
+        tmp1 = a_01;
+        tmp2 = a_23;
+        tmp1 = _mm_mul_pd(tmp1, b_22);
+        tmp2 = _mm_mul_pd(tmp2, b_22);
+        ab_02_12 = _mm_add_pd(tmp1, ab_02_12);
+        ab_22_32 = _mm_add_pd(tmp2, ab_22_32);
+
+        // col 3 of AB
+        tmp1 = a_01;
+        tmp2 = a_23;
+        tmp1 = _mm_mul_pd(tmp1, b_33);
+        tmp2 = _mm_mul_pd(tmp2, b_33);
+        ab_03_13 = _mm_add_pd(tmp1, ab_03_13);
+        ab_23_33 = _mm_add_pd(tmp2, ab_23_33);
+
+        A += 4;
+        B += 4;
+
+        a_01 = _mm_load_pd(A);
+        a_23 = _mm_load_pd(A+2);
+
+        b_00 = _mm_load_pd1(B);
+        b_11 = _mm_load_pd1(B+1);
+        b_22 = _mm_load_pd1(B+2);
+        b_33 = _mm_load_pd1(B+3);
+
+        tmp1 = a_01;
+        tmp2 = a_23;
+
+        // col 0 of AB
+        tmp1 = _mm_mul_pd(tmp1, b_00);
+        tmp2 = _mm_mul_pd(tmp2, b_00);
+        ab_00_10 = _mm_add_pd(tmp1, ab_00_10);
+        ab_20_30 = _mm_add_pd(tmp2, ab_20_30);
+
+        // col 1 of AB
+        tmp1 = a_01;
+        tmp2 = a_23;
+        tmp1 = _mm_mul_pd(tmp1, b_11);
+        tmp2 = _mm_mul_pd(tmp2, b_11);
+        ab_01_11 = _mm_add_pd(tmp1, ab_01_11);
+        ab_21_31 = _mm_add_pd(tmp2, ab_21_31);
+
+        // col 2 of AB
+        tmp1 = a_01;
+        tmp2 = a_23;
+        tmp1 = _mm_mul_pd(tmp1, b_22);
+        tmp2 = _mm_mul_pd(tmp2, b_22);
+        ab_02_12 = _mm_add_pd(tmp1, ab_02_12);
+        ab_22_32 = _mm_add_pd(tmp2, ab_22_32);
+
+        // col 3 of AB
+        tmp1 = a_01;
+        tmp2 = a_23;
+        tmp1 = _mm_mul_pd(tmp1, b_33);
+        tmp2 = _mm_mul_pd(tmp2, b_33);
+        ab_03_13 = _mm_add_pd(tmp1, ab_03_13);
+        ab_23_33 = _mm_add_pd(tmp2, ab_23_33);
+
+        A += 4;
+        B += 4;
+
+        a_01 = _mm_load_pd(A);
+        a_23 = _mm_load_pd(A+2);
+
+        b_00 = _mm_load_pd1(B);
+        b_11 = _mm_load_pd1(B+1);
+        b_22 = _mm_load_pd1(B+2);
+        b_33 = _mm_load_pd1(B+3);
+
+        tmp1 = a_01;
+        tmp2 = a_23;
+
+        // col 0 of AB
+        tmp1 = _mm_mul_pd(tmp1, b_00);
+        tmp2 = _mm_mul_pd(tmp2, b_00);
+        ab_00_10 = _mm_add_pd(tmp1, ab_00_10);
+        ab_20_30 = _mm_add_pd(tmp2, ab_20_30);
+
+        // col 1 of AB
+        tmp1 = a_01;
+        tmp2 = a_23;
+        tmp1 = _mm_mul_pd(tmp1, b_11);
+        tmp2 = _mm_mul_pd(tmp2, b_11);
+        ab_01_11 = _mm_add_pd(tmp1, ab_01_11);
+        ab_21_31 = _mm_add_pd(tmp2, ab_21_31);
+
+        // col 2 of AB
+        tmp1 = a_01;
+        tmp2 = a_23;
+        tmp1 = _mm_mul_pd(tmp1, b_22);
+        tmp2 = _mm_mul_pd(tmp2, b_22);
+        ab_02_12 = _mm_add_pd(tmp1, ab_02_12);
+        ab_22_32 = _mm_add_pd(tmp2, ab_22_32);
+
+        // col 3 of AB
+        tmp1 = a_01;
+        tmp2 = a_23;
+        tmp1 = _mm_mul_pd(tmp1, b_33);
+        tmp2 = _mm_mul_pd(tmp2, b_33);
+        ab_03_13 = _mm_add_pd(tmp1, ab_03_13);
+        ab_23_33 = _mm_add_pd(tmp2, ab_23_33);
+
+        A += 4;
+        B += 4;
+
+        a_01 = _mm_load_pd(A);
+        a_23 = _mm_load_pd(A+2);
+
+        b_00 = _mm_load_pd1(B);
+        b_11 = _mm_load_pd1(B+1);
+        b_22 = _mm_load_pd1(B+2);
+        b_33 = _mm_load_pd1(B+3);
+
+        tmp1 = a_01;
+        tmp2 = a_23;
+
+        // col 0 of AB
+        tmp1 = _mm_mul_pd(tmp1, b_00);
+        tmp2 = _mm_mul_pd(tmp2, b_00);
+        ab_00_10 = _mm_add_pd(tmp1, ab_00_10);
+        ab_20_30 = _mm_add_pd(tmp2, ab_20_30);
+
+        // col 1 of AB
+        tmp1 = a_01;
+        tmp2 = a_23;
+        tmp1 = _mm_mul_pd(tmp1, b_11);
+        tmp2 = _mm_mul_pd(tmp2, b_11);
+        ab_01_11 = _mm_add_pd(tmp1, ab_01_11);
+        ab_21_31 = _mm_add_pd(tmp2, ab_21_31);
+
+        // col 2 of AB
+        tmp1 = a_01;
+        tmp2 = a_23;
+        tmp1 = _mm_mul_pd(tmp1, b_22);
+        tmp2 = _mm_mul_pd(tmp2, b_22);
+        ab_02_12 = _mm_add_pd(tmp1, ab_02_12);
+        ab_22_32 = _mm_add_pd(tmp2, ab_22_32);
+
+        // col 3 of AB
+        tmp1 = a_01;
+        tmp2 = a_23;
+        tmp1 = _mm_mul_pd(tmp1, b_33);
+        tmp2 = _mm_mul_pd(tmp2, b_33);
+        ab_03_13 = _mm_add_pd(tmp1, ab_03_13);
+        ab_23_33 = _mm_add_pd(tmp2, ab_23_33);
+
+        A += 4;
+        B += 4;
+    }
+
+    for (l=0; l<kc%4; ++l) {
         a_01 = _mm_load_pd(A);
         a_23 = _mm_load_pd(A+2);
 
