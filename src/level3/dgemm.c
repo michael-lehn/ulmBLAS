@@ -22,11 +22,6 @@ ULMBLAS(dgemm)(const enum Trans  transA,
 //
     int     i, j;
 
-#if defined(ULM_REFERENCE)
-    int     l;
-    double  tmp;
-#endif
-
 //
 //  Quick return if possible.
 //
@@ -62,128 +57,44 @@ ULMBLAS(dgemm)(const enum Trans  transA,
 //
 //          Form  C := alpha*A*B + beta*C.
 //
-#if defined(ULM_REFERENCE)
-            for (j=0; j<n; ++j) {
-                if (beta==0.0) {
-                    for (i=0; i<m; ++i) {
-                        C[i+j*ldC] = 0.0;
-                    }
-                } else if (beta!=1.0) {
-                    for (i=0; i<m; ++i) {
-                        C[i+j*ldC] *= beta;
-                    }
-                }
-                for (l=0; l<k; ++l) {
-                    if (B[l+j*ldB]!=0.0) {
-                        tmp = alpha*B[l+j*ldB];
-                        for (i=0; i<m; ++i) {
-                            C[i+j*ldC] += tmp*A[i+l*ldA];
-                        }
-                    }
-                }
-            }
-#elif defined(ULM_BLOCKED)
             dgemm_nn(m, n, k,
                      alpha,
                      A, 1, ldA,
                      B, 1, ldB,
                      beta,
                      C, 1, ldC);
-#else
-#error      "no implementation specified!\n"
-#endif
         } else {
 //
 //          Form  C := alpha*A**T*B + beta*C
 //
-#if defined(ULM_REFERENCE)
-            for (j=0; j<n; ++j) {
-                for (i=0; i<m; ++i) {
-                    tmp = 0.0;
-                    for (l=0; l<k; ++l) {
-                        tmp += A[l+i*ldA]*B[l+j*ldB];
-                    }
-                    if (beta==0.0) {
-                        C[i+j*ldC] = alpha*tmp;
-                    } else {
-                        C[i+j*ldC] = alpha*tmp + beta*C[i+j*ldC];
-                    }
-                }
-            }
-#elif defined(ULM_BLOCKED)
             dgemm_nn(m, n, k,
                      alpha,
                      A, ldA, 1,
                      B, 1, ldB,
                      beta,
                      C, 1, ldC);
-#else
-#error      "no implementation specified!\n"
-#endif
         }
     } else {
         if (transA==NoTrans || transA==Conj) {
 //
 //          Form  C := alpha*A*B**T + beta*C
 //
-#if defined(ULM_REFERENCE)
-            for (j=0; j<n; ++j) {
-                if (beta==0.0) {
-                    for (i=0; i<m; ++i) {
-                        C[i+j*ldC] = 0.0;
-                    }
-                } else if (beta!=1.0) {
-                    for (i=0; i<m; ++i) {
-                        C[i+j*ldC] *= beta;
-                    }
-                }
-                for (l=0; l<k; ++l) {
-                    if (B[j+l*ldB]!=0.0) {
-                        tmp = alpha*B[j+l*ldB];
-                        for (i=0; i<m; ++i) {
-                            C[i+j*ldC] += tmp*A[i+l*ldA];
-                        }
-                    }
-                }
-            }
-#elif defined(ULM_BLOCKED)
             dgemm_nn(m, n, k,
                      alpha,
                      A, 1, ldA,
                      B, ldB, 1,
                      beta,
                      C, 1, ldC);
-#else
-#error      "no implementation specified!\n"
-#endif
         } else {
 //
 //          Form  C := alpha*A**T*B**T + beta*C
 //
-#if defined(ULM_REFERENCE)
-            for (j=0; j<n; ++j) {
-                for (i=0; i<m; ++i) {
-                    tmp = 0.0;
-                    for (l=0; l<k; ++l) {
-                        tmp += A[l+i*ldA]*B[j+l*ldB];
-                    }
-                    if (beta==0.0) {
-                        C[i+j*ldC] = alpha*tmp;
-                    } else {
-                        C[i+j*ldC] = alpha*tmp + beta*C[i+j*ldC];
-                    }
-                }
-            }
-#elif defined(ULM_BLOCKED)
             dgemm_nn(m, n, k,
                      alpha,
                      A, ldA, 1,
                      B, ldB, 1,
                      beta,
                      C, 1, ldC);
-#else
-#error      "no implementation specified!\n"
-#endif
         }
     }
 }
