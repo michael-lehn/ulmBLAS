@@ -12,9 +12,9 @@
 //
 //  Local buffers for storing panels from A, B and C
 //
-static double _A[MC*KC];
-static double _B[KC*NC];
-static double _C[MR*NR];
+static double _A[MC*KC] __attribute__ ((aligned (16)));
+static double _B[KC*NC] __attribute__ ((aligned (16)));
+static double _C[MR*NR] __attribute__ ((aligned (16)));
 
 //
 //  Packing complete panels from A (i.e. without padding)
@@ -123,7 +123,7 @@ dgemm_micro_kernel(int kc,
                    double beta,
                    double *C, int incRowC, int incColC)
 {
-    double AB[MR*NR];
+    double AB[MR*NR] __attribute__ ((aligned (16)));
 
     // Cols of AB in SSE registers
     __m128d   ab_00_10, ab_20_30;
