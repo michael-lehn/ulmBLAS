@@ -139,16 +139,16 @@ dgemm_micro_kernel(long kc,
     register __m128d tmp0, tmp1, tmp2, tmp3;
     register __m128d tmp4, tmp5, tmp6, tmp7;
 
+    tmp0     = _mm_load_pd(A);                                      // (1)
+    tmp1     = _mm_load_pd(A+2);                                    // (2)
+    tmp2     = _mm_load_pd(B);                                      // (3)
+
     ab_00_11 = _mm_setzero_pd(); ab_20_31 = _mm_setzero_pd();
     ab_01_10 = _mm_setzero_pd(); ab_21_30 = _mm_setzero_pd();
     ab_02_13 = _mm_setzero_pd(); ab_22_33 = _mm_setzero_pd();
     ab_03_12 = _mm_setzero_pd(); ab_23_32 = _mm_setzero_pd();
 
     for (l=0; l<kc; ++l) {
-        tmp0     = _mm_load_pd(A);
-        tmp1     = _mm_load_pd(A+2);
-
-        tmp2     = _mm_load_pd(B);
         tmp3     = _mm_load_pd(B+2);
 
         tmp4     = _mm_shuffle_pd(tmp2, tmp2, _MM_SHUFFLE2(0, 1));
@@ -166,6 +166,7 @@ dgemm_micro_kernel(long kc,
         ab_01_10 = _mm_add_pd(ab_01_10, tmp4);
         ab_21_30 = _mm_add_pd(ab_21_30, tmp7);
 
+        tmp2     = _mm_load_pd(B+4);                                // (6)
         tmp6     = tmp3;
         tmp3     = _mm_mul_pd(tmp3, tmp0);
         tmp6     = _mm_mul_pd(tmp6, tmp1);
@@ -174,7 +175,9 @@ dgemm_micro_kernel(long kc,
 
         tmp7     = tmp5;
         tmp5     = _mm_mul_pd(tmp5, tmp0);
+        tmp0     = _mm_load_pd(A+4);                                // (4)
         tmp7     = _mm_mul_pd(tmp7, tmp1);
+        tmp1     = _mm_load_pd(A+6);                                // (5)
         ab_03_12 = _mm_add_pd(ab_03_12, tmp5);
         ab_23_32 = _mm_add_pd(ab_23_32, tmp7);
 
