@@ -320,7 +320,7 @@ dgemm_micro_kernel(int kc,
     "movapd  16(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+16)
     "                            \n\t"
     "                            \n\t"
-    "addq      $32*4,     %%rbx  \n\t"  // B += 16;
+    "addq      $32*4,   %%rbx    \n\t"  // B += 16;
     "                            \n\t"
     "decl      %%esi             \n\t"  // --l
     "jne       .DLOOP%=          \n\t"  // if l>= 1 go back
