@@ -332,17 +332,10 @@ dgemm_micro_kernel(int kc,
     "decl      %%esi             \n\t"  // --l
     "jne       .DLOOP%=          \n\t"  // if l>= 1 go back
     "                            \n\t"
-    "addpd    %%xmm3,   %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
-    "addpd    %%xmm6,   %%xmm13  \n\t"  // ab_22_33 = _mm_add_pd(ab_22_33, tmp6)
-    "                            \n\t"  //
-    "addpd    %%xmm5,   %%xmm14  \n\t"  // ab_03_12 = _mm_add_pd(ab_03_12, tmp5)
-    "addpd    %%xmm7,   %%xmm15  \n\t"  // ab_23_32 = _mm_add_pd(ab_23_32, tmp7)
-    "                            \n\t"
-     "                            \n\t"
     "                            \n\t"
     ".DCONSIDERLEFT%=:           \n\t"
     "testl     %%edi,   %%edi    \n\t"  // if kl==0 writeback to AB
-    "je        .DWRITEBACK%=     \n\t"
+    "je        .DPOSTACCUMULATE%=    \n\t"
     "                            \n\t"
     ".DLOOPLEFT%=:               \n\t"  // for l = kl,..,1 do
     "                            \n\t"
@@ -388,6 +381,7 @@ dgemm_micro_kernel(int kc,
     "decl      %%edi             \n\t"  // --l
     "jne       .DLOOPLEFT%=      \n\t"  // if l>= 1 go back
     "                            \n\t"
+    ".DPOSTACCUMULATE%=:         \n\t"  // Update remaining ab_*_* registers
     "                            \n\t"
     "addpd    %%xmm3,   %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
     "addpd    %%xmm6,   %%xmm13  \n\t"  // ab_22_33 = _mm_add_pd(ab_22_33, tmp6)
