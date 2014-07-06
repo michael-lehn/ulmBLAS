@@ -292,7 +292,6 @@ dgemm_micro_kernel(int kc,
     "mulpd     %%xmm0,  %%xmm2   \n\t"  // tmp2     = _mm_mul_pd(tmp2, tmp0);
     "mulpd     %%xmm1,  %%xmm6   \n\t"  // tmp6     = _mm_mul_pd(tmp6, tmp1);
     "                            \n\t"
-    "addq      $32*4,   %%rax    \n\t"  // A += 16;
     "                            \n\t"
     "addpd     %%xmm5,  %%xmm14  \n\t"  // ab_03_12 = _mm_add_pd(ab_03_12, tmp5)
     "addpd     %%xmm7,  %%xmm15  \n\t"  // ab_23_32 = _mm_add_pd(ab_23_32, tmp7)
@@ -315,11 +314,12 @@ dgemm_micro_kernel(int kc,
     "addpd     %%xmm7,  %%xmm11  \n\t"  // ab_21_30 = _mm_add_pd(ab_21_30, tmp7)
     "movapd    %%xmm5,  %%xmm7   \n\t"  // tmp7     = tmp5
     "mulpd     %%xmm0,  %%xmm5   \n\t"  // tmp5     = _mm_mul_pd(tmp5, tmp0)
-    "movapd    (%%rax), %%xmm0   \n\t"  // tmp0     = _mm_load_pd(A+16)
+    "movapd 128(%%rax), %%xmm0   \n\t"  // tmp0     = _mm_load_pd(A+16)
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
-    "movapd  16(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+18)
+    "movapd 144(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+18)
     "                            \n\t"
     "                            \n\t"
+    "addq      $32*4,   %%rax    \n\t"  // A += 16;
     "addq      $32*4,   %%rbx    \n\t"  // B += 16;
     "                            \n\t"
     "decl      %%esi             \n\t"  // --l
