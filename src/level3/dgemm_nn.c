@@ -119,10 +119,10 @@ pack_B(int kc, int nc, const double *B, int incRowB, int incColB,
 //  Micro kernel for multiplying panels from A and B.
 //
 static void
-dgemm_micro_kernel(long kc,
+dgemm_micro_kernel(int kc,
                    double alpha, const double *A, const double *B,
                    double beta,
-                   double *C, long incRowC, long incColC)
+                   double *C, int incRowC, int incColC)
 {
     double _AB[MR*NR] __attribute__ ((aligned (16)));
     double *AB = _AB;
