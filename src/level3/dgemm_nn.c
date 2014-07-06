@@ -315,7 +315,7 @@ dgemm_micro_kernel(int kc,
     "addpd     %%xmm7,  %%xmm11  \n\t"  // ab_21_30 = _mm_add_pd(ab_21_30, tmp7)
     "movapd    %%xmm5,  %%xmm7   \n\t"  // tmp7     = tmp5
     "mulpd     %%xmm0,  %%xmm5   \n\t"  // tmp5     = _mm_mul_pd(tmp5, tmp0)
-    "movapd    (%%rax), %%xmm0   \n\t"  // tmp0     = _mm_load_pd(A+4)
+    "movapd    (%%rax), %%xmm0   \n\t"  // tmp0     = _mm_load_pd(A+14)
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
     "movapd  16(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+16)
     "                            \n\t"
