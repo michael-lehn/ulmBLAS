@@ -169,11 +169,12 @@ dgemm_micro_kernel(int kc,
     "                            \n\t"
     ".DLOOP%=:                   \n\t"  // for l = kb,..,1 do
     "                            \n\t"
+    "prefetcht0  (4*35+1+16) * 8(%%rax) \n\t"
     "                            \n\t"  // 1. update
     "addpd     %%xmm3,  %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
-    "movapd  16(%%rbx), %%xmm3   \n\t"  // tmp3     = _mm_load_pd(B+2)
+    "movaps  16(%%rbx), %%xmm3   \n\t"  // tmp3     = _mm_load_pd(B+2)
     "addpd     %%xmm6,  %%xmm13  \n\t"  // ab_22_33 = _mm_add_pd(ab_22_33, tmp6)
-    "movapd    %%xmm2,  %%xmm6   \n\t"  // tmp6     = tmp2
+    "movaps    %%xmm2,  %%xmm6   \n\t"  // tmp6     = tmp2
     "pshufd $78,%%xmm2, %%xmm4   \n\t"  // tmp4     = _mm_shuffle_pd(tmp2, tmp2,
     "                            \n\t"  //                   _MM_SHUFFLE2(0, 1))
     "mulpd     %%xmm0,  %%xmm2   \n\t"  // tmp2     = _mm_mul_pd(tmp2, tmp0);
@@ -182,15 +183,15 @@ dgemm_micro_kernel(int kc,
     "                            \n\t"
     "addpd     %%xmm5,  %%xmm14  \n\t"  // ab_03_12 = _mm_add_pd(ab_03_12, tmp5)
     "addpd     %%xmm7,  %%xmm15  \n\t"  // ab_23_32 = _mm_add_pd(ab_23_32, tmp7)
-    "movapd    %%xmm4,  %%xmm7   \n\t"  // tmp7     = tmp4
+    "movaps    %%xmm4,  %%xmm7   \n\t"  // tmp7     = tmp4
     "mulpd     %%xmm0,  %%xmm4   \n\t"  // tmp4     = _mm_mul_pd(tmp4, tmp0)
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
     "                            \n\t"
     "                            \n\t"
     "addpd     %%xmm2,  %%xmm8   \n\t"  // ab_00_11 = _mm_add_pd(ab_00_11, tmp2)
-    "movapd  32(%%rbx), %%xmm2   \n\t"  // tmp2     = _mm_load_pd(B+4)
+    "movaps  32(%%rbx), %%xmm2   \n\t"  // tmp2     = _mm_load_pd(B+4)
     "addpd     %%xmm6,  %%xmm9   \n\t"  // ab_20_31 = _mm_add_pd(ab_20_31, tmp6)
-    "movapd    %%xmm3,  %%xmm6   \n\t"  // tmp6     = tmp3
+    "movaps    %%xmm3,  %%xmm6   \n\t"  // tmp6     = tmp3
     "pshufd $78,%%xmm3, %%xmm5   \n\t"  // tmp5     = _mm_shuffle_pd(tmp3, tmp3,
     "                            \n\t"  //                   _MM_SHUFFLE2(0, 1))
     "mulpd     %%xmm0,  %%xmm3   \n\t"  // tmp3     = _mm_mul_pd(tmp3, tmp0)
@@ -199,19 +200,19 @@ dgemm_micro_kernel(int kc,
     "                            \n\t"
     "addpd     %%xmm4,  %%xmm10  \n\t"  // ab_01_10 = _mm_add_pd(ab_01_10, tmp4)
     "addpd     %%xmm7,  %%xmm11  \n\t"  // ab_21_30 = _mm_add_pd(ab_21_30, tmp7)
-    "movapd    %%xmm5,  %%xmm7   \n\t"  // tmp7     = tmp5
+    "movaps    %%xmm5,  %%xmm7   \n\t"  // tmp7     = tmp5
     "mulpd     %%xmm0,  %%xmm5   \n\t"  // tmp5     = _mm_mul_pd(tmp5, tmp0)
-    "movapd  32(%%rax), %%xmm0   \n\t"  // tmp0     = _mm_load_pd(A+4)
+    "movaps  32(%%rax), %%xmm0   \n\t"  // tmp0     = _mm_load_pd(A+4)
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
-    "movapd  48(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+6)
+    "movaps  48(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+6)
     "                            \n\t"
     "                            \n\t"
     "                            \n\t"
     "                            \n\t"  // 2. update
     "addpd     %%xmm3,  %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
-    "movapd  48(%%rbx), %%xmm3   \n\t"  // tmp3     = _mm_load_pd(B+6)
+    "movaps  48(%%rbx), %%xmm3   \n\t"  // tmp3     = _mm_load_pd(B+6)
     "addpd     %%xmm6,  %%xmm13  \n\t"  // ab_22_33 = _mm_add_pd(ab_22_33, tmp6)
-    "movapd    %%xmm2,  %%xmm6   \n\t"  // tmp6     = tmp2
+    "movaps    %%xmm2,  %%xmm6   \n\t"  // tmp6     = tmp2
     "pshufd $78,%%xmm2, %%xmm4   \n\t"  // tmp4     = _mm_shuffle_pd(tmp2, tmp2,
     "                            \n\t"  //                   _MM_SHUFFLE2(0, 1))
     "mulpd     %%xmm0,  %%xmm2   \n\t"  // tmp2     = _mm_mul_pd(tmp2, tmp0);
@@ -220,15 +221,15 @@ dgemm_micro_kernel(int kc,
     "                            \n\t"
     "addpd     %%xmm5,  %%xmm14  \n\t"  // ab_03_12 = _mm_add_pd(ab_03_12, tmp5)
     "addpd     %%xmm7,  %%xmm15  \n\t"  // ab_23_32 = _mm_add_pd(ab_23_32, tmp7)
-    "movapd    %%xmm4,  %%xmm7   \n\t"  // tmp7     = tmp4
+    "movaps    %%xmm4,  %%xmm7   \n\t"  // tmp7     = tmp4
     "mulpd     %%xmm0,  %%xmm4   \n\t"  // tmp4     = _mm_mul_pd(tmp4, tmp0)
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
     "                            \n\t"
     "                            \n\t"
     "addpd     %%xmm2,  %%xmm8   \n\t"  // ab_00_11 = _mm_add_pd(ab_00_11, tmp2)
-    "movapd  64(%%rbx), %%xmm2   \n\t"  // tmp2     = _mm_load_pd(B+8)
+    "movaps  64(%%rbx), %%xmm2   \n\t"  // tmp2     = _mm_load_pd(B+8)
     "addpd     %%xmm6,  %%xmm9   \n\t"  // ab_20_31 = _mm_add_pd(ab_20_31, tmp6)
-    "movapd    %%xmm3,  %%xmm6   \n\t"  // tmp6     = tmp3
+    "movaps    %%xmm3,  %%xmm6   \n\t"  // tmp6     = tmp3
     "pshufd $78,%%xmm3, %%xmm5   \n\t"  // tmp5     = _mm_shuffle_pd(tmp3, tmp3,
     "                            \n\t"  //                   _MM_SHUFFLE2(0, 1))
     "mulpd     %%xmm0,  %%xmm3   \n\t"  // tmp3     = _mm_mul_pd(tmp3, tmp0)
@@ -237,19 +238,20 @@ dgemm_micro_kernel(int kc,
     "                            \n\t"
     "addpd     %%xmm4,  %%xmm10  \n\t"  // ab_01_10 = _mm_add_pd(ab_01_10, tmp4)
     "addpd     %%xmm7,  %%xmm11  \n\t"  // ab_21_30 = _mm_add_pd(ab_21_30, tmp7)
-    "movapd    %%xmm5,  %%xmm7   \n\t"  // tmp7     = tmp5
+    "movaps    %%xmm5,  %%xmm7   \n\t"  // tmp7     = tmp5
     "mulpd     %%xmm0,  %%xmm5   \n\t"  // tmp5     = _mm_mul_pd(tmp5, tmp0)
-    "movapd  64(%%rax), %%xmm0   \n\t"  // tmp0     = _mm_load_pd(A+8)
+    "movaps  64(%%rax), %%xmm0   \n\t"  // tmp0     = _mm_load_pd(A+8)
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
-    "movapd  80(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+10)
+    "movaps  80(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+10)
     "                            \n\t"
     "                            \n\t"
+    "prefetcht0  (4*37+1+16) * 8(%%rax) \n\t"
     "                            \n\t"
     "                            \n\t"  // 3. update
     "addpd     %%xmm3,  %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
-    "movapd  80(%%rbx), %%xmm3   \n\t"  // tmp3     = _mm_load_pd(B+10)
+    "movaps  80(%%rbx), %%xmm3   \n\t"  // tmp3     = _mm_load_pd(B+10)
     "addpd     %%xmm6,  %%xmm13  \n\t"  // ab_22_33 = _mm_add_pd(ab_22_33, tmp6)
-    "movapd    %%xmm2,  %%xmm6   \n\t"  // tmp6     = tmp2
+    "movaps    %%xmm2,  %%xmm6   \n\t"  // tmp6     = tmp2
     "pshufd $78,%%xmm2, %%xmm4   \n\t"  // tmp4     = _mm_shuffle_pd(tmp2, tmp2,
     "                            \n\t"  //                   _MM_SHUFFLE2(0, 1))
     "mulpd     %%xmm0,  %%xmm2   \n\t"  // tmp2     = _mm_mul_pd(tmp2, tmp0);
@@ -258,15 +260,15 @@ dgemm_micro_kernel(int kc,
     "                            \n\t"
     "addpd     %%xmm5,  %%xmm14  \n\t"  // ab_03_12 = _mm_add_pd(ab_03_12, tmp5)
     "addpd     %%xmm7,  %%xmm15  \n\t"  // ab_23_32 = _mm_add_pd(ab_23_32, tmp7)
-    "movapd    %%xmm4,  %%xmm7   \n\t"  // tmp7     = tmp4
+    "movaps    %%xmm4,  %%xmm7   \n\t"  // tmp7     = tmp4
     "mulpd     %%xmm0,  %%xmm4   \n\t"  // tmp4     = _mm_mul_pd(tmp4, tmp0)
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
     "                            \n\t"
     "                            \n\t"
     "addpd     %%xmm2,  %%xmm8   \n\t"  // ab_00_11 = _mm_add_pd(ab_00_11, tmp2)
-    "movapd  96(%%rbx), %%xmm2   \n\t"  // tmp2     = _mm_load_pd(B+12)
+    "movaps  96(%%rbx), %%xmm2   \n\t"  // tmp2     = _mm_load_pd(B+12)
     "addpd     %%xmm6,  %%xmm9   \n\t"  // ab_20_31 = _mm_add_pd(ab_20_31, tmp6)
-    "movapd    %%xmm3,  %%xmm6   \n\t"  // tmp6     = tmp3
+    "movaps    %%xmm3,  %%xmm6   \n\t"  // tmp6     = tmp3
     "pshufd $78,%%xmm3, %%xmm5   \n\t"  // tmp5     = _mm_shuffle_pd(tmp3, tmp3,
     "                            \n\t"  //                   _MM_SHUFFLE2(0, 1))
     "mulpd     %%xmm0,  %%xmm3   \n\t"  // tmp3     = _mm_mul_pd(tmp3, tmp0)
@@ -275,18 +277,18 @@ dgemm_micro_kernel(int kc,
     "                            \n\t"
     "addpd     %%xmm4,  %%xmm10  \n\t"  // ab_01_10 = _mm_add_pd(ab_01_10, tmp4)
     "addpd     %%xmm7,  %%xmm11  \n\t"  // ab_21_30 = _mm_add_pd(ab_21_30, tmp7)
-    "movapd    %%xmm5,  %%xmm7   \n\t"  // tmp7     = tmp5
+    "movaps    %%xmm5,  %%xmm7   \n\t"  // tmp7     = tmp5
     "mulpd     %%xmm0,  %%xmm5   \n\t"  // tmp5     = _mm_mul_pd(tmp5, tmp0)
-    "movapd  96(%%rax), %%xmm0   \n\t"  // tmp0     = _mm_load_pd(A+12)
+    "movaps  96(%%rax), %%xmm0   \n\t"  // tmp0     = _mm_load_pd(A+12)
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
-    "movapd 112(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+14)
+    "movaps 112(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+14)
     "                            \n\t"
     "                            \n\t"
     "                            \n\t"  // 4. update
     "addpd     %%xmm3,  %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
-    "movapd 112(%%rbx), %%xmm3   \n\t"  // tmp3     = _mm_load_pd(B+14)
+    "movaps 112(%%rbx), %%xmm3   \n\t"  // tmp3     = _mm_load_pd(B+14)
     "addpd     %%xmm6,  %%xmm13  \n\t"  // ab_22_33 = _mm_add_pd(ab_22_33, tmp6)
-    "movapd    %%xmm2,  %%xmm6   \n\t"  // tmp6     = tmp2
+    "movaps    %%xmm2,  %%xmm6   \n\t"  // tmp6     = tmp2
     "pshufd $78,%%xmm2, %%xmm4   \n\t"  // tmp4     = _mm_shuffle_pd(tmp2, tmp2,
     "                            \n\t"  //                   _MM_SHUFFLE2(0, 1))
     "mulpd     %%xmm0,  %%xmm2   \n\t"  // tmp2     = _mm_mul_pd(tmp2, tmp0);
@@ -296,15 +298,15 @@ dgemm_micro_kernel(int kc,
     "                            \n\t"
     "addpd     %%xmm5,  %%xmm14  \n\t"  // ab_03_12 = _mm_add_pd(ab_03_12, tmp5)
     "addpd     %%xmm7,  %%xmm15  \n\t"  // ab_23_32 = _mm_add_pd(ab_23_32, tmp7)
-    "movapd    %%xmm4,  %%xmm7   \n\t"  // tmp7     = tmp4
+    "movaps    %%xmm4,  %%xmm7   \n\t"  // tmp7     = tmp4
     "mulpd     %%xmm0,  %%xmm4   \n\t"  // tmp4     = _mm_mul_pd(tmp4, tmp0)
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
     "                            \n\t"
     "                            \n\t"
     "addpd     %%xmm2,  %%xmm8   \n\t"  // ab_00_11 = _mm_add_pd(ab_00_11, tmp2)
-    "movapd 128(%%rbx), %%xmm2   \n\t"  // tmp2     = _mm_load_pd(B+16)
+    "movaps 128(%%rbx), %%xmm2   \n\t"  // tmp2     = _mm_load_pd(B+16)
     "addpd     %%xmm6,  %%xmm9   \n\t"  // ab_20_31 = _mm_add_pd(ab_20_31, tmp6)
-    "movapd    %%xmm3,  %%xmm6   \n\t"  // tmp6     = tmp3
+    "movaps    %%xmm3,  %%xmm6   \n\t"  // tmp6     = tmp3
     "pshufd $78,%%xmm3, %%xmm5   \n\t"  // tmp5     = _mm_shuffle_pd(tmp3, tmp3,
     "                            \n\t"  //                   _MM_SHUFFLE2(0, 1))
     "mulpd     %%xmm0,  %%xmm3   \n\t"  // tmp3     = _mm_mul_pd(tmp3, tmp0)
@@ -313,11 +315,11 @@ dgemm_micro_kernel(int kc,
     "                            \n\t"
     "addpd     %%xmm4,  %%xmm10  \n\t"  // ab_01_10 = _mm_add_pd(ab_01_10, tmp4)
     "addpd     %%xmm7,  %%xmm11  \n\t"  // ab_21_30 = _mm_add_pd(ab_21_30, tmp7)
-    "movapd    %%xmm5,  %%xmm7   \n\t"  // tmp7     = tmp5
+    "movaps    %%xmm5,  %%xmm7   \n\t"  // tmp7     = tmp5
     "mulpd     %%xmm0,  %%xmm5   \n\t"  // tmp5     = _mm_mul_pd(tmp5, tmp0)
-    "movapd    (%%rax), %%xmm0   \n\t"  // tmp0     = _mm_load_pd(A+16)
+    "movaps    (%%rax), %%xmm0   \n\t"  // tmp0     = _mm_load_pd(A+16)
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
-    "movapd  16(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+18)
+    "movaps  16(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+18)
     "                            \n\t"
     "                            \n\t"
     "addq      $32*4,   %%rbx    \n\t"  // B += 16;
