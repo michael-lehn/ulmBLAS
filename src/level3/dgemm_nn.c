@@ -312,6 +312,8 @@ dgemm_micro_kernel(int kc,
     "mulpd     %%xmm0,  %%xmm3   \n\t"  // tmp3     = _mm_mul_pd(tmp3, tmp0)
     "mulpd     %%xmm1,  %%xmm6   \n\t"  // tmp6     = _mm_mul_pd(tmp6, tmp1)
     "                            \n\t"
+    "addq      $32*4,   %%rbx    \n\t"  // B += 16;
+    "                            \n\t"
     "                            \n\t"
     "addpd     %%xmm4,  %%xmm10  \n\t"  // ab_01_10 = _mm_add_pd(ab_01_10, tmp4)
     "addpd     %%xmm7,  %%xmm11  \n\t"  // ab_21_30 = _mm_add_pd(ab_21_30, tmp7)
@@ -321,8 +323,6 @@ dgemm_micro_kernel(int kc,
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
     "movaps  16(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+18)
     "                            \n\t"
-    "                            \n\t"
-    "addq      $32*4,   %%rbx    \n\t"  // B += 16;
     "                            \n\t"
     "decl      %%esi             \n\t"  // --l
     "jne       .DLOOP%=          \n\t"  // if l>= 1 go back
