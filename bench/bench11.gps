@@ -3,5 +3,6 @@ set output "bench11.png"
 set xlabel "Matrix dimensions N=M=K"
 set ylabel "MFLOPS"
 set yrange [0:9600]
+set title "C <- C + A*B"
 set key outside
 plot "refBLAS" using 4:13 with linespoints lt 2 title "Netlib RefBLAS", "demo-pure-c" using 4:13 with linespoints lt 4 title "demo-pure-c", "demo-naive-sse-with-intrinsics" using 4:13 with linespoints lt 5 title "demo-naive-sse-with-intrinsics", "demo-naive-sse-with-intrinsics-unrolled" using 4:13 with linespoints lt 6 title "demo-naive-sse-with-intrinsics-unrolled", "demo-sse-intrinsics" using 4:13 with linespoints lt 7 title "demo-sse-intrinsics", "demo-sse-intrinsics-v2" using 4:13 with linespoints lt 8 title "demo-sse-intrinsics-v2", "demo-sse-asm" using 4:13 with linespoints lt 9 title "demo-sse-asm", "demo-sse-asm-unrolled" using 4:13 with linespoints lt 10 title "demo-sse-asm-unrolled", "demo-sse-asm-unrolled-v2" using 4:13 with linespoints lt 11 title "demo-sse-asm-unrolled-v2"
