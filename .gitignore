@@ -3,5 +3,10 @@
 *.o
 a.out
 *.a
-bench/xdl1blastst
-test/dblat1_*
+*.dat
+*.png
+*.bak
+bench/xdl[1-3]blastst
+test/dblat[1-3]_*
+bench/report
+

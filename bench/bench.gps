@@ -1,7 +1,10 @@
+#! /usr/bin/gnuplot
+if (!exists("build")) build='ulmBLAS'
+
 set terminal png size 940,480
-set output "bench.png"
+set output build.".png"
 set xlabel "Matrix dimensions N=M=K"
 set ylabel "MFLOPS"
 set yrange [0:9600]
 set key outside
-plot "refBLAS" using 4:13 with linespoints lt 2 title "Netlib RefBLAS", "demo-naive-avx-with-intrinsics" using 4:13 with linespoints lt 4 title "demo-naive-avx-with-intrinsics"
+plot "refBLAS" using 4:13 with linespoints lt 2 title "Netlib RefBLAS", build using 4:13 with linespoints lt 4 title build
