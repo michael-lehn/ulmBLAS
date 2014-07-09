@@ -49,11 +49,15 @@ libtstatlas.a : $(ATL_OBJECTFILES)
 .PHONY: plot
 plot: xdl3blastst
 	./xdl3blastst -N 100 2000 100 > report
-	grep PASS report > $(BRANCH).dat
 	grep "\ \-\-\-\-\-$$"  report > refBLAS.dat
-	gnuplot -e "build=\"$(BRANCH)\"" bench.gps
-	open $(BRANCH).png
+	grep PASS report > $(BRANCH).dat
+	# List the branch for comparision
+	grep -Fxq "refBLAS"   branches || echo refBLAS   >> branches
+	grep -Fxq "$(BRANCH)" branches || echo $(BRANCH) >> branches
+	gnuplot -e "BRANCHES=\"$(shell cat branches)\"" bench.gps
+	open bench.png
 
 clean:
-	rm -f xdl1blastst libtstatlas.a l1blastst.o $(ATL_OBJECTFILES)
-	rm -f report refBLAS.dat $(BRANCH).dat $(BRANCH).png
+	rm -f xdl[1-3]blastst libtstatlas.a l[1-3]blastst.o $(ATL_OBJECTFILES)
+	rm -f report branches *.dat bench.png
+
