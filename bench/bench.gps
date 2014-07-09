@@ -7,4 +7,4 @@ set xlabel "Matrix dimensions N=M=K"
 set ylabel "MFLOPS"
 set yrange [0:9600]
 set key outside
-plot "refBLAS" using 4:13 with linespoints lt 2 title "Netlib RefBLAS", build using 4:13 with linespoints lt 4 title build
+plot "refBLAS.dat" using 4:13 with linespoints lt 2 title "Netlib RefBLAS", build.".dat" using 4:13 with linespoints lt 4 title build
