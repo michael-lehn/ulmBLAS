@@ -1,8 +1,8 @@
 #! /usr/bin/gnuplot
 if (!exists("BRANCHES")) BRANCHES='ulmBLAS'
 
-set terminal png size 1140,480
-set output "bench.png"
+set terminal svg size 1140,480
+set output "comp.svg"
 set title "dgemm: Compute C + A*B"
 set xlabel "Matrix dimensions N=M=K"
 set ylabel "MFLOPS"

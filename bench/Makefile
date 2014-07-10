@@ -49,15 +49,15 @@ libtstatlas.a : $(ATL_OBJECTFILES)
 .PHONY: plot
 plot: xdl3blastst
 	./xdl3blastst -N 100 2000 100 > report
-	grep "\ \-\-\-\-\-$$"  report > refBLAS.dat
+	grep "\ \-\-\-\-\-$$"  report > Netlib-refBLAS.dat
 	grep PASS report > $(BRANCH).dat
 	# List the branch for comparision
-	grep -Fxq "refBLAS"   branches || echo refBLAS   >> branches
-	grep -Fxq "$(BRANCH)" branches || echo $(BRANCH) >> branches
+	grep -Fxq "Netlib-refBLAS" branches || echo Netlib-refBLAS >> branches
+	grep -Fxq "$(BRANCH)"      branches || echo $(BRANCH)      >> branches
 	gnuplot -e "BRANCHES=\"$(shell cat branches)\"" bench.gps
-	open bench.png
+	xdg-open comp.svg || open comp.svg || echo "Benchmark plotted as bench/comp.svg"
 
 clean:
 	rm -f xdl[1-3]blastst libtstatlas.a l[1-3]blastst.o $(ATL_OBJECTFILES)
-	rm -f report branches *.dat bench.png
+	rm -f report branches *.dat comp.svg
 
