@@ -3,19 +3,19 @@
 #include <level3/dgemm_nn.h>
 
 void
-ULMBLAS(dgemm)(const enum Trans  transA,
-               const enum Trans  transB,
-               const int         m,
-               const int         n,
-               const int         k,
-               const double      alpha,
-               const double      *A,
-               const int         ldA,
-               const double      *B,
-               const int         ldB,
-               const double      beta,
-               double            *C,
-               const int         ldC)
+ULMBLAS(dgemm)(enum Trans     transA,
+               enum Trans     transB,
+               int            m,
+               int            n,
+               int            k,
+               double         alpha,
+               const double   *A,
+               int            ldA,
+               const double   *B,
+               int            ldB,
+               double         beta,
+               double         *C,
+               int            ldC)
 {
 //
 //  Local scalars

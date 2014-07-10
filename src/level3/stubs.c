@@ -16,11 +16,6 @@ F77BLAS(dtrmm)()
 }
 
 void
-F77BLAS(dtrsm)()
-{
-}
-
-void
 ULMBLAS(dsyr2k)()
 {
 }
@@ -32,10 +27,5 @@ ULMBLAS(dsyrk)()
 
 void
 ULMBLAS(dtrmm)()
-{
-}
-
-void
-ULMBLAS(dtrsm)()
 {
 }
