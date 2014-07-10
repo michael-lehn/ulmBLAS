@@ -163,7 +163,6 @@ dgemm_micro_kernel(long kc,
     "                            \n\t"
     ".DLOOP%=:                   \n\t"  // for l = kb,..,1 do
     "                            \n\t"
-    "prefetcht0  (4*35+1+16) * 8(%%rax) \n\t"
     "                            \n\t"  // 1. update
     "addpd     %%xmm3,  %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
     "movaps  16(%%rbx), %%xmm3   \n\t"  // tmp3     = _mm_load_pd(B+2)
@@ -238,8 +237,6 @@ dgemm_micro_kernel(long kc,
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
     "movaps  80(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+10)
     "                            \n\t"
-    "                            \n\t"
-    "prefetcht0  (4*37+1+16) * 8(%%rax) \n\t"
     "                            \n\t"
     "                            \n\t"  // 3. update
     "addpd     %%xmm3,  %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
