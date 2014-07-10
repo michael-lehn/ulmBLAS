@@ -1,5 +1,7 @@
 #include <ulmblas.h>
 #include <stdio.h>
+#include <level1/dgeaxpy.h>
+#include <level1/dgescal.h>
 
 #define MC  384
 #define KC  384
@@ -173,66 +175,6 @@ dgemm_micro_kernel(int kc,
         for (j=0; j<NR; ++j) {
             for (i=0; i<MR; ++i) {
                 C[i*incRowC+j*incColC] += alpha*AB[i+j*MR];
-            }
-        }
-    }
-}
-
-//
-//  Compute Y += alpha*X
-//
-static void
-dgeaxpy(int           m,
-        int           n,
-        double        alpha,
-        const double  *X,
-        int           incRowX,
-        int           incColX,
-        double        *Y,
-        int           incRowY,
-        int           incColY)
-{
-    int i, j;
-
-
-    if (alpha!=1.0) {
-        for (j=0; j<n; ++j) {
-            for (i=0; i<m; ++i) {
-                Y[i*incRowY+j*incColY] += alpha*X[i*incRowX+j*incColX];
-            }
-        }
-    } else {
-        for (j=0; j<n; ++j) {
-            for (i=0; i<m; ++i) {
-                Y[i*incRowY+j*incColY] += X[i*incRowX+j*incColX];
-            }
-        }
-    }
-}
-
-//
-//  Compute X *= alpha
-//
-static void
-dgescal(int     m,
-        int     n,
-        double  alpha,
-        double  *X,
-        int     incRowX,
-        int     incColX)
-{
-    int i, j;
-
-    if (alpha!=0.0) {
-        for (j=0; j<n; ++j) {
-            for (i=0; i<m; ++i) {
-                X[i*incRowX+j*incColX] *= alpha;
-            }
-        }
-    } else {
-        for (j=0; j<n; ++j) {
-            for (i=0; i<m; ++i) {
-                X[i*incRowX+j*incColX] = 0.0;
             }
         }
     }
