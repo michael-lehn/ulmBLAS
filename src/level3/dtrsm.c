@@ -23,27 +23,27 @@ ULMBLAS(dtrsm)(enum Side      side,
             if (upLo==Upper) {
                 dtrsm_u(diag, m, n, alpha, A, 1, ldA, B, 1, ldB);
             } else {
-                dtrsm_l(diag, m, n, alpha, A, 1, ldA, B, 1, ldB);
+                // call dtrsm_?(?)
             }
         } else {
             if (upLo==Upper) {
-                dtrsm_l(diag, m, n, alpha, A, ldA, 1, B, 1, ldB);
+                // call dtrsm_?(?)
             } else {
-                dtrsm_u(diag, m, n, alpha, A, ldA, 1, B, 1, ldB);
+                // call dtrsm_?(?)
             }
         }
     } else {
         if (transA==NoTrans) {
             if (upLo==Upper) {
-                dtrsm_l(diag, n, m, alpha, A, ldA, 1, B, ldB, 1);
+                // call dtrsm_?(?)
             } else {
-                dtrsm_u(diag, n, m, alpha, A, ldA, 1, B, ldB, 1);
+                // call dtrsm_?(?)
             }
         } else {
             if (upLo==Upper) {
-                dtrsm_u(diag, n, m, alpha, A, 1, ldA, B, ldB, 1);
+                // call dtrsm_?(?)
             } else {
-                dtrsm_l(diag, n, m, alpha, A, 1, ldA, B, ldB, 1);
+                // call dtrsm_?(?)
             }
         }
     }
