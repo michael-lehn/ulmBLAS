@@ -15,8 +15,8 @@ LDFLAGS = -lm
 #
 #  Select the ATLAS library (or our faked ATLAS implementation)
 #
-ATLAS_LIB = ../libatlulmblas.a
-#ATLAS_LIB = $(HOME)/work/ATLAS/build/lib/libatlas.a
+#ATLAS_LIB = ../libatlulmblas.a
+ATLAS_LIB = $(HOME)/work/ATLAS/build/lib/libatlas.a
 
 
 #
