@@ -15,22 +15,24 @@ LDFLAGS = -lm
 #
 #  Select the ATLAS library (or our faked ATLAS implementation)
 #
-#ATLAS_LIB = ../libatlulmblas.a
-ATLAS_LIB = $(HOME)/work/ATLAS/build/lib/libatlas.a
+ATLAS_LIB = ../libatlulmblas.a
+#ATLAS_LIB = $(HOME)/work/ATLAS/build/lib/libatlas.a
 
 
 #
 #  Select the reference implementation
 #
-REF_LIB   = ../librefblas.a
+#REF_LIB   = ../librefblas.a
 #REF_LIB   = ../libulmblas.a
 #REF_LIB   = $(HOME)/work/EigenBuild/blas/libeigen_blas_static.a
 #REF_LIB   = $(HOME)/work/blis/lib/reference/libblis.a
 #REF_LIB   = $(HOME)/work/blis/lib/dunnington/libblis.a
 #REF_LIB   = $(HOME)/work/OpenBLAS/libopenblas.a
 
-#MKLROOT  = /opt/intel/composer_xe_2011_sp1.8.269/mkl/
-#REF_LIB = $(MKLROOT)/lib/libmkl_intel_lp64.a $(MKLROOT)/lib/libmkl_core.a $(MKLROOT)/lib/libmkl_sequential.a -lpthread -lm
+MKLROOT  = /opt/intel/composer_xe_2013_sp1.3.166/mkl/
+REF_LIB = $(MKLROOT)/lib/libmkl_intel_lp64.a $(MKLROOT)/lib/libmkl_core.a $(MKLROOT)/lib/libmkl_sequential.a
+
+LDFLAGS += -lpthread -lm
 
 all: xdl1blastst xdl3blastst
 
