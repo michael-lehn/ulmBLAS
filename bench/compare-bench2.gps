@@ -6,5 +6,5 @@ set ylabel "MFLOPS"
 set xrange [100:2000]
 set yrange [0:9600]
 set key outside
-plot "demo-sse-all-asm" using 4:13 with linespoints lt 1 lw 2 title "demo-sse-all-asm", "eigen" using 4:13 with linespoints lt 2 lw 2 title "Eigen 3.2.1", "atlas" using 4:13 with linespoints lt 3 lw 2 title "ATLAS 3.10.1"
+plot "eigen" using 4:13 with linespoints lt 2 lw 2 title "Eigen 3.2.1", "atlas" using 4:13 with linespoints lt 3 lw 2 title "ATLAS 3.10.1"
 
