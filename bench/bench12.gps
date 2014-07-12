@@ -1,5 +1,5 @@
 set terminal svg size 1140,480
-set output "bench12.svsvg"
+set output "bench12.svg"
 set title "Compute C + A*B"
 set xlabel "Matrix dimensions N=M=K"
 set ylabel "MFLOPS"
