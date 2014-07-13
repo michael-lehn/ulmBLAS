@@ -1,8 +1,0 @@
-set terminal svg size 1140,480
-set output "bench13.svg"
-set title "Compute C + A*B"
-set xlabel "Matrix dimensions N=M=K"
-set ylabel "MFLOPS"
-set yrange [0:9600]
-set key outside
-plot "refBLAS" using 4:13 with linespoints lt 2 title "Netlib RefBLAS", "demo-pure-c" using 4:13 with linespoints lt 4 title "demo-pure-c", "demo-naive-sse-with-intrinsics" using 4:13 with linespoints lt 5 title "demo-naive-sse-with-intrinsics", "demo-naive-sse-with-intrinsics-unrolled" using 4:13 with linespoints lt 6 title "demo-naive-sse-with-intrinsics-unrolled", "demo-sse-intrinsics" using 4:13 with linespoints lt 7 title "demo-sse-intrinsics", "demo-sse-intrinsics-v2" using 4:13 with linespoints lt 8 title "demo-sse-intrinsics-v2", "demo-sse-asm" using 4:13 with linespoints lt 9 title "demo-sse-asm", "demo-sse-asm-unrolled" using 4:13 with linespoints lt 10 title "demo-sse-asm-unrolled", "demo-sse-asm-unrolled-v2" using 4:13 with linespoints lt 11 title "demo-sse-asm-unrolled-v2", "demo-sse-asm-unrolled-v3" using 4:13 with linespoints lt 12 title "demo-sse-asm-unrolled-v3", "demo-sse-all-asm" using 4:13 with linespoints lt 13 title "demo-sse-all-asm"
