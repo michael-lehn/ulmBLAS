@@ -26,11 +26,11 @@ ATLAS_LIB = ../libatlulmblas.a
 #REF_LIB   = ../libulmblas.a
 #REF_LIB   = $(HOME)/work/EigenBuild/blas/libeigen_blas_static.a
 #REF_LIB   = $(HOME)/work/blis/lib/reference/libblis.a
-#REF_LIB   = $(HOME)/work/blis/lib/dunnington/libblis.a
+REF_LIB   = $(HOME)/work/blis/lib/dunnington/libblis.a
 #REF_LIB   = $(HOME)/work/OpenBLAS/libopenblas.a
 
-MKLROOT  = /opt/intel/composer_xe_2013_sp1.3.166/mkl/
-REF_LIB = $(MKLROOT)/lib/libmkl_intel_lp64.a $(MKLROOT)/lib/libmkl_core.a $(MKLROOT)/lib/libmkl_sequential.a
+#MKLROOT  = /opt/intel/composer_xe_2013_sp1.3.166/mkl/
+#REF_LIB = $(MKLROOT)/lib/libmkl_intel_lp64.a $(MKLROOT)/lib/libmkl_core.a $(MKLROOT)/lib/libmkl_sequential.a
 
 LDFLAGS += -lpthread -lm
 
