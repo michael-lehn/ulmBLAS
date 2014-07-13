@@ -122,7 +122,8 @@ static void
 dgemm_micro_kernel(long kc,
                    double alpha, const double *A, const double *B,
                    double beta,
-                   double *C, long incRowC, long incColC)
+                   double *C, long incRowC, long incColC,
+                   const double *nextA, const double *nextB)
 {
     long kb = kc / 4;
     long kl = kc % 4;
@@ -136,6 +137,8 @@ dgemm_micro_kernel(long kc,
     "movq      %1,      %%rdi    \n\t"  // kl (32 bit) stored in %rdi
     "movq      %2,      %%rax    \n\t"  // Address of A stored in %rax
     "movq      %3,      %%rbx    \n\t"  // Address of B stored in %rbx
+    "movq      %9,      %%r9     \n\t"  // Address of nextA stored in %r9
+    "movq      %10,     %%r10    \n\t"  // Address of nextB stored in %r10
     "                            \n\t"
     "movaps    (%%rax), %%xmm0   \n\t"  // tmp0 = _mm_load_pd(A)
     "movaps  16(%%rax), %%xmm1   \n\t"  // tmp1 = _mm_load_pd(A+2)
@@ -162,6 +165,8 @@ dgemm_micro_kernel(long kc,
     "je        .DCONSIDERLEFT%=  \n\t"  // update iterations
     "                            \n\t"
     ".DLOOP%=:                   \n\t"  // for l = kb,..,1 do
+    "                            \n\t"
+    "prefetcht0 (4*39+1)*8(%%rax)\n\t"
     "                            \n\t"
     "                            \n\t"  // 1. update
     "addpd     %%xmm3,  %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
@@ -238,6 +243,8 @@ dgemm_micro_kernel(long kc,
     "movaps  80(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+10)
     "                            \n\t"
     "                            \n\t"
+    "prefetcht0 (4*41+1)*8(%%rax)\n\t"
+    "                            \n\t"
     "                            \n\t"  // 3. update
     "addpd     %%xmm3,  %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
     "movaps  80(%%rbx), %%xmm3   \n\t"  // tmp3     = _mm_load_pd(B+10)
@@ -293,6 +300,7 @@ dgemm_micro_kernel(long kc,
     "mulpd     %%xmm0,  %%xmm4   \n\t"  // tmp4     = _mm_mul_pd(tmp4, tmp0)
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
     "                            \n\t"
+    "addq      $128,    %%r9     \n\t"  // nextB += 16
     "                            \n\t"
     "addpd     %%xmm2,  %%xmm8   \n\t"  // ab_00_11 = _mm_add_pd(ab_00_11, tmp2)
     "movaps 128(%%rbx), %%xmm2   \n\t"  // tmp2     = _mm_load_pd(B+16)
@@ -314,6 +322,8 @@ dgemm_micro_kernel(long kc,
     "mulpd     %%xmm1,  %%xmm7   \n\t"  // tmp7     = _mm_mul_pd(tmp7, tmp1)
     "movaps  16(%%rax), %%xmm1   \n\t"  // tmp1     = _mm_load_pd(A+18)
     "                            \n\t"
+    "prefetcht2        0(%%r10)  \n\t"  // prefetch nextB[0]
+    "prefetcht2       64(%%r10)  \n\t"  // prefetch nextB[8]
     "                            \n\t"
     "decq      %%rsi             \n\t"  // --l
     "jne       .DLOOP%=          \n\t"  // if l>= 1 go back
@@ -479,7 +489,9 @@ dgemm_micro_kernel(long kc,
         "m" (beta),     // 5
         "m" (C),        // 6
         "m" (incRowC),  // 7
-        "m" (incColC)   // 8
+        "m" (incColC),  // 8
+        "m" (nextA),    // 9
+        "m" (nextB)     // 10
     : // register clobber list
         "rax", "rbx", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11",
         "xmm0", "xmm1", "xmm2", "xmm3",
@@ -572,21 +584,36 @@ dgemm_macro_kernel(int     mc,
     int mr, nr;
     int i, j;
 
+    const double *nextA;
+    const double *nextB;
+
     for (j=0; j<np; ++j) {
         nr    = (j!=np-1 || _nr==0) ? NR : _nr;
+        nextB = &_B[j*kc*NR];
 
         for (i=0; i<mp; ++i) {
             mr    = (i!=mp-1 || _mr==0) ? MR : _mr;
+            nextA = &_A[(i+1)*kc*MR];
+
+            if (i==mp-1) {
+                nextA = _A;
+                nextB = &_B[(j+1)*kc*NR];
+                if (j==np-1) {
+                    nextB = _B;
+                }
+            }
 
             if (mr==MR && nr==NR) {
                 dgemm_micro_kernel(kc, alpha, &_A[i*kc*MR], &_B[j*kc*NR],
                                    beta,
                                    &C[i*MR*incRowC+j*NR*incColC],
-                                   incRowC, incColC);
+                                   incRowC, incColC,
+                                   nextA, nextB);
             } else {
                 dgemm_micro_kernel(kc, alpha, &_A[i*kc*MR], &_B[j*kc*NR],
                                    0.0,
-                                   _C, 1, MR);
+                                   _C, 1, MR,
+                                   nextA, nextB);
                 dgescal(mr, nr, beta,
                         &C[i*MR*incRowC+j*NR*incColC], incRowC, incColC);
                 dgeaxpy(mr, nr, 1.0, _C, 1, MR,
