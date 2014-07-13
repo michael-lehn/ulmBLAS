@@ -139,9 +139,9 @@ dgemm_micro_kernel(int kc,
     "movq      %2,      %%rbx    \n\t"  // Address of B stored in %rbx
     "movq      %3,      %%rcx    \n\t"  // Address of AB stored in %rcx
     "                            \n\t"
-    "movaps    (%%rax), %%xmm0   \n\t"  // tmp0 = _mm_load_pd(A)
-    "movaps  16(%%rax), %%xmm1   \n\t"  // tmp1 = _mm_load_pd(A+2)
-    "movaps    (%%rbx), %%xmm2   \n\t"  // tmp2 = _mm_load_pd(B)
+    "movapd    (%%rax), %%xmm0   \n\t"  // tmp0 = _mm_load_pd(A)
+    "movapd  16(%%rax), %%xmm1   \n\t"  // tmp1 = _mm_load_pd(A+2)
+    "movapd    (%%rbx), %%xmm2   \n\t"  // tmp2 = _mm_load_pd(B)
     "                            \n\t"
     "xorpd     %%xmm8,  %%xmm8   \n\t"  // ab_00_11 = _mm_setzero_pd()
     "xorpd     %%xmm9,  %%xmm9   \n\t"  // ab_20_31 = _mm_setzero_pd()
