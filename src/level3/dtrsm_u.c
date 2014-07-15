@@ -1,5 +1,6 @@
 #include <ulmblas.h>
 #include <math.h>
+#include <stdio.h>
 
 //
 //  Solve A*X = alpha*B
@@ -21,6 +22,8 @@ dtrsm_u(enum Diag       diag,
         int             incColB)
 {
     int i, j, k;
+
+    printf("dtrsm_u\n");
 
 //
 //  Quick return if possible
