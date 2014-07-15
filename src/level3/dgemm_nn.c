@@ -223,6 +223,9 @@ dgescal(int     m,
 {
     int i, j;
 
+    if (alpha==1.0) {
+        return;
+    }
     if (alpha!=0.0) {
         for (j=0; j<n; ++j) {
             for (i=0; i<m; ++i) {
