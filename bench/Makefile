@@ -22,7 +22,10 @@ ATLAS_LIB = ../libatlulmblas.a
 #
 REF_LIB   = ../librefblas.a
 
-all: xdl1blastst xdl3blastst
+all: xdl1blastst xdl3blastst xdlutst
+
+xdlutst: lutst.o
+	$(FC) -o xdlutst lutst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
 
 xdl1blastst : l1blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
 	$(FC) -o xdl1blastst l1blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
