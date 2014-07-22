@@ -29,11 +29,9 @@ dgetrf_unblk(int     m,
 {
     int i;
 
-    /*
     for (i=0; i<m; ++i) {
         piv[i]=i+1;
     }
-    */
     return 0;
 }
 
