@@ -7,14 +7,14 @@
 int
 ULMBLAS(idamax)(const int       n,
                 const double    *x,
-                const int       incX)
+                const int       incX);
 
 void
 ULMBLAS(dswap)(const int n,
                double    *x,
                const int incX,
                double    *y,
-               const int incY)
+               const int incY);
 
 //
 //  Unblocked implementation of the LU factorization
@@ -31,7 +31,7 @@ dgetrf_unblk(int     m,
 
     info = 0;
 
-    if (m==0 || n==0) {
+    if (m==0 || n==0) {
         return info;
     }
 

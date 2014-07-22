@@ -8,7 +8,7 @@ ULMBLAS(dger)(const int       m,
               const double    *x,
               const int       incX,
               const double    *y,
-              const int       incY
+              const int       incY,
               double          *A,
               const int       ldA)
 {
@@ -21,7 +21,7 @@ F77BLAS(dger)(const int       *_m,
               const double    *x,
               const int       *_incX,
               const double    *y,
-              const int       *_incY
+              const int       *_incY,
               double          *A,
               const int       *_ldA)
 {
@@ -30,7 +30,7 @@ F77BLAS(dger)(const int       *_m,
 //
     int m         = *_m;
     int n         = *_n;
-    double alpha  = *_alpha
+    double alpha  = *_alpha;
     int incX      = *_incX;
     int incY      = *_incY;
     int ldA       = *_ldA;
