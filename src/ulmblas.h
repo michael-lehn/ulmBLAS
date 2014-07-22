@@ -36,6 +36,11 @@ enum Diag {
     Unit    = 132
 };
 
+enum Order {
+    RowMajor = 101,
+    ColMajor = 102
+};
+
 //
 //  Convert trans chars 'n', 'N', 't', 'T', 'c', 'C', 'r', 'R' to corresponding
 //  enum Trans constants.  Illegal chars result in 0.
