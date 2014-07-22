@@ -27,34 +27,13 @@ dgetrf_unblk(int     m,
              int     incColA,
              int     *piv)
 {
-    int i, j, jp, info;
+    int i;
 
-    info = 0;
-
-    if (m==0 || n==0) {
-        return info;
-    }
-
-    for (j=0; j<m && j<n; ++j) {
-        jp = j + ULMBLAS(idamax)(m-j, &A[j*incRowA+j*incColA], incRowA);
-        piv[j] = jp+1;
-        if (A[jp*incRowA+j*incColA]!=0.0) {
-            if (jp!=j) {
-                ULMBLAS(dswap)(n,
-                               &A[j*incRowA], incColA,
-                               &A[jp*incRowA], incColA);
-            }
-        } else {
-            if (info==0) {
-                info = j+1;
-            }
-        }
-
-    }
-
+    /*
     for (i=0; i<m; ++i) {
         piv[i]=i+1;
     }
+    */
     return 0;
 }
 
