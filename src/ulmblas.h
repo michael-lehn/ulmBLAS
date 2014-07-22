@@ -12,6 +12,22 @@
 #endif
 
 //
+//  Constants for buffer sizes
+//
+
+//#define MC  384
+//#define KC  384
+//#define NC  4096
+#define MC  8
+#define KC  8
+#define NC  8
+
+
+#define MR  4
+#define NR  4
+
+
+//
 //  Constants for Trans, Side, UpLo and Diag are compatible with CBLAS and ATLAS
 //
 enum Trans {

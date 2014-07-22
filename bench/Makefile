@@ -21,6 +21,7 @@ ATLAS_LIB = ../libatlulmblas.a
 #  Select the reference implementation
 #
 REF_LIB   = ../librefblas.a
+#REF_LIB = /Users/clientadmin/work/blis/lib/dunnington/libblis.a
 
 all: xdl1blastst xdl3blastst
 

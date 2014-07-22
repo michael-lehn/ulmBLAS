@@ -3,6 +3,21 @@
 
 #include <ulmblas.h>
 
+//
+//  Micro kernel for multiplying panels from A and B.
+//  A points to a MR x kc panel and
+//  B points to a kc x NR panel.
+//
+void
+dgemm_micro_kernel(long kc,
+                   double alpha, const double *A, const double *B,
+                   double beta,
+                   double *C, long incRowC, long incColC,
+                   const double *nextA, const double *nextB);
+
+//
+//  Compute C <- beta*C + alpha*A*B
+//
 void
 dgemm_nn(int            m,
          int            n,

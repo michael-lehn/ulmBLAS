@@ -23,8 +23,6 @@ dtrsm_u(enum Diag       diag,
 {
     int i, j, k;
 
-    printf("dtrsm_u\n");
-
 //
 //  Quick return if possible
 //

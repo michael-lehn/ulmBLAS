@@ -1,52 +1,229 @@
 #include <ulmblas.h>
 #include <level3/dgemm_nn.h>
+#include <assert.h>
 #include <math.h>
+#include <stdio.h>
 
-#define MC 128
+//
+//  Buffer size of _A results from partitioning a lower triangular MC x MC
+//  matrix into MR x MR blocks.
+//
+static double _A[MR*MR*(MC/MR)*(MC/MR+1)/2];
+static double _B[MC*NC];
 
 //
-//  Solve A*X = alpha*B
+//  Pack the lower triangular mr x mr block from A into buffer.  Padding gets
+//  used such that the buffered block represents a MR x MR block with MR >= mr.
+//  Padding inserts ones on the diagonal and zeros otherwise.  For diagonal
+//  elements its reciprocal value gets stored.
 //
-//  where A is a lower triangular mxm matrix with unit or non-unit diagonal
-//  and B is a general mxn matrix.
+static void
+pack_A_trblock_MRxMR(int unitDiag, int mr,
+                     const double *A, int incRowA, int incColA,
+                     double *buffer)
+{
+    int i, j;
+
+    assert(mr<=MR);
+
+    for (j=0; j<MR; ++j) {
+        for (i=0; i<j; ++i) {
+            buffer[i] = 0.0;
+        }
+        if (j<mr) {
+            buffer[j] = (unitDiag) ? 1.0
+                                   : 1.0/A[j*incRowA+j*incColA];
+        } else {
+            buffer[j] = 1.0;
+        }
+        for (i=j+1; i<MR; ++i) {
+            if (i<mr && j<mr) {
+                buffer[i] = A[i*incRowA+j*incColA];
+            } else if (i!=j) {
+                buffer[i] = 0.0;
+            } else {
+                buffer[i] = 1.0;
+            }
+        }
+        buffer += MR;
+    }
+}
+
 //
+//  Pack a rectangular mr x MR block from A into buffer.  Using zero padding the
+//  block gets extended to size MR x MR
+//
+static void
+pack_A_geblock_mrxMR(int mr, const double *A, int incRowA, int incColA,
+                     double *buffer)
+{
+    int i, j;
+
+    assert(mr<=MR);
+
+    for (j=0; j<MR; ++j) {
+        for (i=0; i<MR; ++i) {
+            if (i<mr) {
+                buffer[i] = A[i*incRowA+j*incColA];
+            } else {
+                buffer[i] = 0.0;
+            }
+        }
+        buffer += MR;
+    }
+}
+
+//
+//  Partition the lower triangular mc x mc matrix A into MR x MR blocks and pack
+//  these column wise into the buffer.  Padding is used for smaller blocks at
+//  right or bottom boundary.
+//
+static void
+pack_A(int unitDiag, int mc, const double *A, int incRowA, int incColA,
+       double *buffer)
+{
+    int mp  = (mc+MR-1) / MR;
+    int _mr = mc % MR;
+
+    int i, j;
+
+    for (j=0; j<mp; ++j) {
+        int mr = (j!=mp-1 || _mr==0) ? MR : _mr;
+
+        pack_A_trblock_MRxMR(unitDiag, mr,
+                             &A[j*MR*incRowA+j*MR*incColA], incRowA, incColA,
+                             buffer);
+        buffer += MR*MR;
+
+        for (i=j+1; i<mp; ++i) {
+            mr = (i!=mp-1 || _mr==0) ? MR : _mr;
+
+            pack_A_geblock_mrxMR(mr,
+                                 &A[i*MR*incRowA
+                                   +j*MR*incColA], incRowA, incColA,
+                                 buffer);
+            buffer += MR*MR;
+        }
+    }
+}
+
+//
+//  Partition the rectangular mc x nc matrix B in vertical panels of width NR.
+//  Zero padding is used for the last panel.  Zero padding is also used such
+//  that all panels have a height that is a multiple of MR.
+//
+static void
+pack_B(int mc, int nc, const double *B, int incRowB, int incColB,
+       double *buffer)
+{
+    int  mp  = (mc+MR-1) / MR;
+    int  np  = (nc+NR-1) / NR;
+    int _nr  = nc % NR;
+
+    int i, j, l;
+
+    for (j=0; j<np; ++j) {
+        int nr = (j!=np-1 || _nr==0) ? NR : _nr;
+
+        for (i=0; i<mc; ++i) {
+            for (l=0; l<nr; ++l) {
+                buffer[l] = B[i*incRowB+l*incColB];
+            }
+            for (l=nr; l<NR; ++l) {
+                buffer[l] = 0.0;
+            }
+            buffer += NR;
+        }
+        for (i=mc; i<MR*mp; ++i) {
+            for (l=0; l<NR; ++l) {
+                buffer[l] = 0.0;
+            }
+            buffer += NR;
+        }
+
+        B += NR*incColB;
+    }
+}
 
 static void
-dtrsm_unblk_l(enum Diag       diag,
-              int             m,
-              int             n,
-              double          alpha,
-              const double    *A,
-              int             incRowA,
-              int             incColA,
-              double          *B,
-              int             incRowB,
-              int             incColB)
+unpack_B(const double *buffer,
+         int mc, int nc, double *B, int incRowB, int incColB)
+{
+    int  mp  = (mc+MR-1) / MR;
+    int  np  = (nc+NR-1) / NR;
+    int _nr  = nc % NR;
+
+    int i, j, l;
+
+    for (j=0; j<np; ++j) {
+        int nr = (j!=np-1 || _nr==0) ? NR : _nr;
+
+        for (i=0; i<mc; ++i) {
+            for (l=0; l<nr; ++l) {
+                B[i*incRowB+l*incColB] = buffer[l];
+            }
+            buffer += NR;
+        }
+
+        buffer += NR*(MR*mp-mc);
+        B      += NR*incColB;
+    }
+}
+
+static void
+dtrsm_l_micro_kernel(double alpha, const double *A, double *B)
 {
     int i, j, k;
 
-    for (j=0; j<n; ++j) {
-        if (alpha!=1.0) {
-            for (i=0; i<m; ++i) {
-                B[i*incRowB+j*incColB] *= alpha;
+    if (alpha!=1.0) {
+        for (i=0; i<MR; ++i) {
+            for (j=0; j<NR; ++j) {
+                B[i*NR+j] *= alpha;
             }
         }
-        for (k=0; k<m; ++k) {
-            if (B[k*incRowB+j*incColB]!=0.0) {
-                if (diag==NonUnit) {
-                    B[k*incRowB+j*incColB] /= A[k*incRowA+k*incColA];
-                }
-                for (i=k+1; i<m; ++i) {
-                    B[i*incRowB+j*incColB] -= B[k*incRowB+j*incColB]
-                                             *A[i*incRowA+k*incColA];
-                }
+    }
+    for (j=0; j<NR; ++j) {
+        for (k=0; k<MR; ++k) {
+            B[k*NR+j] *= A[k+k*MR];
+            for (i=k+1; i<MR; ++i) {
+                B[i*NR+j] -= B[k*NR+j]*A[i+k*MR];
+            }
+        }
+    }
+}
+
+static void
+dtrsm_l_macro_kernel(int mc, int nc, double alpha)
+{
+    int mp = (mc+MR-1)/MR;
+    int np = (nc+NR-1)/NR;
+
+    int i, j, k;
+
+    double _alpha;
+
+    for (k=0; k<np; ++k) {
+        for (j=0; j<mp; ++j) {
+            _alpha = (j==0) ? alpha : 1.0;
+
+            dtrsm_l_micro_kernel(_alpha,
+                                 &_A[(j+j*(2*mp-j-1)/2)*MR*MR],
+                                 &_B[(j+k*mp)*MR*NR]);
+
+            for (i=j+1; i<mp; ++i) {
+                dgemm_micro_kernel(MR, -1.0,
+                                   &_A[(i+j*(2*mp-j-1)/2)*MR*MR],
+                                   &_B[(j+k*mp)*MR*NR],
+                                   alpha,
+                                   &_B[(i+k*mp)*MR*NR], NR, 1,
+                                   0, 0);
             }
         }
     }
 }
 
 void
-dtrsm_l(enum Diag       diag,
+dtrsm_l(int             unitDiag,
         int             m,
         int             n,
         double          alpha,
@@ -57,42 +234,67 @@ dtrsm_l(enum Diag       diag,
         int             incRowB,
         int             incColB)
 {
-    int mb  = (m+MC-1)/MC;
+    int mb = (m+MC-1)/MC;
+    int nb = (n+NC-1)/NC;
+
     int _mc = m % MC;
+    int _nc = n % NC;
 
-    int mc, i, j;
+    int mc, nc;
+    int j, k;
 
-//
-//  Quick return if possible
-//
-    if (m==0 || n==0) {
-        return;
-    }
-//
-//  And when  alpha equals zero
-//
-    if (alpha==0.0) {
-        for (j=0; j<n; ++j) {
-            for (i=0; i<m; ++i) {
-                B[i*incRowB+j*incColB] = 0.0;
+    double _alpha;
+
+    int i, i2;
+
+    mb=1;
+    for (j=0; j<mb; ++j) {
+        mc     = (j!=mb-1 || _mc==0) ? MC : _mc;
+        _alpha = (j==0) ? alpha : 1.0;
+
+        pack_A(unitDiag, mc,
+               &A[j*MC*incRowA+j*MC*incColA], incRowA, incColA,
+               _A);
+
+        for (k=0; k<nb; ++k) {
+            nc = (k!=nb-1 || _nc==0) ? NC : _nc;
+
+            pack_B(mc, nc,
+                   &B[j*MC*incRowB+k*NC*incColB], incRowB, incColB,
+                   _B);
+
+            printf("Before:\n");
+            for (i=0; i<10*NR; ++i) {
+                for (i2=0; i2<NR; ++i2) {
+                    printf("  %lf", _B[i*NR + i2]);
+                }
+                printf("\n");
+            }
+
+            dtrsm_l_macro_kernel(mc, nc, _alpha);
+
+            unpack_B(_B,
+                     mc, nc,
+                     &B[j*MC*incRowB+k*NC*incColB], incRowB, incColB);
+            printf("After:\n");
+            for (i=0; i<10*NR; ++i) {
+                for (i2=0; i2<NR; ++i2) {
+                    printf("  %lf", _B[i*NR + i2]);
+                }
+                printf("\n");
             }
         }
-        return;
-    }
 
-    for (j=0; j<mb; ++j) {
-        mc = (j!=mb-1 || _mc==0) ? MC : _mc;
-
-        dtrsm_unblk_l(diag, mc, n, alpha,
-                      &A[j*MC*incRowA+j*MC*incColA], incRowA, incColA,
-                      &B[j*MC*incRowB], incRowB, incColB);
-
+        printf("m-MC*(j+1) = %d\n", m-MC*(j+1));
+        printf("n = %d\n", n);
+        printf("mc = %d\n", mc);
         if (m-MC*(j+1)>0) {
             dgemm_nn(m-MC*(j+1), n, mc, -1.0,
-                     &A[(j+1)*MC*incRowA+j*MC*incColA], incRowA, incColB,
+                     &A[(j+1)*MC*incRowA+j*MC*incColA], incRowA, incColA,
                      &B[j*MC*incRowB], incRowB, incColB,
-                     1.0,
-                     &B[(j+1)*MC*incRowB], incRowB, incColB);
+                    alpha,
+                    &B[(j+1)*MC*incRowB], incRowB, incColB);
         }
     }
 }
+
