@@ -47,29 +47,10 @@ dgetf2(int     m,
     for (j=0; j<min(m,n); ++j) {
         jp = j+idamax(m-j, &A[j*incRowA+j*incColA], incRowA);
         piv[j] = jp;
-        if (A[jp*incRowA+j*incColA]!=0.0) {
-            if (jp!=j) {
-                dswap(n, &A[j*incRowA], incColA, &A[jp*incRowA], incColA);
-            }
-            if (j<m-1) {
-                if (fabs(A[j*incRowA+j*incColA])>= sMin) {
-                    dscal(m-j-1, 1.0/A[j*incRowA+j*incColA],
-                          &A[(j+1)*incRowA+j*incColA], incRowA);
-                } else {
-                    for (i=0; i<m-j; ++i) {
-                        A[(j+i)*incRowA+j*incColA] /= A[j*incRowA+j*incColA];
-                    }
-                }
-            }
-        } else if (info==0) {
-            info = j+1;
-        }
-        if (j<min(m,n)-1) {
-            dger(m-j-1, n-j-1, -1.0,
-                 &A[(j+1)*incRowA +  j   *incColA], incRowA,
-                 &A[ j   *incRowA + (j+1)*incColA], incColA,
-                 &A[(j+1)*incRowA + (j+1)*incColA], incRowA, incColA);
-        }
+
+        //
+        //  Your code goes here :-)
+        //
     }
     return info;
 }
