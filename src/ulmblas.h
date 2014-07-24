@@ -15,12 +15,9 @@
 //  Constants for buffer sizes
 //
 
-//#define MC  384
-//#define KC  384
-//#define NC  4096
-#define MC  8
-#define KC  8
-#define NC  8
+#define MC  384
+#define KC  384
+#define NC  4096
 
 
 #define MR  4
@@ -50,6 +47,11 @@ enum UpLo {
 enum Diag {
     NonUnit = 131,
     Unit    = 132
+};
+
+enum Order {
+    RowMajor = 101,
+    ColMajor = 102
 };
 
 //
@@ -87,5 +89,11 @@ enum Diag {
 //  macro for max function
 //
 #define max(x,y)  (((x)<(y)) ? (y) : (x))
+
+//
+//  macro for min function
+//
+#define min(x,y)  (((x)>(y)) ? (y) : (x))
+
 
 #endif // ULM_BLAS_H

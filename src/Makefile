@@ -3,7 +3,7 @@ CC       = gcc-4.8
 #CC       = gcc
 CFLAGS  += -Wall -I. -O3  -msse3 -mfpmath=sse -fomit-frame-pointer
 
-DIRS = auxiliary level1 level3
+DIRS = auxiliary level1 level2 level3 lapack
 
 SOURCE_FILES     = $(foreach DIR, $(DIRS), $(wildcard $(DIR)/*.c))
 OBJECT_FILES     = $(foreach DIR, $(DIRS), \

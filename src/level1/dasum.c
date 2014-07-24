@@ -2,9 +2,9 @@
 #include <math.h>
 
 double
-ULMBLAS(dasum)(const int     n,
-               const double  *x,
-               const int     incX)
+dasum(const int     n,
+      const double  *x,
+      const int     incX)
 {
 //
 //  Local scalars
@@ -52,6 +52,14 @@ ULMBLAS(dasum)(const int     n,
     }
 
     return result;
+}
+
+double
+ULMBLAS(dasum)(const int     n,
+               const double  *x,
+               const int     incX)
+{
+    return dasum(n, x, incX);
 }
 
 double

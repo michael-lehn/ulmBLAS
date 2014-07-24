@@ -1,13 +1,13 @@
 #include <ulmblas.h>
 
 void
-ULMBLAS(drot)(const int      n,
-              double         *x,
-              const int      incX,
-              double         *y,
-              const int      incY,
-              const double   c,
-              const double   s)
+drot(const int      n,
+     double         *x,
+     const int      incX,
+     double         *y,
+     const int      incY,
+     const double   c,
+     const double   s)
 {
 //
 //  Local scalars
@@ -46,6 +46,18 @@ ULMBLAS(drot)(const int      n,
             (*x) = tmp;
         }
     }
+}
+
+void
+ULMBLAS(drot)(const int      n,
+              double         *x,
+              const int      incX,
+              double         *y,
+              const int      incY,
+              const double   c,
+              const double   s)
+{
+    drot(n, x, incX, y, incY, c, s);
 }
 
 void

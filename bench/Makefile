@@ -1,4 +1,4 @@
-ATL_C_SOURCEFILES = $(wildcard ATL_*.c)
+ATL_C_SOURCEFILES = $(wildcard *.c)
 ATL_F_SOURCEFILES = $(wildcard ATL_*.f)
 ATL_OBJECTFILES = $(patsubst %.c, %.o, $(ATL_C_SOURCEFILES)) \
                   $(patsubst %.f, %.o, $(ATL_F_SOURCEFILES))
@@ -23,13 +23,16 @@ ATLAS_LIB = ../libatlulmblas.a
 REF_LIB   = ../librefblas.a
 #REF_LIB = /Users/clientadmin/work/blis/lib/dunnington/libblis.a
 
-all: xdl1blastst xdl3blastst
+all: xdl1blastst xdl3blastst xdlutst
 
 xdl1blastst : l1blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
 	$(FC) -o xdl1blastst l1blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
 
 xdl3blastst : l3blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
 	$(FC) -o xdl3blastst l3blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
+
+xdlutst : lutst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
+	$(FC) -o xdlutst lutst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
 
 libtstatlas.a : $(ATL_OBJECTFILES)
 	ar r libtstatlas.a $(ATL_OBJECTFILES)

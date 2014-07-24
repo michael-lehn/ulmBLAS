@@ -21,11 +21,13 @@ all :  $(LIBREFBLAS) $(LIBULMBLAS) $(TEST_REFBLAS) $(TEST_ULMBLAS)
 check_ulm:
 	$(RM) *.SUMM
 	./dblat1_ulm
+	./dblat2_ulm < dblat2.dat
 	./dblat3_ulm < dblat3.dat
 
 check_ref:
 	$(RM) *.SUMM
 	./dblat1_ref
+	./dblat2_ref < dblat2.dat
 	./dblat3_ref < dblat3.dat
 
 clean:

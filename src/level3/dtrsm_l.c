@@ -222,6 +222,20 @@ dtrsm_l_macro_kernel(int mc, int nc, double alpha)
     }
 }
 
+static void
+printMatrix(int m, int n, const double *X, int incRowX, int incColX)
+{
+    int i, j;
+
+    for (i=0; i<m; ++i) {
+        for (j=0; j<n; ++j) {
+            printf("  %9.5lf", X[i*incRowX+j*incColX]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
 void
 dtrsm_l(int             unitDiag,
         int             m,
@@ -245,9 +259,25 @@ dtrsm_l(int             unitDiag,
 
     double _alpha;
 
-    int i, i2;
+    /*
+    printf("A =\n");
+    printMatrix(m, m, A, incRowA, incColA);
 
-    mb=1;
+    printf("B =\n");
+    printMatrix(m, n, B, incRowB, incColB);
+
+    printf("unitDiag = %d\n", unitDiag);
+    */
+
+    if (alpha!=1.0) {
+        for (j=0; j<n; ++j) {
+            for (k=0; k<m; ++k) {
+                B[k*incRowB+j*incColB] *= alpha;
+            }
+        }
+        alpha = 1.0;
+    }
+
     for (j=0; j<mb; ++j) {
         mc     = (j!=mb-1 || _mc==0) ? MC : _mc;
         _alpha = (j==0) ? alpha : 1.0;
@@ -263,31 +293,13 @@ dtrsm_l(int             unitDiag,
                    &B[j*MC*incRowB+k*NC*incColB], incRowB, incColB,
                    _B);
 
-            printf("Before:\n");
-            for (i=0; i<10*NR; ++i) {
-                for (i2=0; i2<NR; ++i2) {
-                    printf("  %lf", _B[i*NR + i2]);
-                }
-                printf("\n");
-            }
-
             dtrsm_l_macro_kernel(mc, nc, _alpha);
 
             unpack_B(_B,
                      mc, nc,
                      &B[j*MC*incRowB+k*NC*incColB], incRowB, incColB);
-            printf("After:\n");
-            for (i=0; i<10*NR; ++i) {
-                for (i2=0; i2<NR; ++i2) {
-                    printf("  %lf", _B[i*NR + i2]);
-                }
-                printf("\n");
-            }
         }
 
-        printf("m-MC*(j+1) = %d\n", m-MC*(j+1));
-        printf("n = %d\n", n);
-        printf("mc = %d\n", mc);
         if (m-MC*(j+1)>0) {
             dgemm_nn(m-MC*(j+1), n, mc, -1.0,
                      &A[(j+1)*MC*incRowA+j*MC*incColA], incRowA, incColA,
@@ -296,5 +308,9 @@ dtrsm_l(int             unitDiag,
                     &B[(j+1)*MC*incRowB], incRowB, incColB);
         }
     }
+    /*
+    printf("X =\n");
+    printMatrix(m, n, B, incRowB, incColB);
+    */
 }
 
