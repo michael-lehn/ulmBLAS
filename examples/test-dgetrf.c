@@ -34,8 +34,8 @@ ULMBLAS(dgetrf)();
 #define M 6
 #define N 6
 
-double A[2*M*N];
-int    piv[2*min(M,N)];
+double A[M*N];
+int    piv[min(M,N)];
 
 
 int
@@ -46,7 +46,7 @@ main()
     initMatrix(M, N, A, 1, M, 1);
 
     printf("A = \n");
-    printMatrix(M, N+3, A, 1, M);
+    printMatrix(M, N, A, 1, M);
 
     info = ULMBLAS(dgetrf)(ColMajor, M, N, A, M,piv);
 
@@ -55,7 +55,7 @@ main()
     printf("LU = \n");
     printMatrix(M, N, A, 1, M);
 
-    for (i=0; i<min(M,N)+3; ++i) {
+    for (i=0; i<min(M,N); ++i) {
         printf("piv(%d) = %d\n", i, piv[i]);
     }
 
