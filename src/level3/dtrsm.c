@@ -18,32 +18,34 @@ ULMBLAS(dtrsm)(enum Side      side,
                double         *B,
                int            ldB)
 {
+    int unitDiag = (diag==Unit);
+
     if (side==Left) {
         if (transA==NoTrans) {
             if (upLo==Upper) {
-                dtrsm_u(diag, m, n, alpha, A, 1, ldA, B, 1, ldB);
+                dtrsm_u(unitDiag, m, n, alpha, A, 1, ldA, B, 1, ldB);
             } else {
-                dtrsm_l(diag==Unit, m, n, alpha, A, 1, ldA, B, 1, ldB);
+                dtrsm_l(unitDiag, m, n, alpha, A, 1, ldA, B, 1, ldB);
             }
         } else {
             if (upLo==Upper) {
-                dtrsm_l(diag==Unit, m, n, alpha, A, ldA, 1, B, 1, ldB);
+                dtrsm_l(unitDiag, m, n, alpha, A, ldA, 1, B, 1, ldB);
             } else {
-                dtrsm_u(diag, m, n, alpha, A, ldA, 1, B, 1, ldB);
+                dtrsm_u(unitDiag, m, n, alpha, A, ldA, 1, B, 1, ldB);
             }
         }
     } else {
         if (transA==NoTrans) {
             if (upLo==Upper) {
-                dtrsm_l(diag==Unit, n, m, alpha, A, ldA, 1, B, ldB, 1);
+                dtrsm_l(unitDiag, n, m, alpha, A, ldA, 1, B, ldB, 1);
             } else {
-                dtrsm_u(diag, n, m, alpha, A, ldA, 1, B, ldB, 1);
+                dtrsm_u(unitDiag, n, m, alpha, A, ldA, 1, B, ldB, 1);
             }
         } else {
             if (upLo==Upper) {
-                dtrsm_u(diag, n, m, alpha, A, 1, ldA, B, ldB, 1);
+                dtrsm_u(unitDiag, n, m, alpha, A, 1, ldA, B, ldB, 1);
             } else {
-                dtrsm_l(diag==Unit, n, m, alpha, A, 1, ldA, B, ldB, 1);
+                dtrsm_l(unitDiag, n, m, alpha, A, 1, ldA, B, ldB, 1);
             }
         }
     }

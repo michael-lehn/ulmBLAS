@@ -9,7 +9,7 @@
 //
 
 void
-dtrsm_l(enum Diag       diag,
+dtrsm_l(int             unitDiag,
         int             m,
         int             n,
         double          alpha,
@@ -47,7 +47,7 @@ dtrsm_l(enum Diag       diag,
         }
         for (k=0; k<m; ++k) {
             if (B[k*incRowB+j*incColB]!=0.0) {
-                if (diag==NonUnit) {
+                if (!unitDiag) {
                     B[k*incRowB+j*incColB] /= A[k*incRowA+k*incColA];
                 }
                 for (i=k+1; i<m; ++i) {
