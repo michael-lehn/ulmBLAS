@@ -15,7 +15,7 @@
 //  Constants for buffer sizes
 //
 
-#define MC  384
+//#define MC  384
 #define KC  384
 #define NC  4096
 
