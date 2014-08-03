@@ -2,9 +2,9 @@
 #include <math.h>
 
 double
-ULMBLAS(dnrm2)(const int     n,
-               const double  *x,
-               const int     incX)
+dnrm2(const int     n,
+      const double  *x,
+      const int     incX)
 {
 //
 //  Local scalars
@@ -34,6 +34,14 @@ ULMBLAS(dnrm2)(const int     n,
     }
 
     return result;
+}
+
+double
+ULMBLAS(dnrm2)(const int     n,
+               const double  *x,
+               const int     incX)
+{
+    return dnrm2(n, x, incX);
 }
 
 double

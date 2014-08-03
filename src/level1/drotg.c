@@ -12,10 +12,10 @@ sign(const double x, const double y)
 }
 
 void
-ULMBLAS(drotg)(double *a,
-               double *b,
-               double *c,
-               double *s)
+drotg(double *a,
+      double *b,
+      double *c,
+      double *s)
 {
     double r, roe = *b, scale, z;
 
@@ -43,6 +43,15 @@ ULMBLAS(drotg)(double *a,
     }
     *a = r;
     *b = z;
+}
+
+void
+ULMBLAS(drotg)(double *a,
+               double *b,
+               double *c,
+               double *s)
+{
+    drotg(a, b, c, s);
 }
 
 void

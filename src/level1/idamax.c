@@ -2,9 +2,9 @@
 #include <math.h>
 
 int
-ULMBLAS(idamax)(const int       n,
-                const double    *x,
-                const int       incX)
+idamax(const int       n,
+       const double    *x,
+       const int       incX)
 {
 //
 //  Local scalars
@@ -16,10 +16,10 @@ ULMBLAS(idamax)(const int       n,
 //  Quick return if possible
 //
     if (n<1 || incX<=0) {
-        return 0;
+        return -1;
     }
     if (n==1) {
-        return 1;
+        return 0;
     }
     if (incX==1) {
 //
@@ -45,7 +45,15 @@ ULMBLAS(idamax)(const int       n,
             }
         }
     }
-    return iamax+1;
+    return iamax;
+}
+
+int
+ULMBLAS(idamax)(const int       n,
+                const double    *x,
+                const int       incX)
+{
+    return idamax(n, x, incX)+1;
 }
 
 int

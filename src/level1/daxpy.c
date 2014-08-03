@@ -2,12 +2,12 @@
 #include <stdio.h>
 
 void
-ULMBLAS(daxpy)(const int     n,
-               const double  alpha,
-               const double  *x,
-               const int     incX,
-               double        *y,
-               int           incY)
+daxpy(const int     n,
+      const double  alpha,
+      const double  *x,
+      const int     incX,
+      double        *y,
+      int           incY)
 {
 //
 //  Local scalars
@@ -56,6 +56,17 @@ ULMBLAS(daxpy)(const int     n,
             (*y) += alpha * (*x);
         }
     }
+}
+
+void
+ULMBLAS(daxpy)(const int     n,
+               const double  alpha,
+               const double  *x,
+               const int     incX,
+               double        *y,
+               int           incY)
+{
+    daxpy(n, alpha, x, incX, y, incY);
 }
 
 void

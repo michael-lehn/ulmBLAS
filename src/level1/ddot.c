@@ -1,11 +1,11 @@
 #include <ulmblas.h>
 
 double
-ULMBLAS(ddot)(const int     n,
-              const double  *x,
-              const int     incX,
-              const double  *y,
-              const int     incY)
+ddot(const int     n,
+     const double  *x,
+     const int     incX,
+     const double  *y,
+     const int     incY)
 {
 //
 //  Local scalars
@@ -55,6 +55,16 @@ ULMBLAS(ddot)(const int     n,
         }
     }
     return result;
+}
+
+double
+ULMBLAS(ddot)(const int     n,
+              const double  *x,
+              const int     incX,
+              const double  *y,
+              const int     incY)
+{
+    return ddot(n, x, incX, y, incY);
 }
 
 double

@@ -1,11 +1,11 @@
 #include <ulmblas.h>
 
 void
-ULMBLAS(dswap)(const int n,
-               double    *x,
-               const int incX,
-               double    *y,
-               const int incY)
+dswap(const int n,
+      double    *x,
+      const int incX,
+      double    *y,
+      const int incY)
 {
 //
 //  Local scalars
@@ -63,6 +63,16 @@ ULMBLAS(dswap)(const int n,
             *y  = tmp;
         }
     }
+}
+
+void
+ULMBLAS(dswap)(const int n,
+               double    *x,
+               const int incX,
+               double    *y,
+               const int incY)
+{
+    dswap(n, x, incX, y, incY);
 }
 
 void

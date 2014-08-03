@@ -1,7 +1,6 @@
 #include <ulmblas.h>
 #include <auxiliary/xerbla.h>
 #include <math.h>
-
 void
 ULMBLAS(dsymm)(const enum Side   side,
                const enum UpLo   upLo,

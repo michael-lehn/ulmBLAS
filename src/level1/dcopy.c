@@ -1,11 +1,11 @@
 #include <ulmblas.h>
 
 void
-ULMBLAS(dcopy)(const int    n,
-               const double *x,
-               const int    incX,
-               double       *y,
-               const int    incY)
+dcopy(const int    n,
+      const double *x,
+      const int    incX,
+      double       *y,
+      const int    incY)
 {
 //
 //  Local scalars
@@ -54,6 +54,16 @@ ULMBLAS(dcopy)(const int    n,
             (*y) = (*x);
         }
     }
+}
+
+void
+ULMBLAS(dcopy)(const int    n,
+               const double *x,
+               const int    incX,
+               double       *y,
+               const int    incY)
+{
+    dcopy(n, x, incX, y, incY);
 }
 
 void

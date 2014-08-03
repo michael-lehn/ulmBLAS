@@ -1,10 +1,10 @@
 #include <ulmblas.h>
 
 void
-ULMBLAS(dscal)(const int    n,
-               const double alpha,
-               double       *x,
-               const int    incX)
+dscal(const int    n,
+      const double alpha,
+      double       *x,
+      const int    incX)
 {
 //
 //  Local scalars
@@ -45,6 +45,15 @@ ULMBLAS(dscal)(const int    n,
             (*x) *= alpha;
         }
     }
+}
+
+void
+ULMBLAS(dscal)(const int    n,
+               const double alpha,
+               double       *x,
+               const int    incX)
+{
+    dscal(n, alpha, x, incX);
 }
 
 void
