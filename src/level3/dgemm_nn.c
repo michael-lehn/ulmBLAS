@@ -3,8 +3,6 @@
 #include <emmintrin.h>
 #include <immintrin.h>
 
-#define MC  384
-
 //
 //  Local buffers for storing panels from A, B and C
 //
