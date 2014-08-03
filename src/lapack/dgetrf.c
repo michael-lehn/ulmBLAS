@@ -82,61 +82,6 @@ dgetf2(int     m,
 }
 
 int
-dgetrf(int     m,
-       int     n,
-       double  *A,
-       int     incRowA,
-       int     incColA,
-       int     *piv)
-{
-    int i, j, jb, info, info2;
-
-    info = 0;
-
-    if (m==0 || n==0) {
-        return info;
-    }
-
-    if (NB<=1 || NB>=min(m,n)) {
-        dgetf2(m, n, A, incRowA, incColA, piv);
-    } else {
-        for (j=0; j<min(m,n); j+= NB) {
-            jb = min(min(m,n)-j, NB);
-
-            info2 = dgetf2(m-j, jb,
-                           &A[j*incRowA+j*incColA], incRowA, incColA,
-                           &piv[j]);
-            if (info==0 && info2>0) {
-                info = info2 + j;
-            }
-            for (i=j; i<min(m, j+jb); ++i) {
-                piv[i] += j;
-            }
-
-            dlaswp(j, A, incRowA, incColA,
-                   j, j+jb, piv, 1);
-
-            if (j+jb<n) {
-                dlaswp(n-j-jb, &A[(j+jb)*incColA], incRowA, incColA,
-                       j, j+jb, piv, 1);
-                dtrsm_l(1, jb, n-j-jb, 1.0,
-                        &A[j*incRowA+ j    *incColA], incRowA, incColA,
-                        &A[j*incRowA+(j+jb)*incColA], incRowA, incColA);
-                if (j+jb<m) {
-                    dgemm_nn(m-j-jb, n-j-jb, jb,
-                           -1.0,
-                           &A[(j+jb)*incRowA+ j    *incColA], incRowA, incColA,
-                           &A[ j    *incRowA+(j+jb)*incColA], incRowA, incColA,
-                           1.0,
-                           &A[(j+jb)*incRowA+(j+jb)*incColA], incRowA, incColA);
-                }
-            }
-        }
-    }
-    return info;
-}
-
-int
 ULMBLAS(dgetrf)(enum Order  order,
                 int         m,
                 int         n,
@@ -145,8 +90,8 @@ ULMBLAS(dgetrf)(enum Order  order,
                 int         *piv)
 {
     if (order==ColMajor) {
-        return dgetrf(m, n, A, 1, ldA, piv);
+        return dgetf2(m, n, A, 1, ldA, piv);
     } else {
-        return dgetrf(n, m, A, ldA, 1, piv);
+        return dgetf2(n, m, A, ldA, 1, piv);
     }
 }
