@@ -1,0 +1,6 @@
+#ifndef INTERFACES_F77_CONFIG_H
+#define INTERFACES_F77_CONFIG_H 1
+
+#define F77BLAS(x) x##_
+
+#endif // INTERFACES_F77_CONFIG_H 1
