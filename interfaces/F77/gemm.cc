@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <interfaces/F77/config.h>
 #include <interfaces/F77/xerbla.h>

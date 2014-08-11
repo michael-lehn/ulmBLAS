@@ -1,5 +1,5 @@
-#ifndef ULMBLAS_SRC_LEVEL3_DGEMM_TCC
-#define ULMBLAS_SRC_LEVEL3_DGEMM_TCC 1
+#ifndef ULMBLAS_SRC_LEVEL3_GEMM_TCC
+#define ULMBLAS_SRC_LEVEL3_GEMM_TCC 1
 
 #include <stdio.h>
 
@@ -191,10 +191,10 @@ static void
 gemm_macro_kernel(IndexType     mc,
                   IndexType     nc,
                   IndexType     kc,
-                  Alpha         alpha,
+                  const Alpha   &alpha,
                   T             *_A,
                   T             *_B,
-                  Beta          beta,
+                  const Beta    &beta,
                   TC            *C,
                   IndexType     incRowC,
                   IndexType     incColC)
@@ -255,14 +255,14 @@ void
 gemm(IndexType    m,
      IndexType    n,
      IndexType    k,
-     Alpha        alpha,
+     const Alpha  &alpha,
      const TA     *A,
      IndexType    incRowA,
      IndexType    incColA,
      const TB     *B,
      IndexType    incRowB,
      IndexType    incColB,
-     Beta         beta,
+     const Beta   &beta,
      TC           *C,
      IndexType    incRowC,
      IndexType    incColC)
@@ -327,4 +327,4 @@ gemm(IndexType    m,
 
 } // namespace ulmBLAS
 
-#endif // ULMBLAS_SRC_LEVEL3_DGEMM_TCC
+#endif // ULMBLAS_SRC_LEVEL3_GEMM_TCC

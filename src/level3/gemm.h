@@ -1,26 +1,26 @@
-#ifndef ULMBLAS_SRC_LEVEL3_DGEMM_H
-#define ULMBLAS_SRC_LEVEL3_DGEMM_H 1
+#ifndef ULMBLAS_SRC_LEVEL3_GEMM_H
+#define ULMBLAS_SRC_LEVEL3_GEMM_H 1
 
 namespace ulmBLAS {
 
-template <typename IndexType, typename Alpha, typename MA, typename MB,
-          typename Beta, typename MC>
+template <typename IndexType, typename Alpha, typename TA, typename TB,
+          typename Beta, typename TC>
     void
     gemm(IndexType    m,
          IndexType    n,
          IndexType    k,
-         Alpha        alpha,
-         const MA     *A,
+         const Alpha  &alpha,
+         const TA     *A,
          IndexType    incRowA,
          IndexType    incColA,
-         const MA     *B,
+         const TB     *B,
          IndexType    incRowB,
          IndexType    incColB,
-         Beta         beta,
-         MA           *C,
+         const Beta   &beta,
+         TC           *C,
          IndexType    incRowC,
          IndexType    incColC);
 
 } // namespace ulmBLAS
 
-#endif // ULMBLAS_SRC_LEVEL3_DGEMM_H
+#endif // ULMBLAS_SRC_LEVEL3_GEMM_H
