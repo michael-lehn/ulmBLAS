@@ -1,6 +1,5 @@
 #include <interfaces/C/config.h>
 #include <src/level1/rot.h>
-#include <src/level1/rot.tcc>
 
 extern "C" {
 

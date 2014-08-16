@@ -13,3 +13,5 @@ template <typename IndexType, typename Alpha, typename VX>
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_SRC_LEVEL1_SCAL_H 1
+
+#include <src/level1/scal.tcc>

@@ -12,3 +12,5 @@ template <typename IndexType, typename VX>
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_SRC_LEVEL1_IAMAX_H 1
+
+#include <src/level1/iamax.tcc>

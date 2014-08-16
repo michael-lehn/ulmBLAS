@@ -5,16 +5,9 @@
 
 #include <src/config/blocksize.h>
 #include <src/auxiliary/memorypool.h>
-#include <src/auxiliary/memorypool.tcc>
 #include <src/level1extensions/geaxpy.h>
-#include <src/level1extensions/geaxpy.tcc>
 #include <src/level1extensions/gescal.h>
-#include <src/level1extensions/gescal.tcc>
-
-#if defined(__SSE3__)
-#include <src/level3/kernel/sse.h>
-#include <src/level3/kernel/sse.tcc>
-#endif
+#include <src/level3/kernel/kernel.h>
 
 namespace ulmBLAS {
 

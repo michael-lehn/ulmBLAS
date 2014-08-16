@@ -24,3 +24,5 @@ template <typename IndexType, typename Alpha, typename TA, typename TB,
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_SRC_LEVEL3_GEMM_H
+
+#include <src/level3/gemm.tcc>

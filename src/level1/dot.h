@@ -40,3 +40,5 @@ template <typename IndexType, typename VX, typename VY, typename Result>
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_SRC_LEVEL1_DOT_H 1
+
+#include <src/level1/dot.tcc>

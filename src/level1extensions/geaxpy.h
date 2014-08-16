@@ -16,3 +16,5 @@ template <typename IndexType, typename Alpha, typename MX, typename MY>
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_SRC_LEVEL1EXTENSIONS_GEAXPY_H 1
+
+#include <src/level1extensions/geaxpy.tcc>

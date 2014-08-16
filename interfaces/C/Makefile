@@ -4,7 +4,8 @@ ATL_OBJECT_FILES = $(patsubst %.cc, atl_%.o, $(SOURCE_FILES))
 
 
 CXX = g++-4.8
-CXXFLAGS = -std=c++11 -O3  -msse3 -mfpmath=sse -fomit-frame-pointer -Wall -I ../..
+CXXFLAGS = -std=c++11 -O3  -fomit-frame-pointer -Wall -I ../..
+CXXFLAGS += -msse3 -mfpmath=sse
 
 CBLAS   = ../../libcblas.a
 ATLBLAS = ../../libatlblas.a

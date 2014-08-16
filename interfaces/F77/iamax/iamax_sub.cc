@@ -1,6 +1,5 @@
 #include <interfaces/F77/config.h>
 #include <src/level1/iamax.h>
-#include <src/level1/iamax.tcc>
 
 extern "C" {
 

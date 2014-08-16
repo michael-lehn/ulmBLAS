@@ -1,6 +1,5 @@
 #include <interfaces/C/config.h>
 #include <src/level1/asum.h>
-#include <src/level1/asum.tcc>
 
 extern "C" {
 

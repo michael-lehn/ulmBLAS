@@ -12,8 +12,14 @@ scal(IndexType      n,
      VX             *x,
      IndexType      incX)
 {
-    for (IndexType i=0; i<n; ++i) {
-        x[i*incX] *= alpha;
+    if (alpha!=Alpha(1)) {
+        for (IndexType i=0; i<n; ++i) {
+            x[i*incX] *= alpha;
+        }
+    } else if (alpha==Alpha(0)) {
+        for (IndexType i=0; i<n; ++i) {
+            x[i*incX] = Alpha(0);
+        }
     }
 }
 

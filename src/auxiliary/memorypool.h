@@ -37,3 +37,5 @@ class MemoryPool
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_SRC_AUXILIARY_MEMORYPOOL_H
+
+#include <src/auxiliary/memorypool.tcc>

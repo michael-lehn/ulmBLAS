@@ -2,7 +2,6 @@
 #include <interfaces/C/config.h>
 #include <interfaces/C/xerbla.h>
 #include <src/level2/gemv.h>
-#include <src/level2/gemv.tcc>
 
 extern "C" {
 

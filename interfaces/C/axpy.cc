@@ -1,6 +1,5 @@
 #include <interfaces/C/config.h>
 #include <src/level1/axpy.h>
-#include <src/level1/axpy.tcc>
 
 extern "C" {
 

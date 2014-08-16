@@ -20,3 +20,5 @@ static typename std::enable_if<std::is_convertible<IndexType,long>::value
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_SRC_LEVEL3_KERNEL_SSE_H
+
+#include <src/level3/kernel/sse.tcc>

@@ -14,3 +14,5 @@ template <typename IndexType, typename VX, typename VY>
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_SRC_LEVEL1_COPY_H 1
+
+#include <src/level1/copy.tcc>

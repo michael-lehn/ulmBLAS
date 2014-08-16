@@ -42,3 +42,5 @@ template <typename TA, typename TB, typename T>
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_SRC_LEVEL1_ROT_H 1
+
+#include <src/level1/rot.tcc>

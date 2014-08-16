@@ -4,9 +4,11 @@
 #include <complex>
 #include <type_traits>
 
+#include <src/config/simd.h>
+
 namespace ulmBLAS {
 
-#if defined(__SSE3__)
+#if defined(USE_SSE)
 
 template <typename T>
 struct BlockSize

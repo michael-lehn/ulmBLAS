@@ -17,3 +17,5 @@ template <typename IndexType, typename Alpha, typename MA>
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_SRC_LEVEL1EXTENSIONS_GESCAL_H 1
+
+#include <src/level1extensions/gescal.tcc>

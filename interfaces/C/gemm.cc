@@ -1,7 +1,6 @@
 #include <interfaces/C/config.h>
 #include <interfaces/C/xerbla.h>
 #include <src/level3/gemm.h>
-#include <src/level3/gemm.tcc>
 
 extern "C" {
 

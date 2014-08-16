@@ -1,6 +1,5 @@
 #include <interfaces/F77/config.h>
 #include <src/level1/copy.h>
-#include <src/level1/copy.tcc>
 
 extern "C" {
 

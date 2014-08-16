@@ -1,6 +1,5 @@
 #include <interfaces/C/config.h>
 #include <src/level1/scal.h>
-#include <src/level1/scal.tcc>
 
 extern "C" {
 

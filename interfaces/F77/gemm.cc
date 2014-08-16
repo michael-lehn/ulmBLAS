@@ -4,7 +4,6 @@
 #include <interfaces/F77/config.h>
 #include <interfaces/F77/xerbla.h>
 #include <src/level3/gemm.h>
-#include <src/level3/gemm.tcc>
 
 extern "C" {
 

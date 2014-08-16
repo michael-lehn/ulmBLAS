@@ -2,6 +2,8 @@
 #define ULMBLAS_SRC_LEVEL1_AXPY_TCC 1
 
 #include <src/level1/axpy.h>
+#include <src/level1/kernel/kernel.h>
+#include <src/level1/ref/axpy.h>
 
 namespace ulmBLAS {
 
@@ -14,9 +16,7 @@ axpy(IndexType      n,
      VY             *y,
      IndexType      incY)
 {
-    for (IndexType i=0; i<n; ++i) {
-        y[i*incY] += alpha*x[i*incX];
-    }
+    axpy_ref(n, alpha, x, incX, y, incY);
 }
 
 } // namespace ulmBLAS

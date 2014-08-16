@@ -1,6 +1,5 @@
 #include <interfaces/C/config.h>
 #include <src/level1/nrm2.h>
-#include <src/level1/nrm2.tcc>
 
 extern "C" {
 

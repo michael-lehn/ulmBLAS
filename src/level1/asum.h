@@ -27,3 +27,5 @@ template <typename IndexType, typename VX, typename Result>
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_SRC_LEVEL1_ASUM_H 1
+
+#include <src/level1/asum.tcc>

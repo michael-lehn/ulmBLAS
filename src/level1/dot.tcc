@@ -3,6 +3,8 @@
 
 #include <complex>
 #include <src/level1/dot.h>
+#include <src/level1/kernel/kernel.h>
+#include <src/level1/ref/dot.h>
 
 namespace ulmBLAS {
 
@@ -29,11 +31,7 @@ dotu(IndexType      n,
      IndexType      incY,
      Result         &result)
 {
-    result = Result(0);
-
-    for (IndexType i=0; i<n; ++i) {
-        result += x[i*incX]*y[i*incY];
-    }
+    dotu_ref(n, x, incX, y, incY, result);
 }
 
 template <typename IndexType, typename VT>

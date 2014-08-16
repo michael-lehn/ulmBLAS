@@ -1,6 +1,5 @@
 #include <interfaces/F77/config.h>
 #include <src/level1/axpy.h>
-#include <src/level1/axpy.tcc>
 
 extern "C" {
 

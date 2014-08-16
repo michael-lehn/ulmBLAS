@@ -15,3 +15,5 @@ template <typename IndexType, typename Alpha, typename VX, typename VY>
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_SRC_LEVEL1_AXPY_H 1
+
+#include <src/level1/axpy.tcc>
