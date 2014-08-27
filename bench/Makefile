@@ -4,7 +4,7 @@ ATL_OBJECTFILES = $(patsubst %.c, %.o, $(ATL_C_SOURCEFILES)) \
                   $(patsubst %.f, %.o, $(ATL_F_SOURCEFILES))
 
 FC = gfortran
-CXX = g++-4.8
+CXX = g++
 #CC = gcc
 
 CFLAGS = -c -DL2SIZE=4194304 -DAdd_ -DF77_INTEGER=int -DStringSunStyle \
@@ -24,9 +24,9 @@ ATLAS_LIB = ../libatlblas.a
 #
 #REF_LIB   = ../librefblas.a
 #REF_LIB   = ../libblas.a
-#REF_LIB   = $(HOME)/work/EigenBuild/blas/libeigen_blas_static.a
+REF_LIB   = $(HOME)/work/eigen-3.2.1/blas/libeigen_blas_static.a
 #REF_LIB   = $(HOME)/work/blis/lib/reference/libblis.a
-REF_LIB   = $(HOME)/work/blis/lib/dunnington/libblis.a
+#REF_LIB   = $(HOME)/work/blis/lib/dunnington/libblis.a
 #REF_LIB   = $(HOME)/work/OpenBLAS/libopenblas.a
 
 #MKLROOT  = /opt/intel/composer_xe_2011_sp1.8.269/mkl/
@@ -35,13 +35,13 @@ REF_LIB   = $(HOME)/work/blis/lib/dunnington/libblis.a
 all: xdl1blastst xdl2blastst xdl3blastst
 
 xdl1blastst : l1blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
-	$(FC) -lstdc++ -o xdl1blastst l1blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
+	$(CXX) -lstdc++ -o xdl1blastst l1blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
 
 xdl2blastst : l2blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
-	$(FC) -lstdc++ -o xdl2blastst l2blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
+	$(CXX) -lstdc++ -o xdl2blastst l2blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
 
 xdl3blastst : l3blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
-	$(FC) -lstdc++ -o xdl3blastst l3blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
+	$(CXX) -lstdc++ -o xdl3blastst l3blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
 
 libtstatlas.a : $(ATL_OBJECTFILES)
 	ar r libtstatlas.a $(ATL_OBJECTFILES)

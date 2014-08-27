@@ -3,7 +3,7 @@ OBJECT_FILES     = $(patsubst %.cc, %.o,     $(SOURCE_FILES))
 ATL_OBJECT_FILES = $(patsubst %.cc, atl_%.o, $(SOURCE_FILES))
 
 
-CXX = g++-4.8
+CXX = g++
 CXXFLAGS = -std=c++11 -O3  -fomit-frame-pointer -Wall -I ../..
 CXXFLAGS += -msse3 -mfpmath=sse
 

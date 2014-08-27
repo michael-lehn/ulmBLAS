@@ -3,8 +3,7 @@
 
 #include <complex>
 #include <src/level1/dot.h>
-#include <src/level1/kernel/kernel.h>
-#include <src/level1/ref/dot.h>
+#include <src/level1/kernel/dot.h>
 
 namespace ulmBLAS {
 
@@ -31,7 +30,7 @@ dotu(IndexType      n,
      IndexType      incY,
      Result         &result)
 {
-    dotu_ref(n, x, incX, y, incY, result);
+    SELECT_DOT_KERNEL::dotu(n, x, incX, y, incY, result);
 }
 
 template <typename IndexType, typename VT>
@@ -57,11 +56,7 @@ dotc(IndexType      n,
      IndexType      incY,
      Result         &result)
 {
-    result = Result(0);
-
-    for (IndexType i=0; i<n; ++i) {
-        result += std::conj(x[i*incX])*y[i*incY];
-    }
+    SELECT_DOT_KERNEL::dotc(n, x, incX, y, incY, result);
 }
 
 } // namespace ulmBLAS

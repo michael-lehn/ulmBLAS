@@ -11,7 +11,9 @@ template <typename IndexType, typename Alpha, typename MX, typename MY>
            const MX       *X,
            IndexType      incRowX,
            IndexType      incColX,
-           MY             *Y);
+           MY             *Y,
+           IndexType      incRowY,
+           IndexType      incColY);
 
 } // namespace ulmBLAS
 

@@ -8,11 +8,6 @@ F77BLAS(dgbmv)()
 }
 
 void
-F77BLAS(dger)()
-{
-}
-
-void
 F77BLAS(dger2)()
 {
 }
@@ -34,11 +29,6 @@ F77BLAS(dspr2)()
 
 void
 F77BLAS(dspr)()
-{
-}
-
-void
-F77BLAS(dsymv)()
 {
 }
 

@@ -8,11 +8,6 @@ ULMBLAS(dgbmv)()
 }
 
 void
-ULMBLAS(dger)()
-{
-}
-
-void
 ULMBLAS(dger2)()
 {
 }
@@ -34,11 +29,6 @@ ULMBLAS(dspr2)()
 
 void
 ULMBLAS(dspr)()
-{
-}
-
-void
-ULMBLAS(dsymv)()
 {
 }
 

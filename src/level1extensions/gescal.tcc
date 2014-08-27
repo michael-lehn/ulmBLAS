@@ -2,6 +2,7 @@
 #define ULMBLAS_SRC_LEVEL1EXTENSIONS_GESCAL_TCC 1
 
 #include <complex>
+#include <src/level1extensions/gescal.h>
 
 namespace ulmBLAS {
 

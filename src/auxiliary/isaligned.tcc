@@ -1,6 +1,8 @@
 #ifndef SRC_AUXILIARY_ISALIGNED_TCC
 #define SRC_AUXILIARY_ISALIGNED_TCC 1
 
+#include <cstdlib>
+
 namespace ulmBLAS {
 
 template <typename T, typename IndexType>

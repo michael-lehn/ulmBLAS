@@ -1,16 +1,10 @@
-#ifndef ULMBLAS_SRC_LEVEL1EXTENSIONS_KERNEL_SSE_TCC
-#define ULMBLAS_SRC_LEVEL1EXTENSIONS_KERNEL_SSE_TCC 1
+#ifndef ULMBLAS_SRC_LEVEL1EXTENSIONS_KERNEL_SSE_AXPY2V_TCC
+#define ULMBLAS_SRC_LEVEL1EXTENSIONS_KERNEL_SSE_AXPY2V_TCC 1
 
-#include <emmintrin.h>
-#include <pmmintrin.h>
+#include <src/level1extensions/kernel/ref/axpy2v.h>
+#include <src/level1extensions/kernel/sse/axpy2v.h>
 
-#include <src/auxiliary/isaligned.h>
-#include <src/level1extensions/kernel/sse.h>
-#include <src/level1extensions/ref/axpy2v.h>
-
-#include <cstdio>
-
-namespace ulmBLAS {
+namespace ulmBLAS { namespace sse {
 
 template <typename IndexType>
 void
@@ -25,7 +19,7 @@ axpy2v(IndexType      n,
        IndexType      incY)
 {
     if (incX0!=1 || incX1!=1 || incY!=1) {
-        axpy2v_ref(n, alpha0, alpha1, x0, incX0, x1, incX1, y, incY);
+        ref::axpy2v(n, alpha0, alpha1, x0, incX0, x1, incX1, y, incY);
         return;
     }
 
@@ -92,10 +86,10 @@ axpy2v(IndexType      n,
             y[i] += alpha0*x0[i] + alpha1*x1[i];
         }
     } else {
-        axpy2v_ref(n, alpha0, alpha1, x0, incX0, x1, incX1, y, incY);
+        ref::axpy2v(n, alpha0, alpha1, x0, incX0, x1, incX1, y, incY);
     }
 }
 
-} // namespace ulmBLAS
+} } // namespace sse, ulmBLAS
 
-#endif // ULMBLAS_SRC_LEVEL1EXTENSIONS_KERNEL_SSE_TCC
+#endif // ULMBLAS_SRC_LEVEL1EXTENSIONS_KERNEL_SSE_AXPY2V_TCC 1
