@@ -12,6 +12,8 @@ CFLAGS = -c -DL2SIZE=4194304 -DAdd_ -DF77_INTEGER=int -DStringSunStyle \
 
 LDFLAGS = -lm
 
+BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
+
 #
 #  Select the ATLAS library (or our faked ATLAS implementation)
 #
@@ -47,5 +49,18 @@ libtstatlas.a : $(ATL_OBJECTFILES)
 	ar r libtstatlas.a $(ATL_OBJECTFILES)
 	ranlib libtstatlas.a
 
+.PHONY: plot
+plot: xdl3blastst
+	./xdl3blastst -N 100 2000 100 > report
+	grep "\ \-\-\-\-\-$$"  report > Netlib-refBLAS.dat
+	grep PASS report > $(BRANCH).dat
+	# List the branch for comparision
+	grep -Fxq "Netlib-refBLAS" branches || echo Netlib-refBLAS >> branches
+	grep -Fxq "$(BRANCH)"      branches || echo $(BRANCH)      >> branches
+	gnuplot -e "BRANCHES=\"$(shell cat branches)\"" bench.gps
+	xdg-open comp.svg || open comp.svg || echo "Benchmark plotted as bench/comp.svg"
+
 clean:
-	rm -f xdl1blastst libtstatlas.a l1blastst.o $(ATL_OBJECTFILES)
+	rm -f xdl[1-3]blastst libtstatlas.a l[1-3]blastst.o $(ATL_OBJECTFILES)
+	rm -f report branches *.dat comp.svg
+
