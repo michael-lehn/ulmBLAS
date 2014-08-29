@@ -18,6 +18,10 @@ dotu2v(IndexType      n,
        Result         *result,
        IndexType      resultInc)
 {
+    if (n<=0) {
+        return;
+    }
+
     if (incX0!=1 || incX1!=1 || incY!=1) {
         ref::dotu2v(n, x0, incX0, x1, incX1, y, incY, result, resultInc);
         return;

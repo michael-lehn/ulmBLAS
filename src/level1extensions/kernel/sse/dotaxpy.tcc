@@ -30,7 +30,7 @@ dotaxpy(IndexType      n,
         IndexType      incZ,
         double         &rho)
 {
-    if (n==0) {
+    if (n<=0) {
         rho = 0;
         return;
     }
@@ -46,8 +46,6 @@ dotaxpy(IndexType      n,
     bool zAligned = isAligned(z, 16);
 
     double _rho = 0;
-
-    rho = 0;
 
     if (!xAligned && !yAligned && !zAligned) {
         z[0] += alpha*x[0];

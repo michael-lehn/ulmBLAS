@@ -59,6 +59,10 @@ dotuxf(IndexType      n,
        double         *result,
        IndexType      resultInc)
 {
+    if (n<=0) {
+        return;
+    }
+
     if (incColX!=1 || incY!=1) {
         ref::dotuxf(n, X, incRowX, incColX, y, incY, result, resultInc);
         return;

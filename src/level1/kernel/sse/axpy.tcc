@@ -18,7 +18,7 @@ axpy(IndexType      n,
      double         *y,
      IndexType      incY)
 {
-    if (n==0) {
+    if (n<=0) {
         return;
     }
 

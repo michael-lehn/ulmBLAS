@@ -18,7 +18,7 @@ dotu(IndexType      n,
      IndexType      incY,
      double         &result)
 {
-    if (n==0) {
+    if (n<=0) {
         result = 0;
     }
 

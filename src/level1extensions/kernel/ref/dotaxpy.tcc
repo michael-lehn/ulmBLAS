@@ -33,7 +33,7 @@ dotaxpy(IndexType      n,
     rho = Rho(0);
     for (IndexType i=0; i<n; ++i) {
         z[i*incZ] += alpha*conj(x[i*incX], conjX);
-        rho       += conj(x[i*incX], conjXt)*conj(y[i*incY], conjY);
+        rho       += conj(x[i*incX], conjXt) * conj(y[i*incY], conjY);
     }
 }
 

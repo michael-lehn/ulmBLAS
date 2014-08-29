@@ -18,6 +18,10 @@ axpy2v(IndexType      n,
        double         *y,
        IndexType      incY)
 {
+    if (n<=0) {
+        return;
+    }
+
     if (incX0!=1 || incX1!=1 || incY!=1) {
         ref::axpy2v(n, alpha0, alpha1, x0, incX0, x1, incX1, y, incY);
         return;

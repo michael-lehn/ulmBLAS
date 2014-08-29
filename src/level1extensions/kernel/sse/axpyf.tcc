@@ -61,6 +61,10 @@ axpyf(IndexType      n,
       double         *y,
       IndexType      incY)
 {
+    if (n<=0) {
+        return;
+    }
+
     if (incRowX!=1 || incY!=1) {
         ref::axpyf(n, alpha, a, incA, x, incRowX, incColX, y, incY);
         return;
