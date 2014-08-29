@@ -16,6 +16,10 @@ $(DIRS):
 bench: src refblas
 test: src refblas
 
+.PHONY: plot
+plot: bench
+	make -C bench plot
+
 .PHONY: clean
 clean:
 	-for dir in $(DIRS); do make -C $$dir clean; done
