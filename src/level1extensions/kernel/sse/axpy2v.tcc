@@ -1,6 +1,8 @@
 #ifndef ULMBLAS_SRC_LEVEL1EXTENSIONS_KERNEL_SSE_AXPY2V_TCC
 #define ULMBLAS_SRC_LEVEL1EXTENSIONS_KERNEL_SSE_AXPY2V_TCC 1
 
+#include <immintrin.h>
+#include <src/auxiliary/isaligned.h>
 #include <src/level1extensions/kernel/ref/axpy2v.h>
 #include <src/level1extensions/kernel/sse/axpy2v.h>
 

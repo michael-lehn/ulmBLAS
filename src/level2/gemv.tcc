@@ -38,7 +38,7 @@ gemv(IndexType    m,
                                        && std::is_same<T,TX>::value
                                        && std::is_same<T,TY>::value;
 
-    if (m==0 || n==0 || (alpha==Alpha(0) && beta==Beta(1))) {
+    if (m<=0 || n<=0 || (alpha==Alpha(0) && beta==Beta(1))) {
         return;
     }
 

@@ -21,14 +21,19 @@ enum Trans {
     Conj      = 114
 };
 
-enum Side  {
+enum Side {
     Left    = 141,
     Right   = 142
 };
 
-enum UpLo  {
+enum UpLo {
     Upper   = 121,
     Lower   = 122
+};
+
+enum Diag {
+    NonUnit = 131,
+    Unit    = 132
 };
 
 //

@@ -63,16 +63,6 @@ ULMBLAS(dtpsv)()
 }
 
 void
-ULMBLAS(dtrmv)()
-{
-}
-
-void
-ULMBLAS(dtrsv)()
-{
-}
-
-void
 ULMBLAS(dsyr2k)()
 {
 }

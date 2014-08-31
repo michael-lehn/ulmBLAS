@@ -15,23 +15,23 @@ dotxaxpyf_fusefactor()
 
 template <typename IndexType, typename Alpha, typename VA, typename MX,
           typename VY, typename VZ, typename Rho>
-    void
-    dotxaxpyf(IndexType      n,
-              bool           conjX,
-              bool           conjXt,
-              bool           conjY,
-              const Alpha    &alpha,
-              const VA       *a,
-              IndexType      incA,
-              const MX       *X,
-              IndexType      incRowX,
-              IndexType      incColX,
-              const VY       *y,
-              IndexType      incY,
-              VZ             *z,
-              IndexType      incZ,
-              Rho            *rho,
-              IndexType      incRho)
+void
+dotxaxpyf(IndexType      n,
+          bool           conjX,
+          bool           conjXt,
+          bool           conjY,
+          const Alpha    &alpha,
+          const VA       *a,
+          IndexType      incA,
+          const MX       *X,
+          IndexType      incRowX,
+          IndexType      incColX,
+          const VY       *y,
+          IndexType      incY,
+          VZ             *z,
+          IndexType      incZ,
+          Rho            *rho,
+          IndexType      incRho)
 {
     SELECT_DOTXAXPYF_KERNEL::dotxaxpyf(n, conjX, conjXt, conjY, alpha, a, incA,
                                        X, incRowX, incColX, y, incY,

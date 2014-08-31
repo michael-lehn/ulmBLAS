@@ -63,16 +63,6 @@ F77BLAS(dtpsv)()
 }
 
 void
-F77BLAS(dtrmv)()
-{
-}
-
-void
-F77BLAS(dtrsv)()
-{
-}
-
-void
 F77BLAS(dsyr2k)()
 {
 }

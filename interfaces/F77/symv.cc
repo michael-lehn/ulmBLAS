@@ -3,7 +3,6 @@
 #include <cmath>
 #include <interfaces/F77/config.h>
 #include <interfaces/F77/xerbla.h>
-#include <src/level2/gemv.h>
 #include <src/level2/sylmv.h>
 
 extern "C" {
@@ -39,13 +38,13 @@ F77BLAS(dsymv)(const char     *_upLo,
     if (toupper(*_upLo)!='U' && toupper(*_upLo)!='L') {
         info = 1;
     } else if (n<0) {
-            info = 2;
+        info = 2;
     } else if (ldA<std::max(1,n)) {
-            info = 5;
+        info = 5;
     } else if (incX==0) {
-            info = 7;
+        info = 7;
     } else if (incY==0) {
-            info = 10;
+        info = 10;
     }
 
     if (info!=0) {
