@@ -3,7 +3,7 @@
 #include <cmath>
 #include <interfaces/F77/config.h>
 #include <interfaces/F77/xerbla.h>
-#include <src/level2/sylmv.h>
+#include <ulmblas/level2/sylmv.h>
 
 extern "C" {
 

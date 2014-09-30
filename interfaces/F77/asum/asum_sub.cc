@@ -1,5 +1,5 @@
 #include <interfaces/F77/config.h>
-#include <src/level1/asum.h>
+#include <ulmblas/level1/asum.h>
 
 extern "C" {
 

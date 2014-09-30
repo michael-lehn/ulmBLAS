@@ -1,6 +1,6 @@
 #include <interfaces/C/config.h>
 #include <interfaces/C/xerbla.h>
-#include <src/level3/gemm.h>
+#include <ulmblas/level3/gemm.h>
 
 extern "C" {
 
@@ -29,9 +29,13 @@ ULMBLAS(dgemm)(const enum Trans  transA,
 //  Test the input parameters
 //
     int info = 0;
-    if (transA==0) {
+    if (transA!=NoTrans && transA!=Trans
+     && transA!=Conj && transA!=ConjTrans)
+    {
         info = 1;
-    } else if (transB==0) {
+    } else if (transB!=NoTrans && transB!=Trans
+            && transB!=Conj && transB!=ConjTrans)
+    {
         info = 2;
     } else if (m<0) {
         info = 3;

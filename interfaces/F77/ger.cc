@@ -3,10 +3,10 @@
 #include <cmath>
 #include <interfaces/F77/config.h>
 #include <interfaces/F77/xerbla.h>
-#include <src/level2/ger.h>
+#include <ulmblas/level2/ger.h>
 
 #include <cstdio>
-#include <src/auxiliary/printmatrix.h>
+#include <ulmblas/auxiliary/printmatrix.h>
 
 extern "C" {
 

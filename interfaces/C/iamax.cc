@@ -1,5 +1,5 @@
 #include <interfaces/C/config.h>
-#include <src/level1/iamax.h>
+#include <ulmblas/level1/iamax.h>
 
 extern "C" {
 

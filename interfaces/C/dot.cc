@@ -1,5 +1,5 @@
 #include <interfaces/C/config.h>
-#include <src/level1/dot.h>
+#include <ulmblas/level1/dot.h>
 
 extern "C" {
 

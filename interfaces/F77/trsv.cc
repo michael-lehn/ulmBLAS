@@ -3,8 +3,8 @@
 #include <cmath>
 #include <interfaces/F77/config.h>
 #include <interfaces/F77/xerbla.h>
-#include <src/level2/trlsv.h>
-#include <src/level2/trusv.h>
+#include <ulmblas/level2/trlsv.h>
+#include <ulmblas/level2/trusv.h>
 
 extern "C" {
 

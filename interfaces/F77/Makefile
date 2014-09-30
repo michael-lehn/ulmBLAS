@@ -1,7 +1,7 @@
 FC = gfortran
 CXX = g++-4.8
-CXXFLAGS = -std=c++11 -O3 -Wall -I ../..
-FFLAGS   = -Wall
+CXXFLAGS = -std=c++11 -O3  -fomit-frame-pointer -Wall -I ../.. -DUSE_TESTPARAM
+CXXFLAGS += -msse3 -mfpmath=sse
 
 SOURCE_FILES     = $(wildcard *.cc) \
                    $(wildcard asum/*.cc)  $(wildcard asum/*.f) \

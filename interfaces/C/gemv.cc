@@ -1,9 +1,9 @@
 #include <algorithm>
 #include <interfaces/C/config.h>
 #include <interfaces/C/xerbla.h>
-#include <src/level1/copy.h>
-#include <src/level1extensions/gecopy.h>
-#include <src/level2/gemv.h>
+#include <ulmblas/level1/copy.h>
+#include <ulmblas/level1extensions/gecopy.h>
+#include <ulmblas/level2/gemv.h>
 
 //#define SCATTER
 
@@ -18,17 +18,17 @@
 extern "C" {
 
 void
-ULMBLAS(dgemv)(const enum Trans  transA,
-               const int         m,
-               const int         n,
-               const double      alpha,
-               const double      *A,
-               const int         ldA,
-               const double      *x,
-               const int         incX,
-               const double      beta,
-               double            *y,
-               const int         incY)
+ULMBLAS(dgemv)(enum Trans       transA,
+               int              m,
+               int              n,
+               double           alpha,
+               const double     *A,
+               int              ldA,
+               const double     *x,
+               int              incX,
+               double           beta,
+               double           *y,
+               int              incY)
 {
 
 //

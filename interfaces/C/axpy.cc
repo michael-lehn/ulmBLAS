@@ -1,5 +1,5 @@
 #include <interfaces/C/config.h>
-#include <src/level1/axpy.h>
+#include <ulmblas/level1/axpy.h>
 
 extern "C" {
 

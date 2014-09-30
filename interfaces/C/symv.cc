@@ -1,9 +1,9 @@
 #include <algorithm>
 #include <interfaces/C/config.h>
 #include <interfaces/C/xerbla.h>
-#include <src/level1/copy.h>
-#include <src/level1extensions/gecopy.h>
-#include <src/level2/sylmv.h>
+#include <ulmblas/level1/copy.h>
+#include <ulmblas/level1extensions/gecopy.h>
+#include <ulmblas/level2/sylmv.h>
 
 //#define SCATTER
 

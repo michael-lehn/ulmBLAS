@@ -1,5 +1,5 @@
 #include <interfaces/C/config.h>
-#include <src/level1/scal.h>
+#include <ulmblas/level1/scal.h>
 
 extern "C" {
 

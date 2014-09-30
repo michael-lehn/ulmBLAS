@@ -24,25 +24,27 @@ ATLAS_LIB = ../libatlblas.a
 #
 #  Select the reference implementation
 #
-#REF_LIB   = ../librefblas.a
-#REF_LIB   = ../libblas.a
-REF_LIB   = $(HOME)/work/eigen-3.2.1/blas/libeigen_blas_static.a
-#REF_LIB   = $(HOME)/work/blis/lib/reference/libblis.a
-#REF_LIB   = $(HOME)/work/blis/lib/dunnington/libblis.a
-#REF_LIB   = $(HOME)/work/OpenBLAS/libopenblas.a
+#REF_LIB_DEP   = ../librefblas.a
+#REF_LIB_DEP   = ../libblas.a
+#REF_LIB_DEP   = $(HOME)/work/eigen-3.2.1/blas/libeigen_blas_static.a
+#REF_LIB_DEP   = $(HOME)/work/blis/lib/reference/libblis.a
+#REF_LIB_DEP   = $(HOME)/work/blis/lib/dunnington/libblis.a
+#REF_LIB_DEP   = $(HOME)/work/OpenBLAS/libopenblas.a
+#REF_LIB = $(REF_LIB_DEP)
 
-#MKLROOT  = /opt/intel/composer_xe_2011_sp1.8.269/mkl/
-#REF_LIB = $(MKLROOT)/lib/libmkl_intel_lp64.a $(MKLROOT)/lib/libmkl_core.a $(MKLROOT)/lib/libmkl_sequential.a -lpthread -lm
+MKLROOT  = /opt/intel/composer_xe_2013_sp1.3.166/mkl/
+REF_LIB_DEP = $(MKLROOT)/lib/libmkl_intel_lp64.a
+REF_LIB = $(REF_LIB_DEP) $(MKLROOT)/lib/libmkl_core.a $(MKLROOT)/lib/libmkl_sequential.a -lpthread -lm
 
 all: xdl1blastst xdl2blastst xdl3blastst
 
-xdl1blastst : l1blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
+xdl1blastst : l1blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB_DEP)
 	$(CXX) -lstdc++ -o xdl1blastst l1blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
 
-xdl2blastst : l2blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
+xdl2blastst : l2blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB_DEP)
 	$(CXX) -lstdc++ -o xdl2blastst l2blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
 
-xdl3blastst : l3blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
+xdl3blastst : l3blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB_DEP)
 	$(CXX) -lstdc++ -o xdl3blastst l3blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
 
 libtstatlas.a : $(ATL_OBJECTFILES)
