@@ -25,8 +25,8 @@ ATLAS_LAPACK_LIB = ../libatllapack.a
 #
 #  Select the reference implementation
 #
-REF_LIB_DEP   = ../librefblas.a
-#REF_LIB_DEP   = ../libblas.a
+#REF_LIB_DEP   = ../librefblas.a
+REF_LIB_DEP   = ../libblas.a
 #REF_LIB_DEP   = $(HOME)/work/eigen-3.2.1/blas/libeigen_blas_static.a
 #REF_LIB_DEP   = $(HOME)/work/blis/lib/reference/libblis.a
 #REF_LIB_DEP   = $(HOME)/work/blis/lib/dunnington/libblis.a
