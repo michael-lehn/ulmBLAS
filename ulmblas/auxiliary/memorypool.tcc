@@ -29,7 +29,7 @@ template <typename T>
 void
 free(T *block)
 {
-#if defined(HVAE_SSE)
+#if defined(HAVE_SSE)
     _mm_free(block);
 #   else
     delete [] block;
@@ -40,21 +40,21 @@ template <typename T>
 T *
 MemoryPool<T>::allocate(size_t n)
 {
-    _mutex.lock();
+    mutex_.lock();
 
-    BlockList &free = _free[n];
+    BlockList &free = free_[n];
     T         *block;
 
     if (free.empty()) {
         block = malloc<T>(n);
-        _allocated.push_back(block);
+        allocated_.push_back(block);
     } else {
         block = free.back();
         free.pop_back();
     }
-    _used[block] = n;
+    used_[block] = n;
 
-    _mutex.unlock();
+    mutex_.unlock();
     return block;
 }
 
@@ -62,20 +62,23 @@ template <typename T>
 void
 MemoryPool<T>::release(T *block)
 {
-    _mutex.lock();
+    mutex_.lock();
 
-    assert(_used.count(block)==1);
-    size_t n = _used[block];
-    _free[n].push_back(block);
+    if (block) {
+        assert(used_.count(block)==1);
+        size_t n = used_[block];
+        free_[n].push_back(block);
+    }
 
-    _mutex.unlock();
+    mutex_.unlock();
 }
 
 template <typename T>
 MemoryPool<T>::~MemoryPool()
 {
-    for (auto it=_allocated.begin(); it!=_allocated.end(); ++it) {
-        free(*it);
+    while (!allocated_.empty()) {
+        free(allocated_.back());
+        allocated_.pop_back();
     }
 }
 

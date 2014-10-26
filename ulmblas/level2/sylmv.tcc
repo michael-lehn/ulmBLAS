@@ -37,7 +37,7 @@ sylmv(IndexType    n,
         const IndexType bf = dotxaxpyf_fusefactor<T>();
         const IndexType nb = (n/bf)*bf;
 
-        T rho, _rho[bf];
+        T rho, rho_[bf];
 
         for (IndexType j=0; j<nb; j+=bf) {
 
@@ -46,7 +46,7 @@ sylmv(IndexType    n,
                       &A[(j+bf)*incRowA+j*incColA], incRowA, incColA,
                       &x[(j+bf)*incX], incX,
                       &y[(j+bf)*incY], incY,
-                      _rho, 1);
+                      rho_, 1);
 
             for (IndexType l=0; l<bf; ++l) {
                 ref::dotaxpy(bf-1-l, false, false, false,
@@ -55,7 +55,7 @@ sylmv(IndexType    n,
                              &x[(j+l+1)*incX], incX,
                              &y[(j+l+1)*incY], incY,
                              rho);
-                y[(j+l)*incY] += alpha*(rho+_rho[l]);
+                y[(j+l)*incY] += alpha*(rho+rho_[l]);
                 y[(j+l)*incY] += alpha*A[(j+l)*incRowA+(j+l)*incColA]
                                       *x[(j+l)*incX];
             }
@@ -74,7 +74,7 @@ sylmv(IndexType    n,
         const IndexType bf = dotxaxpyf_fusefactor<T>();
         const IndexType nb = (n/bf)*bf;
 
-        T rho, _rho[bf];
+        T rho, rho_[bf];
 
         for (IndexType i=0; i<nb; i+=bf) {
 
@@ -83,7 +83,7 @@ sylmv(IndexType    n,
                       &A[i*incRowA], incColA, incRowA,
                       &x[0*incX], incX,
                       &y[0*incY], incY,
-                      _rho, 1);
+                      rho_, 1);
 
             for (IndexType l=0; l<bf; ++l) {
                 ref::dotaxpy(l, false, false, false,
@@ -92,7 +92,7 @@ sylmv(IndexType    n,
                              &x[i*incX], incX,
                              &y[i*incY], incY,
                              rho);
-                y[(i+l)*incY] += alpha*(rho+_rho[l]);
+                y[(i+l)*incY] += alpha*(rho+rho_[l]);
                 y[(i+l)*incY] += alpha*A[(i+l)*incRowA+(i+l)*incColA]
                                       *x[(i+l)*incX];
             }

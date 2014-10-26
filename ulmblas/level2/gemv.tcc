@@ -114,31 +114,31 @@ gemv(IndexType    m,
         const IndexType MC  = BlockSize<T>::MC;
         const IndexType NC  = BlockSize<T>::NC;
 
-        const T &_alpha     = alpha;
+        const T &alpha_     = alpha;
         T *buffer_A         = packA ? memoryPool.allocate(MC*NC) : 0;
         T *buffer_x         = packX ? memoryPool.allocate(NC)    : 0;
         T *buffer_y         = packY ? memoryPool.allocate(MC)    : 0;
 
-        const T *_A         = packA ? buffer_A : 0;
-        const T *_x         = packX ? buffer_x : 0;
+        const T *A_         = packA ? buffer_A : 0;
+        const T *x_         = packX ? buffer_x : 0;
 
         const IndexType mb  = (m+MC-1) / MC;
         const IndexType nb  = (n+NC-1) / NC;
 
-        const IndexType _mc = m % MC;
-        const IndexType _nc = n % NC;
+        const IndexType mc_ = m % MC;
+        const IndexType nc_ = n % NC;
 
         for (IndexType j=0; j<nb; ++j) {
-            IndexType nc = (j!=nb-1 || _nc==0) ? NC : _nc;
+            IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;
 
             if (packX) {
                 copy(nc, &x[j*NC*incX], incX, buffer_x, UnitStride);
             } else {
-                _x = &x[j*NC];
+                x_ = &x[j*NC];
             }
 
             for (IndexType i=0; i<mb; ++i) {
-                IndexType mc = (i!=mb-1 || _mc==0) ? MC : _mc;
+                IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
                 IndexType incRow_A, incCol_A;
 
                 if (packA) {
@@ -150,26 +150,30 @@ gemv(IndexType    m,
                 } else {
                     incRow_A = incRowA;
                     incCol_A = incColA;
-                    _A = &A[i*MC*incRowA+j*NC*incColA];
+                    A_ = &A[i*MC*incRowA+j*NC*incColA];
                 }
 
                 if (packY) {
-                    gemv(mc, nc, _alpha,
-                         _A, incRow_A, incCol_A,
-                         _x, UnitStride,
+                    gemv(mc, nc, alpha_,
+                         A_, incRow_A, incCol_A,
+                         x_, UnitStride,
                          T(0),
                          buffer_y, UnitStride);
 
                     axpy(mc, T(1), buffer_y, UnitStride, &y[i*MC*incY], incY);
                 } else {
-                    gemv(mc, nc, _alpha,
-                         _A, incRow_A, incCol_A,
-                         _x, UnitStride,
+                    gemv(mc, nc, alpha_,
+                         A_, incRow_A, incCol_A,
+                         x_, UnitStride,
                          T(1),
                          &y[i*MC*incY], UnitStride);
                 }
             }
         }
+
+        memoryPool.release(buffer_x);
+        memoryPool.release(buffer_y);
+        memoryPool.release(buffer_A);
     }
 }
 

@@ -2,7 +2,7 @@
 #define ULMBLAS_LEVEL3_PACK_GEPACK_TCC 1
 
 #include <ulmblas/level3/pack/gepack.h>
-#include <ulmblas/level3/ugemm.h>
+#include <ulmblas/level3/ukernel/ugemm.h>
 
 namespace ulmBLAS {
 
@@ -36,19 +36,19 @@ gepack_A(IndexType   mc,
 {
     const IndexType MR  = ugemm_mr<Buffer>();
     const IndexType mp  = mc / MR;
-    const IndexType _mr = mc % MR;
+    const IndexType mr_ = mc % MR;
 
     for (IndexType i=0; i<mp; ++i) {
         pack_MRxk(kc, A, incRowA, incColA, buffer);
         buffer += kc*MR;
         A      += MR*incRowA;
     }
-    if (_mr>0) {
+    if (mr_>0) {
         for (IndexType j=0; j<kc; ++j) {
-            for (IndexType i=0; i<_mr; ++i) {
+            for (IndexType i=0; i<mr_; ++i) {
                 buffer[i] = A[i*incRowA];
             }
-            for (IndexType i=_mr; i<MR; ++i) {
+            for (IndexType i=mr_; i<MR; ++i) {
                 buffer[i] = Buffer(0);
             }
             buffer += MR;
@@ -87,19 +87,19 @@ gepack_B(IndexType   kc,
 {
     const IndexType NR  = ugemm_nr<Buffer>();
     const IndexType np  = nc / NR;
-    const IndexType _nr = nc % NR;
+    const IndexType nr_ = nc % NR;
 
     for (IndexType j=0; j<np; ++j) {
         pack_kxNR(kc, B, incRowB, incColB, buffer);
         buffer += kc*NR;
         B      += NR*incColB;
     }
-    if (_nr>0) {
+    if (nr_>0) {
         for (IndexType i=0; i<kc; ++i) {
-            for (IndexType j=0; j<_nr; ++j) {
+            for (IndexType j=0; j<nr_; ++j) {
                 buffer[j] = B[j*incColB];
             }
-            for (IndexType j=_nr; j<NR; ++j) {
+            for (IndexType j=nr_; j<NR; ++j) {
                 buffer[j] = Buffer(0);
             }
             buffer += NR;

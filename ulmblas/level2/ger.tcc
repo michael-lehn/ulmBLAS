@@ -75,54 +75,57 @@ ger(IndexType    m,
     const IndexType MC  = BlockSize<T>::MC;
     const IndexType NC  = BlockSize<T>::NC;
 
-    const T &_alpha     = alpha;
+    const T &alpha_     = alpha;
     T *buffer_x         = packX ? memoryPool.allocate(MC)    : 0;
     T *buffer_y         = packY ? memoryPool.allocate(NC)    : 0;
     T *buffer_A         = packA ? memoryPool.allocate(MC*NC) : 0;
 
-    const T *_x         = packX ? buffer_x : 0;
-    const T *_y         = packY ? buffer_y : 0;
+    const T *x_         = packX ? buffer_x : 0;
+    const T *y_         = packY ? buffer_y : 0;
 
     const IndexType mb  = (m+MC-1) / MC;
     const IndexType nb  = (n+NC-1) / NC;
 
-    const IndexType _mc = m % MC;
-    const IndexType _nc = n % NC;
+    const IndexType mc_ = m % MC;
+    const IndexType nc_ = n % NC;
 
     for (IndexType j=0; j<nb; ++j) {
-        IndexType nc = (j!=nb-1 || _nc==0) ? NC : _nc;
+        IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;
 
         if (packY) {
             copy(nc, &y[j*NC*incY], incY, buffer_y, UnitStride);
         } else {
-            _y = &y[j*NC];
+            y_ = &y[j*NC];
         }
 
         for (IndexType i=0; i<mb; ++i) {
-            IndexType mc = (i!=mb-1 || _mc==0) ? MC : _mc;
+            IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
 
             if (packX) {
                 copy(mc, &x[i*MC*incX], incX, buffer_x, UnitStride);
             } else {
-                _x = &x[i*MC];
+                x_ = &x[i*MC];
             }
 
             if (packA) {
-                ger(mc, nc, _alpha,
-                    _x, UnitStride,
-                    _y, UnitStride,
+                ger(mc, nc, alpha_,
+                    x_, UnitStride,
+                    y_, UnitStride,
                     buffer_A, UnitStride, mc);
                 gecopy(mc, nc,
                        buffer_A, UnitStride, mc,
                        &A[i*MC*incRowA+j*NC*incColA], incRowA, incColA);
             } else {
-                ger(mc, nc, _alpha,
-                    _x, UnitStride,
-                    _y, UnitStride,
+                ger(mc, nc, alpha_,
+                    x_, UnitStride,
+                    y_, UnitStride,
                     &A[i*MC*incRowA+j*NC*incColA], incRowA, incColA);
             }
         }
     }
+    memoryPool.release(buffer_x);
+    memoryPool.release(buffer_y);
+    memoryPool.release(buffer_A);
 }
 
 } // namespace ulmBLAS

@@ -3,10 +3,10 @@
 
 #include <ulmblas/config/blocksize.h>
 #include <ulmblas/level1extensions/gescal.h>
+#include <ulmblas/level3/mkernel/mgemm.h>
+#include <ulmblas/level3/mkernel/mtrumm.h>
 #include <ulmblas/level3/pack/gepack.h>
 #include <ulmblas/level3/pack/trupack.h>
-#include <ulmblas/level3/mgemm.h>
-#include <ulmblas/level3/mtrumm.h>
 #include <ulmblas/level3/trumm.h>
 
 namespace ulmBLAS {
@@ -32,8 +32,8 @@ trumm(IndexType    m,
     const IndexType mb = (m+MC-1) / MC;
     const IndexType nb = (n+NC-1) / NC;
 
-    const IndexType _mc = m % MC;
-    const IndexType _nc = n % NC;
+    const IndexType mc_ = m % MC;
+    const IndexType nc_ = n % NC;
 
     static MemoryPool<T> memoryPool;
 
@@ -42,41 +42,41 @@ trumm(IndexType    m,
         return;
     }
 
-    T  *_A = memoryPool.allocate(MC*MC);
-    T  *_B = memoryPool.allocate(MC*NC);
+    T  *A_ = memoryPool.allocate(MC*MC);
+    T  *B_ = memoryPool.allocate(MC*NC);
 
     for (IndexType j=0; j<nb; ++j) {
-        IndexType nc = (j!=nb-1 || _nc==0) ? NC : _nc;
+        IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;
 
         for (IndexType l=0; l<mb; ++l) {
-            IndexType kc = (l!=mb-1 || _mc==0) ? MC   : _mc;
+            IndexType kc = (l!=mb-1 || mc_==0) ? MC   : mc_;
 
             gepack_B(kc, nc,
                      &B[l*MC*incRowB+j*NC*incColB], incRowB, incColB,
-                     _B);
+                     B_);
 
             trupack(kc, unitDiag,
                     &A[l*MC*(incRowA+incColA)], incRowA, incColA,
-                    _A);
+                    A_);
 
-            mtrumm(kc, nc, alpha, _A, _B,
+            mtrumm(kc, nc, alpha, A_, B_,
                    &B[l*MC*incRowB+j*NC*incColB], incRowB, incColB);
 
             for (IndexType i=0; i<l; ++i) {
-                IndexType mc = (i!=mb-1 || _mc==0) ? MC : _mc;
+                IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
 
                 gepack_A(mc, kc,
                          &A[i*MC*incRowA+l*MC*incColA], incRowA, incColA,
-                         _A);
+                         A_);
 
-                mgemm(mc, nc, kc, alpha, _A, _B, T(1),
+                mgemm(mc, nc, kc, alpha, A_, B_, T(1),
                       &B[i*MC*incRowB+j*NC*incColB], incRowB, incColB);
             }
         }
     }
 
-    memoryPool.release(_A);
-    memoryPool.release(_B);
+    memoryPool.release(A_);
+    memoryPool.release(B_);
 }
 
 } // namespace ulmBLAS

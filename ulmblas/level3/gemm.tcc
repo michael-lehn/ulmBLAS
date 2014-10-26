@@ -6,8 +6,8 @@
 #include <ulmblas/config/blocksize.h>
 #include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/level1extensions/gescal.h>
+#include <ulmblas/level3/mkernel/mgemm.h>
 #include <ulmblas/level3/pack/gepack.h>
-#include <ulmblas/level3/mgemm.h>
 
 namespace ulmBLAS {
 
@@ -39,9 +39,9 @@ gemm(IndexType    m,
     const IndexType nb = (n+NC-1) / NC;
     const IndexType kb = (k+KC-1) / KC;
 
-    const IndexType _mc = m % MC;
-    const IndexType _nc = n % NC;
-    const IndexType _kc = k % KC;
+    const IndexType mc_ = m % MC;
+    const IndexType nc_ = n % NC;
+    const IndexType kc_ = k % KC;
 
     static MemoryPool<T> memoryPool;
 
@@ -50,36 +50,36 @@ gemm(IndexType    m,
         return;
     }
 
-    T  *_A = memoryPool.allocate(MC*KC);
-    T  *_B = memoryPool.allocate(KC*NC);
+    T  *A_ = memoryPool.allocate(MC*KC);
+    T  *B_ = memoryPool.allocate(KC*NC);
 
     for (IndexType j=0; j<nb; ++j) {
-        IndexType nc = (j!=nb-1 || _nc==0) ? NC : _nc;
+        IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;
 
         for (IndexType l=0; l<kb; ++l) {
-            IndexType kc    = (l!=kb-1 || _kc==0) ? KC   : _kc;
-            Beta      _beta = (l==0) ? beta : Beta(1);
+            IndexType kc    = (l!=kb-1 || kc_==0) ? KC   : kc_;
+            Beta      beta_ = (l==0) ? beta : Beta(1);
 
             gepack_B(kc, nc,
                      &B[l*KC*incRowB+j*NC*incColB], incRowB, incColB,
-                     _B);
+                     B_);
 
             for (IndexType i=0; i<mb; ++i) {
-                IndexType mc = (i!=mb-1 || _mc==0) ? MC : _mc;
+                IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
 
                 gepack_A(mc, kc,
                          &A[i*MC*incRowA+l*KC*incColA], incRowA, incColA,
-                         _A);
+                         A_);
 
-                mgemm(mc, nc, kc, alpha, _A, _B, _beta,
+                mgemm(mc, nc, kc, alpha, A_, B_, beta_,
                       &C[i*MC*incRowC+j*NC*incColC],
                       incRowC, incColC);
             }
         }
     }
 
-    memoryPool.release(_A);
-    memoryPool.release(_B);
+    memoryPool.release(A_);
+    memoryPool.release(B_);
 }
 
 } // namespace ulmBLAS

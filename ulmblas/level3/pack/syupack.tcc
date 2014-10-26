@@ -3,7 +3,7 @@
 
 #include <ulmblas/level3/pack/sylpack.h>
 #include <ulmblas/level3/pack/gepack.h>
-#include <ulmblas/level3/ugemm.h>
+#include <ulmblas/level3/ukernel/ugemm.h>
 
 namespace ulmBLAS {
 
@@ -39,7 +39,7 @@ syupack(IndexType   mc,
 {
     const IndexType MR  = ugemm_mr<Buffer>();
     const IndexType mp  = mc / MR;
-    const IndexType _mr = mc % MR;
+    const IndexType mr_ = mc % MR;
 
     for (IndexType i=0; i<mp; ++i) {
         gepack_A(MR, i*MR,
@@ -58,13 +58,13 @@ syupack(IndexType   mc,
         buffer += MR*(mc-(i+1)*MR);
     }
 
-    if (_mr>0) {
-        gepack_A(_mr, mc-_mr,
+    if (mr_>0) {
+        gepack_A(mr_, mc-mr_,
                  &A[mp*MR*incColA], incColA, incRowA,
                  buffer);
-        buffer += MR*(mc-_mr);
+        buffer += MR*(mc-mr_);
 
-        syupack_mrxmr(_mr,
+        syupack_mrxmr(mr_,
                       &A[mp*MR*incRowA+mp*MR*incColA], incRowA, incColA,
                       buffer);
     }

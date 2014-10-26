@@ -52,11 +52,11 @@ dotaxpy(IndexType      n,
     bool yAligned = isAligned(y, 16);
     bool zAligned = isAligned(z, 16);
 
-    double _rho = 0;
+    double rho_ = 0;
 
     if (!xAligned && !yAligned && !zAligned) {
         z[0] += alpha*x[0];
-        _rho  = x[0]*y[0];
+        rho_  = x[0]*y[0];
         ++x;
         ++y;
         ++z;
@@ -73,7 +73,7 @@ dotaxpy(IndexType      n,
         __m128d alpha11;
         __m128d rho12, rho34;
 
-        double  _rho12[2], _rho34[2];
+        double  rho12_[2], rho34_[2];
 
         alpha11 = _mm_loaddup_pd(&alpha);
         rho12   = _mm_setzero_pd();
@@ -106,10 +106,10 @@ dotaxpy(IndexType      n,
             y += 4;
             z += 4;
         }
-        _mm_store_pd(_rho12, rho12);
-        _mm_store_pd(_rho34, rho34);
+        _mm_store_pd(rho12_, rho12);
+        _mm_store_pd(rho34_, rho34);
 
-        rho = _rho + _rho12[0] + _rho12[1] + _rho34[0] + _rho34[1];
+        rho = rho_ + rho12_[0] + rho12_[1] + rho34_[0] + rho34_[1];
 
         for (IndexType i=0; i<nl; ++i) {
             z[i] += alpha*x[i];
@@ -119,7 +119,7 @@ dotaxpy(IndexType      n,
         rho = 0;
         ref::dotaxpy(n, false, false, false, alpha, x, incX, y, incY,
                      z, incZ, rho);
-        rho += _rho;
+        rho += rho_;
     }
 }
 

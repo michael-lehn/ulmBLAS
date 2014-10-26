@@ -18,10 +18,10 @@ rot(IndexType   n,
     T           s)
 {
     for (IndexType i=0; i<n; ++i) {
-        VX _x =  c*x[i*incX] + s*y[i*incY];
-        VY _y = -s*x[i*incX] + c*y[i*incY];
-        x[i*incX] = _x;
-        y[i*incY] = _y;
+        VX x_ =  c*x[i*incX] + s*y[i*incY];
+        VY y_ = -s*x[i*incX] + c*y[i*incY];
+        x[i*incX] = x_;
+        y[i*incY] = y_;
     }
 }
 

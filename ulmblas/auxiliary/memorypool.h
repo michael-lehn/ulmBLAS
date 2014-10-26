@@ -27,10 +27,10 @@ class MemoryPool
         typedef std::unordered_map<size_t, BlockList>    Free;
         typedef std::unordered_map<T *, size_t>          Used;
 
-        Free        _free;
-        Used        _used;
-        BlockList   _allocated;
-        std::mutex  _mutex;
+        Free        free_;
+        Used        used_;
+        BlockList   allocated_;
+        std::mutex  mutex_;
 };
 
 

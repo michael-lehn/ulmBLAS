@@ -1,6 +1,7 @@
 #ifndef ULMBLAS_LEVEL1EXTENSIONS_GECOPY_TCC
 #define ULMBLAS_LEVEL1EXTENSIONS_GECOPY_TCC 1
 
+#include <ulmblas/level1/copy.h>
 #include <ulmblas/level1extensions/gecopy.h>
 
 namespace ulmBLAS {

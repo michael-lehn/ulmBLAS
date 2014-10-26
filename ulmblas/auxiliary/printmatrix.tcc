@@ -14,7 +14,7 @@ printMatrix(IndexType m, IndexType n,
     for (IndexType i=0; i<m; ++i) {
         for (IndexType j=0; j<n; ++j) {
             //printf(" %7.4lf", X[i*incRowX+j*incColX]);
-            printf(" %5.3lf", X[i*incRowX+j*incColX]);
+            printf(" %15.3lf", X[i*incRowX+j*incColX]);
         }
         printf("\n");
     }

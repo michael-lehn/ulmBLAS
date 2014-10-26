@@ -15,7 +15,7 @@ struct BlockSize
 {
     static const int MC = 8;
     static const int KC = 12;
-    static const int NC = 16;
+    static const int NC = 12;
 
 
     static const int MR = 4;

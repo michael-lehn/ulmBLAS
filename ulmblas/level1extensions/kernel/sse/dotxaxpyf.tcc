@@ -110,7 +110,7 @@ dotxaxpyf(IndexType      n,
         rho00     = _mm_setzero_pd();
         rho11     = _mm_setzero_pd();
 
-        double _rho00[2], _rho11[2];
+        double rho00_[2], rho11_[2];
 
         for (IndexType i=0; i<nb; ++i) {
             x0_12 = _mm_load_pd(x0);
@@ -156,11 +156,11 @@ dotxaxpyf(IndexType      n,
             y  += 4;
             z  += 4;
         }
-        _mm_store_pd(_rho00, rho00);
-        _mm_store_pd(_rho11, rho11);
+        _mm_store_pd(rho00_, rho00);
+        _mm_store_pd(rho11_, rho11);
 
-        rho0 += _rho00[0] + _rho00[1];
-        rho1 += _rho11[0] + _rho11[1];
+        rho0 += rho00_[0] + rho00_[1];
+        rho1 += rho11_[0] + rho11_[1];
 
         for (IndexType i=0; i<nl; ++i) {
             z[i] += alpha0*x0[i] + alpha1*x1[i];

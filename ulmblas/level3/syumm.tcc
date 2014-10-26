@@ -6,9 +6,9 @@
 #include <ulmblas/config/blocksize.h>
 #include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/level1extensions/gescal.h>
+#include <ulmblas/level3/mkernel/mgemm.h>
 #include <ulmblas/level3/pack/gepack.h>
 #include <ulmblas/level3/pack/syupack.h>
-#include <ulmblas/level3/mgemm.h>
 #include <ulmblas/level3/syumm.h>
 
 
@@ -39,8 +39,8 @@ syumm(IndexType    m,
     const IndexType mb = (m+MC-1) / MC;
     const IndexType nb = (n+NC-1) / NC;
 
-    const IndexType _mc = m % MC;
-    const IndexType _nc = n % NC;
+    const IndexType mc_ = m % MC;
+    const IndexType nc_ = n % NC;
 
     static MemoryPool<T> memoryPool;
 
@@ -53,46 +53,46 @@ syumm(IndexType    m,
         return;
     }
 
-    T  *_A = memoryPool.allocate(MC*MC);
-    T  *_B = memoryPool.allocate(MC*NC);
+    T  *A_ = memoryPool.allocate(MC*MC);
+    T  *B_ = memoryPool.allocate(MC*NC);
 
     for (IndexType j=0; j<nb; ++j) {
-        IndexType nc = (j!=nb-1 || _nc==0) ? NC : _nc;
+        IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;
 
         for (IndexType l=0; l<mb; ++l) {
-            IndexType kc    = (l!=mb-1 || _mc==0) ? MC   : _mc;
-            Beta      _beta = (l==0) ? beta : Beta(1);
+            IndexType kc    = (l!=mb-1 || mc_==0) ? MC   : mc_;
+            Beta      beta_ = (l==0) ? beta : Beta(1);
 
             gepack_B(kc, nc,
                      &B[l*MC*incRowB+j*NC*incColB], incRowB, incColB,
-                     _B);
+                     B_);
 
             for (IndexType i=0; i<mb; ++i) {
-                IndexType mc = (i!=mb-1 || _mc==0) ? MC : _mc;
+                IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
 
                 if (i<l) {
                     gepack_A(mc, kc,
                              &A[i*MC*incRowA+l*MC*incColA], incRowA, incColA,
-                             _A);
+                             A_);
                 } else if (i>l) {
                     gepack_A(mc, kc,
                              &A[l*MC*incRowA+i*MC*incColA], incColA, incRowA,
-                             _A);
+                             A_);
                 } else {
                     syupack(mc,
                             &A[i*MC*incRowA+i*MC*incColA], incRowA, incColA,
-                            _A);
+                            A_);
                 }
 
-                mgemm(mc, nc, kc, alpha, _A, _B, _beta,
+                mgemm(mc, nc, kc, alpha, A_, B_, beta_,
                       &C[i*MC*incRowC+j*NC*incColC],
                       incRowC, incColC);
             }
         }
     }
 
-    memoryPool.release(_A);
-    memoryPool.release(_B);
+    memoryPool.release(A_);
+    memoryPool.release(B_);
 }
 
 } // namespace ulmBLAS

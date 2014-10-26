@@ -2,7 +2,7 @@
 #define ULMBLAS_LEVEL3_PACK_TRUPACK_TCC 1
 
 #include <ulmblas/level3/pack/trupack.h>
-#include <ulmblas/level3/ugemm.h>
+#include <ulmblas/level3/ukernel/ugemm.h>
 
 namespace ulmBLAS {
 
@@ -48,15 +48,15 @@ trupack(IndexType   mc,
 {
     const IndexType MR  = ugemm_mr<Buffer>();
     const IndexType mp  = mc / MR;
-    const IndexType _mr = mc % MR;
+    const IndexType mr_ = mc % MR;
 
     for (IndexType i=0; i<mp; ++i) {
         trupack_MRxk(mc-i*MR, unit, U, incRowU, incColU, buffer);
         buffer += (mc-i*MR)*MR;
         U      += MR*(incRowU+incColU);
     }
-    if (_mr>0) {
-        for (IndexType j=0; j<_mr; ++j) {
+    if (mr_>0) {
+        for (IndexType j=0; j<mr_; ++j) {
             for (IndexType i=0; i<j; ++i) {
                 buffer[i] = U[i*incRowU];
             }

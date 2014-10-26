@@ -21,6 +21,16 @@ template <typename IndexType, typename TB, typename Buffer>
              IndexType   incColB,
              Buffer      *buffer);
 
+template <typename IndexType, typename TB, typename Buffer>
+    void
+    geunpack_B(IndexType     kc,
+               IndexType     nc,
+               const Buffer  *buffer,
+               TB            *B,
+               IndexType     incRowB,
+               IndexType     incColB);
+
+
 } // namespace ulmBLAS
 
 #include <ulmblas/level3/pack/gepack.tcc>
