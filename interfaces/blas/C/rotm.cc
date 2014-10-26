@@ -1,4 +1,4 @@
-#include <interfaces/blas/C/config.h>
+#include BLAS_HEADER
 
 extern "C" {
 

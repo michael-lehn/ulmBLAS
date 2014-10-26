@@ -1,7 +1,7 @@
 include ../../../make.inc
 
 CXXFLAGS += -I ../../..
-CXXFLASG += -DUSE_TESTPARAM
+CXXFLAGS += -DUSE_TESTPARAM
 
 SOURCE_FILES = $(wildcard *.cc) \
                $(wildcard asum/*.cc)  $(wildcard asum/*.f) \
@@ -24,8 +24,11 @@ $(LIBBLAS) : $(OBJECT_FILES)
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
 	$(RM) $@.$$$$
 
+ifneq ($(MAKECMDGOALS),clean)
 -include $(DEP_FILES)
+endif
 
+.PHONY : clean
 clean:
 	$(RM) $(DEP_FILES)
 	$(RM) $(OBJECT_FILES)

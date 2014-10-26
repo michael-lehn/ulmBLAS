@@ -1,42 +1,6 @@
 #ifndef INTERFACES_BLAS_C_CONFIG_H
 #define INTERFACES_BLAS_C_CONFIG_H 1
 
-#ifdef FAKE_ATLAS
-#   define ULMBLAS(x) ATL_##x
-#else
-#   define ULMBLAS(x) cblas_##x
-#endif
-
-//
-//  Constants for Trans, Side, UpLo and Diag are compatible with CBLAS and ATLAS
-//
-enum Trans {
-    NoTrans   = 111,
-    Trans     = 112,
-    ConjTrans = 113,
-    Conj      = 114
-};
-
-enum Side {
-    Left    = 141,
-    Right   = 142
-};
-
-enum UpLo {
-    Upper   = 121,
-    Lower   = 122
-};
-
-enum Diag {
-    NonUnit = 131,
-    Unit    = 132
-};
-
-enum Order {
-    RowMajor = 101,
-    ColMajor = 102
-};
-
 //
 //  Convert trans chars 'n', 'N', 't', 'T', 'c', 'C', 'r', 'R' to corresponding
 //  enum Trans constants.  Illegal chars result in 0.

@@ -1,4 +1,4 @@
-#include <interfaces/blas/C/config.h>
+#include BLAS_HEADER
 #include <ulmblas/level1/rot.h>
 
 extern "C" {

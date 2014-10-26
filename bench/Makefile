@@ -20,17 +20,17 @@ ATLAS_LAPACK_LIB = ../libatllapack.a
 #  Select the reference implementation
 #
 #REF_LIB_DEP   = ../librefblas.a
-#REF_LIB_DEP   = ../libblas.a
+REF_LIB_DEP   = ../libcblas.a ../libblas_check.a
 #REF_LIB_DEP   = $(HOME)/work/eigen-3.2.1/blas/libeigen_blas_static.a
 #REF_LIB_DEP   = $(HOME)/work/blis/lib/reference/libblis.a
 #REF_LIB_DEP   = $(HOME)/work/blis/lib/dunnington/libblis.a
 #REF_LIB_DEP   = $(HOME)/work/OpenBLAS/libopenblas.a
-#REF_LIB = $(REF_LIB_DEP)
+REF_LIB = $(REF_LIB_DEP)
 
-MKLROOT     = /opt/intel/composer_xe_2013_sp1.3.166/mkl/
-REF_LIB_DEP = $(MKLROOT)/lib/libmkl_intel_lp64.a
-REF_LIB     = $(REF_LIB_DEP) $(MKLROOT)/lib/libmkl_core.a \
-              $(MKLROOT)/lib/libmkl_sequential.a -lpthread -lm
+#MKLROOT     = /opt/intel/composer_xe_2013_sp1.3.166/mkl/
+#REF_LIB_DEP = $(MKLROOT)/lib/libmkl_intel_lp64.a
+#REF_LIB     = $(REF_LIB_DEP) $(MKLROOT)/lib/libmkl_core.a \
+#              $(MKLROOT)/lib/libmkl_sequential.a -lpthread -lm
 
 all: xdl1blastst xdl2blastst xdl3blastst xdlutst
 

@@ -1,0 +1,246 @@
+#define VERBOSE(X) X
+
+VERBOSE(#ifndef) CBLAS
+VERBOSE(#define) CBLAS 1
+
+extern "C" {
+
+//
+//  Constants for Trans, Side, UpLo and Diag are compatible with CBLAS and ATLAS
+//
+enum Trans {
+    NoTrans   = 111,
+    Trans     = 112,
+    ConjTrans = 113,
+    Conj      = 114
+};
+
+enum Side {
+    Left    = 141,
+    Right   = 142
+};
+
+enum UpLo {
+    Upper   = 121,
+    Lower   = 122
+};
+
+enum Diag {
+    NonUnit = 131,
+    Unit    = 132
+};
+
+enum Order {
+    RowMajor = 101,
+    ColMajor = 102
+};
+
+//
+//  Declaration of BLAS functions currently implemented in ulmBLAS
+//
+
+double
+ULMBLAS(dasum)(const int     n,
+            const double  *x,
+            const int     incX);
+
+void
+ULMBLAS(daxpy)(const int     n,
+            const double  alpha,
+            const double  *x,
+            const int     incX,
+            double        *y,
+            int           incY);
+
+void
+ULMBLAS(dcopy)(const int    n,
+            const double *x,
+            const int    incX,
+            double       *y,
+            const int    incY);
+
+void
+ULMBLAS(dscal)(const int    n,
+            const double alpha,
+            double       *x,
+            const int    incX);
+
+void
+ULMBLAS(dswap)(const int n,
+            double    *x,
+            const int incX,
+            double    *y,
+            const int incY);
+
+double
+ULMBLAS(ddot)(const int     n,
+           const double  *x,
+           const int     incX,
+           const double  *y,
+           const int     incY);
+
+int
+ULMBLAS(idamax)(const int       n,
+             const double    *x,
+             const int       incX);
+
+double
+ULMBLAS(dnrm2)(const int     n,
+            const double  *x,
+            const int     incX);
+
+void
+ULMBLAS(drot)(const int      n,
+           double         *x,
+           const int      incX,
+           double         *y,
+           const int      incY,
+           const double   c,
+           const double   s);
+
+void
+ULMBLAS(drotg)(double *a,
+            double *b,
+            double *c,
+            double *s);
+
+void
+ULMBLAS(dger)(const int         m,
+           const int         n,
+           const double      alpha,
+           const double      *x,
+           const int         incX,
+           const double      *y,
+           const int         incY,
+           double            *A,
+           const int         ldA);
+
+void
+ULMBLAS(dgemv)(enum Trans       transA,
+            int              m,
+            int              n,
+            double           alpha,
+            const double     *A,
+            int              ldA,
+            const double     *x,
+            int              incX,
+            double           beta,
+            double           *y,
+            int              incY);
+
+void
+ULMBLAS(dsymv)(enum UpLo     upLo,
+            int           n,
+            double        alpha,
+            const double  *A,
+            int           ldA,
+            const double  *x,
+            int           incX,
+            double        beta,
+            double        *y,
+            int           incY);
+
+void
+ULMBLAS(dtrmv)(enum UpLo     upLo,
+            enum Trans    trans,
+            enum Diag     diag,
+            int           n,
+            const double  *A,
+            int           ldA,
+            double        *x,
+            int           incX);
+
+void
+ULMBLAS(dtrsv)(enum UpLo     upLo,
+            enum Trans    trans,
+            enum Diag     diag,
+            int           n,
+            const double  *A,
+            int           ldA,
+            double        *x,
+            int           incX);
+
+void
+ULMBLAS(dgemm)(const enum Trans  transA,
+            const enum Trans  transB,
+            const int         m,
+            const int         n,
+            const int         k,
+            const double      alpha,
+            const double      *A,
+            const int         ldA,
+            const double      *B,
+            const int         ldB,
+            const double      beta,
+            double            *C,
+            const int         ldC);
+
+void
+ULMBLAS(dsymm)(const enum Side  side,
+            const enum UpLo  upLo,
+            const int        m,
+            const int        n,
+            const double     alpha,
+            const double     *A,
+            const int        ldA,
+            double           *B,
+            const int        ldB,
+            const double     beta,
+            double           *C,
+            const int        ldC);
+
+void
+ULMBLAS(dtrmm)(const enum Side  side,
+            const enum UpLo  upLo,
+            const enum Trans transA,
+            const enum Diag  diag,
+            const int        m,
+            const int        n,
+            const double     alpha,
+            const double     *A,
+            const int        ldA,
+            double           *B,
+            const int        ldB);
+
+void
+ULMBLAS(dtrsm)(const enum Side  side,
+            const enum UpLo  upLo,
+            const enum Trans transA,
+            const enum Diag  diag,
+            const int        m,
+            const int        n,
+            const double     alpha,
+            const double     *A,
+            const int        ldA,
+            double           *B,
+            const int        ldB);
+
+void
+ULMBLAS(dsyrk)(enum UpLo        upLo,
+            enum Trans       trans,
+            int              n,
+            int              k,
+            double           alpha,
+            const double     *A,
+            int              ldA,
+            double           beta,
+            double           *C,
+            int              ldC);
+
+void
+ULMBLAS(dsyr2k)(enum UpLo        upLo,
+             enum Trans       trans,
+             int              n,
+             int              k,
+             double           alpha,
+             const double     *A,
+             int              ldA,
+             const double     *B,
+             int              ldB,
+             double           beta,
+             double           *C,
+             int              ldC);
+
+} // extern "C"
+
+VERBOSE(#endif)

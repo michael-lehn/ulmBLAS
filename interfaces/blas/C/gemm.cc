@@ -1,4 +1,4 @@
-#include <interfaces/blas/C/config.h>
+#include BLAS_HEADER
 #include <interfaces/blas/C/xerbla.h>
 #include <ulmblas/level3/gemm.h>
 

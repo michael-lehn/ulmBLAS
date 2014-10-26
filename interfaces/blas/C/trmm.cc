@@ -1,7 +1,7 @@
+#include BLAS_HEADER
 #include <algorithm>
 #include <cctype>
 #include <cmath>
-#include <interfaces/blas/C/config.h>
 #include <interfaces/blas/C/xerbla.h>
 #include <ulmblas/level3/trlmm.h>
 #include <ulmblas/level3/trumm.h>

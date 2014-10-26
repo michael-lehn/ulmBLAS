@@ -20,3 +20,13 @@ LDLIBS   += -lm
 #
 BENCH_CFLAGS = -c -DL2SIZE=4194304 -DAdd_ -DF77_INTEGER=int -DStringSunStyle \
                -DATL_SSE2 -DDREAL
+
+#
+#  Header file names
+#
+CBLAS_HEADER_NAME     = cblas.h
+ATLBLAS_HEADER_NAME   = atlblas.h
+
+CLAPACK_HEADER_NAME   = clapack.h
+ATLLAPACK_HEADER_NAME = atllapack.h
+
