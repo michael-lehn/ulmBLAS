@@ -1,8 +1,7 @@
-FC       =  gfortran
-CXX      =  g++-4.8
-CXXFLAGS =  -std=c++11 -O3  -fomit-frame-pointer -Wall -I ../../..
+include ../../../make.inc
+
+CXXFLAGS += -I ../../..
 CXXFLASG += -DUSE_TESTPARAM
-CXXFLAGS += -msse3 -mfpmath=sse
 
 SOURCE_FILES = $(wildcard *.cc) \
                $(wildcard asum/*.cc)  $(wildcard asum/*.f) \
@@ -12,7 +11,7 @@ SOURCE_FILES = $(wildcard *.cc) \
 DEP_FILES    = $(patsubst %.cc, %.d, $(filter %.cc, $(SOURCE_FILES)))
 OBJECT_FILES = $(patsubst %.f, %.o, $(patsubst %.cc, %.o, $(SOURCE_FILES)))
 
-LIBBLAS      = ../../../libblas.a
+LIBBLAS      = ../../../libblas_check.a
 
 all: $(LIBBLAS)
 

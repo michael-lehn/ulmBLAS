@@ -1,12 +1,28 @@
-FC = gfortran
+include ../../make.inc
 
 SOURCE_FILES = $(wildcard *.f)
 OBJECT_FILES = $(patsubst %.f, %.o, $(SOURCE_FILES))
 TARGET_FILES = $(patsubst %.f, %, $(SOURCE_FILES))
 
-LIBBLAS = ../../libblas.a
+LIBBLAS = ../../libblas_check.a
 
-LDFLAGS = $(LIBBLAS) -lstdc++
+LDLIBS += $(LIBBLAS) -lstdc++
+
+# Flags used for linking Fortran with a C++ library.  We use the C++ compiler
+# as linker font end.
+
+FCLIBSEARCH = $(shell $(FC) -print-search-dirs  \
+                      | grep libraries          \
+                      | sed 's,libraries:.*=,,' \
+                      | sed 's,:, ,g')
+LDF77FLAGS += $(shell for path in $(FCLIBSEARCH); \
+                      do                            \
+                          if [ -d "$$path" ]; then    \
+                              echo "-L $$path "; \
+                          fi;                       \
+                      done)
+LDF77LIBS  += -lgfortran
+
 
 all :  $(TARGET_FILES)
 
@@ -21,7 +37,7 @@ check: $(TARGET_FILES)
 	echo "Results for level 3 BLAS double precision: DBLAT3.SUMM"
 
 % : %.o
-	$(FC) $(CXXFLAGS) $(LDFLAGS) -o $@ $<
+	$(CXX) $(LDFLAGS) $(LDLIBS) $(LDF77FLAGS) $(LDF77LIBS) -o $@ $<
 
 clean:
 	$(RM) $(TARGET_FILES) *.SUMM

@@ -1,5 +1,4 @@
-FC      = gfortran
-FFLAGS  += -fimplicit-none -O3
+include ../make.inc
 
 SOURCE_FILES = $(wildcard *.f)
 OBJECT_FILES = $(patsubst %.f,%.o,$(SOURCE_FILES))

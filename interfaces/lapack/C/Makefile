@@ -1,3 +1,5 @@
+include ../../../make.inc
+
 SOURCE_FILES     = $(wildcard *.cc)
 DEP_FILES        = $(patsubst %.cc, %.d, $(SOURCE_FILES))
 
@@ -5,9 +7,7 @@ ATLAS_PREFIX     = atl_
 OBJECT_FILES     = $(patsubst %.cc, %.o,                $(SOURCE_FILES))
 ATL_OBJECT_FILES = $(patsubst %.cc, $(ATLAS_PREFIX)%.o, $(SOURCE_FILES))
 
-CXX      = g++
-CXXFLAGS = -std=c++11 -O3  -fomit-frame-pointer -Wall -I ../../..
-CXXFLAGS += -msse3 -mfpmath=sse
+CXXFLAGS += -Wall -I ../../..
 
 CLAPACK   = ../../../libclapack.a
 ATLLAPACK = ../../../libatllapack.a
