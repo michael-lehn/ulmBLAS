@@ -1,11 +1,16 @@
 #define VERBOSE(X) X
+#ifdef __cplusplus
+#undef __cplusplus
+#endif
 
 VERBOSE(#ifndef) CLAPACK
 VERBOSE(#define) CLAPACK 1
 
 VERBOSE(#include) BLAS_HEADER
 
+VERBOSE(#ifdef) __cplusplus
 extern "C" {
+VERBOSE(#endif)
 
 int
 ULMLAPACK(dgetrf)(enum Order  order,
@@ -24,6 +29,8 @@ ULMLAPACK(dlaswp)(int     n,
                   int     *piv,
                   int     incPiv);
 
+VERBOSE(#ifdef) __cplusplus
 } // extern "C"
+VERBOSE(#endif)
 
 VERBOSE(#endif) // CBLAS

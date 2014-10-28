@@ -1,9 +1,14 @@
 #define VERBOSE(X) X
+#ifdef __cplusplus
+#undef __cplusplus
+#endif
 
 VERBOSE(#ifndef) CBLAS
 VERBOSE(#define) CBLAS 1
 
+VERBOSE(#ifdef) __cplusplus
 extern "C" {
+VERBOSE(#endif)
 
 //
 //  Constants for Trans, Side, UpLo and Diag are compatible with CBLAS and ATLAS
@@ -241,6 +246,8 @@ ULMBLAS(dsyr2k)(enum UpLo        upLo,
              double           *C,
              int              ldC);
 
+VERBOSE(#ifdef) __cplusplus
 } // extern "C"
+VERBOSE(#endif)
 
 VERBOSE(#endif)
