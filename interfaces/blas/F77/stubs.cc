@@ -1,5 +1,3 @@
-#include <interfaces/blas/F77/config.h>
-
 extern "C" {
 
 void

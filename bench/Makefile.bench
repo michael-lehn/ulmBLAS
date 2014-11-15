@@ -1,0 +1,28 @@
+TOPDIR     = ..
+BENCH_DIR  = bench.$(CONFIG)
+
+include $(TOPDIR)/make.inc
+include $(CONFIG_PATH)cases/make.$(CASE).inc
+include $(CONFIG_PATH)config/make.$(CONFIG).inc
+
+
+BENCH_SUMMARY_FILE = $(CONFIG).$(BENCH_SUMMARY_SUFFIX)
+
+BENCH_SUMMARY      = $(DIR)/$(CONFIG).summ
+BENCH_REPORT       = $(DIR)/$(CONFIG).report
+
+VARIANTS   = $(foreach variant, $(EXTRACT_VARIANTS),\
+                  $(BENCH_EXTRACT).$(variant))
+
+
+bench: $(BENCH_SUMMARY)
+
+$(BENCH_REPORT): $(CONFIG_PATH)cases/make.$(CASE).inc
+	set -e; $(BENCH_DIR)/$(BENCH_CMD) $(BENCH_OPT) > $(BENCH_REPORT)
+
+$(BENCH_SUMMARY) : $(BENCH_REPORT)
+	grep $(GREP_OPTS) $(BENCH_REPORT) > $(BENCH_SUMMARY)
+
+clean :
+	rm -f $(BENCH_SUMMARY)
+	rm -f $(BENCH_EXTRACT)

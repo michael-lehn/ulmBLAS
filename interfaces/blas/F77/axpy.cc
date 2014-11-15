@@ -1,4 +1,4 @@
-#include <interfaces/blas/F77/config.h>
+#include BLAS_HEADER
 #include <ulmblas/level1/axpy.h>
 
 extern "C" {

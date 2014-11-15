@@ -1,19 +1,21 @@
-include ../make.inc
+TOPDIR = ..
+
+include $(TOPDIR)/make.inc
 
 SOURCE_FILES = $(wildcard *.f)
 OBJECT_FILES = $(patsubst %.f,%.o,$(SOURCE_FILES))
-REFBLAS      = ../librefblas.a
+REFBLAS_LIB  = $(TOPDIR)/librefblas.a
 
-all : $(REFBLAS)
+all : $(REFBLAS_LIB)
 
-$(REFBLAS) : $(OBJECT_FILES)
-	ar cru $(REFBLAS) $(OBJECT_FILES)
-	ranlib $(REFBLAS)
+$(REFBLAS_LIB) : $(OBJECT_FILES)
+	ar cru $(REFBLAS_LIB) $(OBJECT_FILES)
+	ranlib $(REFBLAS_LIB)
 
 %.o : %.f
 	$(FC) $(FFLAGS) -c -o $@ $<
 
 clean :
 	rm -f $(OBJECT_FILES)
-	rm -f $(REFBLAS)
+	rm -f $(REFBLAS_LIB)
 

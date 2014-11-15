@@ -1,8 +1,6 @@
 #ifndef ULMBLAS_LEVEL3_GEMM_TCC
 #define ULMBLAS_LEVEL3_GEMM_TCC 1
 
-#include <stdio.h>
-
 #include <ulmblas/config/blocksize.h>
 #include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/level1extensions/gescal.h>

@@ -61,7 +61,7 @@
      $                   TSTERR
       CHARACTER*1        TRANSA, TRANSB
       CHARACTER*6        SNAMET
-      CHARACTER*32       SNAPS, SUMMRY
+      CHARACTER*64       SNAPS, SUMMRY
 *     .. Local Arrays ..
       DOUBLE PRECISION   AA( NMAX*NMAX ), AB( NMAX, 2*NMAX ),
      $                   ALF( NALMAX ), AS( NMAX*NMAX ),

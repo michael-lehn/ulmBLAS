@@ -1,7 +1,6 @@
-all: f77blas refblas cblas clapack
-	$(MAKE) -C bench
+all: f77blas cblas clapack
 
-.PHONY: f77blas refblas cblas clapack
+.PHONY: refblas f77blas cblas clapack
 
 refblas:
 	$(MAKE) -C refblas
@@ -10,16 +9,18 @@ f77blas:
 	$(MAKE) -C interfaces/blas/F77
 
 cblas:
-	$(MAKE) -C interfaces/blas/C
+	$(MAKE) -C interfaces/blas/C cblas
+
+atlblas:
+	$(MAKE) -C interfaces/blas/C atl
 
 clapack:
 	$(MAKE) -C interfaces/lapack/C
 
-check: f77blas
+check:
 	$(MAKE) -C test/F77
-	$(MAKE) -C test/F77 check
 
-bench: all
+bench: atlblas
 	$(MAKE) -C bench
 
 clean:

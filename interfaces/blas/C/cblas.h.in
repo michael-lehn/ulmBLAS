@@ -3,8 +3,8 @@
 #undef __cplusplus
 #endif
 
-VERBOSE(#ifndef) CBLAS
-VERBOSE(#define) CBLAS 1
+VERBOSE(#ifndef) CBLAS_H
+VERBOSE(#define) CBLAS_H 1
 
 VERBOSE(#ifdef) __cplusplus
 extern "C" {

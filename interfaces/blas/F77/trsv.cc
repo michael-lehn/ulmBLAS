@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
-#include <interfaces/blas/F77/config.h>
+#include BLAS_HEADER
 #include <interfaces/blas/F77/xerbla.h>
 #include <ulmblas/level2/trlsv.h>
 #include <ulmblas/level2/trusv.h>

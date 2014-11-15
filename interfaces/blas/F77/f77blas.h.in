@@ -1,0 +1,227 @@
+#define VERBOSE(X) X
+#ifdef __cplusplus
+#undef __cplusplus
+#endif
+
+VERBOSE(#ifndef) F77BLAS_H
+VERBOSE(#define) F77BLAS_H 1
+
+VERBOSE(#ifdef) __cplusplus
+extern "C" {
+VERBOSE(#endif)
+
+//
+//  Declaration of BLAS functions currently implemented in ulmBLAS
+//
+
+void
+F77BLAS(dasum_sub)(const int    *n_,
+                   const double *x,
+                   const int    *incX_,
+                   double       *result_);
+
+void
+F77BLAS(daxpy)(const int     *n_,
+               const double  *alpha_,
+               const double  *x,
+               const int     *incX_,
+               double        *y,
+               int           *incY_);
+
+void
+F77BLAS(dcopy)(const int    *n_,
+               const double *x,
+               const int    *incX_,
+               double       *y,
+               const int    *incY_);
+
+void
+F77BLAS(dscal)(const int    *n_,
+               const double *alpha_,
+               double       *x,
+               const int    *incX_);
+
+void
+F77BLAS(dswap)(const int *n_,
+               double    *x,
+               const int *incX_,
+               double    *y,
+               const int *incY_);
+
+void
+F77BLAS(ddot_sub)(const int     *n_,
+                  const double  *x,
+                  const int     *incX_,
+                  const double  *y,
+                  const int     *incY_,
+                  double        *result_);
+
+void
+F77BLAS(idamax_sub)(const int       *n_,
+                    const double    *x,
+                    const int       *incX_,
+                    int             *result_);
+
+void
+F77BLAS(dnrm2_sub)(const int     *n_,
+                   const double  *x,
+                   const int     *incX_,
+                   double        *result_);
+
+void
+F77BLAS(drot)(const int      *n_,
+              double         *x,
+              const int      *incX_,
+              double         *y,
+              const int      *incY_,
+              const double   *c_,
+              const double   *s_);
+
+void
+F77BLAS(drotg)(double *a,
+               double *b,
+               double *c,
+               double *s);
+
+void
+F77BLAS(dger)(const int         *m_,
+              const int         *n_,
+              const double      *alpha_,
+              const double      *x,
+              const int         *incX_,
+              const double      *y,
+              const int         *incY_,
+              double            *A,
+              const int         *ldA_);
+
+void
+F77BLAS(dgemv)(const char     *transA_,
+               const int      *m_,
+               const int      *n_,
+               const double   *alpha_,
+               const double   *A,
+               const int      *ldA_,
+               const double   *x,
+               const int      *incX_,
+               const double   *beta_,
+               double         *y,
+               const int      *incY_);
+
+void
+F77BLAS(dsymv)(const char     *upLo_,
+               const int      *n_,
+               const double   *alpha_,
+               const double   *A,
+               const int      *ldA_,
+               const double   *x,
+               const int      *incX_,
+               const double   *beta_,
+               double         *y,
+               const int      *incY_);
+
+void
+F77BLAS(dtrmv)(const char     *upLo_,
+               const char     *transA_,
+               const char     *diag_,
+               const int      *n_,
+               const double   *A,
+               const int      *ldA_,
+               double         *x,
+               const int      *incX_);
+
+void
+F77BLAS(dtrsv)(const char     *upLo_,
+               const char     *transA_,
+               const char     *diag_,
+               const int      *n_,
+               const double   *A,
+               const int      *ldA_,
+               double         *x,
+               const int      *incX_);
+
+void
+F77BLAS(dgemm)(const char     *transA_,
+               const char     *transB_,
+               const int      *m_,
+               const int      *n_,
+               const int      *k_,
+               const double   *alpha_,
+               const double   *A,
+               const int      *ldA_,
+               const double   *B,
+               const int      *ldB_,
+               const double   *beta_,
+               double         *C,
+               const int      *ldC_);
+
+void
+F77BLAS(dsymm)(const char     *side_,
+               const char     *upLo_,
+               const int      *m_,
+               const int      *n_,
+               const double   *alpha_,
+               const double   *A,
+               const int      *ldA_,
+               const double   *B,
+               const int      *ldB_,
+               const double   *beta_,
+               double         *C,
+               const int      *ldC_);
+
+void
+F77BLAS(dtrmm)(const char     *side_,
+               const char     *upLo_,
+               const char     *transA_,
+               const char     *diag_,
+               const int      *m_,
+               const int      *n_,
+               const double   *alpha_,
+               const double   *A,
+               const int      *ldA_,
+               double         *B,
+               const int      *ldB_);
+
+void
+F77BLAS(dtrsm)(const char     *side_,
+               const char     *upLo_,
+               const char     *transA_,
+               const char     *diag_,
+               const int      *m_,
+               const int      *n_,
+               const double   *alpha_,
+               const double   *A,
+               const int      *ldA_,
+               double         *B,
+               const int      *ldB_);
+
+void
+F77BLAS(dsyrk)(const char     *upLo_,
+               const char     *trans_,
+               const int      *n_,
+               const int      *k_,
+               const double   *alpha_,
+               const double   *A,
+               const int      *ldA_,
+               const double   *beta_,
+               double         *C,
+               const int      *ldC_);
+
+void
+F77BLAS(dsyr2k)(const char     *upLo_,
+                const char     *trans_,
+                const int      *n_,
+                const int      *k_,
+                const double   *alpha_,
+                const double   *A,
+                const int      *ldA_,
+                const double   *B,
+                const int      *ldB_,
+                const double   *beta_,
+                double         *C,
+                const int      *ldC_);
+
+VERBOSE(#ifdef) __cplusplus
+} // extern "C"
+VERBOSE(#endif)
+
+VERBOSE(#endif)

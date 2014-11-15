@@ -67,7 +67,7 @@ trumv(IndexType    n,
                  T(1),
                  &x[0*incX], incX);
 
-            trlmv_unblk(nl, unitDiag,
+            trumv_unblk(nl, unitDiag,
                       &A[(n-nl)*UnitStride+(n-nl)*incColA], UnitStride, incColA,
                       &x[(n-nl)*incX], incX);
         }

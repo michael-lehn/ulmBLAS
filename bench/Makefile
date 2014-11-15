@@ -1,56 +1,45 @@
-include ../make.inc
+TOPDIR = ..
+include $(TOPDIR)/make.inc
 
-ATL_C_SOURCEFILES = $(wildcard ATL_*.c)
-ATL_F_SOURCEFILES = $(wildcard ATL_*.f)
-ATL_OBJECTFILES = $(patsubst %.c, %.o, $(ATL_C_SOURCEFILES)) \
-                  $(patsubst %.f, %.o, $(ATL_F_SOURCEFILES))
+BLAS_VARIANTS = $(patsubst config/make.%.inc, %, $(wildcard config/make.*.inc))
+BENCH_CASES   = $(patsubst cases/make.%.inc, %, $(wildcard cases/make.*.inc))
 
-CFLAGS = $(BENCH_CFLAGS)
+USE_BLAS_VARIANTS ?= $(BLAS_VARIANTS)
+USE_BENCH_CASES   ?= $(BENCH_CASES)
 
-BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 
-#
-#  Select the ATLAS library (or our faked ATLAS implementation)
-#
-ATLAS_LIB = ../libatlblas.a
-#ATLAS_LIB = $(HOME)/work/ATLAS/build/lib/libatlas.a
-ATLAS_LAPACK_LIB = ../libatllapack.a
+BENCHMARK_TOPDIR    = benchmarks
+BENCHMARK_DIRS      = $(patsubst %,$(BENCHMARK_TOPDIR)/%,$(USE_BENCH_CASES))
+BENCHMARK_SUMMARIES = $(foreach case, $(USE_BENCH_CASES),          \
+                           $(foreach blas, $(USE_BLAS_VARIANTS),   \
+                                $(BENCHMARK_TOPDIR)/$(case)/$(blas).summ))
+BENCHMARK_PLOTS     = $(foreach case, $(USE_BENCH_CASES),          \
+                           $(BENCHMARK_TOPDIR)/$(case).plot)
 
-#
-#  Select the reference implementation
-#
-#REF_LIB_DEP   = ../librefblas.a
-REF_LIB_DEP   = ../libcblas.a ../libblas_check.a
-#REF_LIB_DEP   = $(HOME)/work/eigen-3.2.1/blas/libeigen_blas_static.a
-#REF_LIB_DEP   = $(HOME)/work/blis/lib/reference/libblis.a
-#REF_LIB_DEP   = $(HOME)/work/blis/lib/dunnington/libblis.a
-#REF_LIB_DEP   = $(HOME)/work/OpenBLAS/libopenblas.a
-REF_LIB = $(REF_LIB_DEP)
+ATL_OBJECTFILES     = $(patsubst %.c, %.o, $(wildcard ATL_*.c))
+ATL_OBJECTFILES    += $(patsubst %.f, %.o, $(wildcard ATL_*.f))
+CFLAGS              = $(BENCH_CFLAGS)
 
-#MKLROOT     = /opt/intel/composer_xe_2013_sp1.3.166/mkl/
-#REF_LIB_DEP = $(MKLROOT)/lib/libmkl_intel_lp64.a
-#REF_LIB     = $(REF_LIB_DEP) $(MKLROOT)/lib/libmkl_core.a \
-#              $(MKLROOT)/lib/libmkl_sequential.a -lpthread -lm
+LIBTSTATLAS = libtstatlas.a
 
-all: xdl1blastst xdl2blastst xdl3blastst xdlutst
+all : $(BENCHMARK_SUMMARIES) $(BENCHMARK_PLOTS)
 
-xdl1blastst : l1blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB_DEP)
-	$(CXX) -lstdc++ -o xdl1blastst l1blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
+%.plot : $(BENCHMARK_SUMMARIES)
+	make -C . -f Makefile.plot $(MAKECMDGOALS) CASE=${*F} DIR=${@D} BLAS_VARIANTS="$(USE_BLAS_VARIANTS)"
 
-xdl2blastst : l2blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB_DEP)
-	$(CXX) -lstdc++ -o xdl2blastst l2blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
+$(LIBTSTATLAS) : $(ATL_OBJECTFILES)
+	ar r $(LIBTSTATLAS) $(ATL_OBJECTFILES)
+	ranlib $(LIBTSTATLAS)
 
-xdl3blastst : l3blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB_DEP)
-	$(CXX) -lstdc++ -o xdl3blastst l3blastst.o libtstatlas.a $(ATLAS_LIB) $(REF_LIB)
+$(BLAS_VARIANTS) : $(LIBTSTATLAS)
+	make -C . -f Makefile.config $(MAKECMDGOALS) CONFIG=$@
 
-xdlutst : lutst.o libtstatlas.a $(ATLAS_LIB) $(ATLAS_LAPACK_LIB) $(REF_LIB_DEP)
-	$(CXX) -o xdlutst lutst.o libtstatlas.a $(ATLAS_LIB) $(ATLAS_LAPACK_LIB) $(REF_LIB)
+$(BENCHMARK_DIRS) :
+	mkdir -p $(BENCHMARK_DIRS)
 
-libtstatlas.a : $(ATL_OBJECTFILES)
-	ar r libtstatlas.a $(ATL_OBJECTFILES)
-	ranlib libtstatlas.a
+$(BENCHMARK_TOPDIR)/%.summ : $(BENCHMARK_DIRS) $(USE_BLAS_VARIANTS)
+	make -C . -f Makefile.bench $(MAKECMDGOALS) CASE=$(*D) CONFIG=$(*F) DIR=${@D}
 
-clean:
-	rm -f xdl1blastst xdl2blastst xdl3blastst xdlutst
-	rm -f *.o
-
+clean :
+	rm -f $(ATL_OBJECTFILES) $(LIBTSTATLAS)
+	rm -rf $(BENCHMARK_TOPDIR)

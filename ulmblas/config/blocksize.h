@@ -13,13 +13,13 @@ namespace ulmBLAS {
 template <typename T>
 struct BlockSize
 {
-    static const int MC = 8;
-    static const int KC = 12;
-    static const int NC = 12;
+    static const int MC = USE_TESTPARAM_MC;
+    static const int KC = USE_TESTPARAM_KC;
+    static const int NC = USE_TESTPARAM_NC;
 
 
-    static const int MR = 4;
-    static const int NR = 4;
+    static const int MR = USE_TESTPARAM_MR;
+    static const int NR = USE_TESTPARAM_NR;
 };
 
 #elif defined(USE_SSE)

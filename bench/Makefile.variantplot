@@ -1,0 +1,47 @@
+TOPDIR = ..
+include $(TOPDIR)/make.inc
+include $(CONFIG_PATH)cases/make.inc
+include $(CONFIG_PATH)cases/make.$(CASE).inc
+
+
+CONFIG_FILES  = $(foreach blas, $(BLAS_VARIANTS), \
+                     $(CONFIG_PATH)config/make.$(blas).inc)
+include $(CONFIG_FILES)
+
+SUMM_FILES    = $(foreach blas, $(BLAS_VARIANTS), \
+                     $(DIR)/$(blas).summ)
+EXTRACT_FILES = $(foreach summ, $(SUMM_FILES),\
+                     $(summ).$(VARIANT))
+
+GPS           = $(DIR)/$(CASE)_$(VARIANT).gps
+GPS_PLOT_OPT  = using 1:2 with linespoints lw 3
+GPS_PLOT      = plot
+GPS_PLOT     += $(foreach blas, $(BLAS_VARIANTS),\
+                     "$(DIR)/$(blas).summ.$(VARIANT)" $(GPS_PLOT_OPT) title $($(blas)_NAME), )
+
+
+EXTRACT_$(VARIANT)_X ?= $(EXTRACT_X)
+EXTRACT_$(VARIANT)_Y ?= $(EXTRACT_Y)
+
+GPS_OUTPUT = "$(DIR)/$(CASE)_$(VARIANT).$(GPS_OUTPUT_SUFFIX)"
+
+GPS_$(VARIANT)_TITLE      ?= $(GPS_TITLE)
+GPS_$(VARIANT)_XLABEL     ?= $(GPS_XLABEL)
+GPS_$(VARIANT)_YLABEL     ?= $(GPS_YLABEL)
+GPS_$(VARIANT)_XLABEL     ?= $(GPS_XLABEL)
+GPS_$(VARIANT)_YRANGE_MIN ?= $(GPS_YRANGE_MIN)
+GPS_$(VARIANT)_YRANGE_MAX ?= $(GPS_YRANGE_MAX)
+GPS_$(VARIANT)_LOGSCALEX  ?= $(GPS_LOGSCALEX)
+GPS_$(VARIANT)_LOGSCALEY  ?= $(GPS_LOGSCALEY)
+
+SED_CMD = $(foreach gps_var, $(filter GPS_%, $(.VARIABLES)),\
+               -e 's;$(patsubst GPS_$(VARIANT)_%,GPS_%, $(gps_var));$($(gps_var));g')
+
+all : $(GPS)
+	gnuplot $(GPS)
+
+$(GPS) : $(EXTRACT_FILES) gnuplot.in $(GPS_MAKE_INC_DEPS)
+	sed $(SED_CMD) gnuplot.in > $(GPS)
+
+%.summ.$(VARIANT) : %.summ
+	awk ' { print $$$(EXTRACT_$(VARIANT)_X) " " $$$(EXTRACT_$(VARIANT)_Y) }' $< > $@
