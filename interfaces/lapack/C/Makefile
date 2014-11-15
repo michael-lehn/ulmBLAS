@@ -8,7 +8,7 @@ VARIANTS = $(patsubst $(CBLASMAKEFILE_PATH)/config/make.%.inc, %,\
 
 all : $(VARIANTS)
 
-$(VARIANTS) :
+% :
 	make -C . -f Makefile.config $(MAKECMDGOALS) CONFIG=$@
 
 .PHONY : clean

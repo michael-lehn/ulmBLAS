@@ -15,12 +15,15 @@ atlblas:
 	$(MAKE) -C interfaces/blas/C atl
 
 clapack:
-	$(MAKE) -C interfaces/lapack/C
+	$(MAKE) -C interfaces/lapack/C cblas
+
+atllapack:
+	$(MAKE) -C interfaces/lapack/C atl
 
 check:
 	$(MAKE) -C test/F77
 
-bench: atlblas
+bench: atlblas atllapack
 	$(MAKE) -C bench
 
 clean:
