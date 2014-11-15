@@ -1,0 +1,14 @@
+set terminal GPS_TERMINAL
+set output GPS_OUTPUT
+set xlabel GPS_XLABEL
+set ylabel GPS_YLABEL
+
+set yrange [GPS_YRANGE_MIN:GPS_YRANGE_MAX]
+
+GPS_LOGSCALEX
+GPS_LOGSCALEY
+
+set title GPS_TITLE font "Times-Roman,18"
+set key outside
+set pointsize 0.5
+GPS_PLOT
