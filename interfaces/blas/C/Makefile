@@ -8,7 +8,7 @@ all : $(VARIANTS)
 
 % :
 	@echo VARIANTS=$(VARIANTS)
-	make -C . -f Makefile.config $@ CONFIG=$@
+	make -C . -f Makefile.config $(MAKECMDGOALS) CONFIG=$@
 
 .PHONY : clean
 clean : $(VARIANTS)
