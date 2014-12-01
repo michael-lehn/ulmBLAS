@@ -28,20 +28,20 @@ all : $(BENCHMARK_SUMMARIES) $(BENCHMARK_PLOTS)
 benchmark-suite : $(USE_BLAS_VARIANTS)
 
 %.plot : $(BENCHMARK_SUMMARIES)
-	make -C . -f Makefile.plot $(MAKECMDGOALS) CASE=${*F} DIR=${@D} BLAS_VARIANTS="$(USE_BLAS_VARIANTS)"
+	make -C . -f Makefile.plot CASE=${*F} DIR=${@D} BLAS_VARIANTS="$(USE_BLAS_VARIANTS)"
 
 $(LIBTSTATLAS) : $(ATL_OBJECTFILES)
 	ar r $(LIBTSTATLAS) $(ATL_OBJECTFILES)
 	ranlib $(LIBTSTATLAS)
 
 $(BLAS_VARIANTS) : $(LIBTSTATLAS)
-	make -C . -f Makefile.config $(MAKECMDGOALS) CONFIG=$@ BENCH_DIR_PREFIX=$(BENCH_DIR_PREFIX)
+	make -C . -f Makefile.config CONFIG=$@ BENCH_DIR_PREFIX=$(BENCH_DIR_PREFIX)
 
 $(BENCHMARK_DIRS) :
 	mkdir -p $(BENCHMARK_DIRS)
 
 $(BENCHMARK_TOPDIR)/%.summ : $(BENCHMARK_DIRS) $(USE_BLAS_VARIANTS)
-	make -C . -f Makefile.bench $(MAKECMDGOALS) CASE=$(*D) CONFIG=$(*F) DIR=${@D}
+	make -C . -f Makefile.bench CASE=$(*D) CONFIG=$(*F) DIR=${@D}
 
 clean :
 	rm -rf $(BENCH_DIR_PREFIX).*
