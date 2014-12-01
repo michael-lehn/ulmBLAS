@@ -1,0 +1,8 @@
+CONFIG  = testcase04
+
+F77BLAS_SUFFIX        = _
+F77BLAS_LIB_NAME      = lib$(CONFIG)blas.a
+F77BLAS_HEADER_NAME   = $(CONFIG)blas.h
+F77BLAS_INCLUDE_GUARD = ULMBLAS_$(shell echo $(CONFIG) | tr "a-z" "A-Z")BLAS_H
+
+SUMMARY_SUFFIX = default
