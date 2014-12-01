@@ -1,6 +1,7 @@
 #ifndef ULMBLAS_LEVEL1_KERNEL_REF_DOT_TCC
 #define ULMBLAS_LEVEL1_KERNEL_REF_DOT_TCC 1
 
+#include <complex>
 #include <ulmblas/level1/kernel/ref/dot.h>
 
 namespace ulmBLAS { namespace ref {

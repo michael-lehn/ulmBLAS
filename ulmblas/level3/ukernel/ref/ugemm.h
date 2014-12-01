@@ -11,20 +11,6 @@ template <typename T>
     int
     ugemm_nr();
 
-template <typename IndexType, typename T, typename Beta, typename TC>
-    void
-    ugemm(IndexType   kc,
-          const T     &alpha,
-          const T     *A,
-          const T     *B,
-          const Beta  &beta,
-          TC          *C,
-          IndexType   incRowC,
-          IndexType   incColC,
-          const T     *nextA,
-          const T     *nextB);
-
-
 template <typename IndexType, typename T>
     void
     ugemm(IndexType   kc,
@@ -40,6 +26,6 @@ template <typename IndexType, typename T>
 
 } } // namespace ref, ulmBLAS
 
-#endif // ULMBLAS_LEVEL3_UKERNEL_REF_AXPY_H 1
+#endif // ULMBLAS_LEVEL3_UKERNEL_REF_UGEMM_H
 
 #include <ulmblas/level3/ukernel/ref/ugemm.tcc>

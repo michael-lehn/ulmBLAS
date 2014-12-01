@@ -1,0 +1,185 @@
+=======
+ulmBLAS                                                                 [TOC]
+=======
+
+ulmBLAS is a high performance C++ implementation of __BLAS__ (Basic Linear
+Subprograms).  Standard conform interfaces for C and Fortran are provided.
+
+__BLAS__ defines a set of low-level linear algebra operations and has become
+a de facto standard API for linear algebra libraries and routines.  Several
+BLAS library implementations have been tuned for specific computer
+architectures. Highly optimized implementations have been developed by hardware
+vendors such as Intel (__Intel MKL__) or AMD (__ACML__).
+
+
+Higher level numerical libraries and applications like __LAPACK__, __SuperLU__,
+__Matlab__, __GNU Octave__, __Mathematica__, etc. use BLAS as computational
+kernel.  Performance of these libraries and applications directly depends on the
+performance of the underlying BLAS implementation.
+
+
+
+Application in Teaching
+=======================
+
+- *ulmBLAS* was developed for our lectures on __High Performance Computing__ at
+  __Ulm University__.
+
+- In High Performance Computing we are interested in realizing numerical
+  algorithms in such a way that we get as close as possible to the theoretical
+  peak performance of the underlying hardware.  This requires adapting the
+  numerical algorithms.  In the usual lectures on numerical analysis or numerical
+  linear algebra this does not get covered.
+
+- It turns out the performance only depends on a few elementary linear algebra
+  operations.  These operations became known as BLAS (Basic Linear Algebra
+  Subroutines).
+
+- So obviously an efficient BLAS implementation is crucial for scientific
+  computing and scientific applications.  Both, commercial (__Intel MKL__, AMD
+  __ACML__, Sun Performance Library, ...) and open source (__BLIS__, __ATLAS__,
+  ...) implementations of BLAS are available.
+
+- *So if a lecture is called _High Performance Computing_ it has to deal with
+  BLAS!*  One way of dealing with BLAS is merely reading papers and using
+  existing BLAS implementations as black box.  *But if you really want to
+  understand it you have to implement your own BLAS!*
+
+- Of course some open source implementations already do exist.  However, either
+  their implementation is _kind of complex_ and therefore not suitable for
+  teaching an undergraduate class, or their implementation is far from
+  efficient.  `ulmBLAS` was designed for being suitable for teaching while being
+  on par with commercial implementations for performance.
+
+- It is important to know that students develop their own *ulmBLAS* during the
+  semester.  This happens step-by-step (of course these steps are guided) and
+  in two phases:
+
+  - *Phase 1:*  In the first half of the semester the students develop a pure
+    C implementation for the most important BLAS functions.  In this phase they
+    learn about the relevant numerical algorithms, the programming language C,
+    programming tools and fundamental concepts of modern hardware architecture.
+    At the end of this phase they reach about 30 percent of the theoretical
+    peak performance.  The code for the matrix-matrix product (one of the most
+    important BLAS functions) only has less than 450 lines of code.
+
+  - *Phase 2:* Students now focus on hardware optimizations using techniques
+    like loop unrolling, instruction pipelining, SIMD (single instruction,
+    multiple data).  In this phase students get introduced to assembly language
+    for doing sophisticated low-level programming.  In particular realizing
+    numerical algorithms for micro kernels on this level.  At the end they can
+    achieve about 98 percent of the performance of __Intel MKL__ which is the
+    fastest implementation for the Intel platform.  In this phase about 10 lines
+    of the original C code where replaced by about 400 lines of assembly code.
+
+    How students proceed in this phase is documented on
+    __GEMM: From Pure C to SSE Optimized Micro Kernels__.
+
+- ulmBLAS is not only a nice project for teaching but can also compete with
+  commercial products as you can see on __GEMM Benchmarks__.
+
+
+
+How to Obtain
+=============
+
+You can obtain ulmBLAS from github: __https://github.com/michael-lehn/ulmBLAS__
+
+For different stages of the course different branches are available.  The
+master branch contains the final C++ implementation.
+
+
+
+Benchmarks
+==========
+All benchmarks where created on a MacBook Pro with a 2.4 GHz Intel Core 2 Duo
+(P8600, “Penryn”). The theoretical peak performance of one core is 9.6 GFLOPS.
+
+Effectiveness of solving linear systems of equations was measured in seconds
+(so less is better).  Efficiency of BLAS routines was measured in MFLOPS (so
+more is better).
+
+Solving Systems of Linear Equations
+-----------------------------------
+In undergraduate lectures on numerical linear algebra students learn (among
+many other things) how to solve systems of linear equations using the $LU$
+factorization with pivoting.  The algorithms covered in these lectures are
+so called unblocked algorithms that are based on vector operations and
+matrix-vector operations.  Performance of these algorithms breaks down when
+matrix dimension become bigger.  That is because accessing the data from the
+memory becomes a bottleneck.  Most of the time the CPU will be waiting for doing
+actual computations.
+
+In the lecture on high performance computing the students are introduced to
+blocked algorithms.  These make heavy use of matrix-matrix products (and
+some variants of it that are specified in the so called BLAS Level 3).  Using
+blocked algorithms and efficient implementations of the BLAS Level 3 functions
+allows achieving almost peak performance.
+
+How big the gain of using blocked algorithms over unblock can be shows the
+following benchmark:
+
+   ---- IMAGE -------------------------
+   bench/benchmarks/lu-blocked-time.svg
+   ------------------------------------
+
+(General) Matrix-Matrix Products
+--------------------------------
+If matrices are non-square or not symmetric their are categorized as general
+matrices.  Matrix-matrix products are of the forms
+
+- $C \leftarrow \beta C + \alpha A B$,
+- $C \leftarrow \beta C + \alpha A^T B$,
+- $C \leftarrow \beta C + \alpha A B^T$ or
+- $C \leftarrow \beta C + \alpha A^T B^T$.
+
+These operations must achieve in all cases the same performance.
+
+   ---- IMAGE ---------------
+   bench/benchmarks/xgemm.svg
+   --------------------------
+
+   ---- IMAGE ------------------
+   bench/benchmarks/xgemm_At.svg
+   -----------------------------
+
+   ---- IMAGE ------------------
+   bench/benchmarks/xgemm_Bt.svg
+   -----------------------------
+
+   ---- IMAGE ---------------------
+   bench/benchmarks/xgemm_At_Bt.svg
+   --------------------------------
+
+
+Symmetric Matrix-Matrix Product
+-------------------------------
+
+   ---- IMAGE ---------------
+   bench/benchmarks/xsymm.svg
+   --------------------------
+
+
+Triangular Matrix-Matrix Product
+--------------------------------
+
+   ---- IMAGE ---------------
+   bench/benchmarks/xtrmm.svg
+   --------------------------
+
+
+:links: BLAS                       -> http://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms
+        Intel MKL                  -> http://en.wikipedia.org/wiki/Math_Kernel_Library
+        ACML                       -> http://en.wikipedia.org/wiki/AMD_Core_Math_Library
+        LAPACK                     -> http://en.wikipedia.org/wiki/LAPACK
+        SuperLU                    -> http://crd-legacy.lbl.gov/~xiaoye/SuperLU/
+        Matlab                     -> http://en.wikipedia.org/wiki/Matlab
+        GNU Octave                 -> http://en.wikipedia.org/wiki/GNU_Octave
+        Mathematica                -> http://en.wikipedia.org/wiki/Mathematica
+        High Performance Computing -> http://www.uni-ulm.de/mawi/mawi-numerik/lehre/wintersemester-20142015/vorlesung-softwaregrundlagen-high-performance-computing.html
+        Ulm University             -> http://www.uni-ulm.de/en/homepage.html
+        BLIS                       -> https://code.google.com/p/blis/
+        ATLAS                      -> http://math-atlas.sourceforge.net
+        GEMM: From Pure C to SSE Optimized Micro Kernels -> http://apfel.mathematik.uni-ulm.de/~lehn/sghpc/gemm/
+        GEMM Benchmarks            -> http://apfel.mathematik.uni-ulm.de/~lehn/sghpc/gemm/page14/index.html#toc5
+        https://github.com/michael-lehn/ulmBLAS -> https://github.com/michael-lehn/ulmBLAS

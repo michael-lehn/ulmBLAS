@@ -1,4 +1,4 @@
-GPS_TERMINAL      = pdfcairo enhanced
-GPS_OUTPUT_SUFFIX = pdf
+GPS_TERMINAL      = svg size 900 600
+GPS_OUTPUT_SUFFIX = svg
 GPS_YRANGE_MIN    = 0
 GPS_YRANGE_MAX    = 9600

@@ -2,6 +2,7 @@
 #define ULMBLAS_LEVEL3_MKERNEL_MTRUSM_TCC 1
 
 #include <ulmblas/level3/mkernel/mtrusm.h>
+#include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level3/ukernel/utrusm.h>
 
 namespace ulmBLAS {

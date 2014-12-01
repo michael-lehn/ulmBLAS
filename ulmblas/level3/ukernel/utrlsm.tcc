@@ -1,11 +1,23 @@
 #ifndef ULMBLAS_LEVEL3_UKERNEL_UTRLSM_TCC
 #define ULMBLAS_LEVEL3_UKERNEL_UTRLSM_TCC 1
 
-#include <ulmblas/auxiliary/printmatrix.h>
-
-#include <ulmblas/level3/ukernel/utrlsm.h>
-#include <ulmblas/level1extensions/gecopy.h>
+#include <ulmblas/config/simd.h>
 #include <ulmblas/level1/scal.h>
+#include <ulmblas/level1extensions/gecopy.h>
+#include <ulmblas/level3/ukernel/ugemm.h>
+#include <ulmblas/level3/ukernel/utrlsm.h>
+
+//
+//  Selected optimized micro kernel
+//
+#if defined(HAVE_SSE)
+#   define  SELECT_UTRLSM_KERNEL    sse
+#   include <ulmblas/level3/ukernel/sse/utrlsm.h>
+#else
+#   define  SELECT_UTRLSM_KERNEL    ref
+#   include <ulmblas/level3/ukernel/ref/utrlsm.h>
+#endif
+
 
 namespace ulmBLAS {
 
@@ -68,28 +80,7 @@ utrlsm(const T     *A,
        IndexType   incRowC,
        IndexType   incColC)
 {
-    const IndexType MR = ugemm_mr<T>();
-    const IndexType NR = ugemm_nr<T>();
-
-    T   C_[MR*NR];
-
-    for (IndexType i=0; i<MR; ++i) {
-        for (IndexType j=0; j<NR; ++j) {
-            C_[i+j*MR] = B[i*NR+j];
-        }
-    }
-
-    for (IndexType i=0; i<MR; ++i) {
-        for (IndexType j=0; j<NR; ++j) {
-            C_[i+j*MR] *= A[i];
-            for (IndexType l=i+1; l<MR; ++l) {
-                C_[l+j*MR] -= A[l]*C_[i+j*MR];
-            }
-        }
-        A += MR;
-    }
-
-    gecopy(MR, NR, C_, IndexType(1), MR, C, incRowC, incColC);
+    SELECT_UTRLSM_KERNEL::utrlsm(A, B, C, incRowC, incColC);
 }
 
 } // namespace ulmBLAS

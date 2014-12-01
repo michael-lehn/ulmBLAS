@@ -1,7 +1,8 @@
 #ifndef ULMBLAS_LEVEL3_MKERNEL_MTRLMM_TCC
 #define ULMBLAS_LEVEL3_MKERNEL_MTRLMM_TCC 1
 
-#include <ulmblas/level3/mkernel/mtrlmm.tcc>
+#include <ulmblas/level3/ukernel/ugemm.h>
+#include <ulmblas/level3/mkernel/mtrlmm.h>
 
 namespace ulmBLAS {
 

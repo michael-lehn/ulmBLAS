@@ -1,8 +1,6 @@
 #ifndef ULMBLAS_LEVEL3_UKERNEL_USYURK_TCC
 #define ULMBLAS_LEVEL3_UKERNEL_USYURK_TCC 1
 
-#include <ulmblas/auxiliary/printmatrix.h>
-
 #include <ulmblas/level1extensions/truaxpy.h>
 #include <ulmblas/level1extensions/truscal.h>
 #include <ulmblas/level3/ukernel/ugemm.h>

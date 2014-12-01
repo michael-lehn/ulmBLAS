@@ -1,8 +1,8 @@
 #ifndef ULMBLAS_LEVEL1EXTENSIONS_KERNEL_SSE_DOTAXPY_TCC
 #define ULMBLAS_LEVEL1EXTENSIONS_KERNEL_SSE_DOTAXPY_TCC 1
 
-#include <ulmblas/auxiliary/printmatrix.h>
-
+#include <immintrin.h>
+#include <ulmblas/auxiliary/isaligned.h>
 #include <ulmblas/level1extensions/kernel/ref/dotaxpy.h>
 #include <ulmblas/level1extensions/kernel/sse/dotaxpy.h>
 

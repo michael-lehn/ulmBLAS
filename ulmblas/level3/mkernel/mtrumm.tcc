@@ -1,7 +1,8 @@
 #ifndef ULMBLAS_LEVEL3_MKERNEL_MTRUMM_TCC
 #define ULMBLAS_LEVEL3_MKERNEL_MTRUMM_TCC 1
 
-#include <ulmblas/level3/mkernel/mtrumm.tcc>
+#include <ulmblas/level3/ukernel/ugemm.h>
+#include <ulmblas/level3/mkernel/mtrumm.h>
 
 namespace ulmBLAS {
 

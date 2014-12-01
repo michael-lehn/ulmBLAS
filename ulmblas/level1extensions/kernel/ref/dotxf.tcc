@@ -1,6 +1,7 @@
 #ifndef ULMBLAS_LEVEL1EXTENSIONS_KERNEL_REF_DOTXF_TCC
 #define ULMBLAS_LEVEL1EXTENSIONS_KERNEL_REF_DOTXF_TCC 1
 
+#include <type_traits>
 #include <ulmblas/level1extensions/kernel/ref/dotxf.h>
 
 namespace ulmBLAS { namespace ref {

@@ -26,6 +26,9 @@ check:
 bench: atlblas atllapack
 	$(MAKE) -C bench
 
+benchmark-suite: atlblas atllapack
+	$(MAKE) -C bench benchmark-suite
+
 clean:
 	$(MAKE) -C interfaces/blas/C clean
 	$(MAKE) -C interfaces/blas/F77 clean

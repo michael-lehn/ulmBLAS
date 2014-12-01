@@ -1,7 +1,10 @@
 #ifndef ULMBLAS_LEVEL1EXTENSIONS_KERNEL_SSE_DOT2V_TCC
 #define ULMBLAS_LEVEL1EXTENSIONS_KERNEL_SSE_DOT2V_TCC 1
 
+#include <immintrin.h>
+#include <ulmblas/auxiliary/isaligned.h>
 #include <ulmblas/level1extensions/kernel/ref/dot2v.h>
+#include <ulmblas/level1extensions/kernel/sse/dot2v.h>
 
 namespace ulmBLAS { namespace sse {
 

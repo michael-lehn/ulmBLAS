@@ -1,6 +1,8 @@
 #ifndef ULMBLAS_LEVEL1EXTENSIONS_KERNEL_SSE_DOTXAXPYF_TCC
 #define ULMBLAS_LEVEL1EXTENSIONS_KERNEL_SSE_DOTXAXPYF_TCC 1
 
+#include <immintrin.h>
+#include <ulmblas/auxiliary/isaligned.h>
 #include <ulmblas/level1extensions/kernel/sse/dotxaxpyf.h>
 #include <ulmblas/level1extensions/kernel/ref/dotxaxpyf.h>
 

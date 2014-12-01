@@ -1,6 +1,7 @@
 #ifndef ULMBLAS_LEVEL3_TRUMM_TCC
 #define ULMBLAS_LEVEL3_TRUMM_TCC 1
 
+#include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/config/blocksize.h>
 #include <ulmblas/level1extensions/gescal.h>
 #include <ulmblas/level3/mkernel/mgemm.h>

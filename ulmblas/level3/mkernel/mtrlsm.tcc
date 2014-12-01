@@ -1,6 +1,7 @@
 #ifndef ULMBLAS_LEVEL3_MKERNEL_MTRLSM_TCC
 #define ULMBLAS_LEVEL3_MKERNEL_MTRLSM_TCC 1
 
+#include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level3/mkernel/mtrlsm.h>
 #include <ulmblas/level3/ukernel/utrlsm.h>
 

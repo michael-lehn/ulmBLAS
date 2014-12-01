@@ -32,6 +32,6 @@ static typename std::enable_if<std::is_convertible<IndexType,long>::value,
 
 } } // namespace sse, ulmBLAS
 
-#endif // ULMBLAS_LEVEL3_UKERNEL_SSE_AXPY_H 1
+#endif // ULMBLAS_LEVEL3_UKERNEL_SSE_UGEMM_H
 
 #include <ulmblas/level3/ukernel/sse/ugemm.tcc>

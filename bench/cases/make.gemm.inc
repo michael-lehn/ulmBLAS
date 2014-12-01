@@ -1,5 +1,5 @@
 BENCH_CMD            = xdl3blastst
-BENCH_OPT            = -N 100 2000 100
+BENCH_OPT            = -N 100 4000 100
 BENCH_SUMMARY_SUFFIX = gemm
 BENCH_TITLE          = "Compute C=A*B"
 
@@ -17,7 +17,7 @@ EXTRACT_TIMELOGLOG_Y = 12
 GPS_VARIANTS         = $(EXTRACT_VARIANTS)
 
 GPS_TITLE            = "GEMM: C=A*B"
-GPS_PLOT_OPT         = using 1:2 with linespoints lt 2 lw 3 title "$(#CONFIG_NAME)"
+GPS_PLOT_OPT         = using 1:2 with linespoints lt 4 lw 3 title "$(#CONFIG_NAME)"
 
 GPS_XLABEL           = "Matrix Dimension (M=K=N)"
 

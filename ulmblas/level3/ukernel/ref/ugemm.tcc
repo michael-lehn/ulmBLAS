@@ -20,31 +20,6 @@ ugemm_nr()
     return BlockSize<T>::NR;
 }
 
-template <typename IndexType, typename T, typename Beta, typename TC>
-void
-ugemm(IndexType   kc,
-      const T     &alpha,
-      const T     *A,
-      const T     *B,
-      const Beta  &beta,
-      TC          *C,
-      IndexType   incRowC,
-      IndexType   incColC,
-      const T     *nextA,
-      const T     *nextB)
-{
-    const IndexType UnitStride = 1;
-
-    const IndexType MR = ugemm_mr<T>();
-    const IndexType NR = ugemm_nr<T>();
-
-    T  C_[MR*NR];
-
-    ugemm(kc, alpha, A, B, T(0), C_, UnitStride, MR, nextA, nextB);
-    gescal(MR, NR, beta, C, incRowC, incColC);
-    geaxpy(MR, NR, Beta(1), C_, UnitStride, MR, C, incRowC, incColC);
-}
-
 template <typename IndexType, typename T>
 void
 ugemm(IndexType   kc,

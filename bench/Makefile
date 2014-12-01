@@ -24,6 +24,8 @@ LIBTSTATLAS = libtstatlas.a
 
 all : $(BENCHMARK_SUMMARIES) $(BENCHMARK_PLOTS)
 
+benchmark-suite : $(USE_BLAS_VARIANTS)
+
 %.plot : $(BENCHMARK_SUMMARIES)
 	make -C . -f Makefile.plot $(MAKECMDGOALS) CASE=${*F} DIR=${@D} BLAS_VARIANTS="$(USE_BLAS_VARIANTS)"
 
@@ -32,7 +34,7 @@ $(LIBTSTATLAS) : $(ATL_OBJECTFILES)
 	ranlib $(LIBTSTATLAS)
 
 $(BLAS_VARIANTS) : $(LIBTSTATLAS)
-	make -C . -f Makefile.config $(MAKECMDGOALS) CONFIG=$@
+	make -C . -f Makefile.config CONFIG=$@
 
 $(BENCHMARK_DIRS) :
 	mkdir -p $(BENCHMARK_DIRS)
