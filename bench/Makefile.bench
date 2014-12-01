@@ -17,7 +17,7 @@ VARIANTS   = $(foreach variant, $(EXTRACT_VARIANTS),\
 
 bench: $(BENCH_SUMMARY)
 
-$(BENCH_REPORT): $(CONFIG_PATH)cases/make.$(CASE).inc
+$(BENCH_REPORT): $(CONFIG_PATH)cases/make.$(CASE).inc $(CONFIG_PATH)config/make.$(CONFIG).inc
 	set -e; $(BENCH_DIR)/$(BENCH_CMD) $(BENCH_OPT) > $(BENCH_REPORT)
 
 $(BENCH_SUMMARY) : $(BENCH_REPORT)

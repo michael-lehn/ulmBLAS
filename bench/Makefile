@@ -7,6 +7,7 @@ BENCH_CASES   = $(patsubst cases/make.%.inc, %, $(wildcard cases/make.*.inc))
 USE_BLAS_VARIANTS ?= $(BLAS_VARIANTS)
 USE_BENCH_CASES   ?= $(BENCH_CASES)
 
+BENCH_DIR_PREFIX    = bench
 
 BENCHMARK_TOPDIR    = benchmarks
 BENCHMARK_DIRS      = $(patsubst %,$(BENCHMARK_TOPDIR)/%,$(USE_BENCH_CASES))
@@ -34,7 +35,7 @@ $(LIBTSTATLAS) : $(ATL_OBJECTFILES)
 	ranlib $(LIBTSTATLAS)
 
 $(BLAS_VARIANTS) : $(LIBTSTATLAS)
-	make -C . -f Makefile.config CONFIG=$@
+	make -C . -f Makefile.config $(MAKECMDGOALS) CONFIG=$@ BENCH_DIR_PREFIX=$(BENCH_DIR_PREFIX)
 
 $(BENCHMARK_DIRS) :
 	mkdir -p $(BENCHMARK_DIRS)
@@ -43,5 +44,6 @@ $(BENCHMARK_TOPDIR)/%.summ : $(BENCHMARK_DIRS) $(USE_BLAS_VARIANTS)
 	make -C . -f Makefile.bench $(MAKECMDGOALS) CASE=$(*D) CONFIG=$(*F) DIR=${@D}
 
 clean :
+	rm -rf $(BENCH_DIR_PREFIX).*
 	rm -f $(ATL_OBJECTFILES) $(LIBTSTATLAS)
 	rm -rf $(BENCHMARK_TOPDIR)

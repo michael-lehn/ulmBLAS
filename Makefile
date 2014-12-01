@@ -1,4 +1,4 @@
-all: f77blas cblas clapack
+all: cblas clapack
 
 .PHONY: refblas f77blas cblas clapack
 
