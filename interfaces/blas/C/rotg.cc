@@ -12,4 +12,13 @@ ULMBLAS(drotg)(double *a,
     ulmBLAS::rotg(*a, *b, *c, *s);
 }
 
+void
+CBLAS(drotg)(double *a,
+             double *b,
+             double *c,
+             double *s)
+{
+    ulmBLAS::rotg(*a, *b, *c, *s);
+}
+
 } // extern "C"

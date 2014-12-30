@@ -12,4 +12,13 @@ ULMBLAS(dscal)(const int    n,
     return ulmBLAS::scal(n, alpha, x, incX);
 }
 
+void
+CBLAS(dscal)(const int    n,
+             const double alpha,
+             double       *x,
+             const int    incX)
+{
+    return ulmBLAS::scal(n, alpha, x, incX);
+}
+
 } // extern "C"

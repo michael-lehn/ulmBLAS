@@ -7,4 +7,9 @@ ULMBLAS(drotm)()
 {
 }
 
+void
+CBLAS(drotm)()
+{
+}
+
 } // extern "C"

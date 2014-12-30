@@ -1,11 +1,6 @@
 extern "C" {
 
 void
-F77BLAS(dgbmv)()
-{
-}
-
-void
 F77BLAS(dger2)()
 {
 }

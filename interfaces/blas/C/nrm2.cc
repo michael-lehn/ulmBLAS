@@ -11,4 +11,12 @@ ULMBLAS(dnrm2)(const int     n,
     return ulmBLAS::nrm2(n, x, incX);
 }
 
+double
+CBLAS(dnrm2)(const int     n,
+             const double  *x,
+             const int     incX)
+{
+    return ulmBLAS::nrm2(n, x, incX);
+}
+
 } // extern "C"

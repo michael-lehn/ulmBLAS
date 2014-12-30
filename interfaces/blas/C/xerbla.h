@@ -1,11 +1,11 @@
-#ifndef INTERFACE_BLAS_F77_XERBLA_H
-#define INTERFACE_BLAS_F77_XERBLA_H 1
+#ifndef INTERFACE_BLAS_C_XERBLA_H
+#define INTERFACE_BLAS_C_XERBLA_H 1
 
 extern "C" {
 
 void
-ULMBLAS(xerbla)(const char rout[6], const int *info);
+CBLAS(xerbla)(int info, const char *rout, const char *form, ...);
 
 } // extern "C"
 
-#endif // INTERFACE_BLAS_F77_XERBLA_H
+#endif // INTERFACE_BLAS_C_XERBLA_H

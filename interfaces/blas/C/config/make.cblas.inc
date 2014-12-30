@@ -2,6 +2,7 @@ CONFIG  = cblas
 
 
 CBLAS_PREFIX        = $(CONFIG)_
+ULMBLAS_PREFIX      = ulmblas_
 CBLAS_LIB_NAME      = lib$(CONFIG).a
 CBLAS_HEADER_NAME   = $(CONFIG).h
 CBLAS_INCLUDE_GUARD = ULMBLAS_$(shell echo $(CONFIG) | tr "a-z" "A-Z")_H

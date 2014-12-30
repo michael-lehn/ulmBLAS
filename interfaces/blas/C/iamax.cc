@@ -11,4 +11,12 @@ ULMBLAS(idamax)(const int       n,
     return ulmBLAS::iamax(n, x, incX);
 }
 
+int
+CBLAS(idamax)(const int       n,
+              const double    *x,
+              const int       incX)
+{
+    return ulmBLAS::iamax(n, x, incX);
+}
+
 } // extern "C"

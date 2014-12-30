@@ -18,38 +18,17 @@
 extern "C" {
 
 void
-ULMBLAS(dsymv)(enum UpLo     upLo,
-               int           n,
-               double        alpha,
-               const double  *A,
-               int           ldA,
-               const double  *x,
-               int           incX,
-               double        beta,
-               double        *y,
-               int           incY)
+ULMBLAS(dsymv)(enum CBLAS_UPLO  upLo,
+               int              n,
+               double           alpha,
+               const double     *A,
+               int              ldA,
+               const double     *x,
+               int              incX,
+               double           beta,
+               double           *y,
+               int              incY)
 {
-
-//
-//  Test the input parameters
-//
-    int info = 0;
-    if (upLo!=Upper && upLo!=Lower) {
-        info = 1;
-    } else if (n<0) {
-        info = 2;
-    } else if (ldA<std::max(1,n)) {
-        info = 5;
-    } else if (incX==0) {
-        info = 7;
-    } else if (incY==0) {
-        info = 10;
-    }
-
-    if (info!=0) {
-        ULMBLAS(xerbla)("DSYMV ", &info);
-    }
-
 #ifndef SCATTER
 //
 //  Start the operations.
@@ -60,7 +39,7 @@ ULMBLAS(dsymv)(enum UpLo     upLo,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    if (upLo==Lower) {
+    if (upLo==CblasLower) {
         ulmBLAS::sylmv(n, alpha, A, 1, ldA, x, incX, beta, y, incY);
     } else {
         ulmBLAS::sylmv(n, alpha, A, ldA, 1, x, incX, beta, y, incY);
@@ -82,7 +61,7 @@ ULMBLAS(dsymv)(enum UpLo     upLo,
 //
 //      Start the operations.
 //
-    if (upLo==Lower) {
+    if (upLo==CblasLower) {
         ulmBLAS::sylmv(n, alpha,
                        A_, SCATTER_INCROWA, ldA*SCATTER_INCCOLA,
                        x_, incX*SCATTER_INCX,
@@ -104,6 +83,52 @@ ULMBLAS(dsymv)(enum UpLo     upLo,
     delete [] x_;
     delete [] y_;
 #endif
+}
+
+void
+CBLAS(dsymv)(enum CBLAS_ORDER  order,
+             enum CBLAS_UPLO   upLo,
+             int               n,
+             double            alpha,
+             const double      *A,
+             int               ldA,
+             const double      *x,
+             int               incX,
+             double            beta,
+             double            *y,
+             int               incY)
+{
+//
+//  Test the input parameters
+//
+    int info = 0;
+    if (order!=CblasColMajor && order!=CblasRowMajor) {
+        info = 1;
+    } else if (upLo!=CblasUpper && upLo!=CblasLower) {
+        info = 2;
+    } else if (n<0) {
+        info = 3;
+    } else if (ldA<std::max(1,n)) {
+        info = 6;
+    } else if (incX==0) {
+        info = 8;
+    } else if (incY==0) {
+        info = 11;
+    }
+
+    if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
+        CBLAS(xerbla)(info, "cblas_dsymv", "... bla bla ...");
+    }
+
+    if (order==CblasColMajor) {
+        ULMBLAS(dsymv)(upLo, n, alpha, A, ldA, x, incX, beta, y, incY);
+    } else {
+        upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
+        ULMBLAS(dsymv)(upLo, n, alpha, A, ldA, x, incX, beta, y, incY);
+    }
 }
 
 } // extern "C"

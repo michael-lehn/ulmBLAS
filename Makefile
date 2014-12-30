@@ -20,8 +20,13 @@ clapack:
 atllapack:
 	$(MAKE) -C interfaces/lapack/C atl
 
-check:
+check_f77blas:
 	$(MAKE) -C test/F77
+
+check_cblas:
+	$(MAKE) -C test/C
+
+check: check_f77blas check_cblas
 
 bench: atlblas atllapack
 	$(MAKE) -C bench
@@ -36,3 +41,4 @@ clean:
 	$(MAKE) -C bench clean
 	$(MAKE) -C refblas clean
 	$(MAKE) -C test/F77 clean
+	$(MAKE) -C test/C clean

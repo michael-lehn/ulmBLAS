@@ -4,9 +4,9 @@
 extern "C" {
 
 void
-ULMBLAS(xerbla)(const char rout[6], const int *info)
+CBLAS(xerbla)(int info, const char *rout, const char *form, ...)
 {
-    fprintf(stderr, "Parameter %d to routine %s was incorrect\n", *info, rout);
+    fprintf(stderr, "Parameter %d to routine %s was incorrect\n", info, rout);
 }
 
 } // extern "C"

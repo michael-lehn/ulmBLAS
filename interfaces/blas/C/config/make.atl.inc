@@ -1,7 +1,8 @@
 CONFIG  = atl
 
 
-CBLAS_PREFIX        = $(shell echo $(CONFIG) | tr "a-z" "A-Z")_
+CBLAS_PREFIX        = cblas_
+ULMBLAS_PREFIX      = ATL_
 CBLAS_LIB_NAME      = lib$(CONFIG)blas.a
 CBLAS_HEADER_NAME   = $(CONFIG)blas.h
 CBLAS_INCLUDE_GUARD = ULMBLAS_$(shell echo $(CONFIG) | tr "a-z" "A-Z")BLAS_H

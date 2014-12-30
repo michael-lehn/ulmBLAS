@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <interfaces/blas/C/transpose.h>
 #include <interfaces/blas/C/xerbla.h>
 #include <ulmblas/level3/trlmm.h>
 #include <ulmblas/level3/trumm.h>
@@ -11,59 +12,22 @@
 extern "C" {
 
 void
-ULMBLAS(dtrmm)(const enum Side  side,
-               const enum UpLo  upLo,
-               const enum Trans transA,
-               const enum Diag  diag,
-               const int        m,
-               const int        n,
-               const double     alpha,
-               const double     *A,
-               const int        ldA,
-               double           *B,
-               const int        ldB)
+ULMBLAS(dtrmm)(enum CBLAS_SIDE      side,
+               enum CBLAS_UPLO      upLo,
+               enum CBLAS_TRANSPOSE transA,
+               enum CBLAS_DIAG      diag,
+               int                  m,
+               int                  n,
+               double               alpha,
+               const double         *A,
+               int                  ldA,
+               double               *B,
+               int                  ldB)
 {
-//
-//  Dereference scalar parameters
-//
-    bool left     = (side==Left);
-    bool lower    = (upLo==Lower);
-    bool trans    = (transA==Trans || transA==ConjTrans);
-    bool unitDiag = (diag==Unit);
-
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
-    int numRowsA = (left) ? m : n;
-
-//
-//  Test the input parameters
-//
-    int info = 0;
-
-    if (side!=Left && side!=Right) {
-        info = 1;
-    } else if (upLo!=Lower && upLo!=Upper) {
-        info = 2;
-    } else if (transA!=NoTrans && transA!=Trans
-            && transA!=Conj && transA!=ConjTrans)
-    {
-        info = 3;
-    } else if (diag!=Unit && diag!=NonUnit) {
-        info = 4;
-    } else if (m<0) {
-        info = 5;
-    } else if (n<0) {
-        info = 6;
-    } else if (ldA<std::max(1,numRowsA)) {
-        info = 9;
-    } else if (ldB<std::max(1,m)) {
-        info = 11;
-    }
-
-    if (info!=0) {
-        ULMBLAS(xerbla)("DTRMM ", &info);
-    }
+    bool left     = (side==CblasLeft);
+    bool lower    = (upLo==CblasLower);
+    bool trans    = (transA==CblasTrans || transA==CblasConjTrans);
+    bool unitDiag = (diag==CblasUnit);
 
 //
 //  Start the operations.
@@ -96,6 +60,81 @@ ULMBLAS(dtrmm)(const enum Side  side,
                 ulmBLAS::trumm(n, m, alpha, unitDiag, A, 1, ldA, B, ldB, 1);
             }
         }
+    }
+}
+
+void
+CBLAS(dtrmm)(enum CBLAS_ORDER     order,
+             enum CBLAS_SIDE      side,
+             enum CBLAS_UPLO      upLo,
+             enum CBLAS_TRANSPOSE transA,
+             enum CBLAS_DIAG      diag,
+             int                  m,
+             int                  n,
+             double               alpha,
+             const double         *A,
+             int                  ldA,
+             double               *B,
+             const int            ldB)
+{
+    bool left     = (side==CblasLeft);
+
+//
+//  Set  numRowsA and numRowsB as the number of rows of A and B
+//
+    int numRowsA = (left) ? m : n;
+
+//
+//  Test the input parameters
+//
+    int info = 0;
+
+    if (order!=CblasColMajor && order!=CblasRowMajor) {
+        info = 1;
+    } else if (side!=CblasLeft && side!=CblasRight) {
+        info = 2;
+    } else if (upLo!=CblasLower && upLo!=CblasUpper) {
+        info = 3;
+    } else if (transA!=CblasNoTrans && transA!=CblasTrans
+            && transA!=AtlasConj && transA!=CblasConjTrans)
+    {
+        info = 4;
+    } else if (diag!=CblasUnit && diag!=CblasNonUnit) {
+        info = 5;
+    } else {
+        if (order==CblasColMajor) {
+            if (m<0) {
+                info = 6;
+            } else if (n<0) {
+                info = 7;
+            } else if (ldA<std::max(1,numRowsA)) {
+                info = 10;
+            } else if (ldB<std::max(1,m)) {
+                info = 12;
+            }
+        } else {
+            if (n<0) {
+                info = 6;
+            } else if (m<0) {
+                info = 7;
+            } else if (ldA<std::max(1,numRowsA)) {
+                info = 10;
+            } else if (ldB<std::max(1,n)) {
+                info = 12;
+            }
+        }
+    }
+
+    if (info!=0) {
+        CBLAS(xerbla)(info, "cblas_dtrmm", "");
+    }
+
+    if (order==CblasColMajor) {
+        ULMBLAS(dtrmm)(side, upLo, transA, diag, m, n, alpha, A, ldA, B, ldB);
+    } else {
+        side   = (side==CblasLeft)  ? CblasRight : CblasLeft;
+        upLo   = (upLo==CblasUpper) ? CblasLower : CblasUpper;
+        ULMBLAS(dtrmm)(side, upLo, transA, diag, n, m, alpha, A, ldA, B, ldB);
     }
 }
 

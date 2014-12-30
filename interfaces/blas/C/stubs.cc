@@ -1,72 +1,77 @@
 extern "C" {
 
 void
-ULMBLAS(dgbmv)()
+CBLAS(dzasum)()
 {
 }
 
 void
-ULMBLAS(dger2)()
+CBLAS(dznrm2)()
 {
 }
 
 void
-ULMBLAS(dsbmv)()
+CBLAS(dger2)()
 {
 }
 
 void
-ULMBLAS(dspmv)()
+CBLAS(dsbmv)()
 {
 }
 
 void
-ULMBLAS(dspr2)()
+CBLAS(dspmv)()
 {
 }
 
 void
-ULMBLAS(dspr)()
+CBLAS(dspr2)()
 {
 }
 
 void
-ULMBLAS(dsyr2)()
+CBLAS(dspr)()
 {
 }
 
 void
-ULMBLAS(dsyr)()
+CBLAS(dsyr2)()
 {
 }
 
 void
-ULMBLAS(dtbmv)()
+CBLAS(dsyr)()
 {
 }
 
 void
-ULMBLAS(dtbsv)()
+CBLAS(dtbmv)()
 {
 }
 
 void
-ULMBLAS(dtpmv)()
+CBLAS(dtbsv)()
 {
 }
 
 void
-ULMBLAS(dtpsv)()
+CBLAS(dtpmv)()
 {
 }
 
 void
-ULMBLAS(drotm)()
+CBLAS(dtpsv)()
 {
 }
 
 void
-ULMBLAS(drotmg)()
+CBLAS(drotm)()
+{
+}
+
+void
+CBLAS(drotmg)()
 {
 }
 

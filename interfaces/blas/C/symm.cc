@@ -11,54 +11,21 @@
 extern "C" {
 
 void
-ULMBLAS(dsymm)(const enum Side  side,
-               const enum UpLo  upLo,
-               const int        m,
-               const int        n,
-               const double     alpha,
+ULMBLAS(dsymm)(enum CBLAS_SIDE  side,
+               enum CBLAS_UPLO  upLo,
+               int              m,
+               int              n,
+               double           alpha,
                const double     *A,
-               const int        ldA,
+               int              ldA,
                double           *B,
-               const int        ldB,
-               const double     beta,
+               int              ldB,
+               double           beta,
                double           *C,
-               const int        ldC)
+               int              ldC)
 {
-//
-//  Dereference scalar parameters
-//
-    bool left     = (side==Left);
-    bool lower    = (upLo==Lower);
-
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
-    int numRowsA = (left) ? m : n;
-
-//
-//  Test the input parameters
-//
-    int info = 0;
-
-    if (side!=Left && side!=Right) {
-        info = 1;
-    } else if (upLo!=Lower && upLo!=Upper) {
-        info = 2;
-    } else if (m<0) {
-        info = 3;
-    } else if (n<0) {
-        info = 4;
-    } else if (ldA<std::max(1,numRowsA)) {
-        info = 7;
-    } else if (ldB<std::max(1,m)) {
-        info = 9;
-    } else if (ldC<std::max(1,m)) {
-        info = 12;
-    }
-
-    if (info!=0) {
-        ULMBLAS(xerbla)("DSYMM ", &info);
-    }
+    bool left     = (side==CblasLeft);
+    bool lower    = (upLo==CblasLower);
 
 //
 //  Start the operations.
@@ -75,6 +42,80 @@ ULMBLAS(dsymm)(const enum Side  side,
         } else {
             ulmBLAS::sylmm(n, m, alpha, A, ldA, 1, B, ldB, 1, beta, C, ldC, 1);
         }
+    }
+}
+
+void
+CBLAS(dsymm)(enum CBLAS_ORDER  order,
+             enum CBLAS_SIDE   side,
+             enum CBLAS_UPLO   upLo,
+             int               m,
+             int               n,
+             double            alpha,
+             const double      *A,
+             int               ldA,
+             double            *B,
+             int               ldB,
+             double            beta,
+             double            *C,
+             int               ldC)
+{
+    bool left = (side==CblasLeft);
+
+//
+//  Set  numRowsA and numRowsB as the number of rows of A and B
+//
+    int  numRowsA = (left) ? m : n;
+
+//
+//  Test the input parameters
+//
+    int info = 0;
+
+    if (order!=CblasColMajor && order!=CblasRowMajor) {
+        info = 1;
+    } else if (side!=CblasLeft && side!=CblasRight) {
+        info = 2;
+    } else if (upLo!=CblasLower && upLo!=CblasUpper) {
+        info = 3;
+    } else {
+        if (order==CblasColMajor) {
+            if (m<0) {
+                info = 4;
+            } else if (n<0) {
+                info = 5;
+            } else if (ldA<std::max(1,numRowsA)) {
+                info = 8;
+            } else if (ldB<std::max(1,m)) {
+                info = 10;
+            } else if (ldC<std::max(1,m)) {
+                info = 13;
+            }
+        } else {
+            if (n<0) {
+                info = 4;
+            } else if (m<0) {
+                info = 5;
+            } else if (ldA<std::max(1,numRowsA)) {
+                info = 8;
+            } else if (ldB<std::max(1,n)) {
+                info = 10;
+            } else if (ldC<std::max(1,n)) {
+                info = 13;
+            }
+        }
+    }
+
+    if (info!=0) {
+        CBLAS(xerbla)(info, "cblas_dsymm", "");
+    }
+
+    if (order==CblasColMajor) {
+        ULMBLAS(dsymm)(side, upLo, m, n, alpha, A, ldA, B, ldB, beta, C, ldC);
+    } else {
+        side = (side==CblasLeft) ? CblasRight : CblasLeft;
+        upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
+        ULMBLAS(dsymm)(side, upLo, n, m, alpha, A, ldA, B, ldB, beta, C, ldC);
     }
 }
 

@@ -10,241 +10,574 @@ VERBOSE(#ifdef) __cplusplus
 extern "C" {
 VERBOSE(#endif)
 
-//
-//  Constants for Trans, Side, UpLo and Diag are compatible with CBLAS and ATLAS
-//
-enum Trans {
-    NoTrans   = 111,
-    Trans     = 112,
-    ConjTrans = 113,
-    Conj      = 114
-};
-
-enum Side {
-    Left    = 141,
-    Right   = 142
-};
-
-enum UpLo {
-    Upper   = 121,
-    Lower   = 122
-};
-
-enum Diag {
-    NonUnit = 131,
-    Unit    = 132
-};
-
-enum Order {
-    RowMajor = 101,
-    ColMajor = 102
-};
 
 //
-//  Declaration of BLAS functions currently implemented in ulmBLAS
+//  CBLAS/ATLAS Constants
+//
+enum CBLAS_ORDER {
+    CblasRowMajor = 101,
+    CblasColMajor = 102
+};
+
+enum CBLAS_TRANSPOSE {
+    CblasNoTrans   = 111,
+    CblasTrans     = 112,
+    CblasConjTrans = 113,
+    AtlasConj      = 114
+};
+
+enum CBLAS_UPLO {
+    CblasUpper = 121,
+    CblasLower = 122
+};
+
+enum CBLAS_DIAG {
+    CblasNonUnit = 131,
+    CblasUnit    = 132
+};
+
+enum CBLAS_SIDE {
+    CblasLeft  = 141,
+    CblasRight = 142
+};
+
+//
+//  Declaration of CBLAS functions currently implemented in ulmBLAS
 //
 
+//
+//  Level 1
+//
 double
-ULMBLAS(dasum)(const int     n,
-            const double  *x,
-            const int     incX);
+CBLAS(dasum)(int           n,
+             const double  *x,
+             int           incX);
 
 void
-ULMBLAS(daxpy)(const int     n,
-            const double  alpha,
+CBLAS(daxpy)(int           n,
+             double        alpha,
+             const double  *x,
+             int           incX,
+             double        *y,
+             int           incY);
+
+void
+CBLAS(dcopy)(int          n,
+             const double *x,
+             int          incX,
+             double       *y,
+             int          incY);
+
+double
+CBLAS(ddot)(int           n,
             const double  *x,
-            const int     incX,
-            double        *y,
+            int           incX,
+            const double  *y,
             int           incY);
 
-void
-ULMBLAS(dcopy)(const int    n,
-            const double *x,
-            const int    incX,
-            double       *y,
-            const int    incY);
-
-void
-ULMBLAS(dscal)(const int    n,
-            const double alpha,
-            double       *x,
-            const int    incX);
-
-void
-ULMBLAS(dswap)(const int n,
-            double    *x,
-            const int incX,
-            double    *y,
-            const int incY);
+int
+CBLAS(idamax)(int           n,
+              const double  *x,
+              int           incX);
 
 double
-ULMBLAS(ddot)(const int     n,
-           const double  *x,
-           const int     incX,
-           const double  *y,
-           const int     incY);
+CBLAS(dnrm2)(int           n,
+             const double  *x,
+             int           incX);
+
+void
+CBLAS(drot)(const int      n,
+            double         *x,
+            const int      incX,
+            double         *y,
+            const int      incY,
+            const double   c,
+            const double   s);
+
+void
+CBLAS(drotg)(double *a,
+             double *b,
+             double *c,
+             double *s);
+
+void
+CBLAS(dscal)(const int    n,
+             const double alpha,
+             double       *x,
+             const int    incX);
+
+void
+CBLAS(dswap)(const int n,
+             double    *x,
+             const int incX,
+             double    *y,
+             const int incY);
+
+//
+//  Level 2
+//
+
+void
+CBLAS(dgbmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             int                   m,
+             int                   n,
+             int                   kl,
+             int                   ku,
+             double                alpha,
+             const double          *A,
+             int                   ldA,
+             const double          *x,
+             int                   incX,
+             double                beta,
+             double                *y,
+             int                   incY);
+
+void
+CBLAS(dgemv)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             int                   m,
+             int                   n,
+             double                alpha,
+             const double          *A,
+             int                   ldA,
+             const double          *x,
+             int                   incX,
+             double                beta,
+             double                *y,
+             int                   incY);
+
+void
+CBLAS(dger)(enum CBLAS_ORDER  order,
+            int               m,
+            int               n,
+            double            alpha,
+            const double      *x,
+            int               incX,
+            const double      *y,
+            int               incY,
+            double            *A,
+            int               ldA);
+
+void
+CBLAS(dsymv)(enum CBLAS_ORDER  order,
+             enum CBLAS_UPLO   upLo,
+             int               n,
+             double            alpha,
+             const double      *A,
+             int               ldA,
+             const double      *x,
+             int               incX,
+             double            beta,
+             double            *y,
+             int               incY);
+
+void
+CBLAS(dtrmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             const double          *A,
+             int                   ldA,
+             double                *x,
+             int                   incX);
+
+void
+CBLAS(dtrsv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             const double          *A,
+             int                   ldA,
+             double                *x,
+             int                   incX);
+
+//
+//  Level 3
+//
+void
+CBLAS(dgemm)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             enum CBLAS_TRANSPOSE  transB,
+             int                   m,
+             int                   n,
+             int                   k,
+             double                alpha,
+             const double          *A,
+             int                   ldA,
+             const double          *B,
+             int                   ldB,
+             double                beta,
+             double                *C,
+             int                   ldC);
+
+void
+CBLAS(dsymm)(enum CBLAS_ORDER  order,
+             enum CBLAS_SIDE   side,
+             enum CBLAS_UPLO   upLo,
+             int               m,
+             int               n,
+             double            alpha,
+             const double      *A,
+             int               ldA,
+             double            *B,
+             int               ldB,
+             double            beta,
+             double            *C,
+             int               ldC);
+
+void
+CBLAS(dsyr2k)(enum CBLAS_ORDER      order,
+              enum CBLAS_UPLO       upLo,
+              enum CBLAS_TRANSPOSE  trans,
+              int                   n,
+              int                   k,
+              double                alpha,
+              const double          *A,
+              int                   ldA,
+              const double          *B,
+              int                   ldB,
+              double                beta,
+              double                *C,
+              int                   ldC);
+
+void
+CBLAS(dsyrk)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             int                   n,
+             int                   k,
+             double                alpha,
+             const double          *A,
+             int                   ldA,
+             double                beta,
+             double                *C,
+             int                   ldC);
+
+void
+CBLAS(dtrmm)(enum CBLAS_ORDER     order,
+             enum CBLAS_SIDE      side,
+             enum CBLAS_UPLO      upLo,
+             enum CBLAS_TRANSPOSE transA,
+             enum CBLAS_DIAG      diag,
+             int                  m,
+             int                  n,
+             double               alpha,
+             const double         *A,
+             int                  ldA,
+             double               *B,
+             const int            ldB);
+
+void
+CBLAS(dtrsm)(enum CBLAS_ORDER      order,
+             enum CBLAS_SIDE       side,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  transA,
+             enum CBLAS_DIAG       diag,
+             int                   m,
+             int                   n,
+             double                alpha,
+             const double          *A,
+             int                   ldA,
+             double                *B,
+             int                   ldB);
+
+//
+//  Declaration of CBLAS functions currently NOT implemented in ulmBLAS
+//
+double
+CBLAS(dznrm2)(int N, const void *X, int incX);
+
+double
+CBLAS(dzasum)(int N, const void *X, int incX);
+
+void
+CBLAS(dsyr)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
+            const int N, const double alpha, const double *X,
+            const int incX, double *A, const int lda);
+
+void
+CBLAS(dsyr2)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
+             const int N, const double alpha, const double *X,
+             const int incX, const double *Y, const int incY, double *A,
+             const int lda);
+
+void
+CBLAS(dtbmv)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
+             const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_DIAG Diag,
+             const int N, const int K, const double *A, const int lda,
+             double *X, const int incX);
+
+void
+CBLAS(dtbsv)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
+             const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_DIAG Diag,
+             const int N, const int K, const double *A, const int lda,
+             double *X, const int incX);
+
+void
+CBLAS(dsbmv)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
+             const int N, const int K, const double alpha, const double *A,
+             const int lda, const double *X, const int incX,
+             const double beta, double *Y, const int incY);
+
+void
+CBLAS(dspmv)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
+             const int N, const double alpha, const double *Ap,
+             const double *X, const int incX,
+             const double beta, double *Y, const int incY);
+
+void
+CBLAS(dtpmv)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
+             const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_DIAG Diag,
+             const int N, const double *Ap, double *X, const int incX);
+
+void
+CBLAS(dtpsv)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
+             const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_DIAG Diag,
+             const int N, const double *Ap, double *X, const int incX);
+
+void
+CBLAS(dspr)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
+            const int N, const double alpha, const double *X,
+            const int incX, double *Ap);
+
+void
+CBLAS(dspr2)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
+             const int N, const double alpha, const double *X,
+             const int incX, const double *Y, const int incY, double *A);
+
+//
+//  Level 1
+//
+double
+ULMBLAS(dasum)(int     n,
+               const double  *x,
+               int     incX);
+
+void
+ULMBLAS(daxpy)(int           n,
+               double        alpha,
+               const double  *x,
+               int           incX,
+               double        *y,
+               int           incY);
+
+void
+ULMBLAS(dcopy)(int          n,
+               const double *x,
+               int          incX,
+               double       *y,
+               int          incY);
+
+double
+ULMBLAS(ddot)(int           n,
+              const double  *x,
+              int           incX,
+              const double  *y,
+              int           incY);
 
 int
-ULMBLAS(idamax)(const int       n,
-             const double    *x,
-             const int       incX);
+ULMBLAS(idamax)(int           n,
+                const double  *x,
+                int           incX);
 
 double
-ULMBLAS(dnrm2)(const int     n,
-            const double  *x,
-            const int     incX);
+ULMBLAS(dnrm2)(int           n,
+               const double  *x,
+               int           incX);
 
 void
-ULMBLAS(drot)(const int      n,
-           double         *x,
-           const int      incX,
-           double         *y,
-           const int      incY,
-           const double   c,
-           const double   s);
+ULMBLAS(drot)(int      n,
+              double   *x,
+              int      incX,
+              double   *y,
+              int      incY,
+              double   c,
+              double   s);
 
 void
 ULMBLAS(drotg)(double *a,
-            double *b,
-            double *c,
-            double *s);
+               double *b,
+               double *c,
+               double *s);
 
 void
-ULMBLAS(dger)(const int         m,
-           const int         n,
-           const double      alpha,
-           const double      *x,
-           const int         incX,
-           const double      *y,
-           const int         incY,
-           double            *A,
-           const int         ldA);
+ULMBLAS(dscal)(const int    n,
+               const double alpha,
+               double       *x,
+               const int    incX);
 
 void
-ULMBLAS(dgemv)(enum Trans       transA,
-            int              m,
-            int              n,
-            double           alpha,
-            const double     *A,
-            int              ldA,
-            const double     *x,
-            int              incX,
-            double           beta,
-            double           *y,
-            int              incY);
+ULMBLAS(dswap)(const int n,
+               double    *x,
+               const int incX,
+               double    *y,
+               const int incY);
+
+//
+//  Level 2
+//
 
 void
-ULMBLAS(dsymv)(enum UpLo     upLo,
-            int           n,
-            double        alpha,
-            const double  *A,
-            int           ldA,
-            const double  *x,
-            int           incX,
-            double        beta,
-            double        *y,
-            int           incY);
+ULMBLAS(dgbmv)(enum CBLAS_TRANSPOSE  transA,
+               int                   m,
+               int                   n,
+               int                   kl,
+               int                   ku,
+               double                alpha,
+               const double          *A,
+               int                   ldA,
+               const double          *x,
+               int                   incX,
+               double                beta,
+               double                *y,
+               int                   incY);
 
 void
-ULMBLAS(dtrmv)(enum UpLo     upLo,
-            enum Trans    trans,
-            enum Diag     diag,
-            int           n,
-            const double  *A,
-            int           ldA,
-            double        *x,
-            int           incX);
+ULMBLAS(dgemv)(enum CBLAS_TRANSPOSE  transA,
+               int                   m,
+               int                   n,
+               double                alpha,
+               const double          *A,
+               int                   ldA,
+               const double          *x,
+               int                   incX,
+               double                beta,
+               double                *y,
+               int                   incY);
 
 void
-ULMBLAS(dtrsv)(enum UpLo     upLo,
-            enum Trans    trans,
-            enum Diag     diag,
-            int           n,
-            const double  *A,
-            int           ldA,
-            double        *x,
-            int           incX);
+ULMBLAS(dger)(int           m,
+              int           n,
+              double        alpha,
+              const double  *x,
+              int           incX,
+              const double  *y,
+              int           incY,
+              double        *A,
+              int           ldA);
 
 void
-ULMBLAS(dgemm)(const enum Trans  transA,
-            const enum Trans  transB,
-            const int         m,
-            const int         n,
-            const int         k,
-            const double      alpha,
-            const double      *A,
-            const int         ldA,
-            const double      *B,
-            const int         ldB,
-            const double      beta,
-            double            *C,
-            const int         ldC);
+ULMBLAS(dsymv)(enum CBLAS_UPLO  upLo,
+               int              n,
+               double           alpha,
+               const double     *A,
+               int              ldA,
+               const double     *x,
+               int              incX,
+               double           beta,
+               double           *y,
+               int              incY);
 
 void
-ULMBLAS(dsymm)(const enum Side  side,
-            const enum UpLo  upLo,
-            const int        m,
-            const int        n,
-            const double     alpha,
-            const double     *A,
-            const int        ldA,
-            double           *B,
-            const int        ldB,
-            const double     beta,
-            double           *C,
-            const int        ldC);
+ULMBLAS(dtrmv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               const double          *A,
+               int                   ldA,
+               double                *x,
+               int                   incX);
 
 void
-ULMBLAS(dtrmm)(const enum Side  side,
-            const enum UpLo  upLo,
-            const enum Trans transA,
-            const enum Diag  diag,
-            const int        m,
-            const int        n,
-            const double     alpha,
-            const double     *A,
-            const int        ldA,
-            double           *B,
-            const int        ldB);
+ULMBLAS(dtrsv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               const double          *A,
+               int                   ldA,
+               double                *x,
+               int                   incX);
+
+//
+//  Level 3
+//
+void
+ULMBLAS(dgemm)(enum CBLAS_TRANSPOSE  transA,
+               enum CBLAS_TRANSPOSE  transB,
+               int                   m,
+               int                   n,
+               int                   k,
+               double                alpha,
+               const double          *A,
+               int                   ldA,
+               const double          *B,
+               int                   ldB,
+               double                beta,
+               double                *C,
+               int                   ldC);
 
 void
-ULMBLAS(dtrsm)(const enum Side  side,
-            const enum UpLo  upLo,
-            const enum Trans transA,
-            const enum Diag  diag,
-            const int        m,
-            const int        n,
-            const double     alpha,
-            const double     *A,
-            const int        ldA,
-            double           *B,
-            const int        ldB);
+ULMBLAS(dsymm)(enum CBLAS_SIDE  side,
+               enum CBLAS_UPLO  upLo,
+               int              m,
+               int              n,
+               double           alpha,
+               const double     *A,
+               int              ldA,
+               double           *B,
+               int              ldB,
+               double           beta,
+               double           *C,
+               int              ldC);
 
 void
-ULMBLAS(dsyrk)(enum UpLo        upLo,
-            enum Trans       trans,
-            int              n,
-            int              k,
-            double           alpha,
-            const double     *A,
-            int              ldA,
-            double           beta,
-            double           *C,
-            int              ldC);
+ULMBLAS(dsyr2k)(enum CBLAS_UPLO       upLo,
+                enum CBLAS_TRANSPOSE  trans,
+                int                   n,
+                int                   k,
+                double                alpha,
+                const double          *A,
+                int                   ldA,
+                const double          *B,
+                int                   ldB,
+                double                beta,
+                double                *C,
+                int                   ldC);
 
 void
-ULMBLAS(dsyr2k)(enum UpLo        upLo,
-             enum Trans       trans,
-             int              n,
-             int              k,
-             double           alpha,
-             const double     *A,
-             int              ldA,
-             const double     *B,
-             int              ldB,
-             double           beta,
-             double           *C,
-             int              ldC);
+ULMBLAS(dsyrk)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               int                   n,
+               int                   k,
+               double                alpha,
+               const double          *A,
+               int                   ldA,
+               double                beta,
+               double                *C,
+               int                   ldC);
+
+void
+ULMBLAS(dtrmm)(enum CBLAS_SIDE      side,
+               enum CBLAS_UPLO      upLo,
+               enum CBLAS_TRANSPOSE transA,
+               enum CBLAS_DIAG      diag,
+               int                  m,
+               int                  n,
+               double               alpha,
+               const double         *A,
+               int                  ldA,
+               double               *B,
+               int                  ldB);
+
+void
+ULMBLAS(dtrsm)(enum CBLAS_SIDE       side,
+               enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  transA,
+               enum CBLAS_DIAG       diag,
+               int                   m,
+               int                   n,
+               double                alpha,
+               const double          *A,
+               int                   ldA,
+               double                *B,
+               int                   ldB);
+
+//
+//  Functions NOT implemented
+//
 
 VERBOSE(#ifdef) __cplusplus
 } // extern "C"

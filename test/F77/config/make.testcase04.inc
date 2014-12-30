@@ -1,5 +1,3 @@
-CONFIG  = testcase04
-
 F77BLAS_SUFFIX        = _
 F77BLAS_LIB_NAME      = lib$(CONFIG)blas.a
 F77BLAS_HEADER_NAME   = $(CONFIG)blas.h

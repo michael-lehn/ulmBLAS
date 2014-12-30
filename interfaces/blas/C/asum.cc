@@ -4,9 +4,17 @@
 extern "C" {
 
 double
-ULMBLAS(dasum)(const int     n,
+ULMBLAS(dasum)(int           n,
                const double  *x,
-               const int     incX)
+               int           incX)
+{
+    return ulmBLAS::asum(n, x, incX);
+}
+
+double
+CBLAS(dasum)(int           n,
+             const double  *x,
+             int           incX)
 {
     return ulmBLAS::asum(n, x, incX);
 }

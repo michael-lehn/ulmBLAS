@@ -18,44 +18,16 @@
 extern "C" {
 
 void
-ULMBLAS(dger)(const int         m,
-              const int         n,
-              const double      alpha,
-              const double      *x,
-              const int         incX,
-              const double      *y,
-              const int         incY,
-              double            *A,
-              const int         ldA)
+ULMBLAS(dger)(int           m,
+              int           n,
+              double        alpha,
+              const double  *x,
+              int           incX,
+              const double  *y,
+              int           incY,
+              double        *A,
+              int           ldA)
 {
-
-//
-//  Test the input parameters
-//
-    int info = 0;
-    if (m<0) {
-        info = 1;
-    } else if (n<0) {
-        info = 2;
-    } else if (incX==0) {
-        info = 5;
-    } else if (incY==0) {
-        info = 7;
-    } else if (ldA<std::max(1,m)) {
-        info = 9;
-    }
-
-    if (info!=0) {
-        ULMBLAS(xerbla)("DGER  ", &info);
-    }
-    if (incX<0) {
-        x -= incX*(m-1);
-    }
-    if (incY<0) {
-        y -= incY*(n-1);
-    }
-
-
 #ifndef SCATTER
 //
 //  Start the operations.
@@ -94,6 +66,83 @@ ULMBLAS(dger)(const int         m,
     delete [] y_;
     delete [] A_;
 #endif
+
+}
+
+void
+CBLAS(dger)(enum CBLAS_ORDER  order,
+            int               m,
+            int               n,
+            double            alpha,
+            const double      *x,
+            int               incX,
+            const double      *y,
+            int               incY,
+            double            *A,
+            int               ldA)
+{
+//
+//  Test the input parameters
+//
+    int ldAmin = (order==CblasColMajor) ? std::max(1,m) : std::max(1,n);
+    int info = 0;
+    if (order!=CblasColMajor && order!=CblasRowMajor) {
+        info = 1;
+    } else {
+        if (order==CblasColMajor) {
+            if (m<0) {
+                info = 2;
+            } else if (n<0) {
+                info = 3;
+            }
+        } else {
+            if (n<0) {
+                info = 2;
+            } else if (m<0) {
+                info = 3;
+            }
+        }
+    }
+    if (info==0) {
+        if (order==CblasColMajor) {
+            if (incX==0) {
+                info = 6;
+            } else if (incY==0) {
+                info = 8;
+            }
+        } else {
+            if (incY==0) {
+                info = 6;
+            } else if (incX==0) {
+                info = 8;
+            }
+        }
+    }
+    if (info==0) {
+        if (ldA<ldAmin) {
+            info = 10;
+        }
+    }
+
+    if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
+        CBLAS(xerbla)(info, "cblas_dger", "... bla bla ...");
+    }
+    if (incX<0) {
+        x -= incX*(m-1);
+    }
+    if (incY<0) {
+        y -= incY*(n-1);
+    }
+
+
+    if (order==CblasColMajor) {
+        ULMBLAS(dger)(m, n, alpha, x, incX, y, incY, A, ldA);
+    } else {
+        ULMBLAS(dger)(n, m, alpha, y, incY, x, incX, A, ldA);
+    }
 
 }
 

@@ -26,6 +26,7 @@ dotu(IndexType      n,
 {
     if (n<=0) {
         result = 0;
+        return;
     }
 
     if (incX!=1 || incY!=1) {
@@ -72,9 +73,7 @@ dotu(IndexType      n,
         }
 
     } else {
-        result = 0;
         ref::dotu(n, x, incX, y, incY, result);
-        result += result_;
     }
 }
 

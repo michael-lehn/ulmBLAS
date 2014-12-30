@@ -1,5 +1,6 @@
 #include BLAS_HEADER
 #include <algorithm>
+#include <interfaces/blas/C/transpose.h>
 #include <interfaces/blas/C/xerbla.h>
 #include <ulmblas/level1/copy.h>
 #include <ulmblas/level1extensions/gecopy.h>
@@ -18,48 +19,23 @@
 extern "C" {
 
 void
-ULMBLAS(dgemv)(enum Trans       transA,
-               int              m,
-               int              n,
-               double           alpha,
-               const double     *A,
-               int              ldA,
-               const double     *x,
-               int              incX,
-               double           beta,
-               double           *y,
-               int              incY)
+ULMBLAS(dgemv)(enum CBLAS_TRANSPOSE  transA,
+               int                   m,
+               int                   n,
+               double                alpha,
+               const double          *A,
+               int                   ldA,
+               const double          *x,
+               int                   incX,
+               double                beta,
+               double                *y,
+               int                   incY)
 {
-
-//
-//  Test the input parameters
-//
-    int info = 0;
-    if (transA!=NoTrans && transA!=Conj
-     && transA!=Trans && transA!=ConjTrans)
-    {
-        info = 1;
-    } else if (m<0) {
-        info = 2;
-    } else if (n<0) {
-        info = 3;
-    } else if (ldA<std::max(1,m)) {
-        info = 6;
-    } else if (incX==0) {
-        info = 8;
-    } else if (incY==0) {
-        info = 11;
-    }
-
-    if (info!=0) {
-        ULMBLAS(xerbla)("DGEMV ", &info);
-    }
-
 #ifndef SCATTER
 //
 //  Start the operations.
 //
-    if (transA==NoTrans || transA==Conj) {
+    if (transA==CblasNoTrans || transA==AtlasConj) {
         if (incX<0) {
             x -= incX*(n-1);
         }
@@ -77,7 +53,7 @@ ULMBLAS(dgemv)(enum Trans       transA,
         ulmBLAS::gemv(n, m, alpha, A, ldA, 1, x, incX, beta, y, incY);
     }
 #else
-    if (transA==NoTrans || transA==Conj) {
+    if (transA==CblasNoTrans || transA==AtlasConj) {
 //
 //      Scatter operands
 //
@@ -139,6 +115,73 @@ ULMBLAS(dgemv)(enum Trans       transA,
         delete [] y_;
     }
 #endif
+}
+
+void
+CBLAS(dgemv)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             int                   m,
+             int                   n,
+             double                alpha,
+             const double          *A,
+             int                   ldA,
+             const double          *x,
+             int                   incX,
+             double                beta,
+             double                *y,
+             int                   incY)
+{
+//
+//  Test the input parameters
+//
+    int info = 0;
+    if (order!=CblasColMajor && order!=CblasRowMajor) {
+        info = 1;
+    } else if (transA!=CblasNoTrans && transA!=AtlasConj
+            && transA!=CblasTrans && transA!=CblasConjTrans)
+    {
+        info = 2;
+    } else {
+        if (order==CblasColMajor) {
+            if (m<0) {
+                info = 3;
+            } else if (n<0) {
+                info = 4;
+            } else if (ldA<std::max(1,m)) {
+                info = 7;
+            }
+        } else {
+            if (n<0) {
+                info = 3;
+            } else if (m<0) {
+                info = 4;
+            } else if (ldA<std::max(1,n)) {
+                info = 7;
+            }
+        }
+    }
+    if (info==0) {
+        if (incX==0) {
+            info = 9;
+        } else if (incY==0) {
+            info = 12;
+        }
+    }
+
+    if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
+        CBLAS(xerbla)(info, "cblas_dgemv", "... bla bla ...");
+        return;
+    }
+
+    if (order==CblasColMajor) {
+        ULMBLAS(dgemv)(transA, m, n, alpha, A, ldA, x, incX, beta, y, incY);
+    } else {
+        transA = transpose(transA);
+        ULMBLAS(dgemv)(transA, n, m, alpha, A, ldA, x, incX, beta, y, incY);
+    }
 }
 
 } // extern "C"
