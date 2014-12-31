@@ -6,11 +6,6 @@ F77BLAS(dger2)()
 }
 
 void
-F77BLAS(dsbmv)()
-{
-}
-
-void
 F77BLAS(dspmv)()
 {
 }

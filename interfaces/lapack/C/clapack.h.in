@@ -3,8 +3,8 @@
 #undef __cplusplus
 #endif
 
-VERBOSE(#ifndef) CLAPACK
-VERBOSE(#define) CLAPACK 1
+VERBOSE(#ifndef) CLAPACK_H
+VERBOSE(#define) CLAPACK_H 1
 
 VERBOSE(#include) BLAS_HEADER
 
@@ -13,7 +13,7 @@ extern "C" {
 VERBOSE(#endif)
 
 int
-ULMLAPACK(dgetrf)(enum Order  order,
+ULMLAPACK(dgetrf)(enum CBLAS_ORDER  order,
                 int         m,
                 int         n,
                 double      *A,
@@ -33,4 +33,4 @@ VERBOSE(#ifdef) __cplusplus
 } // extern "C"
 VERBOSE(#endif)
 
-VERBOSE(#endif) // CBLAS
+VERBOSE(#endif) // CLAPACK_H

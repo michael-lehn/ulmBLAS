@@ -1,7 +1,8 @@
 TOPDIR = ../..
 include $(TOPDIR)/make.inc
 
-VARIANTS = $(patsubst config/make.%.inc, %, $(wildcard config/make.*.inc))
+VARIANTS         = $(patsubst config/make.%.inc, %, $(wildcard config/make.*.inc))
+F77MAKEFILE_PATH = $(TOPDIR)/interfaces/blas/F77/
 
 all : $(VARIANTS)
 	@echo
@@ -11,6 +12,7 @@ all : $(VARIANTS)
 	@set -e; cd $(TOPDIR); ls -1 F77*.SUMM.*
 
 $(VARIANTS) :
+	make -C $(F77MAKEFILE_PATH) -f Makefile.config $(MAKECMDGOALS) CONFIG_PATH='$(CURDIR)/' CONFIG=$@
 	make -C . -f Makefile.config $(MAKECMDGOALS) CONFIG=$@
 
 .PHONY : clean

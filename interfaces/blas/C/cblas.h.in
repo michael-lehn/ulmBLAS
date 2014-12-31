@@ -45,6 +45,9 @@ enum CBLAS_SIDE {
 //  Declaration of CBLAS functions currently implemented in ulmBLAS
 //
 
+void
+CBLAS(xerbla)(int info, const char *rout, const char *form, ...);
+
 //
 //  Level 1
 //
