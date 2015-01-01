@@ -41,11 +41,6 @@ ULMBLAS(dsyr)()
 }
 
 void
-ULMBLAS(dtbmv)()
-{
-}
-
-void
 ULMBLAS(dtbsv)()
 {
 }
@@ -108,11 +103,6 @@ CBLAS(dsyr2)()
 
 void
 CBLAS(dsyr)()
-{
-}
-
-void
-CBLAS(dtbmv)()
 {
 }
 
