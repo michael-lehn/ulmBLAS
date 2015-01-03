@@ -16,11 +16,6 @@ ULMBLAS(dger2)()
 }
 
 void
-ULMBLAS(dspmv)()
-{
-}
-
-void
 ULMBLAS(dspr2)()
 {
 }
@@ -37,11 +32,6 @@ ULMBLAS(dsyr2)()
 
 void
 ULMBLAS(dsyr)()
-{
-}
-
-void
-ULMBLAS(dtpmv)()
 {
 }
 
@@ -77,11 +67,6 @@ CBLAS(dger2)()
 }
 
 void
-CBLAS(dspmv)()
-{
-}
-
-void
 CBLAS(dspr2)()
 {
 }
@@ -98,11 +83,6 @@ CBLAS(dsyr2)()
 
 void
 CBLAS(dsyr)()
-{
-}
-
-void
-CBLAS(dtpmv)()
 {
 }
 

@@ -1,0 +1,68 @@
+#include <algorithm>
+#include <cctype>
+#include <cmath>
+#include BLAS_HEADER
+#include <interfaces/blas/F77/xerbla.h>
+#include <ulmblas/level2/splmv.h>
+#include <ulmblas/level2/spumv.h>
+
+extern "C" {
+
+void
+F77BLAS(dspmv)(const char     *upLo_,
+               const int      *n_,
+               const double   *alpha_,
+               const double   *AP,
+               const double   *x,
+               const int      *incX_,
+               const double   *beta_,
+               double         *y,
+               const int      *incY_)
+{
+//
+//  Dereference scalar parameters
+//
+    bool lowerA  = (toupper(*upLo_) == 'L');
+    int n        = *n_;
+    double alpha = *alpha_;
+    int incX     = *incX_;
+    double beta  = *beta_;
+    int incY     = *incY_;
+
+//
+//  Test the input parameters
+//
+    int info = 0;
+
+    if (toupper(*upLo_)!='U' && toupper(*upLo_)!='L') {
+        info = 1;
+    } else if (n<0) {
+        info = 2;
+    } else if (incX==0) {
+        info = 6;
+    } else if (incY==0) {
+        info = 9;
+    }
+
+    if (info!=0) {
+        F77BLAS(xerbla)("DSPMV ", &info);
+    }
+
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
+    if (incY<0) {
+        y -= incY*(n-1);
+    }
+
+//
+//  Start the operations.
+//
+    if (lowerA) {
+        ulmBLAS::splmv(n, alpha, AP, x, incX, beta, y, incY);
+    } else {
+        ulmBLAS::spumv(n, alpha, AP, x, incX, beta, y, incY);
+    }
+}
+
+} // extern "C"

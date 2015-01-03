@@ -1,8 +1,3 @@
-F77BLAS_SUFFIX        = _
-F77BLAS_LIB_NAME      = lib$(CONFIG)blas.a
-F77BLAS_HEADER_NAME   = $(CONFIG)blas.h
-F77BLAS_INCLUDE_GUARD = ULMBLAS_$(shell echo $(CONFIG) | tr "a-z" "A-Z")BLAS_H
-
 MC = 8
 KC = 12
 NC = 12
@@ -11,6 +6,12 @@ MR = 4
 NR = 2
 
 SUMMARY_SUFFIX = mc$(MC)_kc$(KC)_nc$(NC)_mr$(MR)_nr$(NR)
+
+F77BLAS_SUFFIX        = _
+F77BLAS_LIB_NAME      = lib$(CONFIG)_$(SUMMARY_SUFFIX)_blas.a
+F77BLAS_HEADER_NAME   = $(CONFIG)blas.h
+F77BLAS_INCLUDE_GUARD = ULMBLAS_$(shell echo $(CONFIG) | tr "a-z" "A-Z")BLAS_H
+
 
 CXXFLAGS += -DUSE_TESTPARAM
 CXXFLAGS += -DUSE_TESTPARAM_MC=$(MC)
