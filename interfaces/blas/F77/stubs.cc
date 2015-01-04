@@ -11,16 +11,6 @@ F77BLAS(dspr)()
 }
 
 void
-F77BLAS(dsyr2)()
-{
-}
-
-void
-F77BLAS(dsyr)()
-{
-}
-
-void
 F77BLAS(drotm)()
 {
 }

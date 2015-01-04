@@ -27,16 +27,6 @@ ULMBLAS(dspr)()
 }
 
 void
-ULMBLAS(dsyr2)()
-{
-}
-
-void
-ULMBLAS(dsyr)()
-{
-}
-
-void
 ULMBLAS(drotm)()
 {
 }
@@ -64,16 +54,6 @@ CBLAS(dspr2)()
 
 void
 CBLAS(dspr)()
-{
-}
-
-void
-CBLAS(dsyr2)()
-{
-}
-
-void
-CBLAS(dsyr)()
 {
 }
 
