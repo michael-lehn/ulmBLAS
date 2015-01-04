@@ -10,6 +10,7 @@ ULMBLAS(dznrm2)()
 {
 }
 
+// needed for linking the ATLAS benchmark suite
 void
 ULMBLAS(dger2)()
 {
@@ -36,11 +37,6 @@ ULMBLAS(dsyr)()
 }
 
 void
-ULMBLAS(dtpsv)()
-{
-}
-
-void
 ULMBLAS(drotm)()
 {
 }
@@ -62,11 +58,6 @@ CBLAS(dznrm2)()
 }
 
 void
-CBLAS(dger2)()
-{
-}
-
-void
 CBLAS(dspr2)()
 {
 }
@@ -83,11 +74,6 @@ CBLAS(dsyr2)()
 
 void
 CBLAS(dsyr)()
-{
-}
-
-void
-CBLAS(dtpsv)()
 {
 }
 
