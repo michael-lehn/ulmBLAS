@@ -1,16 +1,6 @@
 extern "C" {
 
 void
-F77BLAS(dspr2)()
-{
-}
-
-void
-F77BLAS(dspr)()
-{
-}
-
-void
 F77BLAS(drotm)()
 {
 }
