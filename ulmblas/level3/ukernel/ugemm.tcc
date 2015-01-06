@@ -7,33 +7,7 @@
 #include <ulmblas/level1extensions/gescal.h>
 #include <ulmblas/level3/ukernel/ugemm.h>
 
-//
-//  Selected optimized micro kernel
-//
-#if defined(HAVE_SSE)
-#   define  SELECT_UGEMM_KERNEL     sse
-#   include <ulmblas/level3/ukernel/sse/ugemm.h>
-#else
-#   define  SELECT_UGEMM_KERNEL     ref
-#   include <ulmblas/level3/ukernel/ref/ugemm.h>
-#endif
-
-
 namespace ulmBLAS {
-
-template <typename T>
-int
-ugemm_mr()
-{
-    return SELECT_UGEMM_KERNEL::ugemm_mr<T>();
-}
-
-template <typename T>
-int
-ugemm_nr()
-{
-    return SELECT_UGEMM_KERNEL::ugemm_nr<T>();
-}
 
 //
 //  Buffered variant.  Used for zero padded panels.
@@ -53,8 +27,8 @@ ugemm(IndexType    mr,
       const T      *nextA,
       const T      *nextB)
 {
-    const IndexType MR = ugemm_mr<T>();
-    const IndexType NR = ugemm_nr<T>();
+    const IndexType MR = BlockSizeUGemm<T>::MR;
+    const IndexType NR = BlockSizeUGemm<T>::NR;
 
     T   C_[MR*NR];
 
@@ -80,8 +54,8 @@ ugemm(IndexType   kc,
       const T     *nextA,
       const T     *nextB)
 {
-    const IndexType MR = ugemm_mr<T>();
-    const IndexType NR = ugemm_nr<T>();
+    const IndexType MR = BlockSizeUGemm<T>::MR;
+    const IndexType NR = BlockSizeUGemm<T>::NR;
 
     ugemm(MR, NR, kc, alpha, A, B, beta, C, incRowC, incColC, nextA, nextB);
 }

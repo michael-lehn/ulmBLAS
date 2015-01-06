@@ -2,14 +2,22 @@
 #define ULMBLAS_AUXILIARY_CONJ_TCC 1
 
 #include <complex>
-#include <ulmblas/auxiliary/conj.tcc>
+#include <ulmblas/auxiliary/conjugate.h>
 
 namespace ulmBLAS {
 
 template <typename T>
 typename std::enable_if<std::is_fundamental<T>::value,
          const T &>::type
-conj(const T &x, bool)
+conjugate(const T &x)
+{
+    return x;
+}
+
+template <typename T>
+typename std::enable_if<std::is_fundamental<T>::value,
+         const T &>::type
+conjugate(const T &x, bool)
 {
     return x;
 }
@@ -17,7 +25,15 @@ conj(const T &x, bool)
 template <typename T>
 typename std::enable_if<! std::is_fundamental<T>::value,
          const T>::type
-conj(const T &x, bool apply)
+conjugate(const T &x)
+{
+    return std::conj(x);
+}
+
+template <typename T>
+typename std::enable_if<! std::is_fundamental<T>::value,
+         const T>::type
+conjugate(const T &x, bool apply)
 {
     return (apply) ? std::conj(x) : x;
 }

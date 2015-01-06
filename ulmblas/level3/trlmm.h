@@ -8,6 +8,7 @@ template <typename IndexType, typename Alpha, typename TA, typename TB>
     trlmm(IndexType    m,
           IndexType    n,
           const Alpha  &alpha,
+          bool         conjA,
           bool         unitDiag,
           const TA     *A,
           IndexType    incRowA,

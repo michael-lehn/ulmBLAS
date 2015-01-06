@@ -7,6 +7,7 @@ template <typename IndexType, typename TA, typename Buffer>
     void
     gepack_A(IndexType   mc,
              IndexType   kc,
+             bool        conj,
              const TA    *A,
              IndexType   incRowA,
              IndexType   incColA,
@@ -16,20 +17,11 @@ template <typename IndexType, typename TB, typename Buffer>
     void
     gepack_B(IndexType   kc,
              IndexType   nc,
+             bool        conj,
              const TB    *B,
              IndexType   incRowB,
              IndexType   incColB,
              Buffer      *buffer);
-
-template <typename IndexType, typename TB, typename Buffer>
-    void
-    geunpack_B(IndexType     kc,
-               IndexType     nc,
-               const Buffer  *buffer,
-               TB            *B,
-               IndexType     incRowB,
-               IndexType     incColB);
-
 
 } // namespace ulmBLAS
 

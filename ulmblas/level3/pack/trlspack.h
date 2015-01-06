@@ -6,6 +6,7 @@ namespace ulmBLAS {
 template <typename IndexType, typename TL, typename Buffer>
     void
     trlspack(IndexType   mc,
+             bool        conjA,
              bool        unit,
              const TL    *L,
              IndexType   incRowL,

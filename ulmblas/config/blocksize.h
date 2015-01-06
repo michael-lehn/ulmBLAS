@@ -20,6 +20,8 @@ struct BlockSize
 
     static const int MR = USE_TESTPARAM_MR;
     static const int NR = USE_TESTPARAM_NR;
+
+    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0, "Invalid block size.");
 };
 
 #elif defined(USE_SSE)
@@ -57,6 +59,8 @@ struct BlockSize
                         : std::is_same<std::complex<float>, T>::value  ? 2
                         : std::is_same<std::complex<double>, T>::value ? 2
                         : -1;
+
+    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0, "Invalid block size.");
 };
 
 #else
@@ -94,6 +98,8 @@ struct BlockSize
                         : std::is_same<std::complex<float>, T>::value  ? 2
                         : std::is_same<std::complex<double>, T>::value ? 2
                         : -1;
+
+    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0, "Invalid block size.");
 };
 
 #endif

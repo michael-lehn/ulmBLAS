@@ -5,26 +5,6 @@
 
 namespace ulmBLAS { namespace sse {
 
-template <typename T>
-int
-ugemm_mr()
-{
-    if (std::is_same<T,double>::value) {
-        return 4;
-    }
-    return ref::ugemm_mr<T>();
-}
-
-template <typename T>
-int
-ugemm_nr()
-{
-    if (std::is_same<T,double>::value) {
-        return 4;
-    }
-    return ref::ugemm_nr<T>();
-}
-
 template <typename IndexType>
 static typename std::enable_if<std::is_convertible<IndexType,long>::value,
 void>::type

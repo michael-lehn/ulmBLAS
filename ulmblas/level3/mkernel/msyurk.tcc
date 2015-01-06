@@ -21,8 +21,8 @@ msyurk(IndexType     mc,
        IndexType     incRowC,
        IndexType     incColC)
 {
-    const IndexType MR = ugemm_mr<T>();
-    const IndexType NR = ugemm_nr<T>();
+    const IndexType MR = BlockSizeUGemm<T>::MR;
+    const IndexType NR = BlockSizeUGemm<T>::NR;
 
     assert((MR%NR==0) || (NR%MR==0));
 

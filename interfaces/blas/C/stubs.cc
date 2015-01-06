@@ -26,7 +26,6 @@ ULMBLAS(drotmg)()
 {
 }
 
-
 void
 CBLAS(dzasum)()
 {

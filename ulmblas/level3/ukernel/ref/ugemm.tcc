@@ -1,24 +1,9 @@
 #ifndef ULMBLAS_LEVEL3_UKERNEL_REF_UGEMM_TCC
 #define ULMBLAS_LEVEL3_UKERNEL_REF_UGEMM_TCC 1
 
-#include <ulmblas/config/blocksize.h>
 #include <ulmblas/level3/ukernel/ref/ugemm.h>
 
 namespace ulmBLAS { namespace ref {
-
-template <typename T>
-int
-ugemm_mr()
-{
-    return BlockSize<T>::MR;
-}
-
-template <typename T>
-int
-ugemm_nr()
-{
-    return BlockSize<T>::NR;
-}
 
 template <typename IndexType, typename T>
 void
@@ -33,8 +18,8 @@ ugemm(IndexType   kc,
       const T     *nextA,
       const T     *nextB)
 {
-    const IndexType MR = ugemm_mr<T>();
-    const IndexType NR = ugemm_nr<T>();
+    const IndexType MR = BlockSizeUGemm<T>::MR;
+    const IndexType NR = BlockSizeUGemm<T>::NR;
 
     T AB[MR*NR];
 

@@ -8,13 +8,14 @@
 
 namespace ulmBLAS { namespace sse {
 
-template <typename IndexType, typename T>
-void
-utrusm(const T     *A,
-       const T     *B,
-       T           *C,
-       IndexType   incRowC_,
-       IndexType   incColC_)
+template <typename IndexType>
+static typename std::enable_if<std::is_convertible<IndexType,long>::value,
+void>::type
+utrusm(const double  *A,
+       const double  *B,
+       double        *C,
+       IndexType     incRowC_,
+       IndexType     incColC_)
 {
     long incRowC = incRowC_;
     long incColC = incColC_;

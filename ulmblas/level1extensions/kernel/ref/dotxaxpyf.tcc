@@ -2,6 +2,7 @@
 #define ULMBLAS_LEVEL1EXTENSIONS_KERNEL_REF_DOTXAXPYF_TCC 1
 
 #include <type_traits>
+#include <ulmblas/auxiliary/conjugate.h>
 #include <ulmblas/level1extensions/kernel/ref/dotxaxpyf.h>
 
 #ifdef DDOTXAXPYF_FUSEFACTOR
@@ -53,11 +54,11 @@ dotxaxpyf(IndexType      n,
     }
 
     for (IndexType i=0; i<n; ++i) {
-        const VY y_i = conj(y[i*incY], conjY);
+        const VY y_i = conjugate(y[i*incY], conjY);
 
         for (IndexType l=0; l<bf; ++l) {
-            const MX x_il  = conj(X[i*incRowX+l*incColX], conjX);
-            const MX xt_il = conj(X[i*incRowX+l*incColX], conjXt);
+            const MX x_il  = conjugate(X[i*incRowX+l*incColX], conjX);
+            const MX xt_il = conjugate(X[i*incRowX+l*incColX], conjXt);
 
             rho[l*incRho] += xt_il * y_i;
             z[i*incZ]     += alpha*a[l*incA]*x_il;

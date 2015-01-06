@@ -6,6 +6,7 @@
 #include <ulmblas/level1extensions/gescal.h>
 #include <ulmblas/level3/mkernel/mgemm.h>
 #include <ulmblas/level3/mkernel/mtrlsm.h>
+#include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level3/pack/gepack.h>
 #include <ulmblas/level3/pack/trlspack.h>
 #include <ulmblas/level3/trlsm.h>
@@ -17,6 +18,7 @@ void
 trlsm(IndexType    m,
       IndexType    n,
       const Alpha  &alpha,
+      bool         conjA,
       bool         unitDiag,
       const TA     *A,
       IndexType    incRowA,
@@ -30,8 +32,8 @@ trlsm(IndexType    m,
     const IndexType MC = BlockSize<T>::MC;
     const IndexType NC = BlockSize<T>::NC;
 
-    const IndexType MR = BlockSize<T>::MR;
-    const IndexType NR = BlockSize<T>::NR;
+    const IndexType MR = BlockSizeUGemm<T>::MR;
+    const IndexType NR = BlockSizeUGemm<T>::NR;
 
     const IndexType mb = (m+MC-1) / MC;
     const IndexType nb = (n+NC-1) / NC;
@@ -56,13 +58,18 @@ trlsm(IndexType    m,
             IndexType mc  = (i!=mb-1 || mc_==0) ? MC : mc_;
             Alpha  alpha_ = (i==0) ? alpha : Alpha(1);
 
-            gepack_B(mc, nc,
+            gepack_B(mc, nc, false,
                      &B[i*MC*incRowB+j*NC*incColB], incRowB, incColB,
                      B_);
 
-            trlspack(mc, unitDiag,
+            //std::cerr << "-- trlsm ----------" << std::endl;
+            //printMatrix(mc, mc, &A[i*MC*(incRowA+incColA)], incRowA, incColA);
+
+            trlspack(mc, conjA, unitDiag,
                      &A[i*MC*(incRowA+incColA)], incRowA, incColA,
                      A_);
+
+            //printMatrix(MR, (MC*MC/MR), A_, 1, MR);
 
             mtrlsm(mc, nc, alpha_, A_, B_,
                    &B[i*MC*incRowB+j*NC*incColB], incRowB, incColB);
@@ -70,7 +77,7 @@ trlsm(IndexType    m,
             for (IndexType l=i+1; l<mb; ++l) {
                 mc  = (l!=mb-1 || mc_==0) ? MC : mc_;
 
-                gepack_A(mc, MC,
+                gepack_A(mc, MC, conjA,
                          &A[l*MC*incRowA+i*MC*incColA], incRowA, incColA,
                          A_);
 

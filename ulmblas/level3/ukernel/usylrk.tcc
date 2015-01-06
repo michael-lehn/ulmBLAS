@@ -27,8 +27,8 @@ usylrk(IndexType    mr,
        const T      *nextA,
        const T      *nextB)
 {
-    const IndexType MR = ugemm_mr<T>();
-    const IndexType NR = ugemm_nr<T>();
+    const IndexType MR = BlockSizeUGemm<T>::MR;
+    const IndexType NR = BlockSizeUGemm<T>::NR;
 
     T   C_[MR*NR];
 

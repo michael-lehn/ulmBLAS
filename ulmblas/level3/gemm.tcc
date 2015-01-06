@@ -5,6 +5,7 @@
 #include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/level1extensions/gescal.h>
 #include <ulmblas/level3/mkernel/mgemm.h>
+#include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level3/pack/gepack.h>
 
 namespace ulmBLAS {
@@ -16,9 +17,11 @@ gemm(IndexType    m,
      IndexType    n,
      IndexType    k,
      const Alpha  &alpha,
+     bool         conjA,
      const TA     *A,
      IndexType    incRowA,
      IndexType    incColA,
+     bool         conjB,
      const TB     *B,
      IndexType    incRowB,
      IndexType    incColB,
@@ -32,6 +35,9 @@ gemm(IndexType    m,
     const IndexType MC = BlockSize<T>::MC;
     const IndexType NC = BlockSize<T>::NC;
     const IndexType KC = BlockSize<T>::KC;
+
+    const IndexType MR = BlockSizeUGemm<T>::MR;
+    const IndexType NR = BlockSizeUGemm<T>::NR;
 
     const IndexType mb = (m+MC-1) / MC;
     const IndexType nb = (n+NC-1) / NC;
@@ -48,8 +54,8 @@ gemm(IndexType    m,
         return;
     }
 
-    T  *A_ = memoryPool.allocate(MC*KC);
-    T  *B_ = memoryPool.allocate(KC*NC);
+    T  *A_ = memoryPool.allocate(MC*KC+MR);
+    T  *B_ = memoryPool.allocate(KC*NC+NR);
 
     for (IndexType j=0; j<nb; ++j) {
         IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;
@@ -58,14 +64,14 @@ gemm(IndexType    m,
             IndexType kc    = (l!=kb-1 || kc_==0) ? KC   : kc_;
             Beta      beta_ = (l==0) ? beta : Beta(1);
 
-            gepack_B(kc, nc,
+            gepack_B(kc, nc, conjB,
                      &B[l*KC*incRowB+j*NC*incColB], incRowB, incColB,
                      B_);
 
             for (IndexType i=0; i<mb; ++i) {
                 IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
 
-                gepack_A(mc, kc,
+                gepack_A(mc, kc, conjA,
                          &A[i*MC*incRowA+l*KC*incColA], incRowA, incColA,
                          A_);
 

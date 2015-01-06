@@ -2,7 +2,7 @@
 #define ULMBLAS_LEVEL1EXTENSIONS_KERNEL_REF_DOTAXPY_TCC 1
 
 #include <complex>
-#include <ulmblas/auxiliary/conj.h>
+#include <ulmblas/auxiliary/conjugate.h>
 #include <ulmblas/level1extensions/kernel/ref/dotaxpy.h>
 
 namespace ulmBLAS { namespace ref {
@@ -32,8 +32,8 @@ dotaxpy(IndexType      n,
 {
     rho = Rho(0);
     for (IndexType i=0; i<n; ++i) {
-        z[i*incZ] += alpha*conj(x[i*incX], conjX);
-        rho       += conj(x[i*incX], conjXt) * conj(y[i*incY], conjY);
+        z[i*incZ] += alpha*conjugate(x[i*incX], conjX);
+        rho       += conjugate(x[i*incX], conjXt) * conjugate(y[i*incY], conjY);
     }
 }
 

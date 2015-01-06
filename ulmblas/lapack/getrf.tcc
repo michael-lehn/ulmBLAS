@@ -57,14 +57,14 @@ getrf(IndexType    m,
                       j, j+jb,
                       piv, incPiv);
 
-                trlsm(jb, n-j-jb, One, true,
-                      &A[j*(incRowA+incColA)], incRowA, incColA,
+                trlsm(jb, n-j-jb, One,
+                      false, true, &A[j*(incRowA+incColA)], incRowA, incColA,
                       &A[j*incRowA+(j+jb)*incColA], incRowA, incColA);
 
                 if (j+jb<m) {
                     gemm(m-j-jb, n-j-jb, jb, -One,
-                         &A[(j+jb)*incRowA + j*incColA], incRowA, incColA,
-                         &A[j*incRowA + (j+jb)*incColA], incRowA, incColA,
+                         false, &A[(j+jb)*incRowA+j*incColA], incRowA, incColA,
+                         false, &A[j*incRowA+(j+jb)*incColA], incRowA, incColA,
                          One,
                          &A[(j+jb)*(incRowA+incColA)], incRowA, incColA);
                 }

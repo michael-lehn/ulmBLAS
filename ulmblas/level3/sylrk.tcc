@@ -6,6 +6,7 @@
 #include <ulmblas/level1extensions/trlscal.h>
 #include <ulmblas/level3/mkernel/mgemm.h>
 #include <ulmblas/level3/mkernel/msylrk.h>
+#include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level3/pack/gepack.h>
 #include <ulmblas/level3/sylrk.h>
 
@@ -29,8 +30,8 @@ sylrk(IndexType    n,
 
     const IndexType MC = BlockSize<T>::MC;
 
-    const IndexType MR = BlockSize<T>::MC;
-    const IndexType NR = BlockSize<T>::NR;
+    const IndexType MR = BlockSizeUGemm<T>::MR;
+    const IndexType NR = BlockSizeUGemm<T>::NR;
 
     const IndexType mb = (n+MC-1) / MC;
     const IndexType kb = (k+MC-1) / MC;
@@ -59,14 +60,14 @@ sylrk(IndexType    n,
             IndexType kc    = (l!=kb-1 || kc_==0) ? MC   : kc_;
             Beta      beta_ = (l==0) ? beta : Beta(1);
 
-            gepack_B(kc, nc,
+            gepack_B(kc, nc, false,
                      &A[l*MC*incColA+j*MC*incRowA], incColA, incRowA,
                      B_);
 
             for (IndexType i=j; i<mb; ++i) {
                 IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
 
-                gepack_A(mc, kc,
+                gepack_A(mc, kc, false,
                          &A[i*MC*incRowA+l*MC*incColA], incRowA, incColA,
                          A_);
 

@@ -6,6 +6,7 @@
 #include <ulmblas/level1extensions/gescal.h>
 #include <ulmblas/level3/mkernel/mgemm.h>
 #include <ulmblas/level3/mkernel/mtrlmm.h>
+#include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level3/pack/gepack.h>
 #include <ulmblas/level3/pack/trlpack.h>
 #include <ulmblas/level3/trlmm.h>
@@ -17,6 +18,7 @@ void
 trlmm(IndexType    m,
       IndexType    n,
       const Alpha  &alpha,
+      bool         conjA,
       bool         unitDiag,
       const TA     *A,
       IndexType    incRowA,
@@ -29,6 +31,9 @@ trlmm(IndexType    m,
 
     const IndexType MC = BlockSize<T>::MC;
     const IndexType NC = BlockSize<T>::NC;
+
+    const IndexType MR = BlockSizeUGemm<T>::MR;
+    const IndexType NR = BlockSizeUGemm<T>::NR;
 
     const IndexType mb = (m+MC-1) / MC;
     const IndexType nb = (n+NC-1) / NC;
@@ -43,8 +48,8 @@ trlmm(IndexType    m,
         return;
     }
 
-    T  *A_ = memoryPool.allocate(MC*MC);
-    T  *B_ = memoryPool.allocate(MC*NC);
+    T  *A_ = memoryPool.allocate(MC*MC+MR);
+    T  *B_ = memoryPool.allocate(MC*NC+NR);
 
     for (IndexType j=0; j<nb; ++j) {
         IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;
@@ -52,11 +57,11 @@ trlmm(IndexType    m,
         for (IndexType l=mb-1; l>=0; --l) {
             IndexType kc = (l!=mb-1 || mc_==0) ? MC   : mc_;
 
-            gepack_B(kc, nc,
+            gepack_B(kc, nc, false,
                      &B[l*MC*incRowB+j*NC*incColB], incRowB, incColB,
                      B_);
 
-            trlpack(kc, unitDiag,
+            trlpack(kc, conjA, unitDiag,
                     &A[l*MC*(incRowA+incColA)], incRowA, incColA,
                     A_);
 
@@ -66,7 +71,7 @@ trlmm(IndexType    m,
             for (IndexType i=l+1; i<mb; ++i) {
                 IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
 
-                gepack_A(mc, kc,
+                gepack_A(mc, kc, conjA,
                          &A[i*MC*incRowA+l*MC*incColA], incRowA, incColA,
                          A_);
 

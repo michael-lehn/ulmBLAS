@@ -1,15 +1,25 @@
 #ifndef ULMBLAS_LEVEL3_UKERNEL_UGEMM_H
 #define ULMBLAS_LEVEL3_UKERNEL_UGEMM_H 1
 
+//
+//  Selected optimized micro kernel
+//
+#if defined(HAVE_SSE)
+#   define  SELECT_UGEMM_KERNEL     sse
+#   include <ulmblas/level3/ukernel/sse/ugemm.h>
+#else
+#   define  SELECT_UGEMM_KERNEL     ref
+#   include <ulmblas/level3/ukernel/ref/ugemm.h>
+#endif
+
 namespace ulmBLAS {
 
 template <typename T>
-    int
-    ugemm_mr();
-
-template <typename T>
-    int
-    ugemm_nr();
+struct BlockSizeUGemm
+{
+    static const int MR = SELECT_UGEMM_KERNEL::BlockSizeUGemm<T>::MR;
+    static const int NR = SELECT_UGEMM_KERNEL::BlockSizeUGemm<T>::NR;
+};
 
 //
 //  Buffered variant.  Used for zero padded panels.

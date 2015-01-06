@@ -7,12 +7,17 @@
 namespace ulmBLAS { namespace sse {
 
 template <typename T>
-    int
-    ugemm_mr();
+struct BlockSizeUGemm
+{
+    static const int MR = (std::is_same<T,double>::value)
+                        ? 4
+                        : ref::BlockSizeUGemm<T>::MR;
+    static const int NR = (std::is_same<T,double>::value)
+                        ? 4
+                        : ref::BlockSizeUGemm<T>::NR;
 
-template <typename T>
-    int
-    ugemm_nr();
+    static_assert(MR>0 && NR>0, "Invalid block size.");
+};
 
 using ref::ugemm;
 

@@ -5,6 +5,7 @@
 #include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/level1extensions/gescal.h>
 #include <ulmblas/level3/mkernel/mgemm.h>
+#include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level3/pack/gepack.h>
 #include <ulmblas/level3/pack/sylpack.h>
 #include <ulmblas/level3/sylmm.h>
@@ -33,6 +34,9 @@ sylmm(IndexType    m,
     const IndexType MC = BlockSize<T>::MC;
     const IndexType NC = BlockSize<T>::NC;
 
+    const IndexType MR = BlockSizeUGemm<T>::MR;
+    const IndexType NR = BlockSizeUGemm<T>::NR;
+
     const IndexType mb = (m+MC-1) / MC;
     const IndexType nb = (n+NC-1) / NC;
 
@@ -50,8 +54,8 @@ sylmm(IndexType    m,
         return;
     }
 
-    T  *A_ = memoryPool.allocate(MC*MC);
-    T  *B_ = memoryPool.allocate(MC*NC);
+    T  *A_ = memoryPool.allocate(MC*MC+MR);
+    T  *B_ = memoryPool.allocate(MC*NC+NR);
 
     for (IndexType j=0; j<nb; ++j) {
         IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;
@@ -60,7 +64,7 @@ sylmm(IndexType    m,
             IndexType kc    = (l!=mb-1 || mc_==0) ? MC   : mc_;
             Beta      beta_ = (l==0) ? beta : Beta(1);
 
-            gepack_B(kc, nc,
+            gepack_B(kc, nc, false,
                      &B[l*MC*incRowB+j*NC*incColB], incRowB, incColB,
                      B_);
 
@@ -68,11 +72,11 @@ sylmm(IndexType    m,
                 IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
 
                 if (i>l) {
-                    gepack_A(mc, kc,
+                    gepack_A(mc, kc, false,
                              &A[i*MC*incRowA+l*MC*incColA], incRowA, incColA,
                              A_);
                 } else if (i<l) {
-                    gepack_A(mc, kc,
+                    gepack_A(mc, kc, false,
                              &A[l*MC*incRowA+i*MC*incColA], incColA, incRowA,
                              A_);
                 } else {
