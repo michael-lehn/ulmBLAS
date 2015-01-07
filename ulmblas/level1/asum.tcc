@@ -24,9 +24,12 @@ asum(IndexType                n,
      const std::complex<VX>   *x,
      IndexType                incX)
 {
-    VX result;
+    VX result = VX(0);
 
-    asum(n, x, incX, result);
+    for (IndexType i=0; i<n; ++i) {
+        result += std::abs(std::real(x[i*incX]));
+        result += std::abs(std::imag(x[i*incX]));
+    }
     return result;
 }
 

@@ -2,6 +2,7 @@
 #define ULMBLAS_LEVEL1_IAMAX_TCC 1
 
 #include <cmath>
+#include <ulmblas/auxiliary/abs1.h>
 #include <ulmblas/level1/iamax.h>
 
 namespace ulmBLAS {
@@ -23,6 +24,28 @@ iamax(IndexType      n,
         if (std::abs(x[i*incX])>absMaxX) {
             iAbsMaxX = i;
             absMaxX = std::abs(x[i*incX]);
+        }
+    }
+    return iAbsMaxX;
+}
+
+template <typename IndexType, typename VX>
+IndexType
+iamax(IndexType               n,
+      const std::complex<VX>  *x,
+      IndexType               incX)
+{
+    IndexType iAbsMaxX = 0;
+    VX        absMaxX  = std::abs(x[iAbsMaxX]);
+
+    if (n<=0) {
+        return -1;
+    }
+
+    for (IndexType i=0; i<n; ++i) {
+        if (abs1(x[i*incX])>absMaxX) {
+            iAbsMaxX = i;
+            absMaxX = abs1(x[i*incX]);
         }
     }
     return iAbsMaxX;

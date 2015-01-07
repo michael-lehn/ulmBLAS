@@ -1,0 +1,13 @@
+      DOUBLE COMPLEX FUNCTION ZDOTC(N,ZX,INCX,ZY,INCY)
+
+      INTEGER            INCX, INCY, N
+      DOUBLE PRECISION   ZX( * ), ZY( * )
+
+      DOUBLE COMPLEX     ZTEMP
+      EXTERNAL           ZDOTC_SUB
+
+      CALL ZDOTC_SUB( N, ZX, INCX, ZY, INCY, ZTEMP )
+      ZDOTC = ZTEMP
+
+      RETURN
+      END

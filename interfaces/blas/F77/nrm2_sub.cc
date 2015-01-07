@@ -1,7 +1,6 @@
 #include BLAS_HEADER
+#include <complex>
 #include <ulmblas/level1/nrm2.h>
-
-#include <stdio.h>
 
 extern "C" {
 
@@ -16,6 +15,27 @@ F77BLAS(dnrm2_sub)(const int     *n_,
 //
     int n    = *n_;
     int incX = *incX_;
+
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
+    *result_ = ulmBLAS::nrm2(n, x, incX);
+}
+
+void
+F77BLAS(dznrm2_sub)(const int     *n_,
+                    const double  *x_,
+                    const int     *incX_,
+                    double        *result_)
+{
+//
+//  Dereference scalar parameters
+//
+    int n    = *n_;
+    int incX = *incX_;
+
+    typedef std::complex<double> dcomplex;
+    const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
 
     if (incX<0) {
         x -= incX*(n-1);

@@ -1,0 +1,13 @@
+      DOUBLE COMPLEX FUNCTION ZDOTU(N,ZX,INCX,ZY,INCY)
+
+      INTEGER            INCX, INCY, N
+      DOUBLE PRECISION   ZX( * ), ZY( * )
+
+      DOUBLE COMPLEX     ZTEMP
+      EXTERNAL           ZDOTU_SUB
+
+      CALL ZDOTU_SUB( N, ZX, INCX, ZY, INCY, ZTEMP )
+      ZDOTU = ZTEMP
+
+      RETURN
+      END

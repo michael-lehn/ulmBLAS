@@ -1,22 +1,43 @@
 #include BLAS_HEADER
+#include <complex>
 #include <ulmblas/level1/iamax.h>
 
 extern "C" {
 
 int
-ULMBLAS(idamax)(const int       n,
-                const double    *x,
-                const int       incX)
+ULMBLAS(idamax)(int           n,
+                const double  *x,
+                int           incX)
 {
     return ulmBLAS::iamax(n, x, incX);
 }
 
 int
-CBLAS(idamax)(const int       n,
-              const double    *x,
-              const int       incX)
+ULMBLAS(izamax)(int           n,
+                const double  *x_,
+                int           incX)
 {
+    typedef std::complex<double> dcomplex;
+    const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
+
     return ulmBLAS::iamax(n, x, incX);
+}
+
+
+int
+CBLAS(idamax)(int           n,
+              const double  *x,
+              int           incX)
+{
+    return ULMBLAS(idamax)(n, x, incX);
+}
+
+int
+CBLAS(izamax)(int           n,
+              const double  *x,
+              int           incX)
+{
+    return ULMBLAS(izamax)(n, x, incX);
 }
 
 } // extern "C"

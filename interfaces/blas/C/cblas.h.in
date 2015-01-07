@@ -116,6 +116,72 @@ CBLAS(dswap)(const int n,
              double    *y,
              const int incY);
 
+void
+CBLAS(zdotu_sub)(const int     N,
+                 const double  *X,
+                 const int     incX,
+                 const double   *Y,
+                 const int     incY,
+                 double        *dotu);
+
+void
+CBLAS(zdotc_sub)(const int     N,
+                 const double  *X,
+                 const int     incX,
+                 const double  *Y,
+                 const int     incY,
+                 double        *dotc);
+
+double
+CBLAS(dzasum)(int           N,
+              const double  *X,
+              int           incX);
+
+int
+CBLAS(izamax)(int           N,
+              const double  *X,
+              int           incX);
+
+void
+CBLAS(zswap)(const int   N,
+             double      *X,
+             const int   incX,
+             double      *Y,
+             const int   incY);
+
+void
+CBLAS(zcopy)(const int     N,
+             const double  *X,
+             const int     incX,
+             double        *Y,
+             const int     incY);
+
+void
+CBLAS(zaxpy)(int            N,
+             const double  *alpha,
+             const double  *X,
+             int            incX,
+             double        *Y,
+             int           incY);
+
+void
+CBLAS(zscal)(const int       N,
+              const double   *alpha,
+              double         *X,
+              const int      incX);
+
+void
+CBLAS(zdscal)(const int      N,
+             const double   alpha,
+             double         *X,
+             const int      incX);
+
+double
+CBLAS(dznrm2)(int           n,
+              const double  *x,
+              int           incX);
+
+
 //
 //  Level 2
 //
@@ -196,6 +262,119 @@ CBLAS(dtrsv)(enum CBLAS_ORDER      order,
              int                   ldA,
              double                *x,
              int                   incX);
+
+void
+CBLAS(dsyr)(const enum CBLAS_ORDER  order,
+            const enum CBLAS_UPLO   Uplo,
+            const int               N,
+            const double            alpha,
+            const double            *X,
+            const int               incX,
+            double                  *A,
+            const int               lda);
+
+void
+CBLAS(dsyr2)(const enum CBLAS_ORDER order,
+             const enum CBLAS_UPLO  Uplo,
+             const int              N,
+             const double           alpha,
+             const double           *X,
+             const int              incX,
+             const double           *Y,
+             const int              incY,
+             double                 *A,
+             const int              lda);
+
+void
+CBLAS(dtbmv)(const enum CBLAS_ORDER     order,
+             const enum CBLAS_UPLO      Uplo,
+             const enum CBLAS_TRANSPOSE TransA,
+             const enum CBLAS_DIAG      Diag,
+             const int                  N,
+             const int                  K,
+             const double               *A,
+             const int                  lda,
+             double                     *X,
+             const int                  incX);
+
+void
+CBLAS(dtbsv)(const enum CBLAS_ORDER     order,
+             const enum CBLAS_UPLO      Uplo,
+             const enum CBLAS_TRANSPOSE TransA,
+             const enum CBLAS_DIAG      Diag,
+             const int                  N,
+             const int                  K,
+             const double               *A,
+             const int                  lda,
+             double                     *X,
+             const int                  incX);
+
+void
+CBLAS(dsbmv)(const enum CBLAS_ORDER     order,
+             const enum CBLAS_UPLO      Uplo,
+             const int                  N,
+             const int                  K,
+             const double               alpha,
+             const double               *A,
+             const int                  lda,
+             const double               *X,
+             const int                  incX,
+             const double               beta,
+             double                     *Y,
+             const int                  incY);
+
+void
+CBLAS(dspmv)(const enum CBLAS_ORDER     order,
+             const enum CBLAS_UPLO      Uplo,
+             const int                  N,
+             const double               alpha,
+             const double               *Ap,
+             const double               *X,
+             const int                  incX,
+             const double               beta,
+             double                     *Y,
+             const int                  incY);
+
+void
+CBLAS(dtpmv)(const enum CBLAS_ORDER     order,
+             const enum CBLAS_UPLO      Uplo,
+             const enum CBLAS_TRANSPOSE TransA,
+             const enum CBLAS_DIAG      Diag,
+             const int                  N,
+             const double               *Ap,
+             double                     *X,
+             const int                  incX);
+
+void
+CBLAS(dtpsv)(const enum CBLAS_ORDER     order,
+             const enum CBLAS_UPLO      Uplo,
+             const enum CBLAS_TRANSPOSE TransA,
+             const enum CBLAS_DIAG      Diag,
+             const int                  N,
+             const double               *Ap,
+             double                     *X,
+             const int                  incX);
+
+void
+CBLAS(dspr)(const enum CBLAS_ORDER      order,
+            const enum CBLAS_UPLO       Uplo,
+            const int                   N,
+            const double                alpha,
+            const double                *X,
+            const int                   incX,
+            double                      *Ap);
+
+void
+CBLAS(dspr2)(const enum CBLAS_ORDER     order,
+             const enum CBLAS_UPLO      Uplo,
+             const int                  N,
+             const double               alpha,
+             const double               *X,
+             const int                  incX,
+             const double               *Y,
+             const int                  incY,
+             double                     *A);
+
 
 //
 //  Level 3
@@ -286,70 +465,6 @@ CBLAS(dtrsm)(enum CBLAS_ORDER      order,
              int                   ldA,
              double                *B,
              int                   ldB);
-
-//
-//  Declaration of CBLAS functions currently NOT implemented in ulmBLAS
-//
-double
-CBLAS(dznrm2)(int N, const void *X, int incX);
-
-double
-CBLAS(dzasum)(int N, const void *X, int incX);
-
-void
-CBLAS(dsyr)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
-            const int N, const double alpha, const double *X,
-            const int incX, double *A, const int lda);
-
-void
-CBLAS(dsyr2)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
-             const int N, const double alpha, const double *X,
-             const int incX, const double *Y, const int incY, double *A,
-             const int lda);
-
-void
-CBLAS(dtbmv)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
-             const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_DIAG Diag,
-             const int N, const int K, const double *A, const int lda,
-             double *X, const int incX);
-
-void
-CBLAS(dtbsv)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
-             const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_DIAG Diag,
-             const int N, const int K, const double *A, const int lda,
-             double *X, const int incX);
-
-void
-CBLAS(dsbmv)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
-             const int N, const int K, const double alpha, const double *A,
-             const int lda, const double *X, const int incX,
-             const double beta, double *Y, const int incY);
-
-void
-CBLAS(dspmv)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
-             const int N, const double alpha, const double *Ap,
-             const double *X, const int incX,
-             const double beta, double *Y, const int incY);
-
-void
-CBLAS(dtpmv)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
-             const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_DIAG Diag,
-             const int N, const double *Ap, double *X, const int incX);
-
-void
-CBLAS(dtpsv)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
-             const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_DIAG Diag,
-             const int N, const double *Ap, double *X, const int incX);
-
-void
-CBLAS(dspr)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
-            const int N, const double alpha, const double *X,
-            const int incX, double *Ap);
-
-void
-CBLAS(dspr2)(const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
-             const int N, const double alpha, const double *X,
-             const int incX, const double *Y, const int incY, double *A);
 
 //
 //  Level 1
