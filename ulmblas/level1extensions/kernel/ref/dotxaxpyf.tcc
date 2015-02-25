@@ -3,6 +3,7 @@
 
 #include <type_traits>
 #include <ulmblas/auxiliary/conjugate.h>
+#include <ulmblas/config/fusefactor.h>
 #include <ulmblas/level1extensions/kernel/ref/dotxaxpyf.h>
 
 #ifdef DDOTXAXPYF_FUSEFACTOR
@@ -12,16 +13,6 @@
 #define DDOTXAXPYF_FUSEFACTOR  2
 
 namespace ulmBLAS { namespace ref {
-
-template <typename T>
-int
-dotxaxpyf_fusefactor()
-{
-    if (std::is_same<T,double>::value) {
-        return DDOTXAXPYF_FUSEFACTOR;
-    }
-    return 1;
-}
 
 template <typename IndexType, typename Alpha, typename VA, typename MX,
           typename VY, typename VZ, typename Rho>
@@ -43,7 +34,9 @@ dotxaxpyf(IndexType      n,
           Rho            *rho,
           IndexType      incRho)
 {
-    const IndexType bf = dotxaxpyf_fusefactor<VZ>();
+    typedef decltype(Alpha(0)*VA(0)*MX(0)*VY(0)*VZ(0))  T;
+
+    const IndexType bf = FuseFactor<T>::dotxaxpyf;
 
     for (IndexType l=0; l<bf; ++l) {
         rho[l*incRho] = 0;

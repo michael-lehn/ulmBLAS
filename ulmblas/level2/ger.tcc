@@ -1,8 +1,8 @@
 #ifndef ULMBLAS_LEVEL2_GER_TCC
 #define ULMBLAS_LEVEL2_GER_TCC 1
 
-#include <ulmblas/auxiliary/printmatrix.h>
 
+#include <ulmblas/auxiliary/conjugate.h>
 #include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/config/blocksize.h>
 #include <ulmblas/level1/axpy.h>
@@ -93,7 +93,7 @@ ger(IndexType    m,
         IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;
 
         if (packY) {
-            copy(nc, &y[j*NC*incY], incY, buffer_y, UnitStride);
+            copy(nc, false, &y[j*NC*incY], incY, buffer_y, UnitStride);
         } else {
             y_ = &y[j*NC];
         }
@@ -102,7 +102,7 @@ ger(IndexType    m,
             IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
 
             if (packX) {
-                copy(mc, &x[i*MC*incX], incX, buffer_x, UnitStride);
+                copy(mc, false, &x[i*MC*incX], incX, buffer_x, UnitStride);
             } else {
                 x_ = &x[i*MC];
             }
@@ -112,7 +112,7 @@ ger(IndexType    m,
                     x_, UnitStride,
                     y_, UnitStride,
                     buffer_A, UnitStride, mc);
-                gecopy(mc, nc,
+                gecopy(mc, nc, false,
                        buffer_A, UnitStride, mc,
                        &A[i*MC*incRowA+j*NC*incColA], incRowA, incColA);
             } else {
@@ -126,6 +126,61 @@ ger(IndexType    m,
     memoryPool.release(buffer_x);
     memoryPool.release(buffer_y);
     memoryPool.release(buffer_A);
+}
+
+template <typename IndexType, typename Alpha, typename TX, typename TY,
+          typename TA>
+void
+gerc(IndexType    m,
+     IndexType    n,
+     const Alpha  &alpha,
+     const TX     *x,
+     IndexType    incX,
+     const TY     *y,
+     IndexType    incY,
+     TA           *A,
+     IndexType    incRowA,
+     IndexType    incColA)
+{
+    typedef decltype(Alpha(0)*TX(0)*TY(0)+TA(0))  T;
+
+    const IndexType    UnitStride(1);
+    static const bool  homogeneousTypes = std::is_same<T,Alpha>::value
+                                       && std::is_same<T,TX>::value
+                                       && std::is_same<T,TY>::value
+                                       && std::is_same<T,TA>::value;
+
+//
+//  If all operands have the same element type and if vectors x and y have unit
+//  stride and matrix A is row or col major the called axpy can use a fast
+//  kernel.
+//
+    if (homogeneousTypes && incX==UnitStride && incY==UnitStride) {
+        if (incColA==UnitStride) {
+            for (IndexType i=0; i<m; ++i) {
+                acxpy(n, alpha*x[i*incX],
+                      y, UnitStride,
+                      &A[i*incRowA], UnitStride);
+            }
+            return;
+        }
+
+        if (incRowA==UnitStride) {
+            for (IndexType j=0; j<n; ++j) {
+                axpy(m, alpha*conjugate(y[j*incY]),
+                     x, UnitStride,
+                     &A[j*incColA], UnitStride);
+            }
+            return;
+        }
+    }
+
+//
+//  General case
+//
+    for (IndexType j=0; j<n; ++j) {
+        axpy(m, alpha*conjugate(y[j*incY]), x, incX, &A[j*incColA], incRowA);
+    }
 }
 
 } // namespace ulmBLAS

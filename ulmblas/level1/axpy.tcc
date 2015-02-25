@@ -18,6 +18,18 @@ axpy(IndexType      n,
     SELECT_AXPY_KERNEL::axpy(n, alpha, x, incX, y, incY);
 }
 
+template <typename IndexType, typename Alpha, typename VX, typename VY>
+void
+acxpy(IndexType      n,
+      const Alpha    &alpha,
+      const VX       *x,
+      IndexType      incX,
+      VY             *y,
+      IndexType      incY)
+{
+    SELECT_AXPY_KERNEL::acxpy(n, alpha, x, incX, y, incY);
+}
+
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL1_AXPY_TCC 1

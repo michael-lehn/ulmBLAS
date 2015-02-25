@@ -81,7 +81,7 @@ mtrlsm(IndexType    mc,
     for (IndexType j=0; j<np; ++j) {
         nr    = (j!=np-1 || nr_==0) ? NR : nr_;
 
-        gecopy(mc, nr,
+        gecopy(mc, nr, false,
                &B_[j*mc*NR], NR, IndexType(1),
                &B[j*NR*incColB], incRowB, incColB);
     }

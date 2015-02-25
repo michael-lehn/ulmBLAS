@@ -1,18 +1,18 @@
 #ifndef ULMBLAS_LEVEL1EXTENSIONS_KERNEL_SSE_DOTXAXPYF_H
 #define ULMBLAS_LEVEL1EXTENSIONS_KERNEL_SSE_DOTXAXPYF_H 1
 
+#include <ulmblas/config/fusefactor.h>
 #include <ulmblas/level1extensions/kernel/ref/dotxaxpyf.h>
+#include <type_traits>
 
 namespace ulmBLAS { namespace sse {
 
 using ref::dotxaxpyf;
 
-template <typename T>
-    int
-    dotxaxpyf_fusefactor();
-
 template <typename IndexType>
-    void
+    typename std::enable_if<std::is_integral<IndexType>::value
+                         && FuseFactor<double>::dotuxf==2,
+    void>::type
     dotxaxpyf(IndexType      n,
               bool           conjX,
               bool           conjXt,

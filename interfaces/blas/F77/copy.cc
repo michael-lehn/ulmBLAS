@@ -24,7 +24,7 @@ F77BLAS(dcopy)(const int    *n_,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    ulmBLAS::copy(n, x, incX, y, incY);
+    ulmBLAS::copy(n, false, x, incX, y, incY);
 }
 
 void
@@ -51,7 +51,7 @@ F77BLAS(zcopy)(const int    *n_,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    ulmBLAS::copy(n, x, incX, y, incY);
+    ulmBLAS::copy(n, false, x, incX, y, incY);
 }
 
 } // extern "C"

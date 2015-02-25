@@ -4,7 +4,7 @@
 #ifndef USE_TESTPARAM
 
     #if defined(__SSE3__)
-    #   define HAVE_SSE
+    #   define USE_SSE
     #endif
 
 #endif

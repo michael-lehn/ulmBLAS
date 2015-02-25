@@ -8,6 +8,17 @@ template <typename IndexType, typename TA, typename TX>
     tbustv(IndexType    n,
            IndexType    k,
            bool         unitDiag,
+           bool         conjA,
+           const TA     *A,
+           IndexType    ldA,
+           const TX     *x,
+           IndexType    incX);
+
+template <typename IndexType, typename TA, typename TX>
+    void
+    tbustv(IndexType    n,
+           IndexType    k,
+           bool         unitDiag,
            const TA     *A,
            IndexType    ldA,
            const TX     *x,

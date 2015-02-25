@@ -13,6 +13,17 @@ template <typename IndexType, typename TA, typename TX>
           TX           *x,
           IndexType    incX);
 
+template <typename IndexType, typename TA, typename TX>
+    void
+    tblsv(IndexType    n,
+          IndexType    k,
+          bool         unitDiag,
+          bool         conjA,
+          const TA     *A,
+          IndexType    ldA,
+          TX           *x,
+          IndexType    incX);
+
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL2_TBLSV_H

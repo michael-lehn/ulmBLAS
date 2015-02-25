@@ -4,7 +4,7 @@
 //
 //  Selected optimized micro kernel
 //
-#if defined(HAVE_SSE)
+#if defined(USE_SSE)
 #   define  SELECT_UGEMM_KERNEL     sse
 #   include <ulmblas/level3/ukernel/sse/ugemm.h>
 #else

@@ -17,7 +17,7 @@ ULMBLAS(dcopy)(int          n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    return ulmBLAS::copy(n, x, incX, y, incY);
+    return ulmBLAS::copy(n, false, x, incX, y, incY);
 }
 
 void
@@ -37,7 +37,7 @@ ULMBLAS(zcopy)(int          n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    return ulmBLAS::copy(n, x, incX, y, incY);
+    return ulmBLAS::copy(n, false, x, incX, y, incY);
 }
 
 void

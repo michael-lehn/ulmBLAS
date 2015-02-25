@@ -6,19 +6,7 @@
 #include <ulmblas/level1extensions/kernel/sse/dotxf.h>
 #include <ulmblas/level1extensions/kernel/sse/dot2v.h>
 
-#define DDOTUXF_FUSEFACTOR  4
-
 namespace ulmBLAS { namespace sse {
-
-template <typename T>
-int
-dotuxf_fusefactor()
-{
-    if (std::is_same<T,double>::value) {
-        return DDOTUXF_FUSEFACTOR;
-    }
-    return ref::dotuxf_fusefactor<T>();
-}
 
 //
 // ----------------
@@ -26,10 +14,10 @@ dotuxf_fusefactor()
 // ----------------
 //
 
-#if DDOTUXF_FUSEFACTOR==2
-
 template <typename IndexType>
-void
+typename std::enable_if<std::is_integral<IndexType>::value
+                     && FuseFactor<double>::dotuxf==2,
+void>::type
 dotuxf(IndexType      n,
        const double   *X,
        IndexType      incRowX,
@@ -46,10 +34,10 @@ dotuxf(IndexType      n,
            result, resultInc);
 }
 
-#elif DDOTUXF_FUSEFACTOR==4
-
 template <typename IndexType>
-void
+typename std::enable_if<std::is_integral<IndexType>::value
+                     && FuseFactor<double>::dotuxf==4,
+void>::type
 dotuxf(IndexType      n,
        const double   *X,
        IndexType      incRowX,
@@ -183,8 +171,6 @@ dotuxf(IndexType      n,
         ref::dotuxf(n, X, incRowX, incColX, y, incY, result, resultInc);
     }
 }
-
-#endif // DDOTUXF_FUSEFACTOR
 
 } } // namespace sse, ulmBLAS
 

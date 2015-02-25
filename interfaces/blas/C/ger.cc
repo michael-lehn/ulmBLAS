@@ -42,9 +42,9 @@ ULMBLAS(dger)(int           m,
     double *y_ = new double[n*incY*SCATTER_INCY];
     double *A_ = new double[ldA*n*SCATTER_INCROWA*SCATTER_INCCOLA];
 
-    ulmBLAS::copy(m, x, incX, x_, incX*SCATTER_INCX);
-    ulmBLAS::copy(m, y, incY, y_, incY*SCATTER_INCY);
-    ulmBLAS::gecopy(m, n,
+    ulmBLAS::copy(m, false, x, incX, x_, incX*SCATTER_INCX);
+    ulmBLAS::copy(m, false, y, incY, y_, incY*SCATTER_INCY);
+    ulmBLAS::gecopy(m, n, false,
                     A, 1, ldA,
                     A_, SCATTER_INCROWA, ldA*SCATTER_INCCOLA);
 
@@ -56,9 +56,7 @@ ULMBLAS(dger)(int           m,
                  y_, incY*SCATTER_INCY,
                  A_, SCATTER_INCROWA, ldA*SCATTER_INCCOLA);
 
-    ulmBLAS::gecopy(m, n,
-                    A_, SCATTER_INCROWA, ldA*SCATTER_INCCOLA,
-                    A, 1, ldA);
+    ulmBLAS::gecopy(m, n, A_, SCATTER_INCROWA, ldA*SCATTER_INCCOLA, A, 1, ldA);
 //
 //  Gather result
 //

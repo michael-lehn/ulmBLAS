@@ -10,7 +10,7 @@
 //
 //  Selected optimized micro kernel
 //
-#if defined(HAVE_SSE)
+#if defined(USE_SSE)
 #   define  SELECT_UTRLSM_KERNEL    sse
 #   include <ulmblas/level3/ukernel/sse/utrlsm.h>
 #else
@@ -44,11 +44,11 @@ utrlsm(IndexType    mr,
     scal(MR*MR, T(0), A_, IndexType(1));
     scal(MR*NR, T(0), B_, IndexType(1));
 
-    gecopy(mr, mr, A, IndexType(1), MR, A_, IndexType(1), MR);
-    gecopy(mr, nr, B, NR, IndexType(1), B_, NR, IndexType(1));
+    gecopy(mr, mr, false, A, IndexType(1), MR, A_, IndexType(1), MR);
+    gecopy(mr, nr, false, B, NR, IndexType(1), B_, NR, IndexType(1));
 
     utrlsm(A_, B_, C_, IndexType(1), MR);
-    gecopy(mr, nr, C_, IndexType(1), MR, C, incRowC, incColC);
+    gecopy(mr, nr, false, C_, IndexType(1), MR, C, incRowC, incColC);
 }
 
 //

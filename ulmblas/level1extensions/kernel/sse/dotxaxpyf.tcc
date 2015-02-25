@@ -3,26 +3,11 @@
 
 #include <immintrin.h>
 #include <ulmblas/auxiliary/isaligned.h>
+#include <ulmblas/config/fusefactor.h>
 #include <ulmblas/level1extensions/kernel/sse/dotxaxpyf.h>
 #include <ulmblas/level1extensions/kernel/ref/dotxaxpyf.h>
 
-#ifdef DDOTXAXPYF_FUSEFACTOR
-#undef DDOTXAXPYF_FUSEFACTOR
-#endif
-
-#define DDOTXAXPYF_FUSEFACTOR  2
-
 namespace ulmBLAS { namespace sse {
-
-template <typename T>
-int
-dotxaxpyf_fusefactor()
-{
-    if (std::is_same<T,double>::value) {
-        return DDOTXAXPYF_FUSEFACTOR;
-    }
-    return ref::dotxaxpyf_fusefactor<T>();
-}
 
 //
 // ----------------
@@ -31,7 +16,9 @@ dotxaxpyf_fusefactor()
 //
 
 template <typename IndexType>
-void
+typename std::enable_if<std::is_integral<IndexType>::value
+                     && FuseFactor<double>::dotuxf==2,
+void>::type
 dotxaxpyf(IndexType      n,
           bool           conjX,
           bool           conjXt,
@@ -49,7 +36,7 @@ dotxaxpyf(IndexType      n,
           double         *rho,
           IndexType      incRho)
 {
-    const IndexType bf = dotxaxpyf_fusefactor<double>();
+    const IndexType bf = FuseFactor<double>::dotxaxpyf;
 
     for (IndexType l=0; l<bf; ++l) {
         rho[l*incRho] = 0;

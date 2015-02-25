@@ -6,13 +6,6 @@
 
 namespace ulmBLAS {
 
-template <typename T>
-int
-dotuxf_fusefactor()
-{
-    return SELECT_DOTXF_KERNEL::dotuxf_fusefactor<T>();
-}
-
 template <typename IndexType, typename TX, typename TY, typename Result>
 void
 dotuxf(IndexType      n,
@@ -25,6 +18,21 @@ dotuxf(IndexType      n,
        IndexType      resultInc)
 {
     SELECT_DOTXF_KERNEL::dotuxf(n, X, incRowX, incColX, y, incY,
+                                result, resultInc);
+}
+
+template <typename IndexType, typename TX, typename TY, typename Result>
+void
+dotcxf(IndexType      n,
+       const TX       *X,
+       IndexType      incRowX,
+       IndexType      incColX,
+       const TY       *y,
+       IndexType      incY,
+       Result         *result,
+       IndexType      resultInc)
+{
+    SELECT_DOTXF_KERNEL::dotcxf(n, X, incRowX, incColX, y, incY,
                                 result, resultInc);
 }
 

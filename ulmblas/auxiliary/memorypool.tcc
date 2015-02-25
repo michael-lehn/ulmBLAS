@@ -8,7 +8,7 @@
 #include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/config/simd.h>
 
-#if defined(HAVE_SSE)
+#if defined(USE_SSE)
 #   include <xmmintrin.h>
 #endif
 
@@ -18,7 +18,7 @@ template <typename T>
 T *
 malloc(size_t n)
 {
-#if defined(HAVE_SSE)
+#if defined(USE_SSE)
     return reinterpret_cast<T *>(_mm_malloc(n*sizeof(T), 16));
 #   else
     return new T[n];
@@ -29,7 +29,7 @@ template <typename T>
 void
 free(T *block)
 {
-#if defined(HAVE_SSE)
+#if defined(USE_SSE)
     _mm_free(block);
 #   else
     delete [] block;

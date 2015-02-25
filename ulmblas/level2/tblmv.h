@@ -8,10 +8,22 @@ template <typename IndexType, typename TA, typename TX>
     tblmv(IndexType    n,
           IndexType    k,
           bool         unitDiag,
+          bool         conjA,
           const TA     *A,
           IndexType    ldA,
           TX           *x,
           IndexType    incX);
+
+template <typename IndexType, typename TA, typename TX>
+    void
+    tblmv(IndexType    n,
+          IndexType    k,
+          bool         unitDiag,
+          const TA     *A,
+          IndexType    ldA,
+          TX           *x,
+          IndexType    incX);
+
 
 } // namespace ulmBLAS
 

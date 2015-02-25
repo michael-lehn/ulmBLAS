@@ -1,23 +1,14 @@
 #ifndef ULMBLAS_LEVEL1EXTENSIONS_KERNEL_SSE_AXPYF_TCC
 #define ULMBLAS_LEVEL1EXTENSIONS_KERNEL_SSE_AXPYF_TCC
 
+#include <ulmblas/config/fusefactor.h>
 #include <ulmblas/level1extensions/kernel/ref/axpyf.h>
 #include <ulmblas/level1extensions/kernel/sse/axpyf.h>
 #include <ulmblas/level1extensions/kernel/sse/axpy2v.h>
+#include <type_traits>
 
-#define DAXPYF_FUSEFACTOR  2
 
 namespace ulmBLAS { namespace sse {
-
-template <typename T>
-int
-axpyf_fusefactor()
-{
-    if (std::is_same<T,double>::value) {
-        return DAXPYF_FUSEFACTOR;
-    }
-    return ref::axpyf_fusefactor<T>();
-}
 
 //
 // ----------------
@@ -25,15 +16,18 @@ axpyf_fusefactor()
 // ----------------
 //
 
-#if DAXPYF_FUSEFACTOR==2
-
+//
+// Implementation for fuse factor 2
+//
 template <typename IndexType>
-void
+typename std::enable_if<std::is_integral<IndexType>::value
+                     && FuseFactor<double>::axpyf==2,
+void>::type
 axpyf(IndexType      n,
       const double   &alpha,
       const double   *a,
       IndexType      incA,
-      const double   *x,
+      const double   *X,
       IndexType      incRowX,
       IndexType      incColX,
       double         *y,
@@ -42,20 +36,23 @@ axpyf(IndexType      n,
     axpy2v(n,
            alpha*a[0*incA],
            alpha*a[1*incA],
-           &x[0*incColX], incRowX,
-           &x[1*incColX], incRowX,
+           &X[0*incColX], incRowX,
+           &X[1*incColX], incRowX,
            y, incY);
 }
 
-#elif DAXPYF_FUSEFACTOR==4
-
+//
+// Implementation for fuse factor 4
+//
 template <typename IndexType>
-void
+typename std::enable_if<std::is_integral<IndexType>::value
+                     && FuseFactor<double>::axpyf==4,
+void>::type
 axpyf(IndexType      n,
       const double   &alpha,
       const double   *a,
       IndexType      incA,
-      const double   *x,
+      const double   *X,
       IndexType      incRowX,
       IndexType      incColX,
       double         *y,
@@ -66,14 +63,14 @@ axpyf(IndexType      n,
     }
 
     if (incRowX!=1 || incY!=1) {
-        ref::axpyf(n, alpha, a, incA, x, incRowX, incColX, y, incY);
+        ref::axpyf(n, alpha, a, incA, X, incRowX, incColX, y, incY);
         return;
     }
 
-    const double *x0 = &x[0*incColX];
-    const double *x1 = &x[1*incColX];
-    const double *x2 = &x[2*incColX];
-    const double *x3 = &x[3*incColX];
+    const double *x0 = &X[0*incColX];
+    const double *x1 = &X[1*incColX];
+    const double *x2 = &X[2*incColX];
+    const double *x3 = &X[3*incColX];
 
     bool x0Aligned = isAligned(x0, 16);
     bool x1Aligned = isAligned(x1, 16);
@@ -153,11 +150,9 @@ axpyf(IndexType      n,
             y[i] += alpha0*x0[i] + alpha1*x1[i] + alpha2*x2[i] + alpha3*x3[i];
         }
     } else {
-        ref::axpyf(n, alpha, a, incA, x, incRowX, incColX, y, incY);
+        ref::axpyf(n, alpha, a, incA, X, incRowX, incColX, y, incY);
     }
 }
-
-#endif
 
 } } // namespace sse, ulmBLAS
 

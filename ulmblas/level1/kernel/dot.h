@@ -3,7 +3,7 @@
 
 #include <ulmblas/config/simd.h>
 
-#if defined(HAVE_SSE)
+#if defined(USE_SSE)
 #   define  SELECT_DOT_KERNEL      sse
 #   include <ulmblas/level1/kernel/sse/dot.h>
 #else

@@ -1,7 +1,7 @@
 #ifndef ULMBLAS_LEVEL1_KERNEL_REF_DOT_TCC
 #define ULMBLAS_LEVEL1_KERNEL_REF_DOT_TCC 1
 
-#include <complex>
+#include <ulmblas/auxiliary/conjugate.h>
 #include <ulmblas/level1/kernel/ref/dot.h>
 
 namespace ulmBLAS { namespace ref {
@@ -34,7 +34,7 @@ dotc(IndexType      n,
     result = Result(0);
 
     for (IndexType i=0; i<n; ++i) {
-        result += std::conj(x[i*incX])*y[i*incY];
+        result += conjugate(x[i*incX])*y[i*incY];
     }
 }
 

@@ -3,7 +3,7 @@
 
 #include <ulmblas/level1extensions/dotaxpy.h>
 #include <ulmblas/level1/scal.h>
-#include <ulmblas/level2/gbmv.h>
+#include <ulmblas/level2/sbumv.h>
 
 namespace ulmBLAS {
 

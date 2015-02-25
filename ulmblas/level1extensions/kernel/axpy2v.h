@@ -3,7 +3,7 @@
 
 #include <ulmblas/config/simd.h>
 
-#if defined(HAVE_SSE)
+#if defined(USE_SSE)
 #   define  SELECT_AXPY2V_KERNEL     sse
 #   include <ulmblas/level1extensions/kernel/sse/axpy2v.h>
 #else

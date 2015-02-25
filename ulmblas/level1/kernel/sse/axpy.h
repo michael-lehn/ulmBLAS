@@ -6,6 +6,7 @@
 namespace ulmBLAS { namespace sse {
 
 using ref::axpy;
+using ref::acxpy;
 
 template <typename IndexType>
     void

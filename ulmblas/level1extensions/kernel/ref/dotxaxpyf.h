@@ -3,10 +3,6 @@
 
 namespace ulmBLAS { namespace ref {
 
-template <typename T>
-    int
-    dotxaxpyf_fusefactor();
-
 template <typename IndexType, typename Alpha, typename VA, typename MX,
           typename VY, typename VZ, typename Rho>
     void

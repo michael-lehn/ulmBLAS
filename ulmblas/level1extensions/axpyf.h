@@ -1,11 +1,9 @@
 #ifndef ULMBLAS_LEVEL1EXTENSIONS_AXPYF_H
 #define ULMBLAS_LEVEL1EXTENSIONS_AXPYF_H 1
 
-namespace ulmBLAS {
+#include <ulmblas/level1extensions/kernel/axpyf.h>
 
-template <typename T>
-    int
-    axpyf_fusefactor();
+namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename VA, typename VX,
           typename VY>
@@ -14,11 +12,24 @@ template <typename IndexType, typename Alpha, typename VA, typename VX,
           const Alpha    &alpha,
           const VA       *a,
           IndexType      incA,
-          const VX       *x,
+          const VX       *X,
           IndexType      incRowX,
           IndexType      incColX,
           VY             *y,
           IndexType      incY);
+
+template <typename IndexType, typename Alpha, typename VA, typename VX,
+          typename VY>
+    void
+    acxpyf(IndexType      n,
+           const Alpha    &alpha,
+           const VA       *a,
+           IndexType      incA,
+           const VX       *X,
+           IndexType      incRowX,
+           IndexType      incColX,
+           VY             *y,
+           IndexType      incY);
 
 } // namespace ulmBLAS
 

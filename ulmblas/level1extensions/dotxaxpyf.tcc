@@ -6,13 +6,6 @@
 
 namespace ulmBLAS {
 
-template <typename T>
-int
-dotxaxpyf_fusefactor()
-{
-    return SELECT_DOTXAXPYF_KERNEL::dotxaxpyf_fusefactor<T>();
-}
-
 template <typename IndexType, typename Alpha, typename VA, typename MX,
           typename VY, typename VZ, typename Rho>
 void

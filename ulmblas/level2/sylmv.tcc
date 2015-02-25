@@ -1,6 +1,7 @@
 #ifndef ULMBLAS_LEVEL2_SYLMV_TCC
 #define ULMBLAS_LEVEL2_SYLMV_TCC 1
 
+#include <ulmblas/config/fusefactor.h>
 #include <ulmblas/level1/scal.h>
 #include <ulmblas/level1/axpy.h>
 #include <ulmblas/level1extensions/dotaxpy.h>
@@ -34,7 +35,7 @@ sylmv(IndexType    n,
     scal(n, beta, y, incY);
 
     if (homogeneousTypes && incRowA==UnitStride) {
-        const IndexType bf = dotxaxpyf_fusefactor<T>();
+        const IndexType bf = FuseFactor<T>::dotxaxpyf;
         const IndexType nb = (n/bf)*bf;
 
         T rho, rho_[bf];
@@ -49,12 +50,12 @@ sylmv(IndexType    n,
                       rho_, 1);
 
             for (IndexType l=0; l<bf; ++l) {
-                ref::dotaxpy(bf-1-l, false, false, false,
-                             alpha*x[(j+l)*incX],
-                             &A[(j+l+1)*incRowA+(j+l)*incColA], incRowA,
-                             &x[(j+l+1)*incX], incX,
-                             &y[(j+l+1)*incY], incY,
-                             rho);
+                dotaxpy(bf-1-l, false, false, false,
+                        alpha*x[(j+l)*incX],
+                        &A[(j+l+1)*incRowA+(j+l)*incColA], incRowA,
+                        &x[(j+l+1)*incX], incX,
+                        &y[(j+l+1)*incY], incY,
+                        rho);
                 y[(j+l)*incY] += alpha*(rho+rho_[l]);
                 y[(j+l)*incY] += alpha*A[(j+l)*incRowA+(j+l)*incColA]
                                       *x[(j+l)*incX];
@@ -62,16 +63,16 @@ sylmv(IndexType    n,
 
         }
         for (IndexType j=nb; j<n; ++j) {
-            ref::dotaxpy(n-1-j, false, false, false,
-                         alpha*x[j*incX],
-                         &A[(j+1)*incRowA+j*incColA], incRowA,
-                         &x[(j+1)*incX], incX,
-                         &y[(j+1)*incY], incY,
-                         rho);
+            dotaxpy(n-1-j, false, false, false,
+                    alpha*x[j*incX],
+                    &A[(j+1)*incRowA+j*incColA], incRowA,
+                    &x[(j+1)*incX], incX,
+                    &y[(j+1)*incY], incY,
+                    rho);
             y[j*incY] += alpha*(A[j*incRowA+j*incColA]*x[j*incX]+rho);
         }
     } else if (homogeneousTypes && incColA==UnitStride) {
-        const IndexType bf = dotxaxpyf_fusefactor<T>();
+        const IndexType bf = FuseFactor<T>::dotxaxpyf;
         const IndexType nb = (n/bf)*bf;
 
         T rho, rho_[bf];
@@ -86,24 +87,24 @@ sylmv(IndexType    n,
                       rho_, 1);
 
             for (IndexType l=0; l<bf; ++l) {
-                ref::dotaxpy(l, false, false, false,
-                             alpha*x[(i+l)*incX],
-                             &A[(i+l)*incRowA+i*incColA], incColA,
-                             &x[i*incX], incX,
-                             &y[i*incY], incY,
-                             rho);
+                dotaxpy(l, false, false, false,
+                        alpha*x[(i+l)*incX],
+                        &A[(i+l)*incRowA+i*incColA], incColA,
+                        &x[i*incX], incX,
+                        &y[i*incY], incY,
+                        rho);
                 y[(i+l)*incY] += alpha*(rho+rho_[l]);
                 y[(i+l)*incY] += alpha*A[(i+l)*incRowA+(i+l)*incColA]
                                       *x[(i+l)*incX];
             }
         }
         for (IndexType i=nb; i<n; ++i) {
-            ref::dotaxpy(i, false, false, false,
-                         alpha*x[i*incX],
-                         &A[i*incRowA], incColA,
-                         &x[0*incX], incX,
-                         &y[0*incY], incY,
-                         rho);
+            dotaxpy(i, false, false, false,
+                    alpha*x[i*incX],
+                    &A[i*incRowA], incColA,
+                    &x[0*incX], incX,
+                    &y[0*incY], incY,
+                    rho);
             y[i*incY] += alpha*(A[i*incRowA+i*incColA]*x[i*incX]+rho);
         }
     } else {
