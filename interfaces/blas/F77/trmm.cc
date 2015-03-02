@@ -4,10 +4,7 @@
 #include <complex>
 #include BLAS_HEADER
 #include <interfaces/blas/F77/xerbla.h>
-#include <ulmblas/level3/trlmm.h>
-#include <ulmblas/level3/trumm.h>
-
-#include <ulmblas/auxiliary/printmatrix.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 

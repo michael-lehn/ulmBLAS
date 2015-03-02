@@ -3,7 +3,7 @@
 #include <cmath>
 #include BLAS_HEADER
 #include <interfaces/blas/F77/xerbla.h>
-#include <ulmblas/level2/helmv.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 
@@ -68,9 +68,9 @@ F77BLAS(zhemv)(const char     *upLo_,
 //  Start the operations.
 //
     if (lowerA) {
-        ulmBLAS::helmv(n, alpha, A, 1, ldA, x, incX, beta, y, incY);
+        ulmBLAS::helmv(n, alpha, false, A, 1, ldA, x, incX, beta, y, incY);
     } else {
-        ulmBLAS::helmv(n, alpha, A, ldA, 1, x, incX, beta, y, incY);
+        ulmBLAS::helmv(n, alpha, true, A, ldA, 1, x, incX, beta, y, incY);
     }
 }
 

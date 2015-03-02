@@ -2,9 +2,7 @@
 #include <algorithm>
 #include <interfaces/blas/C/transpose.h>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/level1/copy.h>
-#include <ulmblas/level1extensions/gecopy.h>
-#include <ulmblas/level2/gemv.h>
+#include <ulmblas/ulmblas.h>
 
 //#define SCATTER
 
@@ -118,6 +116,51 @@ ULMBLAS(dgemv)(enum CBLAS_TRANSPOSE  transA,
 }
 
 void
+ULMBLAS(zgemv)(enum CBLAS_TRANSPOSE  transA_,
+               int                   m,
+               int                   n,
+               const double          *alpha_,
+               const double          *A_,
+               int                   ldA,
+               const double          *x_,
+               int                   incX,
+               const double          *beta_,
+               double                *y_,
+               int                   incY)
+{
+    bool transA = (transA_==CblasTrans || transA_==CblasConjTrans);
+    bool conjA  = (transA_==AtlasConj || transA_==CblasConjTrans);
+
+    typedef std::complex<double> dcomplex;
+    dcomplex       alpha = dcomplex(alpha_[0], alpha_[1]);
+    dcomplex       beta  = dcomplex(beta_[0], beta_[1]);
+    const dcomplex *A    = reinterpret_cast<const dcomplex *>(A_);
+    const dcomplex *x    = reinterpret_cast<const dcomplex *>(x_);
+    dcomplex       *y    = reinterpret_cast<dcomplex *>(y_);
+
+//
+//  Start the operations.
+//
+    if (!transA) {
+        if (incX<0) {
+            x -= incX*(n-1);
+        }
+        if (incY<0) {
+            y -= incY*(m-1);
+        }
+        ulmBLAS::gemv(m, n, alpha, conjA, A, 1, ldA, x, incX, beta, y, incY);
+    } else {
+        if (incX<0) {
+            x -= incX*(m-1);
+        }
+        if (incY<0) {
+            y -= incY*(n-1);
+        }
+        ulmBLAS::gemv(n, m, alpha, conjA, A, ldA, 1, x, incX, beta, y, incY);
+    }
+}
+
+void
 CBLAS(dgemv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              int                   m,
@@ -181,6 +224,73 @@ CBLAS(dgemv)(enum CBLAS_ORDER      order,
     } else {
         transA = transpose(transA);
         ULMBLAS(dgemv)(transA, n, m, alpha, A, ldA, x, incX, beta, y, incY);
+    }
+}
+
+void
+CBLAS(zgemv)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             int                   m,
+             int                   n,
+             const double          *alpha,
+             const double          *A,
+             int                   ldA,
+             const double          *x,
+             int                   incX,
+             const double          *beta,
+             double                *y,
+             int                   incY)
+{
+//
+//  Test the input parameters
+//
+    int info = 0;
+    if (order!=CblasColMajor && order!=CblasRowMajor) {
+        info = 1;
+    } else if (transA!=CblasNoTrans && transA!=AtlasConj
+            && transA!=CblasTrans && transA!=CblasConjTrans)
+    {
+        info = 2;
+    } else {
+        if (order==CblasColMajor) {
+            if (m<0) {
+                info = 3;
+            } else if (n<0) {
+                info = 4;
+            } else if (ldA<std::max(1,m)) {
+                info = 7;
+            }
+        } else {
+            if (n<0) {
+                info = 3;
+            } else if (m<0) {
+                info = 4;
+            } else if (ldA<std::max(1,n)) {
+                info = 7;
+            }
+        }
+    }
+    if (info==0) {
+        if (incX==0) {
+            info = 9;
+        } else if (incY==0) {
+            info = 12;
+        }
+    }
+
+    if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
+        CBLAS(xerbla)(info, "cblas_zgemv", "... bla bla ...");
+        return;
+    }
+
+    if (order==CblasColMajor) {
+        ULMBLAS(zgemv)(transA, m, n, alpha, A, ldA, x, incX, beta, y, incY);
+    } else {
+        transA = transpose(transA);
+        ULMBLAS(zgemv)(transA, n, m, alpha, A, ldA, x, incX, beta, y, incY);
     }
 }
 

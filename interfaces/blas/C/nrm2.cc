@@ -1,6 +1,6 @@
 #include BLAS_HEADER
 #include <complex>
-#include <ulmblas/level1/nrm2.h>
+#include <ulmblas/ulmblas.h>
 
 #include <iostream>
 

@@ -1,10 +1,7 @@
 #include BLAS_HEADER
 #include <algorithm>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/level1/copy.h>
-#include <ulmblas/level1extensions/gecopy.h>
-#include <ulmblas/level2/splr2.h>
-#include <ulmblas/level2/spur2.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 
@@ -18,6 +15,12 @@ ULMBLAS(dspr2)(enum CBLAS_UPLO  upLo,
                int              incY,
                double           *A)
 {
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
+    if (incY<0) {
+        y -= incY*(n-1);
+    }
 //
 //  Start the operations.
 //
@@ -61,12 +64,6 @@ CBLAS(dspr2)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_dspr2", "... bla bla ...");
-    }
-    if (incX<0) {
-        x -= incX*(n-1);
-    }
-    if (incY<0) {
-        y -= incY*(n-1);
     }
 
     if (order==CblasColMajor) {

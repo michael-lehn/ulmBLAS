@@ -2,7 +2,7 @@
 #include <complex>
 #include <interfaces/blas/C/transpose.h>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/level3/gemm.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 
@@ -77,12 +77,12 @@ ULMBLAS(zgemm)(enum CBLAS_TRANSPOSE  transA,
                int                   m,
                int                   n,
                int                   k,
-               double                *alpha_,
+               const double          *alpha_,
                const double          *A_,
                int                   ldA,
                const double          *B_,
                int                   ldB,
-               double                *beta_,
+               const double          *beta_,
                double                *C_,
                int                   ldC)
 {
@@ -251,12 +251,12 @@ CBLAS(zgemm)(enum CBLAS_ORDER      order,
              int                   m,
              int                   n,
              int                   k,
-             double                *alpha,
+             const double          *alpha,
              const double          *A,
              int                   ldA,
              const double          *B,
              int                   ldB,
-             double                *beta,
+             const double          *beta,
              double                *C,
              int                   ldC)
 {

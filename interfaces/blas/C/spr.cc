@@ -1,10 +1,7 @@
 #include BLAS_HEADER
 #include <algorithm>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/level1/copy.h>
-#include <ulmblas/level1extensions/gecopy.h>
-#include <ulmblas/level2/splr.h>
-#include <ulmblas/level2/spur.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 
@@ -19,6 +16,10 @@ ULMBLAS(dspr)(enum CBLAS_UPLO  upLo,
 //
 //  Start the operations.
 //
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
+
     if (upLo==CblasLower) {
         ulmBLAS::splr(n, alpha, x, incX, A);
     } else {
@@ -55,9 +56,6 @@ CBLAS(dspr)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_dspr", "... bla bla ...");
-    }
-    if (incX<0) {
-        x -= incX*(n-1);
     }
 
     if (order==CblasColMajor) {

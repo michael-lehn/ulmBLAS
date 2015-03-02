@@ -15,6 +15,7 @@ template <typename IndexType, typename Alpha, typename TA, typename TX,
 void
 helmv(IndexType    n,
       const Alpha  &alpha,
+      bool         conjA,
       const TA     *A,
       IndexType    incRowA,
       IndexType    incColA,
@@ -30,7 +31,8 @@ helmv(IndexType    n,
     static const bool  homogeneousTypes = std::is_same<T,Alpha>::value
                                        && std::is_same<T,TA>::value
                                        && std::is_same<T,TX>::value
-                                       && std::is_same<T,TY>::value;
+                                       && std::is_same<T,TY>::value
+                                       && false;
 
     scal(n, beta, y, incY);
 
@@ -42,7 +44,7 @@ helmv(IndexType    n,
 
         for (IndexType j=0; j<nb; j+=bf) {
 
-            dotxaxpyf(n-j-bf, false, true, false,
+            dotxaxpyf(n-j-bf, conjA, !conjA, false,
                       alpha,
                       &x[j*incX], incX,
                       &A[(j+bf)*incRowA+j*incColA], incRowA, incColA,
@@ -51,7 +53,7 @@ helmv(IndexType    n,
                       rho_, 1);
 
             for (IndexType l=0; l<bf; ++l) {
-                dotaxpy(bf-1-l, false, true, false,
+                dotaxpy(bf-1-l, conjA, !conjA, false,
                         alpha*x[(j+l)*incX],
                         &A[(j+l+1)*incRowA+(j+l)*incColA], incRowA,
                         &x[(j+l+1)*incX], incX,
@@ -64,7 +66,7 @@ helmv(IndexType    n,
 
         }
         for (IndexType j=nb; j<n; ++j) {
-            dotaxpy(n-1-j, false, true, false,
+            dotaxpy(n-1-j, conjA, !conjA, false,
                     alpha*x[j*incX],
                     &A[(j+1)*incRowA+j*incColA], incRowA,
                     &x[(j+1)*incX], incX,
@@ -80,7 +82,7 @@ helmv(IndexType    n,
 
         for (IndexType i=0; i<nb; i+=bf) {
 
-            dotxaxpyf(i, false, true, false,
+            dotxaxpyf(i, conjA, !conjA, false,
                       alpha, &x[i*incX], incX,
                       &A[i*incRowA], incColA, incRowA,
                       &x[0*incX], incX,
@@ -88,7 +90,7 @@ helmv(IndexType    n,
                       rho_, 1);
 
             for (IndexType l=0; l<bf; ++l) {
-                dotaxpy(l, false, true, false,
+                dotaxpy(l, conjA, !conjA, false,
                         alpha*x[(i+l)*incX],
                         &A[(i+l)*incRowA+i*incColA], incColA,
                         &x[i*incX], incX,
@@ -100,7 +102,7 @@ helmv(IndexType    n,
             }
         }
         for (IndexType i=nb; i<n; ++i) {
-            dotaxpy(i, false, true, false,
+            dotaxpy(i, conjA, !conjA, false,
                     alpha*x[i*incX],
                     &A[i*incRowA], incColA,
                     &x[0*incX], incX,
@@ -114,16 +116,45 @@ helmv(IndexType    n,
 //      TODO: packing, switching between dot/axpy variant depending on
 //            abs(incRowA) and abs(incColA)
 //
-        for (IndexType i=0; i<n; ++i) {
-            acxpy(i, alpha*x[i*incX],
-                  &A[i*incRowA], incColA,
-                  &y[0*incY], incY);
-            y[i*incY] += alpha*real(A[i*incRowA+i*incColA])*x[i*incX];
-            axpy(n-1-i, alpha*x[i*incX],
-                 &A[(i+1)*incRowA+i*incColA], incRowA,
-                 &y[(i+1)*incY], incY);
-        }
+        if (!conjA) {
+            for (IndexType i=0; i<n; ++i) {
+                acxpy(i, alpha*x[i*incX],
+                      &A[i*incRowA], incColA,
+                      &y[0*incY], incY);
+                y[i*incY] += alpha*real(A[i*incRowA+i*incColA])*x[i*incX];
+                axpy(n-1-i, alpha*x[i*incX],
+                     &A[(i+1)*incRowA+i*incColA], incRowA,
+                     &y[(i+1)*incY], incY);
+            }
+        } else {
+            for (IndexType i=0; i<n; ++i) {
+                axpy(i, alpha*x[i*incX],
+                     &A[i*incRowA], incColA,
+                     &y[0*incY], incY);
+                y[i*incY] += alpha*real(A[i*incRowA+i*incColA])*x[i*incX];
+                acxpy(n-1-i, alpha*x[i*incX],
+                      &A[(i+1)*incRowA+i*incColA], incRowA,
+                      &y[(i+1)*incY], incY);
+            }
+         }
     }
+}
+
+template <typename IndexType, typename Alpha, typename TA, typename TX,
+          typename Beta, typename TY>
+void
+helmv(IndexType    n,
+      const Alpha  &alpha,
+      const TA     *A,
+      IndexType    incRowA,
+      IndexType    incColA,
+      const TX     *x,
+      IndexType    incX,
+      const Beta   &beta,
+      TY           *y,
+      IndexType    incY)
+{
+    helmv(n, alpha, false, A, incRowA, incColA, x, incX, beta, y, incY);
 }
 
 } // namespace ulmBLAS

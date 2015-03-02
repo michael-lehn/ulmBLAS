@@ -8,6 +8,21 @@ template <typename IndexType, typename Alpha, typename TA, typename TX,
     void
     helmv(IndexType    n,
           const Alpha  &alpha,
+          bool         conjA,
+          const TA     *A,
+          IndexType    incRowA,
+          IndexType    incColA,
+          const TX     *x,
+          IndexType    incX,
+          const Beta   &beta,
+          TY           *y,
+          IndexType    incY);
+
+template <typename IndexType, typename Alpha, typename TA, typename TX,
+          typename Beta, typename TY>
+    void
+    helmv(IndexType    n,
+          const Alpha  &alpha,
           const TA     *A,
           IndexType    incRowA,
           IndexType    incColA,

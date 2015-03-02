@@ -14,6 +14,7 @@ void
 hblmv(IndexType    n,
       IndexType    k,
       const Alpha  &alpha,
+      bool         conjA,
       const TA     *A,
       IndexType    ldA,
       const TX     *x,
@@ -39,7 +40,7 @@ hblmv(IndexType    n,
         IndexType len = std::max(IndexType(0), i1+1);
         T         rho;
 
-        dotaxpy(len-1, false, true, false,
+        dotaxpy(len-1, conjA, !conjA, false,
                 alpha*x[j*incX],
                 &A[1], IndexType(1),
                 &x[(j+1)*incX], incX,
@@ -48,6 +49,23 @@ hblmv(IndexType    n,
         y[j*incY] += alpha*(rho+real(A[0])*x[j*incX]);
         A += ldA;
     }
+}
+
+template <typename IndexType, typename Alpha, typename TA, typename TX,
+          typename Beta, typename TY>
+void
+hblmv(IndexType    n,
+      IndexType    k,
+      const Alpha  &alpha,
+      const TA     *A,
+      IndexType    ldA,
+      const TX     *x,
+      IndexType    incX,
+      const Beta   &beta,
+      TY           *y,
+      IndexType    incY)
+{
+    hblmv(n, k, alpha, false, A, ldA, x, incX, beta, y, incY);
 }
 
 } // namespace ulmBLAS

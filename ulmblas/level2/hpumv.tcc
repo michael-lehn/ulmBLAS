@@ -13,6 +13,7 @@ template <typename IndexType, typename Alpha, typename TA, typename TX,
 void
 hpumv(IndexType    n,
       const Alpha  &alpha,
+      bool         conjA,
       const TA     *A,
       const TX     *x,
       IndexType    incX,
@@ -35,7 +36,7 @@ hpumv(IndexType    n,
     for (IndexType j=0; j<n; ++j) {
         T  rho;
 
-        dotaxpy(j, false, true, false,
+        dotaxpy(j, conjA, !conjA, false,
                 alpha*x[j*incX],
                 A, IndexType(1),
                 x, incX,
@@ -44,6 +45,21 @@ hpumv(IndexType    n,
         y[j*incY] += alpha*(rho+real(A[j])*x[j*incX]);
         A += j+1;
     }
+}
+
+template <typename IndexType, typename Alpha, typename TA, typename TX,
+          typename Beta, typename TY>
+void
+hpumv(IndexType    n,
+      const Alpha  &alpha,
+      const TA     *A,
+      const TX     *x,
+      IndexType    incX,
+      const Beta   &beta,
+      TY           *y,
+      IndexType    incY)
+{
+    hpumv(n, alpha, false, A, x, incX, beta, y, incY);
 }
 
 } // namespace ulmBLAS

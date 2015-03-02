@@ -4,8 +4,7 @@
 #include <complex>
 #include <cmath>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/level3/helmm.h>
-#include <ulmblas/level3/heumm.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 

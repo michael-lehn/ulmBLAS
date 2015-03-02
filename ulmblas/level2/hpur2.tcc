@@ -12,6 +12,7 @@ template <typename IndexType, typename Alpha, typename TX, typename TY,
           typename TA>
 void
 hpur2(IndexType    n,
+      bool         conj,
       const Alpha  &alpha,
       const TX     *x,
       IndexType    incX,
@@ -23,16 +24,45 @@ hpur2(IndexType    n,
         return;
     }
 
-    for (IndexType j=0; j<n; ++j) {
-        axpy2v(j+1,
-               alpha*conjugate(y[j*incY]),
-               conjugate(alpha*x[j*incX]),
-               x, incX,
-               y, incY,
-               A, IndexType(1));
-        A[j] = real(A[j]);
-        A += j+1;
+    if (!conj) {
+        for (IndexType j=0; j<n; ++j) {
+            axpy2v(j+1,
+                   alpha*conjugate(y[j*incY]),
+                   conjugate(alpha*x[j*incX]),
+                   x, incX,
+                   y, incY,
+                   A, IndexType(1));
+            A[j] = real(A[j]);
+            A += j+1;
+        }
+    } else {
+        for (IndexType j=0; j<n; ++j) {
+            acxpy(j+1,
+                  conjugate(alpha)*y[j*incY],
+                  x, incX,
+                  A, IndexType(1));
+            acxpy(j+1,
+                  alpha*x[j*incX],
+                  y, incY,
+                  A, IndexType(1));
+            A[j] = real(A[j]);
+            A += j+1;
+        }
     }
+}
+
+template <typename IndexType, typename Alpha, typename TX, typename TY,
+          typename TA>
+void
+hpur2(IndexType    n,
+      const Alpha  &alpha,
+      const TX     *x,
+      IndexType    incX,
+      const TY     *y,
+      IndexType    incY,
+      TA           *A)
+{
+    hpur2(n, false, alpha, x, incX, y, incY, A);
 }
 
 } // namespace ulmBLAS

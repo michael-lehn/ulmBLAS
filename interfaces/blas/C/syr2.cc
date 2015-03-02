@@ -1,26 +1,30 @@
 #include BLAS_HEADER
 #include <algorithm>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/level1/copy.h>
-#include <ulmblas/level1extensions/gecopy.h>
-#include <ulmblas/level2/sylr2.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 
 void
 ULMBLAS(dsyr2)(enum CBLAS_UPLO  upLo,
-              int              n,
-              double           alpha,
-              const double     *x,
-              int              incX,
-              const double     *y,
-              int              incY,
-              double           *A,
-              int              ldA)
+               int              n,
+               double           alpha,
+               const double     *x,
+               int              incX,
+               const double     *y,
+               int              incY,
+               double           *A,
+               int              ldA)
 {
 //
 //  Start the operations.
 //
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
+    if (incY<0) {
+        y -= incY*(n-1);
+    }
     if (upLo==CblasLower) {
         ulmBLAS::sylr2(n, alpha, x, incX, y, incY, A, 1, ldA);
     } else {
@@ -64,12 +68,6 @@ CBLAS(dsyr2)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_dsyr2", "... bla bla ...");
-    }
-    if (incX<0) {
-        x -= incX*(n-1);
-    }
-    if (incY<0) {
-        y -= incY*(n-1);
     }
 
     if (order==CblasColMajor) {

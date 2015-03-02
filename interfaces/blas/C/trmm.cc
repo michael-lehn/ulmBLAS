@@ -5,8 +5,7 @@
 #include <cmath>
 #include <interfaces/blas/C/transpose.h>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/level3/trlmm.h>
-#include <ulmblas/level3/trumm.h>
+#include <ulmblas/ulmblas.h>
 
 #include <ulmblas/auxiliary/printmatrix.h>
 
@@ -87,7 +86,7 @@ ULMBLAS(ztrmm)(enum CBLAS_SIDE      side,
                enum CBLAS_DIAG      diag,
                int                  m,
                int                  n,
-               double               *alpha_,
+               const double         *alpha_,
                const double         *A_,
                int                  ldA,
                double               *B_,
@@ -240,7 +239,7 @@ CBLAS(ztrmm)(enum CBLAS_ORDER     order,
              enum CBLAS_DIAG      diag,
              int                  m,
              int                  n,
-             double               *alpha,
+             const double         *alpha,
              const double         *A,
              int                  ldA,
              double               *B,

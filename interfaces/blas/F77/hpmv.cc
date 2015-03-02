@@ -4,8 +4,7 @@
 #include <cmath>
 #include BLAS_HEADER
 #include <interfaces/blas/F77/xerbla.h>
-#include <ulmblas/level2/hplmv.h>
-#include <ulmblas/level2/hpumv.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 
@@ -34,7 +33,7 @@ F77BLAS(zhpmv)(const char     *upLo_,
     dcomplex       *y  = reinterpret_cast<dcomplex *>(y_);
 
     dcomplex alpha     = dcomplex(alpha_[0], alpha_[1]);
-    dcomplex beta     = dcomplex(beta_[0], beta_[1]);
+    dcomplex beta      = dcomplex(beta_[0], beta_[1]);
 
 //
 //  Test the input parameters

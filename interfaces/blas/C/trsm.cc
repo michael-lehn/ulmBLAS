@@ -5,8 +5,7 @@
 #include <cmath>
 #include <interfaces/blas/C/transpose.h>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/level3/trlsm.h>
-#include <ulmblas/level3/trusm.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 
@@ -88,7 +87,7 @@ ULMBLAS(ztrsm)(enum CBLAS_SIDE       side,
                enum CBLAS_DIAG       diag,
                int                   m,
                int                   n,
-               double                *alpha_,
+               const double          *alpha_,
                const double          *A_,
                int                   ldA,
                double                *B_,
@@ -243,7 +242,7 @@ CBLAS(ztrsm)(enum CBLAS_ORDER      order,
              enum CBLAS_DIAG       diag,
              int                   m,
              int                   n,
-             double                *alpha,
+             const double          *alpha,
              const double          *A,
              int                   ldA,
              double                *B,

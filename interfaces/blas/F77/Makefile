@@ -1,4 +1,6 @@
-include ../../../make.inc
+TOPDIR = ../../..
+
+include $(TOPDIR)/make.inc
 
 VARIANTS = $(patsubst config/make.%.inc, config_%, $(wildcard config/make.*.inc))
 

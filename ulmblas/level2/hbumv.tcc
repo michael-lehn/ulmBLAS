@@ -14,6 +14,7 @@ void
 hbumv(IndexType    n,
       IndexType    k,
       const Alpha  &alpha,
+      bool         conjA,
       const TA     *A,
       IndexType    ldA,
       const TX     *x,
@@ -43,7 +44,7 @@ hbumv(IndexType    n,
         IndexType i1XY = i0XY + len - 1;
         T         rho;
 
-        dotaxpy(len-1, false, true, false,
+        dotaxpy(len-1, conjA, !conjA, false,
                 alpha*x[j*incX],
                 &A[i0], IndexType(1),
                 &x[i0XY*incX], incX,
@@ -52,6 +53,23 @@ hbumv(IndexType    n,
         y[i1XY*incY] += alpha*(rho+real(A[i1])*x[i1XY*incX]);
         A += ldA;
     }
+}
+
+template <typename IndexType, typename Alpha, typename TA, typename TX,
+          typename Beta, typename TY>
+void
+hbumv(IndexType    n,
+      IndexType    k,
+      const Alpha  &alpha,
+      const TA     *A,
+      IndexType    ldA,
+      const TX     *x,
+      IndexType    incX,
+      const Beta   &beta,
+      TY           *y,
+      IndexType    incY)
+{
+    hbumv(n, k, alpha, false, A, ldA, x, incX, beta, y, incY);
 }
 
 } // namespace ulmBLAS

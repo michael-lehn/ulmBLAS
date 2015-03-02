@@ -4,8 +4,7 @@
 #include <complex>
 #include <cmath>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/level3/sylmm.h>
-#include <ulmblas/level3/syumm.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 
@@ -49,12 +48,12 @@ ULMBLAS(zsymm)(enum CBLAS_SIDE  side,
                enum CBLAS_UPLO  upLo,
                int              m,
                int              n,
-               double           *alpha_,
+               const double     *alpha_,
                const double     *A_,
                int              ldA,
                double           *B_,
                int              ldB,
-               double           *beta_,
+               const double     *beta_,
                double           *C_,
                int              ldC)
 {
@@ -167,12 +166,12 @@ CBLAS(zsymm)(enum CBLAS_ORDER  order,
              enum CBLAS_UPLO   upLo,
              int               m,
              int               n,
-             double            *alpha,
+             const double      *alpha,
              const double      *A,
              int               ldA,
              double            *B,
              int               ldB,
-             double            *beta,
+             const double      *beta,
              double            *C,
              int               ldC)
 {

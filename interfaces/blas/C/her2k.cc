@@ -4,9 +4,7 @@
 #include <cmath>
 #include <interfaces/blas/C/transpose.h>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/auxiliary/conjugate.h>
-#include <ulmblas/level3/helr2k.h>
-#include <ulmblas/level3/heur2k.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 

@@ -2,8 +2,7 @@
 #include <cctype>
 #include BLAS_HEADER
 #include <interfaces/blas/F77/xerbla.h>
-#include <ulmblas/level2/hplr.h>
-#include <ulmblas/level2/hpur.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 

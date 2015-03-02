@@ -1,9 +1,7 @@
 #include BLAS_HEADER
 #include <algorithm>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/level1/copy.h>
-#include <ulmblas/level1extensions/gecopy.h>
-#include <ulmblas/level2/sylmv.h>
+#include <ulmblas/ulmblas.h>
 
 //#define SCATTER
 

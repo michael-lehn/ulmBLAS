@@ -9,16 +9,16 @@ f77blas:
 	$(MAKE) -C interfaces/blas/F77
 
 cblas:
-	$(MAKE) -C interfaces/blas/C cblas
+	$(MAKE) -C interfaces/blas/C config_cblas
 
 atlblas:
-	$(MAKE) -C interfaces/blas/C atl
+	$(MAKE) -C interfaces/blas/C config_atl
 
 clapack:
-	$(MAKE) -C interfaces/lapack/C cblas
+	$(MAKE) -C interfaces/lapack/C config_cblas
 
 atllapack:
-	$(MAKE) -C interfaces/lapack/C atl
+	$(MAKE) -C interfaces/lapack/C config_atl
 
 check_f77blas:
 	$(MAKE) -C test/F77

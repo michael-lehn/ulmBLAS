@@ -1,5 +1,5 @@
 #include BLAS_HEADER
-#include <ulmblas/level1/iamax.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 

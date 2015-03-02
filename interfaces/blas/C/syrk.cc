@@ -4,8 +4,7 @@
 #include <cmath>
 #include <interfaces/blas/C/transpose.h>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/level3/sylrk.h>
-#include <ulmblas/level3/syurk.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 
@@ -44,10 +43,10 @@ ULMBLAS(zsyrk)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                int                   n,
                int                   k,
-               double                *alpha_,
+               const double          *alpha_,
                const double          *A_,
                int                   ldA,
-               double                *beta_,
+               const double          *beta_,
                double                *C_,
                int                   ldC)
 {
@@ -142,10 +141,10 @@ CBLAS(zsyrk)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  trans,
              int                   n,
              int                   k,
-             double                *alpha,
+             const double          *alpha,
              const double          *A,
              int                   ldA,
-             double                *beta,
+             const double          *beta,
              double                *C,
              int                   ldC)
 {

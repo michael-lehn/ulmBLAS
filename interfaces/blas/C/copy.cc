@@ -1,6 +1,6 @@
 #include BLAS_HEADER
 #include <complex>
-#include <ulmblas/level1/copy.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 

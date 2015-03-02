@@ -2,8 +2,7 @@
 #include <algorithm>
 #include <interfaces/blas/C/transpose.h>
 #include <interfaces/blas/C/xerbla.h>
-#include <ulmblas/level2/sblmv.h>
-#include <ulmblas/level2/sbumv.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 

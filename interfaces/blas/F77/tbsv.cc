@@ -3,10 +3,7 @@
 #include <cmath>
 #include BLAS_HEADER
 #include <interfaces/blas/F77/xerbla.h>
-#include <ulmblas/level2/tblsv.h>
-#include <ulmblas/level2/tbusv.h>
-#include <ulmblas/level2/tblstv.h>
-#include <ulmblas/level2/tbustv.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 

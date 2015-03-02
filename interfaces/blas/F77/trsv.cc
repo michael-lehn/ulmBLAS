@@ -4,8 +4,7 @@
 #include <cmath>
 #include BLAS_HEADER
 #include <interfaces/blas/F77/xerbla.h>
-#include <ulmblas/level2/trlsv.h>
-#include <ulmblas/level2/trusv.h>
+#include <ulmblas/ulmblas.h>
 
 extern "C" {
 
