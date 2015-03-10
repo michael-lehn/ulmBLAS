@@ -37,7 +37,7 @@ ugemm(IndexType   kc,
         B += NR;
     }
 
-    if (beta==0.0) {
+    if (beta==T(0)) {
         for (IndexType j=0; j<NR; ++j) {
             for (IndexType i=0; i<MR; ++i) {
                 C[i*incRowC+j*incColC] = T(0);
@@ -51,7 +51,7 @@ ugemm(IndexType   kc,
         }
     }
 
-    if (alpha==1.0) {
+    if (alpha==T(1)) {
         for (IndexType j=0; j<NR; ++j) {
             for (IndexType i=0; i<MR; ++i) {
                 C[i*incRowC+j*incColC] += AB[i+j*MR];

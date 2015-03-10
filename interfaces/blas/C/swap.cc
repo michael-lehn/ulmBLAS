@@ -4,6 +4,21 @@
 
 extern "C" {
 
+void
+ULMBLAS(sswap)(const int n,
+               float     *x,
+               const int incX,
+               float     *y,
+               const int incY)
+{
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
+    if (incY<0) {
+        y -= incY*(n-1);
+    }
+    return ulmBLAS::swap(n, x, incX, y, incY);
+}
 
 void
 ULMBLAS(dswap)(const int n,
@@ -12,6 +27,26 @@ ULMBLAS(dswap)(const int n,
                double    *y,
                const int incY)
 {
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
+    if (incY<0) {
+        y -= incY*(n-1);
+    }
+    return ulmBLAS::swap(n, x, incX, y, incY);
+}
+
+void
+ULMBLAS(cswap)(const int n,
+               float     *x_,
+               const int incX,
+               float     *y_,
+               const int incY)
+{
+    typedef std::complex<float> fcomplex;
+    fcomplex *x = reinterpret_cast<fcomplex *>(x_);
+    fcomplex *y = reinterpret_cast<fcomplex *>(y_);
+
     if (incX<0) {
         x -= incX*(n-1);
     }
@@ -41,6 +76,15 @@ ULMBLAS(zswap)(const int n,
     return ulmBLAS::swap(n, x, incX, y, incY);
 }
 
+void
+CBLAS(sswap)(const int n,
+             float     *x,
+             const int incX,
+             float     *y,
+             const int incY)
+{
+    ULMBLAS(sswap)(n, x, incX, y, incY);
+}
 
 void
 CBLAS(dswap)(const int n,
@@ -50,6 +94,16 @@ CBLAS(dswap)(const int n,
              const int incY)
 {
     ULMBLAS(dswap)(n, x, incX, y, incY);
+}
+
+void
+CBLAS(cswap)(const int n,
+             float     *x,
+             const int incX,
+             float     *y,
+             const int incY)
+{
+    ULMBLAS(cswap)(n, x, incX, y, incY);
 }
 
 void

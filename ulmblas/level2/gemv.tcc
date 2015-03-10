@@ -106,7 +106,7 @@ gemv(IndexType    m,
                 y[i*incY] += alpha*tmp[0];
             }
         } else {
-            const IndexType bf = FuseFactor<T>::dotuxf;
+            const IndexType bf = FuseFactor<T>::dotcxf;
             const IndexType mb = (m/bf)*bf;
 
             TY tmp[bf];

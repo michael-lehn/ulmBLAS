@@ -16,6 +16,35 @@
 extern "C" {
 
 void
+ULMBLAS(ssymv)(enum CBLAS_UPLO  upLo,
+               int              n,
+               float            alpha,
+               const float      *A,
+               int              ldA,
+               const float      *x,
+               int              incX,
+               float            beta,
+               float            *y,
+               int              incY)
+{
+//
+//  Start the operations.
+//
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
+    if (incY<0) {
+        y -= incY*(n-1);
+    }
+    if (upLo==CblasLower) {
+        ulmBLAS::sylmv(n, alpha, A, 1, ldA, x, incX, beta, y, incY);
+    } else {
+        ulmBLAS::sylmv(n, alpha, A, ldA, 1, x, incX, beta, y, incY);
+    }
+}
+
+
+void
 ULMBLAS(dsymv)(enum CBLAS_UPLO  upLo,
                int              n,
                double           alpha,
@@ -81,6 +110,52 @@ ULMBLAS(dsymv)(enum CBLAS_UPLO  upLo,
     delete [] x_;
     delete [] y_;
 #endif
+}
+
+void
+CBLAS(ssymv)(enum CBLAS_ORDER  order,
+             enum CBLAS_UPLO   upLo,
+             int               n,
+             float             alpha,
+             const float       *A,
+             int               ldA,
+             const float       *x,
+             int               incX,
+             float             beta,
+             float             *y,
+             int               incY)
+{
+//
+//  Test the input parameters
+//
+    int info = 0;
+    if (order!=CblasColMajor && order!=CblasRowMajor) {
+        info = 1;
+    } else if (upLo!=CblasUpper && upLo!=CblasLower) {
+        info = 2;
+    } else if (n<0) {
+        info = 3;
+    } else if (ldA<std::max(1,n)) {
+        info = 6;
+    } else if (incX==0) {
+        info = 8;
+    } else if (incY==0) {
+        info = 11;
+    }
+
+    if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
+        CBLAS(xerbla)(info, "cblas_ssymv", "... bla bla ...");
+    }
+
+    if (order==CblasColMajor) {
+        ULMBLAS(ssymv)(upLo, n, alpha, A, ldA, x, incX, beta, y, incY);
+    } else {
+        upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
+        ULMBLAS(ssymv)(upLo, n, alpha, A, ldA, x, incX, beta, y, incY);
+    }
 }
 
 void

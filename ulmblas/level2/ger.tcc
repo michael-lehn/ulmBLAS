@@ -134,6 +134,7 @@ void
 gerc(IndexType    m,
      IndexType    n,
      const Alpha  &alpha,
+     bool         conj,
      const TX     *x,
      IndexType    incX,
      const TY     *y,
@@ -157,30 +158,72 @@ gerc(IndexType    m,
 //
     if (homogeneousTypes && incX==UnitStride && incY==UnitStride) {
         if (incColA==UnitStride) {
-            for (IndexType i=0; i<m; ++i) {
-                acxpy(n, alpha*x[i*incX],
-                      y, UnitStride,
-                      &A[i*incRowA], UnitStride);
+            if (!conj) {
+                for (IndexType i=0; i<m; ++i) {
+                    acxpy(n, alpha*x[i*incX],
+                          y, UnitStride,
+                          &A[i*incRowA], UnitStride);
+                }
+                return;
+            } else {
+                for (IndexType i=0; i<m; ++i) {
+                    axpy(n, alpha*conjugate(x[i*incX]),
+                         y, UnitStride,
+                         &A[i*incRowA], UnitStride);
+                }
+                return;
             }
-            return;
         }
 
         if (incRowA==UnitStride) {
-            for (IndexType j=0; j<n; ++j) {
-                axpy(m, alpha*conjugate(y[j*incY]),
-                     x, UnitStride,
-                     &A[j*incColA], UnitStride);
+            if (!conj) {
+                for (IndexType j=0; j<n; ++j) {
+                    axpy(m, alpha*conjugate(y[j*incY]),
+                         x, UnitStride,
+                         &A[j*incColA], UnitStride);
+                }
+                return;
+            } else {
+                for (IndexType j=0; j<n; ++j) {
+                    acxpy(m, alpha*y[j*incY],
+                          x, UnitStride,
+                          &A[j*incColA], UnitStride);
+                }
+                return;
             }
-            return;
         }
     }
 
 //
 //  General case
 //
-    for (IndexType j=0; j<n; ++j) {
-        axpy(m, alpha*conjugate(y[j*incY]), x, incX, &A[j*incColA], incRowA);
+    if (!conj) {
+        for (IndexType j=0; j<n; ++j) {
+            axpy(m, alpha*conjugate(y[j*incY]), x, incX,
+                 &A[j*incColA], incRowA);
+        }
+    } else {
+        for (IndexType j=0; j<n; ++j) {
+            acxpy(m, alpha*y[j*incY], x, incX, &A[j*incColA], incRowA);
+        }
     }
+}
+
+template <typename IndexType, typename Alpha, typename TX, typename TY,
+          typename TA>
+void
+gerc(IndexType    m,
+     IndexType    n,
+     const Alpha  &alpha,
+     const TX     *x,
+     IndexType    incX,
+     const TY     *y,
+     IndexType    incY,
+     TA           *A,
+     IndexType    incRowA,
+     IndexType    incColA)
+{
+    gerc(m, n, alpha, false, x, incX, y, incY, A, incRowA, incColA);
 }
 
 } // namespace ulmBLAS

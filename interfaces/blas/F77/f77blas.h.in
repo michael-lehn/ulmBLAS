@@ -13,6 +13,11 @@ VERBOSE(#endif)
 //
 //  Declaration of BLAS functions currently implemented in ulmBLAS
 //
+void
+F77BLAS(sasum_sub)(const int    *n_,
+                   const float  *x,
+                   const int    *incX_,
+                   float        *result_);
 
 void
 F77BLAS(dasum_sub)(const int    *n_,
@@ -20,6 +25,13 @@ F77BLAS(dasum_sub)(const int    *n_,
                    const int    *incX_,
                    double       *result_);
 
+void
+F77BLAS(saxpy)(const int     *n_,
+               const float   *alpha_,
+               const float   *x,
+               const int     *incX_,
+               float         *y,
+               int           *incY_);
 void
 F77BLAS(daxpy)(const int     *n_,
                const double  *alpha_,
@@ -29,11 +41,24 @@ F77BLAS(daxpy)(const int     *n_,
                int           *incY_);
 
 void
+F77BLAS(scopy)(const int    *n_,
+               const float  *x,
+               const int    *incX_,
+               float        *y,
+               const int    *incY_);
+
+void
 F77BLAS(dcopy)(const int    *n_,
                const double *x,
                const int    *incX_,
                double       *y,
                const int    *incY_);
+
+void
+F77BLAS(sscal)(const int    *n_,
+               const float  *alpha_,
+               float        *x,
+               const int    *incX_);
 
 void
 F77BLAS(dscal)(const int    *n_,
@@ -42,11 +67,26 @@ F77BLAS(dscal)(const int    *n_,
                const int    *incX_);
 
 void
+F77BLAS(sswap)(const int *n_,
+               float     *x,
+               const int *incX_,
+               float     *y,
+               const int *incY_);
+
+void
 F77BLAS(dswap)(const int *n_,
                double    *x,
                const int *incX_,
                double    *y,
                const int *incY_);
+
+void
+F77BLAS(sdot_sub)(const int     *n_,
+                  const float   *x,
+                  const int     *incX_,
+                  const float   *y,
+                  const int     *incY_,
+                  float         *result_);
 
 void
 F77BLAS(ddot_sub)(const int     *n_,
@@ -57,16 +97,37 @@ F77BLAS(ddot_sub)(const int     *n_,
                   double        *result_);
 
 void
+F77BLAS(isamax_sub)(const int       *n_,
+                    const float     *x,
+                    const int       *incX_,
+                    int             *result_);
+
+void
 F77BLAS(idamax_sub)(const int       *n_,
                     const double    *x,
                     const int       *incX_,
                     int             *result_);
 
 void
+F77BLAS(snrm2_sub)(const int     *n_,
+                   const float   *x,
+                   const int     *incX_,
+                   float         *result_);
+
+void
 F77BLAS(dnrm2_sub)(const int     *n_,
                    const double  *x,
                    const int     *incX_,
                    double        *result_);
+
+void
+F77BLAS(srot)(const int      *n_,
+              float          *x,
+              const int      *incX_,
+              float          *y,
+              const int      *incY_,
+              const float    *c_,
+              const float    *s_);
 
 void
 F77BLAS(drot)(const int      *n_,
@@ -76,6 +137,12 @@ F77BLAS(drot)(const int      *n_,
               const int      *incY_,
               const double   *c_,
               const double   *s_);
+
+void
+F77BLAS(srotg)(float *a,
+               float *b,
+               float *c,
+               float *s);
 
 void
 F77BLAS(drotg)(double *a,

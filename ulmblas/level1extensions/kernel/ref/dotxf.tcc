@@ -67,7 +67,7 @@ dotuxf(IndexType      n,
 
 template <typename IndexType, typename TX, typename TY, typename Result>
 typename std::enable_if<std::is_integral<IndexType>::value
-                     && FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotuxf==4,
+                     && FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotcxf==4,
 void>::type
 dotcxf(IndexType      n,
        const TX       *X,
@@ -100,7 +100,7 @@ dotcxf(IndexType      n,
 
 template <typename IndexType, typename TX, typename TY, typename Result>
 typename std::enable_if<std::is_integral<IndexType>::value
-                     && FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotuxf!=4,
+                     && FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotcxf!=4,
 void>::type
 dotcxf(IndexType      n,
        const TX       *X,
@@ -111,7 +111,7 @@ dotcxf(IndexType      n,
        Result         *result,
        IndexType      resultInc)
 {
-    const IndexType ff = FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotuxf;
+    const IndexType ff = FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotcxf;
 
     for (IndexType j=0; j<ff; ++j) {
         result[j*resultInc] = Result(0);
@@ -119,7 +119,7 @@ dotcxf(IndexType      n,
 
     for (IndexType i=0; i<n; ++i) {
         for (IndexType j=0; j<ff; ++j) {
-            result[j*resultInc] += X[j*incRowX+i*incColX]*y[i*incY];
+            result[j*resultInc] += conjugate(X[j*incRowX+i*incColX])*y[i*incY];
         }
     }
 }

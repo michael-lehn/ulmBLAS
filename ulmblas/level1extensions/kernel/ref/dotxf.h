@@ -34,7 +34,7 @@ template <typename IndexType, typename TX, typename TY, typename Result>
 
 template <typename IndexType, typename TX, typename TY, typename Result>
     typename std::enable_if<std::is_integral<IndexType>::value
-                      && FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotuxf==4,
+                      && FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotcxf==4,
     void>::type
     dotcxf(IndexType      n,
            const TX       *X,
@@ -47,7 +47,7 @@ template <typename IndexType, typename TX, typename TY, typename Result>
 
 template <typename IndexType, typename TX, typename TY, typename Result>
     typename std::enable_if<std::is_integral<IndexType>::value
-                      && FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotuxf!=4,
+                      && FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotcxf!=4,
     void>::type
     dotcxf(IndexType      n,
            const TX       *X,

@@ -18,6 +18,7 @@ namespace ulmBLAS {
 template <typename T>
 struct FuseFactor
 {
+    typedef std::complex<float>   fcomplex;
     typedef std::complex<double>  dcomplex;
 
     static const int axpyf = std::is_same<T,double>::value   ? DAXPYF_FUSEFACTOR
@@ -30,6 +31,8 @@ struct FuseFactor
                            : std::is_same<T,dcomplex>::value? ZDOTUXF_FUSEFACTOR
                            : 1;
 
+    static const int dotcxf = dotuxf;
+
     static const int dotxaxpyf = axpyf;
 };
 
@@ -39,6 +42,7 @@ struct FuseFactor
 template <typename T>
 struct FuseFactor
 {
+    typedef std::complex<float>   fcomplex;
     typedef std::complex<double>  dcomplex;
 
     static const int axpyf = std::is_same<T,double>::value   ? 2
@@ -50,6 +54,7 @@ struct FuseFactor
     static const int dotuxf = std::is_same<T,double>::value ? 4
                            : std::is_same<T,dcomplex>::value? 4
                            : 1;
+    static const int dotcxf = dotuxf;
 
     static const int dotxaxpyf = axpyf;
 };
@@ -59,6 +64,7 @@ struct FuseFactor
 template <typename T>
 struct FuseFactor
 {
+    typedef std::complex<float>   fcomplex;
     typedef std::complex<double>  dcomplex;
 
     static const int axpyf = std::is_same<T,double>::value   ? 4

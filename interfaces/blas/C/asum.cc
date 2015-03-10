@@ -4,11 +4,30 @@
 
 extern "C" {
 
+float
+ULMBLAS(sasum)(int           n,
+               const float   *x,
+               int           incX)
+{
+    return ulmBLAS::asum(n, x, incX);
+}
+
 double
 ULMBLAS(dasum)(int           n,
                const double  *x,
                int           incX)
 {
+    return ulmBLAS::asum(n, x, incX);
+}
+
+float
+ULMBLAS(scasum)(int           n,
+                const float   *x_,
+                int           incX)
+{
+    typedef std::complex<float> fcomplex;
+    const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
+
     return ulmBLAS::asum(n, x, incX);
 }
 
@@ -23,12 +42,28 @@ ULMBLAS(dzasum)(int           n,
     return ulmBLAS::asum(n, x, incX);
 }
 
+float
+CBLAS(sasum)(int           n,
+             const float   *x,
+             int           incX)
+{
+    return ulmBLAS::asum(n, x, incX);
+}
+
 double
 CBLAS(dasum)(int           n,
              const double  *x,
              int           incX)
 {
     return ulmBLAS::asum(n, x, incX);
+}
+
+float
+CBLAS(scasum)(int           n,
+              const float   *x,
+              int           incX)
+{
+    return ULMBLAS(scasum)(n, x, incX);
 }
 
 double

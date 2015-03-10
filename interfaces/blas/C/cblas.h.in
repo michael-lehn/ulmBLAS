@@ -51,10 +51,33 @@ CBLAS(xerbla)(int info, const char *rout, const char *form, ...);
 //
 //  Level 1
 //
+float
+CBLAS(sasum)(int           n,
+             const float   *x,
+             int           incX);
+
 double
 CBLAS(dasum)(int           n,
              const double  *x,
              int           incX);
+
+float
+CBLAS(scasum)(int           n,
+              const float   *x,
+              int           incX);
+
+double
+CBLAS(dzasum)(int           n,
+              const double  *x,
+              int           incX);
+
+void
+CBLAS(saxpy)(int           n,
+             float         alpha,
+             const float   *x,
+             int           incX,
+             float         *y,
+             int           incY);
 
 void
 CBLAS(daxpy)(int           n,
@@ -65,11 +88,41 @@ CBLAS(daxpy)(int           n,
              int           incY);
 
 void
+CBLAS(caxpy)(int           n,
+             const float   *alpha,
+             const float   *x,
+             int           incX,
+             float         *y,
+             int           incY);
+
+void
+CBLAS(zaxpy)(int           n,
+             const double  *alpha,
+             const double  *x,
+             int           incX,
+             double        *y,
+             int           incY);
+
+void
+CBLAS(scopy)(int          n,
+             const float  *x,
+             int          incX,
+             float        *y,
+             int          incY);
+
+void
 CBLAS(dcopy)(int          n,
              const double *x,
              int          incX,
              double       *y,
              int          incY);
+
+float
+CBLAS(sdot)(int           n,
+            const float   *x,
+            int           incX,
+            const float   *y,
+            int           incY);
 
 double
 CBLAS(ddot)(int           n,
@@ -78,15 +131,76 @@ CBLAS(ddot)(int           n,
             const double  *y,
             int           incY);
 
+void
+CBLAS(cdotc_sub)(int           n,
+                 const float   *x,
+                 int           incX,
+                 const float   *y,
+                 int           incY,
+                 float         *dotc);
+
+void
+CBLAS(zdotc_sub)(int           n,
+                 const double  *x,
+                 int           incX,
+                 const double  *y,
+                 int           incY,
+                 double        *dotc);
+
+void
+CBLAS(cdotu_sub)(int           n,
+                 const float   *x,
+                 int           incX,
+                 const float   *y,
+                 int           incY,
+                 float         *dotc);
+
+void
+CBLAS(zdotu_sub)(int           n,
+                 const double  *x,
+                 int           incX,
+                 const double  *y,
+                 int           incY,
+                 double        *dotc);
+
+int
+CBLAS(isamax)(int           n,
+              const float   *x,
+              int           incX);
+
 int
 CBLAS(idamax)(int           n,
               const double  *x,
               int           incX);
 
+float
+CBLAS(snrm2)(int            n,
+             const float    *x,
+             int            incX);
+
 double
 CBLAS(dnrm2)(int           n,
              const double  *x,
              int           incX);
+
+float
+CBLAS(scnrm2)(int           n,
+              const float   *x,
+              int           incX);
+
+double
+CBLAS(dznrm2)(int           n,
+              const double  *x,
+              int           incX);
+
+void
+CBLAS(srot)(const int      n,
+            float          *x,
+            const int      incX,
+            float          *y,
+            const int      incY,
+            const float    c,
+            const float    s);
 
 void
 CBLAS(drot)(const int      n,
@@ -98,10 +212,22 @@ CBLAS(drot)(const int      n,
             const double   s);
 
 void
+CBLAS(srotg)(float *a,
+             float *b,
+             float *c,
+             float *s);
+
+void
 CBLAS(drotg)(double *a,
              double *b,
              double *c,
              double *s);
+
+void
+CBLAS(sscal)(const int    n,
+             const float  alpha,
+             float        *x,
+             const int    incX);
 
 void
 CBLAS(dscal)(const int    n,
@@ -110,7 +236,28 @@ CBLAS(dscal)(const int    n,
              const int    incX);
 
 void
+CBLAS(sswap)(const int n,
+             float     *x,
+             const int incX,
+             float     *y,
+             const int incY);
+
+void
 CBLAS(dswap)(const int n,
+             double    *x,
+             const int incX,
+             double    *y,
+             const int incY);
+
+void
+CBLAS(cswap)(const int n,
+             float     *x,
+             const int incX,
+             float     *y,
+             const int incY);
+
+void
+CBLAS(zswap)(const int n,
              double    *x,
              const int incX,
              double    *y,
@@ -132,9 +279,19 @@ CBLAS(zdotc_sub)(const int     N,
                  const int     incY,
                  double        *dotc);
 
+float
+CBLAS(scasum)(int           n,
+              const float   *x,
+              int           incX);
+
 double
 CBLAS(dzasum)(int           N,
               const double  *X,
+              int           incX);
+
+int
+CBLAS(icamax)(int           N,
+              const float   *X,
               int           incX);
 
 int
@@ -165,10 +322,22 @@ CBLAS(zaxpy)(int            N,
              int           incY);
 
 void
+CBLAS(cscal)(const int    n,
+             const float  *alpha,
+             float        *x,
+             const int    incX);
+
+void
 CBLAS(zscal)(const int       N,
               const double   *alpha,
               double         *X,
               const int      incX);
+
+void
+CBLAS(csscal)(const int    n,
+              const float  alpha,
+              float        *x,
+              const int    incX);
 
 void
 CBLAS(zdscal)(const int      N,
@@ -187,6 +356,22 @@ CBLAS(dznrm2)(int           n,
 //
 
 void
+CBLAS(sgbmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             int                   m,
+             int                   n,
+             int                   kl,
+             int                   ku,
+             float                 alpha,
+             const float           *A,
+             int                   ldA,
+             const float           *x,
+             int                   incX,
+             float                 beta,
+             float                 *y,
+             int                   incY);
+
+void
 CBLAS(dgbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              int                   m,
@@ -200,6 +385,22 @@ CBLAS(dgbmv)(enum CBLAS_ORDER      order,
              int                   incX,
              double                beta,
              double                *y,
+             int                   incY);
+
+void
+CBLAS(cgbmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             int                   m,
+             int                   n,
+             int                   kl,
+             int                   ku,
+             const float           *alpha,
+             const float           *A,
+             int                   ldA,
+             const float           *x,
+             int                   incX,
+             const float           *beta,
+             float                 *y,
              int                   incY);
 
 void
@@ -219,6 +420,20 @@ CBLAS(zgbmv)(enum CBLAS_ORDER      order,
              int                   incY);
 
 void
+CBLAS(sgemv)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             int                   m,
+             int                   n,
+             float                 alpha,
+             const float           *A,
+             int                   ldA,
+             const float           *x,
+             int                   incX,
+             float                 beta,
+             float                 *y,
+             int                   incY);
+
+void
 CBLAS(dgemv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              int                   m,
@@ -230,6 +445,20 @@ CBLAS(dgemv)(enum CBLAS_ORDER      order,
              int                   incX,
              double                beta,
              double                *y,
+             int                   incY);
+
+void
+CBLAS(cgemv)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             int                   m,
+             int                   n,
+             const float           *alpha,
+             const float           *A,
+             int                   ldA,
+             const float           *x,
+             int                   incX,
+             const float           *beta,
+             float                 *y,
              int                   incY);
 
 void
@@ -247,6 +476,18 @@ CBLAS(zgemv)(enum CBLAS_ORDER      order,
              int                   incY);
 
 void
+CBLAS(sger)(enum CBLAS_ORDER  order,
+            int               m,
+            int               n,
+            float             alpha,
+            const float       *x,
+            int               incX,
+            const float       *y,
+            int               incY,
+            float             *A,
+            int               ldA);
+
+void
 CBLAS(dger)(enum CBLAS_ORDER  order,
             int               m,
             int               n,
@@ -259,6 +500,18 @@ CBLAS(dger)(enum CBLAS_ORDER  order,
             int               ldA);
 
 void
+CBLAS(cgeru)(enum CBLAS_ORDER  order,
+             int               m,
+             int               n,
+             const float       *alpha,
+             const float       *x,
+             int               incX,
+             const float       *y,
+             int               incY,
+             float             *A,
+             int               ldA);
+
+void
 CBLAS(zgeru)(enum CBLAS_ORDER  order,
              int               m,
              int               n,
@@ -268,6 +521,18 @@ CBLAS(zgeru)(enum CBLAS_ORDER  order,
              const double      *y,
              int               incY,
              double            *A,
+             int               ldA);
+
+void
+CBLAS(cgerc)(enum CBLAS_ORDER  order,
+             int               m,
+             int               n,
+             const float       *alpha,
+             const float       *x,
+             int               incX,
+             const float       *y,
+             int               incY,
+             float             *A,
              int               ldA);
 
 void
@@ -283,6 +548,34 @@ CBLAS(zgerc)(enum CBLAS_ORDER  order,
              int               ldA);
 
 void
+CBLAS(ssymm)(enum CBLAS_ORDER  order,
+             enum CBLAS_SIDE   side,
+             enum CBLAS_UPLO   upLo,
+             int               m,
+             int               n,
+             float             alpha,
+             const float       *A,
+             int               ldA,
+             float             *B,
+             int               ldB,
+             float             beta,
+             float             *C,
+             int               ldC);
+
+void
+CBLAS(ssymv)(enum CBLAS_ORDER  order,
+             enum CBLAS_UPLO   upLo,
+             int               n,
+             float             alpha,
+             const float       *A,
+             int               ldA,
+             const float       *x,
+             int               incX,
+             float             beta,
+             float             *y,
+             int               incY);
+
+void
 CBLAS(dsymv)(enum CBLAS_ORDER  order,
              enum CBLAS_UPLO   upLo,
              int               n,
@@ -293,6 +586,19 @@ CBLAS(dsymv)(enum CBLAS_ORDER  order,
              int               incX,
              double            beta,
              double            *y,
+             int               incY);
+
+void
+CBLAS(chemv)(enum CBLAS_ORDER  order,
+             enum CBLAS_UPLO   upLo,
+             int               n,
+             const float       *alpha,
+             const float       *A,
+             int               ldA,
+             const float       *x,
+             int               incX,
+             const float       *beta,
+             float             *y,
              int               incY);
 
 void
@@ -309,6 +615,17 @@ CBLAS(zhemv)(enum CBLAS_ORDER  order,
              int               incY);
 
 void
+CBLAS(strmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             const float           *A,
+             int                   ldA,
+             float                 *x,
+             int                   incX);
+
+void
 CBLAS(dtrmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
@@ -320,6 +637,17 @@ CBLAS(dtrmv)(enum CBLAS_ORDER      order,
              int                   incX);
 
 void
+CBLAS(ctrmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             const float           *A,
+             int                   ldA,
+             float                 *x,
+             int                   incX);
+
+void
 CBLAS(ztrmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
@@ -328,6 +656,17 @@ CBLAS(ztrmv)(enum CBLAS_ORDER      order,
              const double          *A,
              int                   ldA,
              double                *x,
+             int                   incX);
+
+void
+CBLAS(strsv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             const float           *A,
+             int                   ldA,
+             float                 *x,
              int                   incX);
 
 void
@@ -353,6 +692,16 @@ CBLAS(ztrsv)(enum CBLAS_ORDER      order,
              int                   incX);
 
 void
+CBLAS(ssyr)(enum CBLAS_ORDER  order,
+            enum CBLAS_UPLO   upLo,
+            int               n,
+            float             alpha,
+            const float       *x,
+            int               incX,
+            float             *A,
+            int               ldA);
+
+void
 CBLAS(dsyr)(const enum CBLAS_ORDER  order,
             const enum CBLAS_UPLO   Uplo,
             int                     N,
@@ -363,6 +712,16 @@ CBLAS(dsyr)(const enum CBLAS_ORDER  order,
             int                     lda);
 
 void
+CBLAS(cher)(enum CBLAS_ORDER  order,
+            enum CBLAS_UPLO   upLo,
+            int               n,
+            float             alpha,
+            const float       *x,
+            int               incX,
+            float             *A,
+            int               ldA);
+
+void
 CBLAS(zher)(enum CBLAS_ORDER  order,
             enum CBLAS_UPLO   upLo,
             int               n,
@@ -371,6 +730,18 @@ CBLAS(zher)(enum CBLAS_ORDER  order,
             int               incX,
             double            *A,
             int               ldA);
+
+void
+CBLAS(ssyr2)(enum CBLAS_ORDER  order,
+             enum CBLAS_UPLO   upLo,
+             int               n,
+             float             alpha,
+             const float       *x,
+             int               incX,
+             const float       *y,
+             int               incY,
+             float             *A,
+             int               ldA);
 
 void
 CBLAS(dsyr2)(const enum CBLAS_ORDER order,
@@ -385,6 +756,18 @@ CBLAS(dsyr2)(const enum CBLAS_ORDER order,
              const int              lda);
 
 void
+CBLAS(cher2)(enum CBLAS_ORDER  order,
+             enum CBLAS_UPLO   upLo,
+             int               n,
+             const float       *alpha,
+             const float       *x,
+             int               incX,
+             const float       *y,
+             int               incY,
+             float             *A,
+             int               ldA);
+
+void
 CBLAS(zher2)(enum CBLAS_ORDER  order,
              enum CBLAS_UPLO   upLo,
              int               n,
@@ -395,6 +778,18 @@ CBLAS(zher2)(enum CBLAS_ORDER  order,
              int               incY,
              double            *A,
              int               ldA);
+
+void
+CBLAS(stbmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             int                   k,
+             const float           *A,
+             int                   ldA,
+             float                 *x,
+             int                   incX);
 
 void
 CBLAS(dtbmv)(const enum CBLAS_ORDER     order,
@@ -409,6 +804,18 @@ CBLAS(dtbmv)(const enum CBLAS_ORDER     order,
              const int                  incX);
 
 void
+CBLAS(ctbmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             int                   k,
+             const float           *A,
+             int                   ldA,
+             float                 *x,
+             int                   incX);
+
+void
 CBLAS(ztbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
@@ -418,6 +825,18 @@ CBLAS(ztbmv)(enum CBLAS_ORDER      order,
              const double          *A,
              int                   ldA,
              double                *x,
+             int                   incX);
+
+void
+CBLAS(stbsv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             int                   k,
+             const float           *A,
+             int                   ldA,
+             float                 *x,
              int                   incX);
 
 void
@@ -433,6 +852,30 @@ CBLAS(dtbsv)(const enum CBLAS_ORDER     order,
              const int                  incX);
 
 void
+CBLAS(ctbsv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             int                   k,
+             const float           *A,
+             int                   ldA,
+             float                 *x,
+             int                   incX);
+
+void
+CBLAS(ctbsv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             int                   k,
+             const float           *A,
+             int                   ldA,
+             float                 *x,
+             int                   incX);
+
+void
 CBLAS(ztbsv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
@@ -443,6 +886,20 @@ CBLAS(ztbsv)(enum CBLAS_ORDER      order,
              int                   ldA,
              double                *x,
              int                   incX);
+
+void
+CBLAS(ssbmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             int                   n,
+             int                   k,
+             float                 alpha,
+             const float           *A,
+             int                   ldA,
+             const float           *x,
+             int                   incX,
+             float                 beta,
+             float                 *y,
+             int                   incY);
 
 void
 CBLAS(dsbmv)(const enum CBLAS_ORDER     order,
@@ -457,6 +914,20 @@ CBLAS(dsbmv)(const enum CBLAS_ORDER     order,
              const double               beta,
              double                     *Y,
              const int                  incY);
+
+void
+CBLAS(chbmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             int                   n,
+             int                   k,
+             const float           *alpha,
+             const float           *A,
+             int                   ldA,
+             const float           *x,
+             int                   incX,
+             const float           *beta,
+             float                 *y,
+             int                   incY);
 
 void
 CBLAS(zhbmv)(enum CBLAS_ORDER      order,
@@ -485,6 +956,18 @@ CBLAS(ztbsv)(enum CBLAS_ORDER      order,
              int                   incX);
 
 void
+CBLAS(sspmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             int                   n,
+             float                 alpha,
+             const float           *A,
+             const float           *x,
+             int                   incX,
+             float                 beta,
+             float                 *y,
+             int                   incY);
+
+void
 CBLAS(dspmv)(const enum CBLAS_ORDER     order,
              const enum CBLAS_UPLO      Uplo,
              const int                  N,
@@ -495,6 +978,18 @@ CBLAS(dspmv)(const enum CBLAS_ORDER     order,
              const double               beta,
              double                     *Y,
              const int                  incY);
+
+void
+CBLAS(chpmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             int                   n,
+             const float           *alpha,
+             const float           *AP,
+             const float           *x,
+             int                   incX,
+             const float           *beta,
+             float                 *y,
+             int                   incY);
 
 void
 CBLAS(zhpmv)(enum CBLAS_ORDER      order,
@@ -509,6 +1004,16 @@ CBLAS(zhpmv)(enum CBLAS_ORDER      order,
              int                   incY);
 
 void
+CBLAS(stpmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             const float           *A,
+             float                 *x,
+             int                   incX);
+
+void
 CBLAS(dtpmv)(const enum CBLAS_ORDER     order,
              const enum CBLAS_UPLO      Uplo,
              const enum CBLAS_TRANSPOSE TransA,
@@ -519,6 +1024,16 @@ CBLAS(dtpmv)(const enum CBLAS_ORDER     order,
              const int                  incX);
 
 void
+CBLAS(ctpmv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             const float           *A,
+             float                 *x,
+             int                   incX);
+
+void
 CBLAS(ztpmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
@@ -526,6 +1041,16 @@ CBLAS(ztpmv)(enum CBLAS_ORDER      order,
              int                   n,
              const double          *A,
              double                *x,
+             int                   incX);
+
+void
+CBLAS(stpsv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             const float           *A,
+             float                 *x,
              int                   incX);
 
 void
@@ -539,6 +1064,16 @@ CBLAS(dtpsv)(const enum CBLAS_ORDER     order,
              const int                  incX);
 
 void
+CBLAS(ctpsv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             const float           *A,
+             float                 *x,
+             int                   incX);
+
+void
 CBLAS(ztpsv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
@@ -547,6 +1082,15 @@ CBLAS(ztpsv)(enum CBLAS_ORDER      order,
              const double          *A,
              double                *x,
              int                   incX);
+
+void
+CBLAS(sspr)(enum CBLAS_ORDER  order,
+            enum CBLAS_UPLO   upLo,
+            int               n,
+            float             alpha,
+            const float       *x,
+            int               incX,
+            float             *A);
 
 void
 CBLAS(dspr)(const enum CBLAS_ORDER      order,
@@ -558,6 +1102,15 @@ CBLAS(dspr)(const enum CBLAS_ORDER      order,
             double                      *Ap);
 
 void
+CBLAS(chpr)(enum CBLAS_ORDER  order,
+            enum CBLAS_UPLO   upLo,
+            int               n,
+            float             alpha,
+            const float       *x,
+            int               incX,
+            float             *A);
+
+void
 CBLAS(zhpr)(enum CBLAS_ORDER  order,
             enum CBLAS_UPLO   upLo,
             int               n,
@@ -565,6 +1118,17 @@ CBLAS(zhpr)(enum CBLAS_ORDER  order,
             const double      *x,
             int               incX,
             double            *A);
+
+void
+CBLAS(sspr2)(enum CBLAS_ORDER  order,
+             enum CBLAS_UPLO   upLo,
+             int               n,
+             float             alpha,
+             const float       *x,
+             int               incX,
+             const float       *y,
+             int               incY,
+             float             *A);
 
 void
 CBLAS(dspr2)(const enum CBLAS_ORDER     order,
@@ -576,6 +1140,17 @@ CBLAS(dspr2)(const enum CBLAS_ORDER     order,
              const double               *Y,
              const int                  incY,
              double                     *A);
+
+void
+CBLAS(chpr2)(enum CBLAS_ORDER  order,
+             enum CBLAS_UPLO   upLo,
+             int               n,
+             const float       *alpha,
+             const float       *x,
+             int               incX,
+             const float       *y,
+             int               incY,
+             float             *A);
 
 void
 CBLAS(zhpr2)(enum CBLAS_ORDER  order,
@@ -591,6 +1166,22 @@ CBLAS(zhpr2)(enum CBLAS_ORDER  order,
 //
 //  Level 3
 //
+void
+CBLAS(sgemm)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             enum CBLAS_TRANSPOSE  transB,
+             int                   m,
+             int                   n,
+             int                   k,
+             float                 alpha,
+             const float           *A,
+             int                   ldA,
+             const float           *B,
+             int                   ldB,
+             float                 beta,
+             float                 *C,
+             int                   ldC);
+
 void
 CBLAS(dgemm)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
@@ -639,6 +1230,21 @@ CBLAS(dsymm)(enum CBLAS_ORDER  order,
              int               ldC);
 
 void
+CBLAS(csymm)(enum CBLAS_ORDER  order,
+             enum CBLAS_SIDE   side,
+             enum CBLAS_UPLO   upLo,
+             int               m,
+             int               n,
+             const float       *alpha,
+             const float       *A,
+             int               ldA,
+             float             *B,
+             int               ldB,
+             const float       *beta,
+             float             *C,
+             int               ldC);
+
+void
 CBLAS(zsymm)(enum CBLAS_ORDER  order,
              enum CBLAS_SIDE   side,
              enum CBLAS_UPLO   upLo,
@@ -652,6 +1258,51 @@ CBLAS(zsymm)(enum CBLAS_ORDER  order,
              const double      *beta,
              double            *C,
              int               ldC);
+
+void
+CBLAS(chemm)(enum CBLAS_ORDER  order,
+             enum CBLAS_SIDE   side,
+             enum CBLAS_UPLO   upLo,
+             int               m,
+             int               n,
+             float             *alpha,
+             const float       *A,
+             int               ldA,
+             float             *B,
+             int               ldB,
+             float             *beta,
+             float             *C,
+             int               ldC);
+
+void
+CBLAS(zhemm)(enum CBLAS_ORDER  order,
+             enum CBLAS_SIDE   side,
+             enum CBLAS_UPLO   upLo,
+             int               m,
+             int               n,
+             double            *alpha,
+             const double      *A,
+             int               ldA,
+             double            *B,
+             int               ldB,
+             double            *beta,
+             double            *C,
+             int               ldC);
+
+void
+CBLAS(ssyr2k)(enum CBLAS_ORDER      order,
+              enum CBLAS_UPLO       upLo,
+              enum CBLAS_TRANSPOSE  trans,
+              int                   n,
+              int                   k,
+              float                 alpha,
+              const float           *A,
+              int                   ldA,
+              const float           *B,
+              int                   ldB,
+              float                 beta,
+              float                 *C,
+              int                   ldC);
 
 void
 CBLAS(dsyr2k)(enum CBLAS_ORDER      order,
@@ -684,6 +1335,49 @@ CBLAS(zsyr2k)(enum CBLAS_ORDER      order,
               int                   ldC);
 
 void
+CBLAS(cher2k)(enum CBLAS_ORDER      order,
+              enum CBLAS_UPLO       upLo,
+              enum CBLAS_TRANSPOSE  trans,
+              int                   n,
+              int                   k,
+              float                 *alpha,
+              const float           *A,
+              int                   ldA,
+              const float           *B,
+              int                   ldB,
+              float                 beta,
+              float                 *C,
+              int                   ldC);
+
+void
+CBLAS(zher2k)(enum CBLAS_ORDER      order,
+              enum CBLAS_UPLO       upLo,
+              enum CBLAS_TRANSPOSE  trans,
+              int                   n,
+              int                   k,
+              double                *alpha,
+              const double          *A,
+              int                   ldA,
+              const double          *B,
+              int                   ldB,
+              double                beta,
+              double                *C,
+              int                   ldC);
+
+void
+CBLAS(ssyrk)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             int                   n,
+             int                   k,
+             float                 alpha,
+             const float           *A,
+             int                   ldA,
+             float                 beta,
+             float                 *C,
+             int                   ldC);
+
+void
 CBLAS(dsyrk)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
@@ -710,6 +1404,46 @@ CBLAS(zsyrk)(enum CBLAS_ORDER      order,
              int                   ldC);
 
 void
+CBLAS(cherk)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             int                   n,
+             int                   k,
+             float                 alpha,
+             const float           *A,
+             int                   ldA,
+             float                 beta,
+             float                 *C,
+             int                   ldC);
+
+void
+CBLAS(zherk)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             int                   n,
+             int                   k,
+             double                alpha,
+             const double          *A,
+             int                   ldA,
+             double                beta,
+             double                *C,
+             int                   ldC);
+
+void
+CBLAS(strmm)(enum CBLAS_ORDER     order,
+             enum CBLAS_SIDE      side,
+             enum CBLAS_UPLO      upLo,
+             enum CBLAS_TRANSPOSE transA,
+             enum CBLAS_DIAG      diag,
+             int                  m,
+             int                  n,
+             float                alpha,
+             const float          *A,
+             int                  ldA,
+             float                *B,
+             const int            ldB);
+
+void
 CBLAS(dtrmm)(enum CBLAS_ORDER     order,
              enum CBLAS_SIDE      side,
              enum CBLAS_UPLO      upLo,
@@ -721,6 +1455,20 @@ CBLAS(dtrmm)(enum CBLAS_ORDER     order,
              const double         *A,
              int                  ldA,
              double               *B,
+             const int            ldB);
+
+void
+CBLAS(ctrmm)(enum CBLAS_ORDER     order,
+             enum CBLAS_SIDE      side,
+             enum CBLAS_UPLO      upLo,
+             enum CBLAS_TRANSPOSE transA,
+             enum CBLAS_DIAG      diag,
+             int                  m,
+             int                  n,
+             const float          *alpha,
+             const float          *A,
+             int                  ldA,
+             float                *B,
              const int            ldB);
 
 void
@@ -738,6 +1486,20 @@ CBLAS(ztrmm)(enum CBLAS_ORDER     order,
              const int            ldB);
 
 void
+CBLAS(strsm)(enum CBLAS_ORDER      order,
+             enum CBLAS_SIDE       side,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  transA,
+             enum CBLAS_DIAG       diag,
+             int                   m,
+             int                   n,
+             float                 alpha,
+             const float           *A,
+             int                   ldA,
+             float                 *B,
+             int                   ldB);
+
+void
 CBLAS(dtrsm)(enum CBLAS_ORDER      order,
              enum CBLAS_SIDE       side,
              enum CBLAS_UPLO       upLo,
@@ -749,6 +1511,20 @@ CBLAS(dtrsm)(enum CBLAS_ORDER      order,
              const double          *A,
              int                   ldA,
              double                *B,
+             int                   ldB);
+
+void
+CBLAS(ctrsm)(enum CBLAS_ORDER      order,
+             enum CBLAS_SIDE       side,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  transA,
+             enum CBLAS_DIAG       diag,
+             int                   m,
+             int                   n,
+             const float           *alpha,
+             const float           *A,
+             int                   ldA,
+             float                 *B,
              int                   ldB);
 
 void
@@ -768,10 +1544,33 @@ CBLAS(ztrsm)(enum CBLAS_ORDER      order,
 //
 //  Level 1
 //
+float
+ULMBLAS(sasum)(int           n,
+               const float   *x,
+               int           incX);
+
 double
-ULMBLAS(dasum)(int     n,
+ULMBLAS(dasum)(int           n,
                const double  *x,
-               int     incX);
+               int           incX);
+
+float
+ULMBLAS(scasum)(int           n,
+                const float   *x_,
+                int           incX);
+
+double
+ULMBLAS(dzasum)(int           n,
+                const double  *x_,
+                int           incX);
+
+void
+ULMBLAS(saxpy)(int           n,
+               float         alpha,
+               const float   *x,
+               int           incX,
+               float         *y,
+               int           incY);
 
 void
 ULMBLAS(daxpy)(int           n,
@@ -782,11 +1581,41 @@ ULMBLAS(daxpy)(int           n,
                int           incY);
 
 void
+ULMBLAS(caxpy)(int           n,
+               const float   *alpha_,
+               const float   *x_,
+               int           incX,
+               float         *y_,
+               int           incY);
+
+void
+ULMBLAS(zaxpy)(int           n,
+               const double  *alpha_,
+               const double  *x_,
+               int           incX,
+               double        *y_,
+               int           incY);
+
+void
+ULMBLAS(scopy)(int          n,
+               const float  *x,
+               int          incX,
+               float        *y,
+               int          incY);
+
+void
 ULMBLAS(dcopy)(int          n,
                const double *x,
                int          incX,
                double       *y,
                int          incY);
+
+float
+ULMBLAS(sdot)(int           n,
+              const float   *x,
+              int           incX,
+              const float   *y,
+              int           incY);
 
 double
 ULMBLAS(ddot)(int           n,
@@ -795,15 +1624,77 @@ ULMBLAS(ddot)(int           n,
               const double  *y,
               int           incY);
 
+void
+ULMBLAS(cdotc_sub)(int           n,
+                   const float   *x_,
+                   int           incX,
+                   const float   *y_,
+                   int           incY,
+                   float         *dotc_);
+
+void
+ULMBLAS(zdotc_sub)(int           n,
+                   const double  *x_,
+                   int           incX,
+                   const double  *y_,
+                   int           incY,
+                   double        *dotc_);
+
+void
+ULMBLAS(cdotu_sub)(int           n,
+                   const float   *x_,
+                   int           incX,
+                   const float   *y_,
+                   int           incY,
+                   float         *dotu_);
+
+void
+ULMBLAS(zdotu_sub)(int           n,
+                   const double  *x_,
+                   int           incX,
+                   const double  *y_,
+                   int           incY,
+                   double        *dotu_);
+
+int
+ULMBLAS(isamax)(int           n,
+                const float   *x,
+                int           incX);
+
 int
 ULMBLAS(idamax)(int           n,
                 const double  *x,
                 int           incX);
 
+int
+ULMBLAS(icamax)(int           n,
+                const float   *x_,
+                int           incX);
+
+int
+ULMBLAS(izamax)(int           n,
+                const double  *x_,
+                int           incX);
+
+float
+ULMBLAS(snrm2)(int           n,
+               const float   *x,
+               int           incX);
+
 double
 ULMBLAS(dnrm2)(int           n,
                const double  *x,
                int           incX);
+
+float
+ULMBLAS(scnrm2)(int           n,
+                const float   *x_,
+                int           incX);
+
+double
+ULMBLAS(dznrm2)(int           n,
+                const double  *x_,
+                int           incX);
 
 void
 ULMBLAS(drot)(int      n,
@@ -821,10 +1712,47 @@ ULMBLAS(drotg)(double *a,
                double *s);
 
 void
+ULMBLAS(sscal)(const int    n,
+               const float  alpha,
+               float        *x,
+               const int    incX);
+
+void
 ULMBLAS(dscal)(const int    n,
                const double alpha,
                double       *x,
                const int    incX);
+
+void
+ULMBLAS(cscal)(const int    n,
+               const float  *alpha_,
+               float        *x_,
+               const int    incX);
+
+void
+ULMBLAS(zscal)(const int    n,
+               const double *alpha_,
+               double       *x_,
+               const int    incX);
+
+void
+CBLAS(csscal)(const int    n,
+              const float  alpha,
+              float        *x,
+              const int    incX);
+
+void
+CBLAS(zdscal)(const int    n,
+              const double alpha,
+              double       *x,
+              const int    incX);
+
+void
+ULMBLAS(sswap)(const int n,
+               float     *x,
+               const int incX,
+               float     *y,
+               const int incY);
 
 void
 ULMBLAS(dswap)(const int n,
@@ -833,9 +1761,39 @@ ULMBLAS(dswap)(const int n,
                double    *y,
                const int incY);
 
+void
+ULMBLAS(cswap)(const int n,
+               float     *x_,
+               const int incX,
+               float     *y_,
+               const int incY);
+
+void
+ULMBLAS(zswap)(const int n,
+               double    *x_,
+               const int incX,
+               double    *y_,
+               const int incY);
+
+
 //
 //  Level 2
 //
+
+void
+ULMBLAS(sgbmv)(enum CBLAS_TRANSPOSE  transA,
+               int                   m,
+               int                   n,
+               int                   kl,
+               int                   ku,
+               float                 alpha,
+               const float           *A,
+               int                   ldA,
+               const float           *x,
+               int                   incX,
+               float                 beta,
+               float                 *y,
+               int                   incY);
 
 void
 ULMBLAS(dgbmv)(enum CBLAS_TRANSPOSE  transA,
@@ -850,6 +1808,21 @@ ULMBLAS(dgbmv)(enum CBLAS_TRANSPOSE  transA,
                int                   incX,
                double                beta,
                double                *y,
+               int                   incY);
+
+void
+ULMBLAS(cgbmv)(enum CBLAS_TRANSPOSE  transA_,
+               int                   m,
+               int                   n,
+               int                   kl,
+               int                   ku,
+               const float           *alpha_,
+               const float           *A_,
+               int                   ldA,
+               const float           *x_,
+               int                   incX,
+               const float           *beta_,
+               float                 *y_,
                int                   incY);
 
 void
@@ -868,6 +1841,19 @@ ULMBLAS(zgbmv)(enum CBLAS_TRANSPOSE  transA_,
                int                   incY);
 
 void
+ULMBLAS(sgemv)(enum CBLAS_TRANSPOSE  transA,
+               int                   m,
+               int                   n,
+               float                 alpha,
+               const float           *A,
+               int                   ldA,
+               const float           *x,
+               int                   incX,
+               float                 beta,
+               float                 *y,
+               int                   incY);
+
+void
 ULMBLAS(dgemv)(enum CBLAS_TRANSPOSE  transA,
                int                   m,
                int                   n,
@@ -881,6 +1867,43 @@ ULMBLAS(dgemv)(enum CBLAS_TRANSPOSE  transA,
                int                   incY);
 
 void
+ULMBLAS(cgemv)(enum CBLAS_TRANSPOSE  transA_,
+               int                   m,
+               int                   n,
+               const float           *alpha_,
+               const float           *A_,
+               int                   ldA,
+               const float           *x_,
+               int                   incX,
+               const float           *beta_,
+               float                 *y_,
+               int                   incY);
+
+void
+ULMBLAS(zgemv)(enum CBLAS_TRANSPOSE  transA_,
+               int                   m,
+               int                   n,
+               const double          *alpha_,
+               const double          *A_,
+               int                   ldA,
+               const double          *x_,
+               int                   incX,
+               const double          *beta_,
+               double                *y_,
+               int                   incY);
+
+void
+ULMBLAS(sger)(int           m,
+              int           n,
+              float         alpha,
+              const float   *x,
+              int           incX,
+              const float   *y,
+              int           incY,
+              float         *A,
+              int           ldA);
+
+void
 ULMBLAS(dger)(int           m,
               int           n,
               double        alpha,
@@ -890,6 +1913,17 @@ ULMBLAS(dger)(int           m,
               int           incY,
               double        *A,
               int           ldA);
+
+void
+ULMBLAS(cgeru)(int           m,
+               int           n,
+               const float   *alpha_,
+               const float   *x_,
+               int           incX,
+               const float   *y_,
+               int           incY,
+               float         *A_,
+               int           ldA);
 
 void
 ULMBLAS(zgeru)(int           m,
@@ -903,6 +1937,17 @@ ULMBLAS(zgeru)(int           m,
                int           ldA);
 
 void
+ULMBLAS(cgerc)(int           m,
+               int           n,
+               const float   *alpha_,
+               const float   *x_,
+               int           incX,
+               const float   *y_,
+               int           incY,
+               float         *A_,
+               int           ldA);
+
+void
 ULMBLAS(zgerc)(int           m,
                int           n,
                const double  *alpha,
@@ -912,6 +1957,31 @@ ULMBLAS(zgerc)(int           m,
                int           incY,
                double        *A,
                int           ldA);
+void
+ULMBLAS(ssymm)(enum CBLAS_SIDE  side,
+               enum CBLAS_UPLO  upLo,
+               int              m,
+               int              n,
+               float            alpha,
+               const float      *A,
+               int              ldA,
+               float            *B,
+               int              ldB,
+               float            beta,
+               float            *C,
+               int              ldC);
+
+void
+ULMBLAS(ssymv)(enum CBLAS_UPLO  upLo,
+               int              n,
+               float            alpha,
+               const float      *A,
+               int              ldA,
+               const float      *x,
+               int              incX,
+               float            beta,
+               float            *y,
+               int              incY);
 
 void
 ULMBLAS(dsymv)(enum CBLAS_UPLO  upLo,
@@ -923,6 +1993,18 @@ ULMBLAS(dsymv)(enum CBLAS_UPLO  upLo,
                int              incX,
                double           beta,
                double           *y,
+               int              incY);
+
+void
+ULMBLAS(chemv)(enum CBLAS_UPLO  upLo,
+               int              n,
+               const float      *alpha_,
+               const float      *A_,
+               int              ldA,
+               const float      *x_,
+               int              incX,
+               const float      *beta,
+               float            *y_,
                int              incY);
 
 void
@@ -938,6 +2020,16 @@ ULMBLAS(zhemv)(enum CBLAS_UPLO  upLo,
                int              incY);
 
 void
+ULMBLAS(strmv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               const float           *A,
+               int                   ldA,
+               float                 *x,
+               int                   incX);
+
+void
 ULMBLAS(dtrmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
@@ -945,6 +2037,16 @@ ULMBLAS(dtrmv)(enum CBLAS_UPLO       upLo,
                const double          *A,
                int                   ldA,
                double                *x,
+               int                   incX);
+
+void
+ULMBLAS(ctrmv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  transA_,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               const float           *A_,
+               int                   ldA,
+               float                 *x_,
                int                   incX);
 
 void
@@ -958,6 +2060,16 @@ ULMBLAS(ztrmv)(enum CBLAS_UPLO       upLo,
                int                   incX);
 
 void
+ULMBLAS(strsv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               const float           *A,
+               int                   ldA,
+               float                 *x,
+               int                   incX);
+
+void
 ULMBLAS(dtrsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
@@ -965,6 +2077,16 @@ ULMBLAS(dtrsv)(enum CBLAS_UPLO       upLo,
                const double          *A,
                int                   ldA,
                double                *x,
+               int                   incX);
+
+void
+ULMBLAS(ctrsv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               const float           *A,
+               int                   ldA,
+               float                 *x,
                int                   incX);
 
 void
@@ -978,12 +2100,30 @@ ULMBLAS(ztrsv)(enum CBLAS_UPLO       upLo,
                int                   incX);
 
 void
+ULMBLAS(ssyr)(enum CBLAS_UPLO  upLo,
+              int              n,
+              float            alpha,
+              const float      *x,
+              int              incX,
+              float            *A,
+              int              ldA);
+
+void
 ULMBLAS(dsyr)(const enum CBLAS_UPLO   upLo,
               int                     N,
               double                  alpha,
               const double            *X,
               int                     incX,
               double                  *A,
+              int                     lda);
+
+void
+ULMBLAS(cher)(const enum CBLAS_UPLO   upLo,
+              int                     N,
+              float                   alpha,
+              const float             *X,
+              int                     incX,
+              float                   *A,
               int                     lda);
 
 void
@@ -996,6 +2136,17 @@ ULMBLAS(zher)(const enum CBLAS_UPLO   upLo,
               int                     lda);
 
 void
+ULMBLAS(ssyr2)(enum CBLAS_UPLO  upLo,
+               int              n,
+               float            alpha,
+               const float      *x,
+               int              incX,
+               const float      *y,
+               int              incY,
+               float            *A,
+               int              ldA);
+
+void
 ULMBLAS(dsyr2)(enum CBLAS_UPLO  upLo,
                int              n,
                double           alpha,
@@ -1004,6 +2155,17 @@ ULMBLAS(dsyr2)(enum CBLAS_UPLO  upLo,
                const double     *y,
                int              incY,
                double           *A,
+               int              ldA);
+
+void
+ULMBLAS(cher2)(enum CBLAS_UPLO  upLo,
+               int              n,
+               const float      *alpha_,
+               const float      *x_,
+               int              incX,
+               const float      *y_,
+               int              incY,
+               float            *A_,
                int              ldA);
 
 void
@@ -1018,6 +2180,17 @@ ULMBLAS(zher2)(enum CBLAS_UPLO  upLo,
                int              ldA);
 
 void
+ULMBLAS(stbmv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               int                   k,
+               const float           *A,
+               int                   ldA,
+               float                 *x,
+               int                   incX);
+
+void
 ULMBLAS(dtbmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
@@ -1026,6 +2199,28 @@ ULMBLAS(dtbmv)(enum CBLAS_UPLO       upLo,
                const double          *A,
                int                   ldA,
                double                *x,
+               int                   incX);
+
+void
+ULMBLAS(ctbmv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  transA_,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               int                   k,
+               const float           *A_,
+               int                   ldA,
+               float                 *x_,
+               int                   incX);
+
+void
+ULMBLAS(ctbmv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  transA_,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               int                   k,
+               const float           *A_,
+               int                   ldA,
+               float                 *x_,
                int                   incX);
 
 void
@@ -1040,6 +2235,19 @@ ULMBLAS(ztbmv)(enum CBLAS_UPLO       upLo,
                int                   incX);
 
 void
+ULMBLAS(ssbmv)(enum CBLAS_UPLO       upLo,
+               int                   n,
+               int                   k,
+               float                 alpha,
+               const float           *A,
+               int                   ldA,
+               const float           *x,
+               int                   incX,
+               float                 beta,
+               float                 *y,
+               int                   incY);
+
+void
 ULMBLAS(dsbmv)(enum CBLAS_UPLO       upLo,
                int                   n,
                int                   k,
@@ -1052,6 +2260,18 @@ ULMBLAS(dsbmv)(enum CBLAS_UPLO       upLo,
                double                *y,
                int                   incY);
 
+void
+ULMBLAS(chbmv)(enum CBLAS_UPLO       upLo,
+               int                   n,
+               int                   k,
+               const float           *alpha_,
+               const float           *A_,
+               int                   ldA,
+               const float           *x_,
+               int                   incX,
+               const float           *beta_,
+               float                 *y_,
+               int                   incY);
 void
 ULMBLAS(zhbmv)(enum CBLAS_UPLO       upLo,
                int                   n,
@@ -1077,6 +2297,17 @@ ULMBLAS(dtbsv)(enum CBLAS_UPLO       upLo,
                int                   incX);
 
 void
+ULMBLAS(ctbsv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               int                   k,
+               const float           *A,
+               int                   ldA,
+               float                 *x,
+               int                   incX);
+
+void
 ULMBLAS(ztbsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
@@ -1088,6 +2319,17 @@ ULMBLAS(ztbsv)(enum CBLAS_UPLO       upLo,
                int                   incX);
 
 void
+ULMBLAS(sspmv)(enum CBLAS_UPLO       upLo,
+               int                   n,
+               float                 alpha,
+               const float           *A,
+               const float           *x,
+               int                   incX,
+               float                 beta,
+               float                 *y,
+               int                   incY);
+
+void
 ULMBLAS(dspmv)(enum CBLAS_UPLO       upLo,
                int                   n,
                double                alpha,
@@ -1096,6 +2338,17 @@ ULMBLAS(dspmv)(enum CBLAS_UPLO       upLo,
                int                   incX,
                double                beta,
                double                *y,
+               int                   incY);
+
+void
+ULMBLAS(chpmv)(enum CBLAS_UPLO       upLo,
+               int                   n,
+               const float           *alpha_,
+               const float           *AP_,
+               const float           *x_,
+               int                   incX,
+               const float           *beta_,
+               float                 *y_,
                int                   incY);
 
 void
@@ -1110,12 +2363,41 @@ ULMBLAS(zhpmv)(enum CBLAS_UPLO       upLo,
                int                   incY);
 
 void
+ULMBLAS(stbsv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  transA_,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               int                   k,
+               const float           *A,
+               int                   ldA,
+               float                 *x,
+               int                   incX);
+
+void
+ULMBLAS(stpmv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               const float           *A,
+               float                 *x,
+               int                   incX);
+
+void
 ULMBLAS(dtpmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
                int                   n,
                const double          *A,
                double                *x,
+               int                   incX);
+
+void
+ULMBLAS(ctpmv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  transA_,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               const float           *AP_,
+               float                 *x_,
                int                   incX);
 
 void
@@ -1128,12 +2410,30 @@ ULMBLAS(ztpmv)(enum CBLAS_UPLO       upLo,
                int                   incX);
 
 void
+ULMBLAS(stpsv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               const float           *A,
+               float                 *x,
+               int                   incX);
+
+void
 ULMBLAS(dtpsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
                int                   n,
                const double          *A,
                double                *x,
+               int                   incX);
+
+void
+ULMBLAS(ctpsv)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               enum CBLAS_DIAG       diag,
+               int                   n,
+               const float           *A,
+               float                 *x,
                int                   incX);
 
 void
@@ -1146,6 +2446,14 @@ ULMBLAS(ztpsv)(enum CBLAS_UPLO       upLo,
                int                   incX);
 
 void
+ULMBLAS(sspr)(enum CBLAS_UPLO  upLo,
+              int              n,
+              float            alpha,
+              const float      *x,
+              int              incX,
+              float            *A);
+
+void
 ULMBLAS(dspr)(enum CBLAS_UPLO  upLo,
               int              n,
               double           alpha,
@@ -1154,12 +2462,30 @@ ULMBLAS(dspr)(enum CBLAS_UPLO  upLo,
               double           *A);
 
 void
+ULMBLAS(chpr)(enum CBLAS_UPLO  upLo,
+              int              n,
+              float            alpha,
+              const float      *x_,
+              int              incX,
+              float            *A_);
+
+void
 ULMBLAS(zhpr)(enum CBLAS_UPLO  upLo,
               int              n,
               double           alpha,
               const double     *x_,
               int              incX,
               double           *A_);
+
+void
+ULMBLAS(sspr2)(enum CBLAS_UPLO  upLo,
+               int              n,
+               float            alpha,
+               const float      *x,
+               int              incX,
+               const float      *y,
+               int              incY,
+               float            *A);
 
 void
 ULMBLAS(dspr2)(enum CBLAS_UPLO  upLo,
@@ -1172,19 +2498,44 @@ ULMBLAS(dspr2)(enum CBLAS_UPLO  upLo,
                double           *A);
 
 void
-CBLAS(zhpr2)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             const double      *alpha,
-             const double      *x,
-             int               incX,
-             const double      *y,
-             int               incY,
-             double            *A);
+ULMBLAS(chpr2)(enum CBLAS_UPLO   upLo,
+               int               n,
+               const float       *alpha,
+               const float       *x,
+               int               incX,
+               const float       *y,
+               int               incY,
+               float             *A);
+
+
+void
+ULMBLAS(zhpr2)(enum CBLAS_UPLO   upLo,
+               int               n,
+               const double      *alpha,
+               const double      *x,
+               int               incX,
+               const double      *y,
+               int               incY,
+               double            *A);
 
 //
 //  Level 3
 //
+void
+ULMBLAS(sgemm)(enum CBLAS_TRANSPOSE  transA,
+               enum CBLAS_TRANSPOSE  transB,
+               int                   m,
+               int                   n,
+               int                   k,
+               float                 alpha,
+               const float           *A,
+               int                   ldA,
+               const float           *B,
+               int                   ldB,
+               float                 beta,
+               float                 *C,
+               int                   ldC);
+
 void
 ULMBLAS(dgemm)(enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_TRANSPOSE  transB,
@@ -1201,17 +2552,32 @@ ULMBLAS(dgemm)(enum CBLAS_TRANSPOSE  transA,
                int                   ldC);
 
 void
-ULMBLAS(dgemm)(enum CBLAS_TRANSPOSE  transA,
+ULMBLAS(cgemm)(enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_TRANSPOSE  transB,
                int                   m,
                int                   n,
                int                   k,
-               double                alpha,
+               const float           *alpha_,
+               const float           *A_,
+               int                   ldA,
+               const float           *B_,
+               int                   ldB,
+               const float           *beta_,
+               float                 *C_,
+               int                   ldC);
+
+void
+ULMBLAS(zgemm)(enum CBLAS_TRANSPOSE  transA,
+               enum CBLAS_TRANSPOSE  transB,
+               int                   m,
+               int                   n,
+               int                   k,
+               const double          *alpha,
                const double          *A,
                int                   ldA,
                const double          *B,
                int                   ldB,
-               double                beta,
+               const double          *beta,
                double                *C,
                int                   ldC);
 
@@ -1230,6 +2596,20 @@ ULMBLAS(dsymm)(enum CBLAS_SIDE  side,
                int              ldC);
 
 void
+ULMBLAS(csymm)(enum CBLAS_SIDE  side,
+               enum CBLAS_UPLO  upLo,
+               int              m,
+               int              n,
+               const float      *alpha_,
+               const float      *A_,
+               int              ldA,
+               float            *B_,
+               int              ldB,
+               const float      *beta_,
+               float            *C_,
+               int              ldC);
+
+void
 ULMBLAS(zsymm)(enum CBLAS_SIDE  side,
                enum CBLAS_UPLO  upLo,
                int              m,
@@ -1242,6 +2622,48 @@ ULMBLAS(zsymm)(enum CBLAS_SIDE  side,
                const double     *beta_,
                double           *C_,
                int              ldC);
+
+void
+ULMBLAS(chemm)(enum CBLAS_SIDE  side,
+               enum CBLAS_UPLO  upLo,
+               int              m,
+               int              n,
+               float            *alpha_,
+               const float      *A_,
+               int              ldA,
+               float            *B_,
+               int              ldB,
+               float            *beta_,
+               float            *C_,
+               int              ldC);
+
+void
+ULMBLAS(zhemm)(enum CBLAS_SIDE  side,
+               enum CBLAS_UPLO  upLo,
+               int              m,
+               int              n,
+               double           *alpha_,
+               const double     *A_,
+               int              ldA,
+               double           *B_,
+               int              ldB,
+               double           *beta_,
+               double           *C_,
+               int              ldC);
+
+void
+ULMBLAS(ssyr2k)(enum CBLAS_UPLO       upLo,
+                enum CBLAS_TRANSPOSE  trans,
+                int                   n,
+                int                   k,
+                float                 alpha,
+                const float           *A,
+                int                   ldA,
+                const float           *B,
+                int                   ldB,
+                float                 beta,
+                float                 *C,
+                int                   ldC);
 
 void
 ULMBLAS(dsyr2k)(enum CBLAS_UPLO       upLo,
@@ -1272,6 +2694,46 @@ ULMBLAS(zsyr2k)(enum CBLAS_UPLO       upLo,
                 int                   ldC);
 
 void
+ULMBLAS(cher2k)(enum CBLAS_UPLO       upLo,
+                enum CBLAS_TRANSPOSE  trans,
+                int                   n,
+                int                   k,
+                float                 *alpha_,
+                const float           *A_,
+                int                   ldA,
+                const float           *B_,
+                int                   ldB,
+                float                 beta,
+                float                 *C_,
+                int                   ldC);
+
+void
+ULMBLAS(zher2k)(enum CBLAS_UPLO       upLo,
+                enum CBLAS_TRANSPOSE  trans,
+                int                   n,
+                int                   k,
+                double                *alpha_,
+                const double          *A_,
+                int                   ldA,
+                const double          *B_,
+                int                   ldB,
+                double                beta,
+                double                *C_,
+                int                   ldC);
+
+void
+ULMBLAS(ssyrk)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               int                   n,
+               int                   k,
+               float                 alpha,
+               const float           *A,
+               int                   ldA,
+               float                 beta,
+               float                 *C,
+               int                   ldC);
+
+void
 ULMBLAS(dsyrk)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                int                   n,
@@ -1296,6 +2758,43 @@ ULMBLAS(zsyrk)(enum CBLAS_UPLO       upLo,
                int                   ldC);
 
 void
+ULMBLAS(cherk)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               int                   n,
+               int                   k,
+               float                 alpha,
+               const float           *A_,
+               int                   ldA,
+               float                 beta,
+               float                 *C_,
+               int                   ldC);
+
+void
+ULMBLAS(zherk)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               int                   n,
+               int                   k,
+               double                alpha,
+               const double          *A_,
+               int                   ldA,
+               double                beta,
+               double                *C_,
+               int                   ldC);
+
+void
+ULMBLAS(strmm)(enum CBLAS_SIDE      side,
+               enum CBLAS_UPLO      upLo,
+               enum CBLAS_TRANSPOSE transA,
+               enum CBLAS_DIAG      diag,
+               int                  m,
+               int                  n,
+               float                alpha,
+               const float          *A,
+               int                  ldA,
+               float                *B,
+               int                  ldB);
+
+void
 ULMBLAS(dtrmm)(enum CBLAS_SIDE      side,
                enum CBLAS_UPLO      upLo,
                enum CBLAS_TRANSPOSE transA,
@@ -1306,6 +2805,19 @@ ULMBLAS(dtrmm)(enum CBLAS_SIDE      side,
                const double         *A,
                int                  ldA,
                double               *B,
+               int                  ldB);
+
+void
+ULMBLAS(ctrmm)(enum CBLAS_SIDE      side,
+               enum CBLAS_UPLO      upLo,
+               enum CBLAS_TRANSPOSE transA,
+               enum CBLAS_DIAG      diag,
+               int                  m,
+               int                  n,
+               const float          *alpha_,
+               const float          *A_,
+               int                  ldA,
+               float                *B_,
                int                  ldB);
 
 void
@@ -1322,6 +2834,19 @@ ULMBLAS(ztrmm)(enum CBLAS_SIDE      side,
                int                  ldB);
 
 void
+ULMBLAS(strsm)(enum CBLAS_SIDE       side,
+               enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  transA,
+               enum CBLAS_DIAG       diag,
+               int                   m,
+               int                   n,
+               float                 alpha,
+               const float           *A,
+               int                   ldA,
+               float                 *B,
+               int                   ldB);
+
+void
 ULMBLAS(dtrsm)(enum CBLAS_SIDE       side,
                enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA,
@@ -1332,6 +2857,19 @@ ULMBLAS(dtrsm)(enum CBLAS_SIDE       side,
                const double          *A,
                int                   ldA,
                double                *B,
+               int                   ldB);
+
+void
+ULMBLAS(ctrsm)(enum CBLAS_SIDE       side,
+               enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  transA,
+               enum CBLAS_DIAG       diag,
+               int                   m,
+               int                   n,
+               const float           *alpha_,
+               const float           *A_,
+               int                   ldA,
+               float                 *B_,
                int                   ldB);
 
 void
