@@ -25,6 +25,6 @@ BibTeX:
   year         = {2021},
   publisher    = {GitHub},
   howpublished = {\url{https://github.com/michael-lehn/ulmBLAS}},
-  note         = {Version 1.0}
+  note         = {Ulm University, Version 1.0}
 }
 
