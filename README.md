@@ -4,7 +4,9 @@
 
 ---
 **Notable use:** ulmBLAS is listed in
-> [Meta Quest's official third-party software notices](https://www.meta.com/en/legal/quest/third-party-notices/14/).
+[Meta Quest's official third-party software notices](https://www.meta.com/en/legal/quest/third-party-notices/14/)
+as
+> **ulmBLAS Copyright (C) 2014 Michael C. Lehn. Ulm University**
 ---
 
 This library is part of my lecture:
