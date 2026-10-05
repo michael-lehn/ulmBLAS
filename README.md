@@ -3,6 +3,9 @@
 **A high performance BLAS implementation**
 
 ---
+**Notable use:** ulmBLAS is listed in
+> [Meta Quest's official third-party software notices](https://www.meta.com/en/legal/quest/third-party-notices/14/).
+---
 
 This library is part of my lecture:
 
