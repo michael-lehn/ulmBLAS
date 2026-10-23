@@ -275,8 +275,6 @@ CBLAS(csyrk)(enum CBLAS_ORDER      order,
              float                 *C,
              int                   ldC)
 {
-    typedef std::complex<float> fcomplex;
-
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
@@ -336,8 +334,6 @@ CBLAS(zsyrk)(enum CBLAS_ORDER      order,
              double                *C,
              int                   ldC)
 {
-    typedef std::complex<double> dcomplex;
-
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //

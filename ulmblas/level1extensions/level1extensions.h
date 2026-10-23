@@ -1,6 +1,7 @@
 #ifndef ULMBLAS_LEVEL1EXTENSIONS_LEVEL1EXTENSIONS_H
 #define ULMBLAS_LEVEL1EXTENSIONS_LEVEL1EXTENSIONS_H 1
 
+#include <ulmblas/config/simd.h>
 #include <ulmblas/level1extensions/axpy2v.h>
 #include <ulmblas/level1extensions/axpyf.h>
 #include <ulmblas/level1extensions/dot2v.h>
@@ -22,12 +23,14 @@
 #include <ulmblas/level1extensions/kernel/ref/dotaxpy.h>
 #include <ulmblas/level1extensions/kernel/ref/dotxaxpyf.h>
 #include <ulmblas/level1extensions/kernel/ref/dotxf.h>
-#include <ulmblas/level1extensions/kernel/sse/axpy2v.h>
-#include <ulmblas/level1extensions/kernel/sse/axpyf.h>
-#include <ulmblas/level1extensions/kernel/sse/dot2v.h>
-#include <ulmblas/level1extensions/kernel/sse/dotaxpy.h>
-#include <ulmblas/level1extensions/kernel/sse/dotxaxpyf.h>
-#include <ulmblas/level1extensions/kernel/sse/dotxf.h>
+#if defined(USE_SSE)
+#   include <ulmblas/level1extensions/kernel/sse/axpy2v.h>
+#   include <ulmblas/level1extensions/kernel/sse/axpyf.h>
+#   include <ulmblas/level1extensions/kernel/sse/dot2v.h>
+#   include <ulmblas/level1extensions/kernel/sse/dotaxpy.h>
+#   include <ulmblas/level1extensions/kernel/sse/dotxaxpyf.h>
+#   include <ulmblas/level1extensions/kernel/sse/dotxf.h>
+#endif
 #include <ulmblas/level1extensions/trlaxpy.h>
 #include <ulmblas/level1extensions/trlscal.h>
 #include <ulmblas/level1extensions/truaxpy.h>

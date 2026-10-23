@@ -77,6 +77,8 @@ struct FuseFactor
                             : std::is_same<T,dcomplex>::value ? 4
                             : 1;
 
+    static const int dotcxf = dotuxf;
+
     static const int dotxaxpyf = axpyf;
 };
 

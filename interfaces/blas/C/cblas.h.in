@@ -307,6 +307,13 @@ CBLAS(zswap)(const int   N,
              const int   incY);
 
 void
+CBLAS(ccopy)(int          n,
+             const float  *x,
+             int          incX,
+             float        *y,
+             int          incY);
+
+void
 CBLAS(zcopy)(const int     N,
              const double  *X,
              const int     incX,
@@ -678,6 +685,17 @@ CBLAS(dtrsv)(enum CBLAS_ORDER      order,
              const double          *A,
              int                   ldA,
              double                *x,
+             int                   incX);
+
+void
+CBLAS(ctrsv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             int                   n,
+             const float           *A,
+             int                   ldA,
+             float                 *x,
              int                   incX);
 
 void
@@ -1199,6 +1217,22 @@ CBLAS(dgemm)(enum CBLAS_ORDER      order,
              int                   ldC);
 
 void
+CBLAS(cgemm)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             enum CBLAS_TRANSPOSE  transB,
+             int                   m,
+             int                   n,
+             int                   k,
+             const float           *alpha,
+             const float           *A,
+             int                   ldA,
+             const float           *B,
+             int                   ldB,
+             const float           *beta,
+             float                 *C,
+             int                   ldC);
+
+void
 CBLAS(zgemm)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              enum CBLAS_TRANSPOSE  transB,
@@ -1320,6 +1354,21 @@ CBLAS(dsyr2k)(enum CBLAS_ORDER      order,
               int                   ldC);
 
 void
+CBLAS(csyr2k)(enum CBLAS_ORDER      order,
+              enum CBLAS_UPLO       upLo,
+              enum CBLAS_TRANSPOSE  trans,
+              int                   n,
+              int                   k,
+              const float           *alpha,
+              const float           *A,
+              int                   ldA,
+              const float           *B,
+              int                   ldB,
+              const float           *beta,
+              float                 *C,
+              int                   ldC);
+
+void
 CBLAS(zsyr2k)(enum CBLAS_ORDER      order,
               enum CBLAS_UPLO       upLo,
               enum CBLAS_TRANSPOSE  trans,
@@ -1388,6 +1437,19 @@ CBLAS(dsyrk)(enum CBLAS_ORDER      order,
              int                   ldA,
              double                beta,
              double                *C,
+             int                   ldC);
+
+void
+CBLAS(csyrk)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             int                   n,
+             int                   k,
+             const float           *alpha,
+             const float           *A,
+             int                   ldA,
+             const float           *beta,
+             float                 *C,
              int                   ldC);
 
 void
