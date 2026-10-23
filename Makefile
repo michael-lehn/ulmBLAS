@@ -1,44 +1,20 @@
-all: cblas clapack
+#
+#  ulmBLAS requires GNU Make (3.81 or newer).
+#
+#  GNU Make reads GNUmakefile and ignores this file.  This file is read by
+#  other implementations of make (e.g. BSD make) and only explains how to
+#  build ulmBLAS.  It uses POSIX make syntax only.
+#
 
-.PHONY: refblas f77blas cblas clapack
+all cblas clapack atlblas atllapack f77blas refblas check check-numeric \
+check-netlib check_cblas check_f77blas bench benchmark-suite clean help: \
+gnu-make-required
 
-refblas:
-	$(MAKE) -C refblas
-
-f77blas:
-	$(MAKE) -C interfaces/blas/F77
-
-cblas:
-	$(MAKE) -C interfaces/blas/C config_cblas
-
-atlblas:
-	$(MAKE) -C interfaces/blas/C config_atl
-
-clapack:
-	$(MAKE) -C interfaces/lapack/C config_cblas
-
-atllapack:
-	$(MAKE) -C interfaces/lapack/C config_atl
-
-check_f77blas:
-	$(MAKE) -C test/F77
-
-check_cblas:
-	$(MAKE) -C test/C
-
-check: check_f77blas check_cblas
-
-bench: atlblas atllapack
-	$(MAKE) -C bench
-
-benchmark-suite: atlblas atllapack
-	$(MAKE) -C bench benchmark-suite
-
-clean:
-	$(MAKE) -C interfaces/blas/C clean
-	$(MAKE) -C interfaces/blas/F77 clean
-	$(MAKE) -C interfaces/lapack/C clean
-	$(MAKE) -C bench clean
-	$(MAKE) -C refblas clean
-	$(MAKE) -C test/F77 clean
-	$(MAKE) -C test/C clean
+gnu-make-required:
+	@echo "error: ulmBLAS must be built with GNU Make (3.81 or newer)." >&2; \
+	if command -v gmake >/dev/null 2>&1; then \
+	    echo "  GNU Make is installed as 'gmake', run: gmake $(.TARGETS)" >&2; \
+	else \
+	    echo "  Install GNU Make (often packaged as 'gmake') and run gmake." >&2; \
+	fi; \
+	exit 1

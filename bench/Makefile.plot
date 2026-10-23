@@ -20,4 +20,4 @@ $(GPS) : gnuplot.in
 
 $(CASE_DIR)/$(CASE)_%.$(GPS_OUTPUT_SUFFIX) : gnuplot.in $(GPS_MAKE_INC_DEPS)
 	rm -f $@
-	make -C . -f Makefile.variantplot $(MAKECMDGOALS) CASE=$(CASE) VARIANT=$* DIR=${@D} BLAS_VARIANTS="$(BLAS_VARIANTS)"
+	$(MAKE) -f Makefile.variantplot $(MAKECMDGOALS) CASE=$(CASE) VARIANT=$* DIR=${@D} BLAS_VARIANTS="$(BLAS_VARIANTS)"
