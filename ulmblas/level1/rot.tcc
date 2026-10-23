@@ -84,7 +84,7 @@ rotg(A &a,
     if (absA > absB) {
         z = s;
     }
-    if ((absA < absB) && (c != 0)) {
+    if ((absA <= absB) && (c != 0)) {
         z = T(1)/c;
     }
     a = r;

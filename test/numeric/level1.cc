@@ -456,6 +456,50 @@ testRotg(Context &ctx, bool equalAbs)
     }
 }
 
+//
+//  ROTG with literal expected values (r, c, s, z).  The values were checked
+//  against the Netlib reference implementation (refblas/srotg.f,
+//  refblas/drotg.f).  Regression test for issue #0001 (z for |a| == |b|).
+//
+template <typename T>
+void
+testRotgValues(Context &ctx)
+{
+    const double q = std::sqrt(2.0), h = 1/std::sqrt(2.0);
+
+    //                    a,  b,  r,     c,    s,    z
+    const double t[][6] = { { 1,  1,  q,    h,    h,    q     },  // |a| == |b|
+                            {-2,  2,  2*q, -h,    h,   -q     },
+                            { 3, -3, -3*q, -h,    h,   -q     },
+                            {-1, -1, -q,    h,    h,    q     },
+                            { 0,  0,  0,    1,    0,    0     },  // a = b = 0
+                            { 4,  3,  5,    0.8,  0.6,  0.6   },  // |a| > |b|
+                            {-4,  3, -5,    0.8, -0.6, -0.6   },
+                            { 3,  4,  5,    0.6,  0.8,  5./3  },  // |a| < |b|
+                            { 3, -4, -5,   -0.6,  0.8, -5./3  },
+                            { 0,  2,  2,    0,    1,    1     } };// c == 0
+
+    for (std::size_t k=0; k<sizeof(t)/sizeof(t[0]); ++k) {
+        T a = T(t[k][0]), b = T(t[k][1]), c, s;
+        T r = a, z = b;
+        blas::rotg(&r, &z, &c, &s);
+
+        const T      got[4]  = { r, c, s, z };
+        const char  *name[4] = { "r", "c", "s", "z" };
+        for (int i=0; i<4; ++i) {
+            double e = t[k][2+i];
+            if (!ctx.check(std::abs(double(got[i])-e)
+                           <= tolerance<T>(2)*std::max(1.0, std::abs(e)),
+                           "rotg(a=%g,b=%g): %s=%.9g, expected %.9g, %s",
+                           t[k][0], t[k][1], name[i], double(got[i]), e,
+                           typeName<T>()))
+            {
+                return;
+            }
+        }
+    }
+}
+
 } // namespace
 
 ULMBLAS_TEST(T0100, "level1/axpy")
@@ -522,7 +566,12 @@ ULMBLAS_TEST(T0110, "level1/rotg")
     testRotg<float>(ctx, false); testRotg<double>(ctx, false);
 }
 
-ULMBLAS_TEST_XFAIL(T0111, "level1/rotg with |a| == |b|", 1)
+ULMBLAS_TEST(T0111, "level1/rotg with |a| == |b|")
 {
     testRotg<float>(ctx, true); testRotg<double>(ctx, true);
+}
+
+ULMBLAS_TEST(T0112, "level1/rotg reference values")
+{
+    testRotgValues<float>(ctx); testRotgValues<double>(ctx);
 }

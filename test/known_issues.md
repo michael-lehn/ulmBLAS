@@ -34,18 +34,18 @@ summary.
 
 Issue #0001: rotg returns z = 1 instead of 1/c if |a| == |b|
 Type: BUG
-Status: OPEN
-Covered by tests: T0111 (numeric, XFAIL)
+Status: RESOLVED
+Covered by tests: T0110, T0111, T0112 (numeric, regression tests)
 
-`ulmBLAS::rotg` (`ulmblas/level1/rot.tcc`) sets `z = 1/c` only if
+`ulmBLAS::rotg` (`ulmblas/level1/rot.tcc`) set `z = 1/c` only if
 `|a| < |b|`.  Reference BLAS (`drotg`) uses `|b| >= |a|`, so for `|a| == |b|`
-ulmBLAS returns `z = 1` instead of `z = 1/c` (e.g. `a = b = 1`: `z = 1`
-instead of `sqrt(2)`).  `r`, `c` and `s` are correct.  Since `z = 1` encodes
-the rotation `c = 0, s = 1`, code that reconstructs the rotation from `z`
-gets a wrong rotation.  The Netlib test data for `rotg` contains no case
-with `|a| == |b|`.  Expected: `z = 1/c` if `|b| >= |a|` and `c != 0`.
-Affects `cblas_srotg`, `cblas_drotg` and the corresponding functions of the
-other interfaces.
+ulmBLAS returned `z = 1` instead of `z = 1/c` (e.g. `a = b = 1`: `z = 1`
+instead of `sqrt(2)`; `a = -2, b = 2`: `z = 1` instead of `-sqrt(2)`).
+`r`, `c` and `s` were correct.  Since `z = 1` encodes the rotation
+`c = 0, s = 1`, code that reconstructs the rotation from `z` got a wrong
+rotation.  The Netlib test data for `rotg` contains no case with
+`|a| == |b|`.  Fixed by using `|a| <= |b|`; affected `srotg` and `drotg` of
+all interfaces.  The complex `rotg` (no `z`) was not affected.
 
 Issue #0003: dgetrf with row major storage computes wrong results and writes outside the matrix
 Type: BUG
