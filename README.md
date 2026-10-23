@@ -146,7 +146,8 @@ libraries of each configuration are built in `test/build/`.
   that an operand is not referenced or need not be set, e.g. C for beta = 0
   or unit diagonals), matrices larger than the default block sizes MC and
   KC (the default NC = 4096 is only exceeded with the small test block
-  sizes), and `dgetrf`/`dlaswp`.  Results are compared with straightforward reference
+  sizes), and `dgetrf` (including row major storage) and
+  `dlaswp`.  Results are compared with straightforward reference
   implementations using error bounds, not bitwise.  Padding and elements
   that must not be written are checked bitwise.
 - **Netlib BLAS test suites** (`test/F77`, `test/C`): the official test

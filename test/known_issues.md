@@ -47,19 +47,22 @@ with `|a| == |b|`.  Expected: `z = 1/c` if `|b| >= |a|` and `c != 0`.
 Affects `cblas_srotg`, `cblas_drotg` and the corresponding functions of the
 other interfaces.
 
-Issue #0003: dgetrf with row major storage and m != n computes wrong results and writes outside the matrix
+Issue #0003: dgetrf with row major storage computes wrong results and writes outside the matrix
 Type: BUG
-Status: OPEN
-Covered by tests: T0404 (numeric, XFAIL)
+Status: RESOLVED
+Covered by tests: T0401, T0404, T0405 (numeric, regression tests)
 
-For `CblasRowMajor`, `interfaces/lapack/C/getrf.cc` calls
-`ulmBLAS::getrf(n, m, A, ldA, 1, ...)`: the dimensions are those of the
-transposed matrix, but the strides `(ldA, 1)` describe the matrix itself.
-For square matrices this computes `P*A = L*U` (see #0004).  For `m != n` the
-result is not a factorization of `A`; for `m < n` elements beyond the last
-row of `A` are overwritten and pivot indices `>= m` are returned (memory
-corruption).  Expected: a factorization of the `m x n` matrix that only
-accesses the matrix (with semantics according to #0004).
+For `CblasRowMajor`, `interfaces/lapack/C/getrf.cc` called
+`ulmBLAS::getrf(n, m, A, ldA, 1, ...)`: the dimensions of the transposed
+matrix, but the strides `(ldA, 1)` of the matrix itself.  For square
+matrices this computed `P*A = L*U` with row interchanges instead of the ATLAS
+convention (see #0004).  For `m != n` the result was not a factorization of
+`A`; for `m < n` elements beyond the last row were read and overwritten and
+pivot indices `>= m` were returned (memory corruption, confirmed with
+AddressSanitizer).  Fixed by factoring the transposed matrix in column major
+storage, `ulmBLAS::getrf(n, m, A, 1, ldA, ...)`; the LU algorithm itself was
+correct.  The fix changes the result for square row major matrices to the
+ATLAS convention.
 
 ## Design questions
 
@@ -84,14 +87,14 @@ all tested functions.
 
 Issue #0004: Semantics of dgetrf with row major storage
 Type: DESIGN
-Status: OPEN
-Covered by tests: T0401 (numeric, DESIGN)
+Status: RESOLVED
+Covered by tests: T0401, T0404 (numeric, regression tests)
 
 The C interface of LAPACK follows ATLAS (0-based pivots, `CBLAS_ORDER`
-argument).  ATLAS' `clapack_dgetrf` factors a row major matrix as the
-transposed column major matrix, i.e. `A = L*U*P` with column interchanges
-and unit diagonal in `U`.  ulmBLAS computes `P*A = L*U` with row
-interchanges for square row major matrices (the result of the call in
-`getrf.cc`, see #0003).  The test records the observed semantics ("rows" or
-"columns").  Open: which semantics is intended?  The answer determines the
-fix of #0003.
+argument, also exported with ATLAS names by `make atllapack`).  Answer: the
+ATLAS convention.  A row major matrix is factored as its transpose in column
+major storage, i.e. `A*P = L*U` with column interchanges, `L` lower
+triangular and `U` unit upper triangular; the pivot indices refer to columns.
+This is the convention checked by the ATLAS LU tester in `bench/lutst.c`
+(`lutestR`), which ulmBLAS failed for every row major matrix before the fix
+of #0003 and passes afterwards.

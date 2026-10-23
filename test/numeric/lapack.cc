@@ -5,10 +5,11 @@
 //  the first and k2-1 the last pivot applied.  The function names have the
 //  prefix ULMLAPACK of the configuration.
 //
-//  For row major storage the semantics of dgetrf is an open question (issue
-//  #0004): row interchanges (P*A = L*U, as for column major storage) or
-//  column interchanges (A = L*U*P with unit upper U, the factorization of
-//  the transposed matrix, as ATLAS' clapack_dgetrf).
+//  For row major storage dgetrf follows ATLAS' clapack_dgetrf: the matrix is
+//  factored as its transpose in column major storage, i.e. A*P = L*U with
+//  column interchanges, L lower triangular and U unit upper triangular.  The
+//  pivot indices refer to columns of A (bench/lutst.c, the ATLAS LU tester,
+//  checks the same convention).
 //
 #include LAPACK_HEADER
 #include <test/numeric/reference.h>
@@ -146,88 +147,103 @@ testGetrfSingular(Context &ctx)
 }
 
 //
-//  dgetrf for an m x n row major matrix.  The buffer has a large guard area
-//  (writes beyond the matrix are detected, see issue #0003).  Returns which
-//  factorization was computed:
+//  dgetrf for an m x n row major matrix with leading dimension ld >= n;
+//  zeroRow >= 0 makes the matrix singular.
 //
-//      "rows"     P*A = L*U (row interchanges)
-//      "columns"  A = L*U*P (column interchanges, unit upper U)
-//      "neither"  no valid factorization, or memory outside the matrix
-//                 modified
+//  In memory, element (i,j) of A is A[i*ld+j].  Viewed as a column major
+//  matrix with leading dimension ld the buffer is the n x m matrix A^T, and
+//  the ATLAS convention A*P = L*U is P^T*A^T = U^T*L^T: the column major
+//  factorization of A^T with row interchanges (unit lower U^T).  This is
+//  checked with checkLu for the n x m column major view.
 //
-std::string
-getrfRowMajor(Random &random, int m, int n)
+//  The matrix is placed between guard regions; the guards and the padding
+//  (columns n, ..., ld-1 of each row) must not be modified.
+//
+bool
+getrfRowMajorCase(Context &ctx, Random &random, int m, int n, int ld,
+                  int zeroRow)
 {
-    int                  ld    = n + 2;
-    std::size_t          size  = std::size_t(ld)*std::max(1, m);
-    std::vector<double>  A(4*size + 4*std::size_t(ld)*std::max(m, n), -777);
+    const double         guardValue = -777;
+    const std::size_t    guard      = 64 + 2*std::size_t(ld);
+    const std::size_t    size       = std::size_t(ld)*std::max(1, m);
+
+    std::vector<double>  buffer(guard + size + guard, guardValue);
+    double               *A = &buffer[guard];
+
     for (int i=0; i<m; ++i) {
         for (int j=0; j<n; ++j) {
-            A[i*ld+j] = random.uniform();
+            A[i*ld+j] = (i==zeroRow) ? 0 : random.uniform();
         }
     }
-    std::vector<double>  A0(A);
-    std::vector<int>     piv(2*std::max(m, n) + 1, -1);
+    std::vector<double>  A0(A, A+size);
+    std::vector<int>     piv(std::max(1, std::min(m, n)), -1);
 
-    int info = ULMLAPACK(dgetrf)(CblasRowMajor, m, n, &A[0], ld, &piv[0]);
+    int info = ULMLAPACK(dgetrf)(CblasRowMajor, m, n, A, ld, &piv[0]);
 
-    for (std::size_t p=0; p<A.size(); ++p) {
-        bool inside = p<size && int(p%ld)<n;
-        if (!inside && A[p]!=-777) {
-            return "neither";
+    std::string what = format("dgetrf(row,m=%d,n=%d,ld=%d%s)", m, n, ld,
+                              zeroRow>=0 ? ",singular" : "");
+
+    for (std::size_t p=0; p<buffer.size(); ++p) {
+        bool inMatrix = p>=guard && p<guard+size
+                     && int((p-guard)%ld)<n && int((p-guard)/ld)<m;
+        if (!inMatrix && buffer[p]!=guardValue) {
+            return ctx.check(false, "%s: memory outside the matrix modified "
+                             "(offset %ld)", what.c_str(),
+                             long(p)-long(guard));
         }
     }
 
-    // rows: the column major m x n matrix A^T^T, copy to column major
-    std::vector<double> Ac(std::size_t(m)*n+1), A0c(Ac);
-    for (int i=0; i<m; ++i) {
-        for (int j=0; j<n; ++j) {
-            Ac[i+j*m]  = A[i*ld+j];
-            A0c[i+j*m] = A0[i*ld+j];
-        }
-    }
-    Context c1, c2;
-    if (checkLu(c1, m, n, A0c, Ac, std::max(1, m), piv, info, "")) {
-        return "rows";
-    }
-    // columns: the buffer is the column major n x m matrix A^T
-    if (checkLu(c2, n, m, A0, A, ld, piv, info, "")) {
-        return "columns";
-    }
-    return "neither";
+    std::vector<double> Af(A, A+size);
+    return checkLu(ctx, n, m, A0, Af, ld, piv, info, what);
 }
+
+const int rowMajorSquare[]         = { 1, 2, 5, 33, 64, 65, 70, 200 };
+const int rowMajorRectangular[][2] = { {1,7}, {7,1}, {3,5}, {5,3}, {4,6},
+                                       {6,4}, {40,60}, {60,40}, {64,130},
+                                       {130,64}, {97,131}, {131,97} };
+
+// leading dimensions: exact (ld == n) and larger than necessary
+const int ldExtra[] = { 0, 3, 17 };
 
 void
 testGetrfRowMajorSquare(Context &ctx)
 {
-    Random       random;
-    const int    sizes[] = { 1, 5, 33, 70, 200 };
-    std::string  observed;
-
-    for (int i=0; i<5; ++i) {
-        std::string r = getrfRowMajor(random, sizes[i], sizes[i]);
-        if (observed.empty()) {
-            observed = r;
-        } else if (observed!=r) {
-            observed = "inconsistent";
+    Random random;
+    for (int i=0; i<8; ++i) {
+        for (int l=0; l<3; ++l) {
+            int n = rowMajorSquare[i];
+            if (!getrfRowMajorCase(ctx, random, n, n, n+ldExtra[l], -1)) {
+                return;
+            }
         }
     }
-    ctx.observed = observed;
-    ctx.pass();
 }
 
 void
 testGetrfRowMajorRectangular(Context &ctx)
 {
-    Random       random;
-    const int    cases[][2] = { {6,4}, {4,6}, {131,97}, {97,131} };
+    Random random;
+    for (int c=0; c<12; ++c) {
+        for (int l=0; l<3; ++l) {
+            int m = rowMajorRectangular[c][0], n = rowMajorRectangular[c][1];
+            if (!getrfRowMajorCase(ctx, random, m, n, n+ldExtra[l], -1)) {
+                return;
+            }
+        }
+    }
+}
 
-    for (int c=0; c<4; ++c) {
-        int m = cases[c][0], n = cases[c][1];
-        std::string r = getrfRowMajor(random, m, n);
-        if (!ctx.check(r!="neither", "dgetrf(row,m=%d,n=%d): no valid "
-                       "factorization or memory outside the matrix modified",
-                       m, n))
+void
+testGetrfRowMajorSingular(Context &ctx)
+{
+    Random random;
+    // a zero row k of A is a zero column of A^T: U^T(k,k) = 0, info = k+1,
+    // also in the blocked algorithm (block size 64)
+    const int cases[][3] = { {5,5,0}, {5,5,3}, {4,7,2}, {7,4,2},
+                             {100,100,70}, {120,150,5}, {150,120,90} };
+    for (int c=0; c<7; ++c) {
+        if (!getrfRowMajorCase(ctx, random, cases[c][0], cases[c][1],
+                               cases[c][1]+2, cases[c][2]))
         {
             return;
         }
@@ -279,7 +295,7 @@ testLaswp(Context &ctx)
 
 ULMBLAS_TEST(T0400, "lapack/dgetrf column major")  { testGetrf(ctx); }
 
-ULMBLAS_TEST_DESIGN(T0401, "lapack/dgetrf row major, square", 4, "rows")
+ULMBLAS_TEST(T0401, "lapack/dgetrf row major, square")
 {
     testGetrfRowMajorSquare(ctx);
 }
@@ -287,7 +303,12 @@ ULMBLAS_TEST_DESIGN(T0401, "lapack/dgetrf row major, square", 4, "rows")
 ULMBLAS_TEST(T0402, "lapack/dgetrf singular")      { testGetrfSingular(ctx); }
 ULMBLAS_TEST(T0403, "lapack/dlaswp")               { testLaswp(ctx); }
 
-ULMBLAS_TEST_XFAIL(T0404, "lapack/dgetrf row major, m != n", 3)
+ULMBLAS_TEST(T0404, "lapack/dgetrf row major, m != n")
 {
     testGetrfRowMajorRectangular(ctx);
+}
+
+ULMBLAS_TEST(T0405, "lapack/dgetrf row major, singular")
+{
+    testGetrfRowMajorSingular(ctx);
 }
