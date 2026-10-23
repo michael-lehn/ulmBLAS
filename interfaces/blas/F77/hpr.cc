@@ -41,6 +41,7 @@ F77BLAS(chpr)(const char        *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CHPR  ", &info);
+        return;
     }
 
 //
@@ -93,6 +94,7 @@ F77BLAS(zhpr)(const char        *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZHPR  ", &info);
+        return;
     }
 
 //

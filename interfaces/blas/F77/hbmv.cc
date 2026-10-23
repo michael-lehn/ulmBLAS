@@ -60,6 +60,7 @@ F77BLAS(chbmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CHBMV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -132,6 +133,7 @@ F77BLAS(zhbmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZHBMV ", &info);
+        return;
     }
 
     if (incX<0) {

@@ -75,6 +75,7 @@ F77BLAS(sgemm)(const char     *transA_,
 
     if (info!=0) {
         F77BLAS(xerbla)("SGEMM ", &info);
+        return;
     }
 
 //
@@ -196,6 +197,7 @@ F77BLAS(dgemm)(const char     *transA_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DGEMM ", &info);
+        return;
     }
 
 //
@@ -324,6 +326,7 @@ F77BLAS(cgemm)(const char     *transA_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CGEMM ", &info);
+        return;
     }
 
 //
@@ -453,6 +456,7 @@ F77BLAS(zgemm)(const char     *transA_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZGEMM ", &info);
+        return;
     }
 
 //

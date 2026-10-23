@@ -37,6 +37,7 @@ F77BLAS(sspr)(const char        *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("SSPR  ", &info);
+        return;
     }
 
 //
@@ -84,6 +85,7 @@ F77BLAS(dspr)(const char        *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DSPR  ", &info);
+        return;
     }
 
 //

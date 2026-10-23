@@ -69,6 +69,7 @@ F77BLAS(chemm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CHEMM ", &info);
+        return;
     }
 
 //
@@ -151,6 +152,7 @@ F77BLAS(zhemm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZHEMM ", &info);
+        return;
     }
 
 //

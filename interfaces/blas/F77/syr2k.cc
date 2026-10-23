@@ -68,6 +68,7 @@ F77BLAS(ssyr2k)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("SSYR2K", &info);
+        return;
     }
 
 //
@@ -148,6 +149,7 @@ F77BLAS(dsyr2k)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DSYR2K", &info);
+        return;
     }
 
 //
@@ -230,6 +232,7 @@ F77BLAS(csyr2k)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CSYR2K", &info);
+        return;
     }
 
 //
@@ -314,6 +317,7 @@ F77BLAS(zsyr2k)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZSYR2K", &info);
+        return;
     }
 
 //

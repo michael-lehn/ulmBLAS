@@ -46,6 +46,7 @@ F77BLAS(stpsv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("STPSV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -110,6 +111,7 @@ F77BLAS(dtpsv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DTPSV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -178,6 +180,7 @@ F77BLAS(ctpsv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CTPSV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -247,6 +250,7 @@ F77BLAS(ztpsv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZTPSV ", &info);
+        return;
     }
 
     if (incX<0) {

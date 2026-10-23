@@ -52,6 +52,7 @@ F77BLAS(chpmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CHPMV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -116,6 +117,7 @@ F77BLAS(zhpmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZHPMV ", &info);
+        return;
     }
 
     if (incX<0) {

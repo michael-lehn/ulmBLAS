@@ -63,6 +63,7 @@ F77BLAS(ssymm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("SSYMM ", &info);
+        return;
     }
 
 //
@@ -138,6 +139,7 @@ F77BLAS(dsymm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DSYMM ", &info);
+        return;
     }
 
 //
@@ -219,6 +221,7 @@ F77BLAS(csymm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CSYMM ", &info);
+        return;
     }
 
 //
@@ -301,6 +304,7 @@ F77BLAS(zsymm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZSYMM ", &info);
+        return;
     }
 
 //

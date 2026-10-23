@@ -49,6 +49,7 @@ F77BLAS(ssymv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("SSYMV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -111,6 +112,7 @@ F77BLAS(dsymv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DSYMV ", &info);
+        return;
     }
 
     if (incX<0) {

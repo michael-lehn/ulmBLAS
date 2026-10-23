@@ -371,6 +371,7 @@ CBLAS(sgemm)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_sgemm", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -467,6 +468,7 @@ CBLAS(dgemm)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_dgemm", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -563,6 +565,7 @@ CBLAS(cgemm)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_cgemm", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -659,6 +662,7 @@ CBLAS(zgemm)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_zgemm", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {

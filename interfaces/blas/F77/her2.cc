@@ -52,6 +52,7 @@ F77BLAS(cher2)(const char        *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CHER2 ", &info);
+        return;
     }
 
 //
@@ -117,6 +118,7 @@ F77BLAS(zher2)(const char        *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZHER2 ", &info);
+        return;
     }
 
 //

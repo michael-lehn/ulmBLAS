@@ -65,6 +65,7 @@ F77BLAS(strsm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("STRSM ", &info);
+        return;
     }
 
 //
@@ -175,6 +176,7 @@ F77BLAS(dtrsm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DTRSM ", &info);
+        return;
     }
 
 //
@@ -292,6 +294,7 @@ F77BLAS(ctrsm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CTRSM ", &info);
+        return;
     }
 
 //
@@ -410,6 +413,7 @@ F77BLAS(ztrsm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZTRSM ", &info);
+        return;
     }
 
 //

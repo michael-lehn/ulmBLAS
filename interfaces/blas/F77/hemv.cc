@@ -55,6 +55,7 @@ F77BLAS(chemv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CHEMV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -123,6 +124,7 @@ F77BLAS(zhemv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZHEMV ", &info);
+        return;
     }
 
     if (incX<0) {

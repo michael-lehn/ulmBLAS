@@ -197,6 +197,7 @@ CBLAS(strmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_strmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -246,6 +247,7 @@ CBLAS(dtrmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_dtrmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -295,6 +297,7 @@ CBLAS(ctrmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_ctrmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -344,6 +347,7 @@ CBLAS(ztrmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_ztrmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {

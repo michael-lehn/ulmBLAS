@@ -62,6 +62,7 @@ F77BLAS(cherk)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CHERK ", &info);
+        return;
     }
 
 //
@@ -137,6 +138,7 @@ F77BLAS(zherk)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZHERK ", &info);
+        return;
     }
 
 //

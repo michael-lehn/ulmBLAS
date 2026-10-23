@@ -227,6 +227,7 @@ CBLAS(ssymm)(enum CBLAS_ORDER  order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_ssymm", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -301,6 +302,7 @@ CBLAS(dsymm)(enum CBLAS_ORDER  order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_dsymm", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -375,6 +377,7 @@ CBLAS(csymm)(enum CBLAS_ORDER  order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_csymm", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -449,6 +452,7 @@ CBLAS(zsymm)(enum CBLAS_ORDER  order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_zsymm", "");
+        return;
     }
 
     if (order==CblasColMajor) {

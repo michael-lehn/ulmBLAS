@@ -41,6 +41,7 @@ F77BLAS(ssyr)(const char        *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("SSYR  ", &info);
+        return;
     }
 
 //
@@ -92,6 +93,7 @@ F77BLAS(dsyr)(const char        *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DSYR  ", &info);
+        return;
     }
 
 //

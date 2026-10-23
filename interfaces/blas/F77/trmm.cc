@@ -66,6 +66,7 @@ F77BLAS(strmm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("STRMM ", &info);
+        return;
     }
 
 //
@@ -177,6 +178,7 @@ F77BLAS(dtrmm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DTRMM ", &info);
+        return;
     }
 
 //
@@ -294,6 +296,7 @@ F77BLAS(ctrmm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CTRMM ", &info);
+        return;
     }
 
 //
@@ -413,6 +416,7 @@ F77BLAS(ztrmm)(const char     *side_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZTRMM ", &info);
+        return;
     }
 
 //

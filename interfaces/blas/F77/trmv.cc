@@ -51,6 +51,7 @@ F77BLAS(strmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("STRMV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -119,6 +120,7 @@ F77BLAS(dtrmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DTRMV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -191,6 +193,7 @@ F77BLAS(ctrmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CTRMV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -264,6 +267,7 @@ F77BLAS(ztrmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZTRMV ", &info);
+        return;
     }
 
     if (incX<0) {

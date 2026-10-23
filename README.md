@@ -147,7 +147,9 @@ libraries of each configuration are built in `test/build/`.
   or unit diagonals), matrices larger than the default block sizes MC and
   KC (the default NC = 4096 is only exceeded with the small test block
   sizes), and `dgetrf` (including pivot indices and row major storage) and
-  `dlaswp`.  Results are compared with straightforward reference
+  `dlaswp`.  Invalid arguments are tested as well: each function of the C
+  interface that checks its arguments must report an invalid argument
+  through `cblas_xerbla` and return without touching its operands.  Results are compared with straightforward reference
   implementations using error bounds, not bitwise.  Padding and elements
   that must not be written are checked bitwise.
 - **Netlib BLAS test suites** (`test/F77`, `test/C`): the official test

@@ -191,6 +191,7 @@ CBLAS(ssyrk)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_ssyrk", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -251,6 +252,7 @@ CBLAS(dsyrk)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_dsyrk", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -309,6 +311,7 @@ CBLAS(csyrk)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_csyrk", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -368,6 +371,7 @@ CBLAS(zsyrk)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_zsyrk", "");
+        return;
     }
 
     if (order==CblasColMajor) {

@@ -46,6 +46,7 @@ F77BLAS(stpmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("STPMV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -109,6 +110,7 @@ F77BLAS(dtpmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DTPMV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -177,6 +179,7 @@ F77BLAS(ctpmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CTPMV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -245,6 +248,7 @@ F77BLAS(ztpmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZTPMV ", &info);
+        return;
     }
 
     if (incX<0) {

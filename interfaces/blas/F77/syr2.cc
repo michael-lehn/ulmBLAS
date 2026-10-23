@@ -46,6 +46,7 @@ F77BLAS(ssyr2)(const char        *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("SSYR2 ", &info);
+        return;
     }
 
 //
@@ -105,6 +106,7 @@ F77BLAS(dsyr2)(const char        *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DSYR2 ", &info);
+        return;
     }
 
 //

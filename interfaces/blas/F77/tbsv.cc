@@ -54,6 +54,7 @@ F77BLAS(stbsv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("STBSV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -125,6 +126,7 @@ F77BLAS(dtbsv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DTBSV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -201,6 +203,7 @@ F77BLAS(ctbsv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CTBSV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -277,6 +280,7 @@ F77BLAS(ztbsv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZTBSV ", &info);
+        return;
     }
 
     if (incX<0) {

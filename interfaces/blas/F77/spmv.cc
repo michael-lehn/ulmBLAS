@@ -45,6 +45,7 @@ F77BLAS(sspmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("SSPMV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -103,6 +104,7 @@ F77BLAS(dspmv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DSPMV ", &info);
+        return;
     }
 
     if (incX<0) {

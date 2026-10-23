@@ -157,6 +157,7 @@ CBLAS(chemm)(enum CBLAS_ORDER  order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_chemm", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -231,6 +232,7 @@ CBLAS(zhemm)(enum CBLAS_ORDER  order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_zhemm", "");
+        return;
     }
 
     if (order==CblasColMajor) {

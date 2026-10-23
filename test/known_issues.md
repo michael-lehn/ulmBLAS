@@ -64,6 +64,24 @@ storage, `ulmBLAS::getrf(n, m, A, 1, ldA, ...)`; the LU algorithm itself was
 correct.  The fix changes the result for square row major matrices to the
 ATLAS convention.
 
+Issue #0005: Invalid arguments: computation continued after xerbla
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0700, T0701 (numeric, regression tests); Netlib error-exit tests
+
+188 functions of the C interface (92) and the Fortran 77 interface (96)
+reported an invalid argument through `cblas_xerbla` or `xerbla_` and then
+computed with the invalid arguments (e.g. `cblas_dsyr` with `n = 4`,
+`ldA = 1`), which read and wrote memory outside the operands (confirmed
+with AddressSanitizer).  Reference CBLAS and BLAS return from the function
+after calling the error handler.  The error handlers of ulmBLAS print the
+message and return (reference BLAS stops the program in `XERBLA`, reference
+CBLAS calls `exit` in `cblas_xerbla`; both can be replaced by the user), so
+the bug affected regular calls, and the Netlib error-exit tests, whose
+error handlers return, failed intermittently (memory corruption).  Fixed by
+returning after the error handler, as the CBLAS `gemv` functions already
+did.  The error handlers still do not terminate the program.
+
 ## Design questions
 
 Issue #0002: alpha = 0 with NaN or Inf in operands that reference BLAS does not reference

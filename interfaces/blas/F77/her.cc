@@ -45,6 +45,7 @@ F77BLAS(cher)(const char        *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CHER  ", &info);
+        return;
     }
 
 //
@@ -99,6 +100,7 @@ F77BLAS(zher)(const char        *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZHER  ", &info);
+        return;
     }
 
 //

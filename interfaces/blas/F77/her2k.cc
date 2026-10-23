@@ -70,6 +70,7 @@ F77BLAS(cher2k)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CHER2K", &info);
+        return;
     }
 
 //
@@ -170,6 +171,7 @@ F77BLAS(zher2k)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZHER2K", &info);
+        return;
     }
 
 //

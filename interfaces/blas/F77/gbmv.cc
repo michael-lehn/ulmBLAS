@@ -62,6 +62,7 @@ F77BLAS(sgbmv)(const char     *transA_,
 
     if (info!=0) {
         F77BLAS(xerbla)("SGBMV ", &info);
+        return;
     }
 
     if (!transA) {
@@ -146,6 +147,7 @@ F77BLAS(dgbmv)(const char     *transA_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DGBMV ", &info);
+        return;
     }
 
     if (!transA) {
@@ -237,6 +239,7 @@ F77BLAS(cgbmv)(const char     *transA_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CGBMV ", &info);
+        return;
     }
 
     if (!transA) {
@@ -337,6 +340,7 @@ F77BLAS(zgbmv)(const char     *transA_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZGBMV ", &info);
+        return;
     }
 
     if (!transA) {

@@ -47,6 +47,7 @@ F77BLAS(sger)(const int         *m_,
 
     if (info!=0) {
         F77BLAS(xerbla)("SGER  ", &info);
+        return;
     }
 
 //
@@ -103,6 +104,7 @@ F77BLAS(dger)(const int         *m_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DGER  ", &info);
+        return;
     }
 
 //
@@ -164,6 +166,7 @@ F77BLAS(cgeru)(const int         *m_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CGERU ", &info);
+        return;
     }
 
 //
@@ -227,6 +230,7 @@ F77BLAS(zgeru)(const int         *m_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZGERU ", &info);
+        return;
     }
 
 //
@@ -289,6 +293,7 @@ F77BLAS(cgerc)(const int         *m_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CGERC ", &info);
+        return;
     }
 
 //
@@ -352,6 +357,7 @@ F77BLAS(zgerc)(const int         *m_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZGERC ", &info);
+        return;
     }
 
 //

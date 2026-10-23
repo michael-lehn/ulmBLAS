@@ -62,6 +62,7 @@ F77BLAS(ssyrk)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("SSYRK ", &info);
+        return;
     }
 
 //
@@ -137,6 +138,7 @@ F77BLAS(dsyrk)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DSYRK ", &info);
+        return;
     }
 
 //
@@ -212,6 +214,7 @@ F77BLAS(csyrk)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CSYRK ", &info);
+        return;
     }
 
 //
@@ -288,6 +291,7 @@ F77BLAS(zsyrk)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZSYRK ", &info);
+        return;
     }
 
 //

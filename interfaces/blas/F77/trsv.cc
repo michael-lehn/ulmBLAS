@@ -51,6 +51,7 @@ F77BLAS(strsv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("STRSV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -119,6 +120,7 @@ F77BLAS(dtrsv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("DTRSV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -191,6 +193,7 @@ F77BLAS(ctrsv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("CTRSV ", &info);
+        return;
     }
 
     if (incX<0) {
@@ -263,6 +266,7 @@ F77BLAS(ztrsv)(const char     *upLo_,
 
     if (info!=0) {
         F77BLAS(xerbla)("ZTRSV ", &info);
+        return;
     }
 
     if (incX<0) {

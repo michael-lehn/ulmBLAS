@@ -372,6 +372,7 @@ CBLAS(strsm)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_strsm", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -447,6 +448,7 @@ CBLAS(dtrsm)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_dtrsm", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -522,6 +524,7 @@ CBLAS(ctrsm)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_ctrsm", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -597,6 +600,7 @@ CBLAS(ztrsm)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_ztrsm", "");
+        return;
     }
 
     if (order==CblasColMajor) {

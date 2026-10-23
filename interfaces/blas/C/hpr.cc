@@ -134,6 +134,7 @@ CBLAS(chpr)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_chpr", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -173,6 +174,7 @@ CBLAS(zhpr)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_zhpr", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {

@@ -145,6 +145,7 @@ CBLAS(cher2k)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_cher2k", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -212,6 +213,7 @@ CBLAS(zher2k)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_zher2k", "");
+        return;
     }
 
     if (order==CblasColMajor) {
