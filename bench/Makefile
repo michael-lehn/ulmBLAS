@@ -58,7 +58,7 @@ benchmark-suite : $(USE_BLAS_VARIANTS)
 	$(MAKE) -f Makefile.plot CASE=${*F} DIR=${@D} BLAS_VARIANTS="$(USE_BLAS_VARIANTS)"
 
 %.o : %.c
-	$(CC) $(BENCH_CFLAGS) $(CFLAGS) -o $@ $<
+	$(CC) $(BENCH_CFLAGS) $(ULMBLAS_CFLAGS) $(CFLAGS) -o $@ $<
 
 $(LIBTSTATLAS) : $(ATL_OBJECTFILES)
 	$(call make_archive,$@,$(ATL_OBJECTFILES))

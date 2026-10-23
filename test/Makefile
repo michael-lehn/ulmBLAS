@@ -40,7 +40,7 @@ PROBE_LOG      = $(BUILD)/netlib-tools.log
 
 RUN_TESTS      = TEST_BUILD='$(BUILD)' CONFIGS='$(CONFIGS)' \
                  TESTS='$(TESTS)' VERBOSE='$(VERBOSE)' STRICT='$(STRICT)' \
-                 CC=$(call shell_quote,$(CC) $(CPPFLAGS) $(CFLAGS)) \
+                 CC=$(call shell_quote,$(CC) $(CPPFLAGS) $(ULMBLAS_CFLAGS) $(CFLAGS)) \
                  $(SHELL) run-tests.sh
 
 .PHONY : all check check-numeric check-netlib build-numeric build-netlib \
@@ -59,7 +59,7 @@ build-numeric : $(NUMERIC_TARGETS)
 
 build-netlib : $(NETLIB_TARGETS)
 
-$(LIB_TARGETS) : lib-% : tool-ar
+$(LIB_TARGETS) : lib-% : tool-ar tool-cxx-link
 	@$(MAKE) -f Makefile.config CONFIG=$* libs
 
 $(LIBF77_TARGETS) : lib-f77-% : tool-ar

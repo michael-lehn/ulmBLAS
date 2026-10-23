@@ -69,12 +69,17 @@ The default target and `make check-numeric` only need a C++ compiler and
 own reference implementations.  No scripting language besides the POSIX
 shell and awk is used.
 
-Before building, each tool a target needs is checked by compiling, linking
-and running a tiny program (`mk/probe.sh`).  If a tool is missing or not
-usable, the error explains what it is needed for and how to select another
-one.  Fortran objects are linked with the C++ compiler; for gfortran the
-Fortran runtime (`FLIBS`) is located automatically, for other Fortran
-compilers set `FLIBS` explicitly.
+Before building, each tool a target needs is checked by compiling (and,
+for the tests and benchmarks, linking) a tiny program (`mk/probe.sh`).  If a
+tool is missing or not usable, the error explains what it is needed for and
+how to select another one.  Fortran objects are linked with the C++
+compiler; for gfortran the Fortran runtime (`FLIBS`) is located
+automatically, for other Fortran compilers set `FLIBS` explicitly.
+
+Building the libraries never executes programs for the target, so the
+libraries can be cross compiled (e.g. `make CXX="clang++ -arch x86_64"` on
+an ARM Mac).  `make check` and `make bench` run the programs they build and
+therefore need a native toolchain.
 
 ### Selecting compilers and flags
 
@@ -84,14 +89,23 @@ All settings can be given on the command line or in the environment (see
 ```sh
 make CXX=g++-16 CC=gcc-16 FC=gfortran-16
 make CXX=clang++ CXXSTD=-std=c++20
-make CXXFLAGS="-O2 -g" LDFLAGS=... LDLIBS=...
+make CXXFLAGS=-g LDFLAGS=... LDLIBS=...
+make OPTFLAGS=-O0 CXXFLAGS=-g          # debug build without optimization
 ```
 
 `CPPFLAGS`, `CXXFLAGS`, `CFLAGS`, `FFLAGS`, `LDFLAGS` and `LDLIBS` are user
-variables: overriding them never removes flags required by the build
-(include paths, interface macros, test block sizes), which are kept in
-separate variables.  The defaults are `CXXFLAGS = -O3 -fomit-frame-pointer
--Wall` and `FFLAGS = -O3 -Wall -fimplicit-none`.  `ARCHFLAGS` defaults to
+variables: setting them never removes flags required by the build (include
+paths, interface macros, test block sizes), which are kept in separate
+variables.  The optimization flags are kept separately as well:
+`OPTFLAGS = -O3 -fomit-frame-pointer` (C++), `FOPTFLAGS = -O3` (Fortran)
+and `COPTFLAGS = -O2` (C, test drivers and benchmark programs only).  They
+precede `CXXFLAGS`, `FFLAGS` and `CFLAGS` on the command lines, so `CXXFLAGS`
+set in the environment (e.g. for include paths) does not disable the
+optimization, while an `-O` option in `CXXFLAGS` takes precedence (the last
+`-O` option wins).  To build without optimization use `OPTFLAGS=-O0`.  The
+defaults of the user variables are `CXXFLAGS = -Wall` and
+`FFLAGS = -Wall -fimplicit-none`.  As usual for GNU Make, variables given on
+the command line take precedence over the environment.  `ARCHFLAGS` defaults to
 `-msse3 -mfpmath=sse` if the C++ compiler accepts these flags (x86), which
 selects the optimized SSE kernels; on other architectures (e.g. ARM) the
 portable reference kernels are used.  Objects are rebuilt when the compiler
@@ -128,9 +142,11 @@ libraries of each configuration are built in `test/build/`.
   float, double, complex float and complex double, row and column major,
   all transpose/side/upper-lower/diagonal options, negative and non-unit
   increments, leading dimensions larger than needed, zero dimensions,
-  alpha and beta of 0, 1 and general values (with NaN in operands that BLAS
-  does not reference), matrices larger than the default block sizes, and
-  `dgetrf`/`dlaswp`.  Results are compared with straightforward reference
+  alpha and beta of 0, 1 and general values (with NaN where BLAS documents
+  that an operand is not referenced or need not be set, e.g. C for beta = 0
+  or unit diagonals), matrices larger than the default block sizes MC and
+  KC (the default NC = 4096 is only exceeded with the small test block
+  sizes), and `dgetrf`/`dlaswp`.  Results are compared with straightforward reference
   implementations using error bounds, not bitwise.  Padding and elements
   that must not be written are checked bitwise.
 - **Netlib BLAS test suites** (`test/F77`, `test/C`): the official test
@@ -153,9 +169,13 @@ make bench USE_BLAS_VARIANTS="ulmBLAS netlib" USE_BENCH_CASES=gemm
 ```
 
 The benchmarks (ATLAS timing programs in `bench/`) need the C, C++ and
-Fortran compilers.  Results are written to `bench/benchmarks/`; plots are
-created if gnuplot is found.  Comparisons with ATLAS or Intel MKL need
-`ATLAS_LIBDIR` or `MKLROOT` (variants `atlas`, `mkl`).
+Fortran compilers.  `make bench` first builds all libraries the benchmark
+programs are linked with (each library once), then the benchmark programs;
+`make benchmark-suite` only builds the programs.  A benchmark is run again
+when its program (or a library it is linked with) or its configuration has
+changed.  Results are written to `bench/benchmarks/`; plots are created if
+gnuplot is found.  Comparisons with ATLAS or Intel MKL need `ATLAS_LIBDIR`
+or `MKLROOT` (variants `atlas`, `mkl`).
 
 ### Tested configurations
 
@@ -167,14 +187,19 @@ Tested (October 2026) on macOS 26 (arm64) with GNU Make 4.4.1 and 3.81:
   C++23), LLVM clang 17 (C++11) and 23 (C++23), and with AddressSanitizer
   and UndefinedBehaviorSanitizer;
 - compilation of the libraries only: LLVM clang 18 to 22 (C++11), GCC 16.2
-  and Apple clang 21 with C++14 and C++26 (`-std=c++2c`).
+  and Apple clang 21 with C++14 and C++26 (`-std=c++2c`);
+- cross compilation of the libraries for x86-64 with Apple clang 21
+  (`CXX="clang++ -arch x86_64"`, SSE kernels selected); the resulting
+  libraries could not be run on the test machine.
 
 C++11 is the minimum (C++98 is rejected: the code uses `decltype`, `auto`
 and `<type_traits>`).
 
 On arm64 the portable reference kernels are used.  The x86 SSE kernels were
 only compiled (cross compilation for x86-64), not run; Linux and BSD were
-not tested but are expected to work with GCC or clang and gfortran.
+not tested but are expected to work with GCC or clang and gfortran.  The
+macOS system GNU Make 3.81 was tested; GNU Make 3.80 and older are rejected
+by a version check, which was only tested by simulating the version.
 
 ---
 ## Background

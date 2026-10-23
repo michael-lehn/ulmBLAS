@@ -8,7 +8,8 @@
 #  Every setting below can be overridden on the command line or through the
 #  environment, e.g.
 #
-#      make CXX=clang++ CXXFLAGS="-O2 -g" check
+#      make CXX=clang++ CXXFLAGS=-g check
+#      make OPTFLAGS=-O0 CXXFLAGS=-g          (debug build without optimization)
 #
 #  Variables meant to be set by users:
 #
@@ -19,6 +20,9 @@
 #      AR, ARFLAGS, RANLIB   archiver                         default: ar cr, ranlib
 #      CXXSTD     C++ language standard                       default: -std=c++11
 #      ARCHFLAGS  architecture flags                          default: see below
+#      OPTFLAGS   C++ optimization       default: -O3 -fomit-frame-pointer
+#      FOPTFLAGS  Fortran optimization                        default: -O3
+#      COPTFLAGS  C optimization                              default: -O2
 #      CPPFLAGS, CXXFLAGS, CFLAGS, FFLAGS, LDFLAGS, LDLIBS
 #      FLIBS      libraries needed to link Fortran objects with the C++
 #                 compiler                                    default: see below
@@ -26,6 +30,16 @@
 #  Flags required by the build itself (include paths, macros selecting the
 #  interface variant, test block sizes) are kept in separate variables, so
 #  overriding CXXFLAGS etc. never breaks the build.
+#
+#  Precedence (GNU Make): a variable given on the command line overrides the
+#  assignments in the makefiles and is passed to all sub-makes; a variable
+#  from the environment is only used by the '?=' assignments below, which
+#  do not assign a variable that is already defined.  The optimization flags
+#  are kept in OPTFLAGS, FOPTFLAGS and COPTFLAGS, which come before CXXFLAGS,
+#  FFLAGS and CFLAGS on every command line: CXXFLAGS from the environment
+#  (often set for include paths) does not remove the default optimization,
+#  and an optimization flag in CXXFLAGS (e.g. -O0) takes precedence because
+#  for GCC and clang the last -O option wins.
 #
 
 #
@@ -77,13 +91,16 @@ endif
 RANLIB  ?= ranlib
 
 #
-#  Compiler flags.  The defaults correspond to the flags used since the
-#  beginning of ulmBLAS.
+#  Compiler flags.  The defaults of the C++ and Fortran flags are the flags
+#  ulmBLAS has always been built with.  C is only used for the Netlib CBLAS
+#  test drivers and the benchmark programs.
 #
-CXXSTD   ?= -std=c++11
-CXXFLAGS ?= -O3 -fomit-frame-pointer -Wall
-CFLAGS   ?= -O2
-FFLAGS   ?= -O3 -Wall -fimplicit-none
+CXXSTD    ?= -std=c++11
+OPTFLAGS  ?= -O3 -fomit-frame-pointer
+FOPTFLAGS ?= -O3
+COPTFLAGS ?= -O2
+CXXFLAGS  ?= -Wall
+FFLAGS    ?= -Wall -fimplicit-none
 
 #
 #  ARCHFLAGS: on x86 the optimized SSE kernels require SSE3.  The flags are
@@ -123,11 +140,12 @@ ULMBLAS_FLIBS = $(shell \
 #  configuration files (e.g. block sizes of the test configurations).
 #
 DEPFLAGS          = -MMD -MP
-ULMBLAS_CXXFLAGS  = $(CXXSTD) $(ARCHFLAGS)
+ULMBLAS_CXXFLAGS  = $(CXXSTD) $(ARCHFLAGS) $(OPTFLAGS)
+ULMBLAS_CFLAGS    = $(COPTFLAGS)
 
 CXXCOMPILE = $(CXX) $(ULMBLAS_CPPFLAGS) $(CONFIG_CPPFLAGS) $(CPPFLAGS) \
                      $(ULMBLAS_CXXFLAGS) $(CXXFLAGS) $(DEPFLAGS)
-FCOMPILE   = $(FC) $(FFLAGS)
+FCOMPILE   = $(FC) $(FOPTFLAGS) $(FFLAGS)
 
 #
 #  Generate a header from a template (*.h.in) with the C++ preprocessor.
@@ -137,7 +155,8 @@ FCOMPILE   = $(FC) $(FFLAGS)
 #      $(call generate_header,template,macros,output)
 #
 generate_header = $(CXX) -x c++ -E -P -CC -w $2 $1 > $3.tmp \
-                  && sed 's,^ *\#,\#,' $3.tmp > $3 && rm -f $3.tmp
+                  && sed 's,^ *\#,\#,' $3.tmp > $3 && rm -f $3.tmp \
+                  || { rm -f $3.tmp; exit 1; }
 
 #
 #  Record a command line in a file that is only rewritten if the command line

@@ -68,6 +68,11 @@ nanPropagation(const char *prefix)
     ULMBLAS_RECORD(herm ? "her2" : "syr2",
                    blas::her2(o, u, n, T(0), &bad[0], 1, &bad[0], 1,
                               &out[0], n));
+    ULMBLAS_RECORD(herm ? "hpr" : "spr",
+                   blas::hpr(o, u, n, realPart(T(0)), &bad[0], 1, &out[0]));
+    ULMBLAS_RECORD(herm ? "hpr2" : "spr2",
+                   blas::hpr2(o, u, n, T(0), &bad[0], 1, &bad[0], 1,
+                              &out[0]));
     ULMBLAS_RECORD("gemm", blas::gemm(o, t, t, n, n, n, T(0), &bad[0], n,
                                       &bad[0], n, one, &out[0], n));
     ULMBLAS_RECORD("symm", blas::symm(o, s, u, n, n, T(0), &bad[0], n,
@@ -95,9 +100,13 @@ nanPropagation(const char *prefix)
 
 ULMBLAS_TEST_DESIGN(T0600, "conventions/alpha=0 with NaN in unreferenced "
                     "operands", 2,
-                    "dger dsymv dsyr dsyr2; zgeru zgerc zhemv")
+                    "sger ssymv ssyr ssyr2 sspr sspr2; "
+                    "dger dsymv dsyr dsyr2 dspr dspr2; "
+                    "cgeru cgerc chemv; zgeru zgerc zhemv")
 {
-    ctx.observed = nanPropagation<double>("d") + "; "
+    ctx.observed = nanPropagation<float>("s") + "; "
+                 + nanPropagation<double>("d") + "; "
+                 + nanPropagation<cfloat>("c") + "; "
                  + nanPropagation<cdouble>("z");
     ctx.pass();
 }

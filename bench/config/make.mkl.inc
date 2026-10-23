@@ -15,8 +15,4 @@ ATLAS_LAPACK_LIB_NAMES = libatllapack.a
 
 REF_BLAS_LIBS = $(MKLROOT)/lib/libmkl_intel_lp64.a $(MKLROOT)/lib/libmkl_core.a $(MKLROOT)/lib/libmkl_sequential.a -lpthread -lm
 
-MAKE_ATL_BLAS    = $(MAKE) -C $(TOPDIR) atlblas cblas
-MAKE_ATL_LAPACK  = $(MAKE) -C $(TOPDIR) atllapack
-MAKE_REF_BLAS    =
-
 GREP_OPTS        = -v PASS

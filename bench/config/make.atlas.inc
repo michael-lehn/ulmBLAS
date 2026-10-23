@@ -15,8 +15,4 @@ ATLAS_LAPACK_LIBS  = $(ATLAS_LIBDIR)/liblapack.a
 
 REF_BLAS_LIB_NAMES     = librefblas.a
 
-MAKE_ATL_BLAS    =
-MAKE_ATL_LAPACK  =
-MAKE_REF_BLAS    = $(MAKE) -C $(TOPDIR) refblas
-
 GREP_OPTS        = PASS

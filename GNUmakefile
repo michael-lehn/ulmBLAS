@@ -52,12 +52,16 @@ check_f77blas :
 	$(MAKE) -C test check-netlib NETLIB_SUITES=F77
 
 #
-#  Benchmarks (not part of 'make check')
+#  Benchmarks (not part of 'make check').  All libraries the benchmark
+#  variants need are built here, each by its own makefile, before the
+#  benchmark programs are built.
 #
-bench : atlblas atllapack tool-cc tool-fc-link
+BENCH_LIBS = cblas atlblas atllapack f77blas refblas
+
+bench : $(BENCH_LIBS) tool-cxx-link tool-cc tool-fc-link
 	$(MAKE) -C bench
 
-benchmark-suite : atlblas atllapack tool-cc tool-fc-link
+benchmark-suite : $(BENCH_LIBS) tool-cxx-link tool-cc tool-fc-link
 	$(MAKE) -C bench benchmark-suite
 
 clean :
@@ -83,14 +87,17 @@ help :
 	@echo '  bench            benchmarks (long running, see bench/)'
 	@echo '  clean            remove all generated files'
 	@echo
-	@echo 'Variables: CXX CC FC AR ARFLAGS RANLIB CXXSTD ARCHFLAGS CPPFLAGS'
-	@echo '           CXXFLAGS CFLAGS FFLAGS LDFLAGS LDLIBS FLIBS (see make.inc)'
+	@echo 'Variables: CXX CC FC AR ARFLAGS RANLIB CXXSTD ARCHFLAGS OPTFLAGS FOPTFLAGS'
+	@echo '           COPTFLAGS CPPFLAGS CXXFLAGS CFLAGS FFLAGS LDFLAGS LDLIBS FLIBS'
+	@echo '           (see make.inc)'
 	@echo
 	@echo 'Current settings:'
 	@echo '  CXX       = $(CXX)'
 	@echo '  CXXSTD    = $(CXXSTD)'
 	@echo '  ARCHFLAGS = $(ARCHFLAGS)'
+	@echo '  OPTFLAGS  = $(OPTFLAGS)'
 	@echo '  CXXFLAGS  = $(CXXFLAGS)'
 	@echo '  CC        = $(CC)'
 	@echo '  FC        = $(FC)'
+	@echo '  FOPTFLAGS = $(FOPTFLAGS)'
 	@echo '  FFLAGS    = $(FFLAGS)'

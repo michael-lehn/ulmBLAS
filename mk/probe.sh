@@ -6,11 +6,18 @@
 #
 # KIND is one of
 #
-#     cxx       C++ compiler          (compile, link and run mk/probe/cxx.cc)
-#     ar        archiver and ranlib   (create a library and link with it)
-#     cc        C compiler            (compile, link and run mk/probe/cc.c)
-#     fc        Fortran compiler      (compile, link and run mk/probe/fc.f)
+#     cxx       C++ compiler          (compile mk/probe/cxx.cc)
+#     cxx-link  C++ compiler, linking (compile and link mk/probe/cxx.cc)
+#     ar        archiver and ranlib   (create a library, list its members)
+#     cc        C compiler            (compile and link mk/probe/cc.c)
+#     fc        Fortran compiler      (compile mk/probe/fc.f)
 #     fc-link   Fortran objects linked by the C++ compiler using FLIBS
+#               (link and run a program)
+#
+# Building the libraries does not require executing programs for the target
+# (cross compilation): only fc-link runs a program, it is used by targets
+# that run programs anyway (Netlib test suites, benchmarks) and detects a
+# Fortran runtime library that is not found at run time.
 #
 # The tools and flags are passed through the environment as command lines
 # (they are split by the shell):
@@ -45,6 +52,13 @@ case $kind in
         cmd=$PROBE_CXX
         what="It is required for building the ulmBLAS libraries (C++11 or
   newer, selected by CXXSTD) and the C++ tests."
+        ;;
+    cxx-link)
+        tool="C++ compiler (linking)"
+        var=CXX
+        cmd="$PROBE_CXX $PROBE_LD"
+        what="Linking C++ programs is required for the tests and benchmarks
+  (the C++ runtime library must be linked, e.g. g++ instead of gcc)."
         ;;
     ar)
         tool="archiver"
@@ -122,9 +136,14 @@ case $kind in
     cxx)
         hint="CXX=clang++ or CXX=g++-14"
         exists "$PROBE_CXX"
+        run $PROBE_CXX -c -o "$tmp/cxx.o" "$src/cxx.cc" \
+            || fail "compiling a C++11 program failed"
+        ;;
+    cxx-link)
+        hint="CXX=clang++ or CXX=g++-14"
+        exists "$PROBE_CXX"
         run $PROBE_CXX -o "$tmp/cxx" "$src/cxx.cc" $PROBE_LD \
             || fail "compiling and linking a C++11 program failed"
-        run "$tmp/cxx" || fail "the compiled C++ program does not run"
         ;;
     ar)
         hint="AR=gcc-ar RANLIB=gcc-ranlib"
@@ -136,24 +155,22 @@ case $kind in
         run $PROBE_AR "$tmp/libprobe.a" "$tmp/lib.o" \
             || fail "creating a library failed"
         run $PROBE_RANLIB "$tmp/libprobe.a" || fail "ranlib failed"
-        run $PROBE_CXX -o "$tmp/lib" "$src/lib_main.cc" "$tmp/libprobe.a" \
-                $PROBE_LD \
-            || fail "linking with the created library failed"
-        run "$tmp/lib" || fail "program linked with the library does not run"
+        set -- $PROBE_AR
+        run "$1" t "$tmp/libprobe.a" \
+            && grep -q 'lib\.o' "$log" \
+            || fail "the created library does not contain the object file"
         ;;
     cc)
         hint="CC=clang or CC=gcc-14"
         exists "$PROBE_CC"
         run $PROBE_CC -o "$tmp/cc" "$src/cc.c" $PROBE_LD \
             || fail "compiling and linking a C program failed"
-        run "$tmp/cc" || fail "the compiled C program does not run"
         ;;
     fc)
         hint="FC=gfortran-14"
         exists "$PROBE_FC"
-        run $PROBE_FC -o "$tmp/fc" "$src/fc.f" \
-            || fail "compiling and linking a Fortran 77 program failed"
-        run "$tmp/fc" || fail "the compiled Fortran program does not run"
+        run $PROBE_FC -c -o "$tmp/fc.o" "$src/fc.f" \
+            || fail "compiling a Fortran 77 program failed"
         ;;
     fc-link)
         hint="FLIBS='-L/path/to/fortran/lib -lgfortran'"

@@ -213,6 +213,35 @@ inline void her2(CBLAS_ORDER o, CBLAS_UPLO u, int n, cdouble a,
                  cdouble *A, int ldA)
 { cblas_zher2(o, u, n, rp(&a), rp(x), ix, rp(y), iy, rp(A), ldA); }
 
+// spr for real, hpr for complex types (packed storage, alpha is real)
+inline void hpr(CBLAS_ORDER o, CBLAS_UPLO u, int n, float a, const float *x,
+                int ix, float *Ap)
+{ cblas_sspr(o, u, n, a, x, ix, Ap); }
+inline void hpr(CBLAS_ORDER o, CBLAS_UPLO u, int n, double a, const double *x,
+                int ix, double *Ap)
+{ cblas_dspr(o, u, n, a, x, ix, Ap); }
+inline void hpr(CBLAS_ORDER o, CBLAS_UPLO u, int n, float a, const cfloat *x,
+                int ix, cfloat *Ap)
+{ cblas_chpr(o, u, n, a, rp(x), ix, rp(Ap)); }
+inline void hpr(CBLAS_ORDER o, CBLAS_UPLO u, int n, double a, const cdouble *x,
+                int ix, cdouble *Ap)
+{ cblas_zhpr(o, u, n, a, rp(x), ix, rp(Ap)); }
+
+// spr2 for real, hpr2 for complex types (packed storage)
+inline void hpr2(CBLAS_ORDER o, CBLAS_UPLO u, int n, float a, const float *x,
+                 int ix, const float *y, int iy, float *Ap)
+{ cblas_sspr2(o, u, n, a, x, ix, y, iy, Ap); }
+inline void hpr2(CBLAS_ORDER o, CBLAS_UPLO u, int n, double a, const double *x,
+                 int ix, const double *y, int iy, double *Ap)
+{ cblas_dspr2(o, u, n, a, x, ix, y, iy, Ap); }
+inline void hpr2(CBLAS_ORDER o, CBLAS_UPLO u, int n, cfloat a, const cfloat *x,
+                 int ix, const cfloat *y, int iy, cfloat *Ap)
+{ cblas_chpr2(o, u, n, rp(&a), rp(x), ix, rp(y), iy, rp(Ap)); }
+inline void hpr2(CBLAS_ORDER o, CBLAS_UPLO u, int n, cdouble a,
+                 const cdouble *x, int ix, const cdouble *y, int iy,
+                 cdouble *Ap)
+{ cblas_zhpr2(o, u, n, rp(&a), rp(x), ix, rp(y), iy, rp(Ap)); }
+
 inline void trmv(CBLAS_ORDER o, CBLAS_UPLO u, CBLAS_TRANSPOSE t, CBLAS_DIAG d,
                  int n, const float *A, int ldA, float *x, int ix)
 { cblas_strmv(o, u, t, d, n, A, ldA, x, ix); }

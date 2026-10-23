@@ -71,12 +71,16 @@ Covered by tests: T0600 (numeric, DESIGN)
 If alpha is zero, reference BLAS returns immediately (or only scales by
 beta) and does not reference A, x or y.  The BLAS documentation guarantees
 this only for some functions (e.g. "B need not be set" for TRMM/TRSM if
-alpha is zero) and not for others.  ulmBLAS follows reference BLAS for
-GEMV and all level 3 functions, but GER, GERU, GERC, SYMV, HEMV, SYR and
-SYR2 compute `0*x` and propagate NaN or Inf from the operands into the
-result.  The test records which functions propagate NaN.  Open: should
-ulmBLAS match reference BLAS here?  Note: beta = 0 (C or y need not be set)
-is documented and is handled correctly by all tested functions.
+alpha is zero) and not for others.  ulmBLAS follows reference BLAS for GEMV,
+SPMV, SBMV, HER, HER2, HPR, HPR2, the complex packed and banded functions
+and all level 3 functions, but GER, GERU, GERC, SYMV, HEMV, SYR, SYR2, SPR
+and SPR2 compute `0*x` and propagate NaN or Inf from the operands into the
+result (for all supported precisions; the kernels `ger`, `sylmv`, `helmv`,
+`sylr`, `sylr2`, `splr`, `spur`, `splr2`, `spur2` in `ulmblas/level2` have
+no early return for alpha = 0).  The test records which functions
+propagate NaN.  Open: should ulmBLAS match reference BLAS here?  Note:
+beta = 0 (C or y need not be set) is documented and is handled correctly by
+all tested functions.
 
 Issue #0004: Semantics of dgetrf with row major storage
 Type: DESIGN

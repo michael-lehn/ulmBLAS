@@ -17,7 +17,10 @@ VARIANTS   = $(foreach variant, $(EXTRACT_VARIANTS),\
 
 bench: $(BENCH_SUMMARY)
 
-$(BENCH_REPORT): $(CONFIG_PATH)cases/make.$(CASE).inc $(CONFIG_PATH)config/make.$(CONFIG).inc
+#  The benchmark is run again when the benchmark program (and thus a library
+#  it is linked with) or the configuration has changed.
+$(BENCH_REPORT): $(BENCH_DIR)/$(BENCH_CMD) \
+                 $(CONFIG_PATH)cases/make.$(CASE).inc $(CONFIG_PATH)config/make.$(CONFIG).inc
 	set -e; $(BENCH_DIR)/$(BENCH_CMD) $(BENCH_OPT) > $(BENCH_REPORT)
 
 $(BENCH_SUMMARY) : $(BENCH_REPORT)
