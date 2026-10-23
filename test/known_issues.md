@@ -13,7 +13,10 @@ Format of an entry:
     Covered by tests: Tnnnn (kind, CLASS), ...   (or: none)
 
 - `kind` is the kind of test: `numeric` (`test/numeric`), `netlib`
-  (`test/F77`, `test/C`) or `header`.
+  (`test/F77`, `test/C`) or `header`.  It is required for every listed
+  test: a run validates the entries of the kinds of tests it selects (e.g.
+  `make check-netlib` does not build the numeric tests and reports their
+  entries as not checked; `make check` validates all entries).
 - `CLASS` is the classification of the test: `XFAIL` or `DESIGN`.
   - An OPEN BUG is covered by XFAIL tests that check the expected behavior.
     Once the bug is fixed they report XPASS (a failure of `make check`).

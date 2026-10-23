@@ -7,6 +7,9 @@
 # design questions are listed in test/known_issues.md with issue IDs #nnnn.
 # Before the tests are run, the registry is validated: test IDs are unique,
 # and the tests referring to an issue are exactly those listed in its entry.
+# The validation covers the kinds of tests the run selects (see
+# validate_registry): make check-netlib does not build the numeric tests, so
+# registry entries of numeric tests are reported as not checked there.
 #
 # Kinds of tests:
 #
@@ -20,6 +23,8 @@
 #             passes if the program exits with status 0, its output contains
 #             no failure markers and shows that all routines were tested.
 #   header    the generated headers can be used from C (IDs T0501, T0502).
+#   registry  self-tests of the registry validation (IDs T0510-T0515), run
+#             once per invocation.
 #
 # All tests are run for each test configuration (block sizes, see
 # test/config).
@@ -145,25 +150,57 @@ header_tests="
 T0501 cblas.h
 T0502 clapack.h"
 
+registry_tests="
+T0510 registry
+T0511 registry
+T0512 registry
+T0513 registry
+T0514 registry
+T0515 registry"
+
 #
 # Registry validation
 #
-validate_registry()
+# Each run validates the registry against the tests of the kinds (scopes) it
+# selects: netlib always, numeric and header if the C++ tests are run
+# (make check, check-numeric).  The kind of each test listed in the registry
+# is given by its annotation 'Tnnnn (kind, CLASS)'.  A listed test of a
+# selected kind must exist; a listed test of a kind that is not selected
+# (e.g. a numeric test in make check-netlib) is reported as not checked.
+#
+
+# registry_ids SCOPES: print the test IDs of the given scopes as lines
+# 'ID KIND ISSUE SCOPE' (KIND: TEST, XFAIL or DESIGN)
+registry_ids()
 {
     first=`echo $CONFIGS | awk '{print $1}'`
     numeric=$TEST_BUILD/$first/numeric/numeric_tests
-    ids=$TEST_BUILD/registry.ids
+    echo "$registry_tests" | awk 'NF {print $1, "TEST", 0, "registry"}'
+    echo "$netlib_tests" | awk 'NF {print $1, "TEST", 0, "netlib"}'
+    case " $1 " in
+        *" header "*)
+            echo "$header_tests" | awk 'NF {print $1, "TEST", 0, "header"}'
+            ;;
+    esac
+    case " $1 " in
+        *" numeric "*)
+            if [ ! -x "$numeric" ]; then
+                echo "error: numeric tests selected, but $numeric is not built" >&2
+                return 1
+            fi
+            "$numeric" --list | awk '{print $1, $2, $3, "numeric"}' \
+                || return 1
+            ;;
+    esac
+}
 
-    {
-        echo "$netlib_tests" | awk 'NF {print $1, "TEST", 0}'
-        echo "$header_tests" | awk 'NF {print $1, "TEST", 0}'
-        if [ -x "$numeric" ]; then
-            "$numeric" --list | awk '{print $1, $2, $3}'
-        fi
-    } > "$ids"
-
-    awk -v registry="$registry" '
-        # tests: ID KIND ISSUE
+# check_registry REGISTRY IDS SCOPES: check the registry against the test IDs
+# (file written by registry_ids) of the selected scopes.  Prints errors and
+# notes; exit status 1 if the registry is inconsistent.
+check_registry()
+{
+    awk -v registry="$1" -v scopes=" $3 " '
+        # tests: ID KIND ISSUE SCOPE
         FILENAME != registry {
             if ($1 in kind) {
                 printf "duplicate test ID %s\n", $1; bad = 1
@@ -185,13 +222,29 @@ validate_registry()
         }
         /^Type:/            { if (cur) itype[cur] = $2; next }
         /^Status:/          { if (cur) istatus[cur] = $2; next }
+        # Covered by tests: T0001, T0002 (kind, CLASS), T0003 (kind, ...)
+        # the annotation gives the kind of the preceding test IDs
         /^Covered by tests:/ {
-            if (cur) {
-                for (i = 4; i <= NF; ++i) {
-                    if ($i ~ /^T[0-9][0-9][0-9][0-9]/) {
-                        covered[cur] = covered[cur] " " substr($i, 1, 5)
+            if (!cur) next
+            pending = ""
+            for (i = 4; i <= NF; ++i) {
+                if ($i ~ /^T[0-9][0-9][0-9][0-9]/) {
+                    t = substr($i, 1, 5)
+                    covered[cur] = covered[cur] " " t
+                    pending = pending " " t
+                } else if ($i ~ /^\(/ && pending != "") {
+                    k = $i; gsub(/[(),;]/, "", k)
+                    n = split(pending, p, " ")
+                    for (j = 1; j <= n; ++j) {
+                        tkind[cur, p[j]] = k
                     }
+                    pending = ""
                 }
+            }
+            if (pending != "") {
+                printf "issue #%04d: no kind given for test(s)%s\n", cur, \
+                       pending
+                bad = 1
             }
             next
         }
@@ -216,15 +269,29 @@ validate_registry()
                 if (istatus[i] !~ /^(OPEN|RESOLVED|WONTFIX)$/) {
                     printf "issue #%04d: invalid status\n", i; bad = 1
                 }
-                if (istatus[i] != "OPEN") continue
                 n = split(covered[i], c, " ")
                 for (k = 1; k <= n; ++k) {
-                    if (!(c[k] in kind)) {
-                        printf "issue #%04d lists unknown test %s\n", i, c[k]
+                    tk = tkind[i, c[k]]
+                    if (tk != "" && tk !~ /^(numeric|netlib|header)$/) {
+                        printf "issue #%04d: unknown kind \"%s\" of test " \
+                               "%s\n", i, tk, c[k]
                         bad = 1
-                    } else if (issue[c[k]] != i) {
-                        printf "issue #%04d lists %s, which does not refer " \
-                               "to it\n", i, c[k]
+                    }
+                }
+                if (istatus[i] != "OPEN") continue
+                for (k = 1; k <= n; ++k) {
+                    tk = tkind[i, c[k]]
+                    if (c[k] in kind) {
+                        if (issue[c[k]] != i) {
+                            printf "issue #%04d lists %s, which does not " \
+                                   "refer to it\n", i, c[k]
+                            bad = 1
+                        }
+                    } else if (index(scopes, " " tk " ") == 0 && tk != "") {
+                        printf "note: issue #%04d: test %s (%s) not checked " \
+                               "(%s tests not selected)\n", i, c[k], tk, tk
+                    } else {
+                        printf "issue #%04d lists unknown test %s\n", i, c[k]
                         bad = 1
                     }
                 }
@@ -238,7 +305,105 @@ validate_registry()
                 }
             }
             exit bad
-        }' "$ids" "$registry"
+        }' "$2" "$1"
+}
+
+# validate_registry: validate the registry for the tests selected by this run
+validate_registry()
+{
+    scopes=netlib
+    if [ "$NUMERIC" = yes ]; then
+        scopes="netlib numeric header"
+    fi
+    ids=$TEST_BUILD/registry.ids
+    registry_ids "$scopes" > "$ids" || return 1
+    check_registry "$registry" "$ids" "$scopes"
+}
+
+#
+# Self-tests of the registry validation (independent of the configurations):
+# the registry must be consistent for the scope of the standalone Netlib
+# targets (make check-netlib, check_cblas, check_f77blas), and inconsistent
+# registries must be rejected.
+#
+run_registry_tests()
+{
+    dir=$TEST_BUILD/registry-tests
+    mkdir -p "$dir"
+    registry_ids netlib > "$dir/netlib.ids"
+
+    # broken_registry ENTRY: registry with an additional issue
+    broken_registry()
+    {
+        cat "$registry" > "$dir/broken.md"
+        printf '\n%s\n' "$1" >> "$dir/broken.md"
+    }
+
+    # expect_registry ID NAME RESULT SCOPES [ENTRY]: check_registry with
+    # the scope SCOPES must give RESULT (ok or rejected)
+    expect_registry()
+    {
+        e_id=$1 e_name=$2 e_want=$3 e_scopes=$4
+        reg=$registry
+        if [ -n "$5" ]; then
+            broken_registry "$5"
+            reg=$dir/broken.md
+        fi
+        selected "$e_id" "registry/$e_name" || return 0
+        if check_registry "$reg" "$dir/netlib.ids" "$e_scopes" \
+               > "$dir/$e_id.log" 2>&1
+        then
+            got=ok
+        else
+            got=rejected
+        fi
+        if [ "$got" = "$e_want" ]; then
+            report PASS "$e_id" registry "registry/$e_name"
+        else
+            report FAIL "$e_id" registry "registry/$e_name" \
+                "registry $got, expected $e_want, see $dir/$e_id.log"
+        fi
+    }
+
+    expect_registry T0510 "consistent for the standalone Netlib targets" \
+        ok netlib
+    expect_registry T0511 "rejects a missing test of a selected kind" \
+        rejected netlib \
+        "Issue #9999: test
+Type: BUG
+Status: OPEN
+Covered by tests: T0999 (netlib, XFAIL)"
+    expect_registry T0512 "tolerates numeric tests if they are not selected" \
+        ok netlib \
+        "Issue #9999: test
+Type: DESIGN
+Status: OPEN
+Covered by tests: T0998 (numeric, DESIGN)"
+    expect_registry T0513 "rejects missing numeric tests if they are selected" \
+        rejected "netlib numeric" \
+        "Issue #9999: test
+Type: DESIGN
+Status: OPEN
+Covered by tests: T0998 (numeric, DESIGN)"
+    expect_registry T0514 "rejects tests without or with unknown kind" \
+        rejected netlib \
+        "Issue #9999: test
+Type: BUG
+Status: OPEN
+Covered by tests: T0001, T0002 (bogus, XFAIL)"
+
+    # duplicate test IDs are rejected
+    if selected T0515 "registry/rejects duplicate test IDs"; then
+        cat "$dir/netlib.ids" "$dir/netlib.ids" > "$dir/duplicate.ids"
+        if check_registry "$registry" "$dir/duplicate.ids" netlib \
+               > "$dir/T0515.log" 2>&1
+        then
+            report FAIL T0515 registry "registry/rejects duplicate test IDs" \
+                "duplicate IDs accepted, see $dir/T0515.log"
+        else
+            report PASS T0515 registry "registry/rejects duplicate test IDs"
+        fi
+    fi
 }
 
 #
@@ -427,7 +592,10 @@ if ! validate_registry > "$TEST_BUILD/registry.log" 2>&1; then
     registry_ok=no
     echo "error: test registry ($registry) is inconsistent:"
     sed 's/^/  /' "$TEST_BUILD/registry.log"
+else
+    sed -n 's/^note: /note: registry: /p' "$TEST_BUILD/registry.log"
 fi
+run_registry_tests
 
 skip_reason=
 if [ -z "$NETLIB_SUITES" ] && [ -n "$NETLIB_SKIP_LOG" ] \
