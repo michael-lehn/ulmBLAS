@@ -1,7 +1,9 @@
 //
 //  Tests of the C interface of the LAPACK functions (dgetrf, dlaswp).
 //
-//  The interface follows ATLAS: pivot indices are 0-based, for dlaswp k1 is
+//  The interface follows ATLAS' C interface (clapack_dgetrf): pivot indices
+//  are 0-based (ATLAS converts to 1-based indices only in its Fortran 77
+//  wrappers), the return value is LAPACK's 1-based INFO.  For dlaswp k1 is
 //  the first and k2-1 the last pivot applied.  The function names have the
 //  prefix ULMLAPACK of the configuration.
 //
@@ -251,6 +253,158 @@ testGetrfRowMajorSingular(Context &ctx)
 }
 
 //
+//  Pivot indices
+//
+//  checkPivots: dgetrf on the column major mx x nx view (leading dimension
+//  ld) of buffer A must return exactly the pivot indices expected.  Entries
+//  of piv beyond min(mx,nx) must not be written.
+//
+bool
+checkPivots(Context &ctx, const std::vector<int> &expected,
+            const std::vector<int> &piv, int info, const std::string &what)
+{
+    for (std::size_t i=0; i<expected.size(); ++i) {
+        if (piv[i]!=expected[i]) {
+            return ctx.check(false, "%s: piv[%d] = %d, expected %d (0-based)",
+                             what.c_str(), int(i), piv[i], expected[i]);
+        }
+    }
+    for (std::size_t i=expected.size(); i<piv.size(); ++i) {
+        if (piv[i]!=-1) {
+            return ctx.check(false, "%s: piv[%d] written beyond min(m,n)",
+                             what.c_str(), int(i));
+        }
+    }
+    return ctx.check(info==0, "%s: info = %d, expected 0", what.c_str(), info);
+}
+
+//
+//  Hand computed examples.  The same 3 x 3 data
+//
+//          1  2  9
+//          4  5  6
+//          7  8  3
+//
+//  is factored as column major matrix (row interchanges, P*A = L*U):
+//  pivots 2, 2, 2, and as row major matrix (column interchanges, ATLAS
+//  convention A*P = L*U): pivots 2, 1, 2 (largest entries 9 of row 0, then
+//  11/3 of the updated row 1).
+//
+bool
+pivotExample(Context &ctx, bool rowMajor)
+{
+    const double data[3][3] = { {1, 2, 9}, {4, 5, 6}, {7, 8, 3} };
+    std::vector<double> A(9);
+    for (int i=0; i<3; ++i) {
+        for (int j=0; j<3; ++j) {
+            if (rowMajor) {
+                A[i*3+j] = data[i][j];
+            } else {
+                A[i+j*3] = data[i][j];
+            }
+        }
+    }
+    std::vector<int> piv(4, -1);
+    int info = ULMLAPACK(dgetrf)(rowMajor ? CblasRowMajor : CblasColMajor,
+                                 3, 3, &A[0], 3, &piv[0]);
+    std::vector<int> expected(3, 2);
+    if (rowMajor) {
+        expected[1] = 1;
+    }
+    return checkPivots(ctx, expected, piv, info,
+                       format("dgetrf(%s, 3x3 example)",
+                              rowMajor ? "row" : "col"));
+}
+
+//
+//  Matrices with prescribed pivots: B = P^T*L*U with L unit lower
+//  triangular, |L(i,j)| <= 1/2 below the diagonal, and U upper triangular
+//  with |U(j,j)| >= 1.  Partial pivoting then selects exactly the
+//  prescribed pivots: in each step the candidate on the prescribed row is
+//  |U(j,j)|, all others are at most |U(j,j)|/2.  The prescribed pivots
+//  contain interchanges and non-interchanges.
+//
+//  For column major storage B is the m x n matrix A; for row major storage
+//  B is the transposed n x m matrix A^T (pivots refer to columns of A).
+//
+bool
+prescribedPivotsCase(Context &ctx, Random &random, bool rowMajor, int m,
+                     int n, int ld)
+{
+    int mx = rowMajor ? n : m;          // dimensions of B (column major view)
+    int nx = rowMajor ? m : n;
+    int mn = std::min(mx, nx);
+
+    std::vector<int> expected(mn);
+    for (int j=0; j<mn; ++j) {
+        int r = int((random.uniform()+1)/2*(mx-j)) % std::max(1, mx-j);
+        expected[j] = (j%3==0) ? mx-1 : (j%3==1) ? j : j + r;
+    }
+
+    std::vector<double> B(std::size_t(ld)*std::max(1, nx), -777);
+
+    // B = L*U, then the interchanges in reverse order: B = P^T*L*U
+    std::vector<double> L(std::size_t(mx)*mn), U(std::size_t(mn)*nx);
+    for (int l=0; l<mn; ++l) {
+        for (int i=0; i<mx; ++i) {
+            L[i+l*mx] = (i==l) ? 1 : (i>l) ? 0.5*random.uniform() : 0;
+        }
+        for (int j=0; j<nx; ++j) {
+            U[l+j*mn] = (j==l) ? (random.uniform()<0 ? -1.5 : 1.5)
+                                 + 0.5*random.uniform()
+                      : (j>l) ? random.uniform() : 0;
+        }
+    }
+    for (int j=0; j<nx; ++j) {
+        for (int i=0; i<mx; ++i) {
+            double sum = 0;
+            for (int l=0; l<mn; ++l) {
+                sum += L[i+l*mx]*U[l+j*mn];
+            }
+            B[i+j*ld] = sum;
+        }
+    }
+    for (int j=mn-1; j>=0; --j) {
+        for (int k=0; k<nx; ++k) {
+            std::swap(B[j+k*ld], B[expected[j]+k*ld]);
+        }
+    }
+
+    std::vector<double>  B0(B);
+    std::vector<int>     piv(mn+3, -1);
+
+    int info = ULMLAPACK(dgetrf)(rowMajor ? CblasRowMajor : CblasColMajor,
+                                 m, n, &B[0], ld, &piv[0]);
+
+    std::string what = format("dgetrf(%s,m=%d,n=%d,ld=%d, prescribed "
+                              "pivots)", rowMajor ? "row" : "col", m, n, ld);
+    std::vector<int> pivMn(piv.begin(), piv.begin()+mn);
+    return checkPivots(ctx, expected, piv, info, what)
+        && checkLu(ctx, mx, nx, B0, B, ld, pivMn, info, what);
+}
+
+void
+testPivots(Context &ctx, bool rowMajor)
+{
+    Random random(11);
+    if (!pivotExample(ctx, rowMajor)) {
+        return;
+    }
+    // m, n of A and extra leading dimension
+    const int cases[][3] = { {1,1,0}, {2,2,0}, {5,5,2}, {7,4,0}, {4,7,3},
+                             {33,33,1}, {64,64,0}, {65,65,4}, {150,150,3},
+                             {150,97,0}, {97,150,5}, {200,70,2},
+                             {70,200,0} };
+    for (int c=0; c<13; ++c) {
+        int m = cases[c][0], n = cases[c][1];
+        int ld = (rowMajor ? n : m) + cases[c][2];
+        if (!prescribedPivotsCase(ctx, random, rowMajor, m, n, ld)) {
+            return;
+        }
+    }
+}
+
+//
 //  dlaswp: row interchanges A(i,:) <-> A(piv[i],:) for i = k1, ..., k2-1
 //  (column major).  The result must be exact.
 //
@@ -311,4 +465,14 @@ ULMBLAS_TEST(T0404, "lapack/dgetrf row major, m != n")
 ULMBLAS_TEST(T0405, "lapack/dgetrf row major, singular")
 {
     testGetrfRowMajorSingular(ctx);
+}
+
+ULMBLAS_TEST(T0406, "lapack/dgetrf pivot indices, column major")
+{
+    testPivots(ctx, false);
+}
+
+ULMBLAS_TEST(T0407, "lapack/dgetrf pivot indices, row major")
+{
+    testPivots(ctx, true);
 }
