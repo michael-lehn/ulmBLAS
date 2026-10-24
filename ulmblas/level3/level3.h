@@ -49,6 +49,9 @@
 #if defined(USE_AVX)
 #   include <ulmblas/level3/ukernel/avx/ugemm.h>
 #endif
+#if defined(USE_NEON)
+#   include <ulmblas/level3/ukernel/neon/ugemm.h>
+#endif
 #include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level3/ukernel/usylrk.h>
 #include <ulmblas/level3/ukernel/usyurk.h>

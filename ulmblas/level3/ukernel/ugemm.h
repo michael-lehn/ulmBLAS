@@ -7,6 +7,9 @@
 #if defined(USE_AVX)
 #   define  SELECT_UGEMM_KERNEL     avx
 #   include <ulmblas/level3/ukernel/avx/ugemm.h>
+#elif defined(USE_NEON)
+#   define  SELECT_UGEMM_KERNEL     neon
+#   include <ulmblas/level3/ukernel/neon/ugemm.h>
 #elif defined(USE_SSE)
 #   define  SELECT_UGEMM_KERNEL     sse
 #   include <ulmblas/level3/ukernel/sse/ugemm.h>
