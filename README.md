@@ -286,20 +286,30 @@ interface.
 
 ## License, provenance and acknowledgments
 
-ulmBLAS was written by Michael C. Lehn (Ulm University), with early
-contributions by Sebastian Kölle and GitHub user aquileia (repository setup,
-plots of the benchmarks).  Its design follows BLIS: the file
-[LICENSE](LICENSE) states that ulmBLAS uses code, concepts and ideas of the
-BLIS framework and reproduces the BLIS license (BSD 3-Clause, "Copyright (C)
-2014, The University of Texas").
+ulmBLAS is licensed under the BSD 3-Clause License (Copyright (c)
+2014-2026, Michael C. Lehn and the ulmBLAS contributors), see
+[LICENSE](LICENSE).  Third-party components keep their own copyright and
+license terms, which [LICENSE](LICENSE) reproduces:
 
-The AVX/FMA micro kernel is derived from the micro kernel
-`bli_dgemm_haswell_asm_6x8` of BLIS 2.0 (Copyright (C) 2014, The University
-of Texas at Austin; Copyright (C) 2018 - 2019, Advanced Micro Devices, Inc.;
-BSD 3-Clause), as adapted for the course High Performance Computing I (Ulm
-University, 2025/26).  Its license notice is preserved in the source file and
-in [LICENSE](LICENSE).  The comparison benchmarks use BLIS and OpenBLAS,
-which are not part of ulmBLAS.
+- **BLIS**: the design of ulmBLAS follows BLIS, and ulmBLAS uses code,
+  concepts and ideas of the BLIS framework (BSD 3-Clause, The University of
+  Texas).
+- **AVX/FMA micro kernel**: derived from the micro kernel
+  `bli_dgemm_haswell_asm_6x8` of BLIS 2.0 (Copyright (C) 2014, The
+  University of Texas at Austin; Copyright (C) 2018 - 2019, Advanced Micro
+  Devices, Inc.; BSD 3-Clause), as adapted for the course High Performance
+  Computing I (Ulm University, 2025/26); provenance and modifications are
+  listed in `ulmblas/level3/ukernel/avx/ugemm.tcc`.
+- **ATLAS** timing programs and headers in `bench/` (ATLAS 3.10.1, BSD-style
+  license; R. Clint Whaley, Antoine P. Petitet, Jeff Horner and others).
+- **Reference BLAS** in `refblas/` (from LAPACK 3.3.1) and the **BLAS and
+  CBLAS test programs** in `test/F77/` and `test/C/` (from Netlib), under
+  the terms of Netlib and LAPACK.
+
+The comparison benchmarks use BLIS and OpenBLAS, which are not part of
+ulmBLAS.  ulmBLAS was written by Michael C. Lehn (Ulm University), with an
+early contribution by Sebastian Kölle (GitHub: aquileia; repository setup,
+plots of the benchmarks).
 
 ## Background and citation
 
