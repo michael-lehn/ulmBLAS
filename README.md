@@ -25,13 +25,15 @@ reproducible benchmarks.
   routines of the CBLAS standard, see [Interfaces](#interfaces)); `dgetrf`
   and `dlaswp` from LAPACK.
 - **Micro kernels**: portable reference kernels, SSE3 kernels for x86-64,
-  and an AVX/FMA 6 x 8 DGEMM kernel derived from BLIS — 2.8 times faster
-  than the SSE kernel and on par with BLIS on the tested CPU.
+  an AVX/FMA 6 x 8 DGEMM kernel derived from BLIS — 2.8 times faster than
+  the SSE kernel and on par with BLIS on the tested CPU — and a NEON 6 x 8
+  DGEMM kernel for AArch64 derived from BLIS — 2.0 times faster than the
+  reference kernel and within about 1% of BLIS on an Apple M5.
 - **Header-only C++ core** (templates, C++11 or newer), built with GNU Make;
   besides the compilers only POSIX tools are needed, no other build system
   and no BLAS library.
 - **Regression tests** for every routine, all matrix layouts and corner cases
-  (NaN, Inf, zero dimensions, invalid arguments), seven kernel and blocking
+  (NaN, Inf, zero dimensions, invalid arguments), eight kernel and blocking
   configurations, the Netlib BLAS test suites, and a registry of known issues.
 
 > ulmBLAS is listed in
@@ -52,6 +54,8 @@ reproducible benchmarks.
 - [Background and citation](#background-and-citation)
 
 ## Performance
+
+### x86-64: AVX/FMA
 
 DGEMM on one core of an Intel Core i5-12500 (Alder Lake, AVX2/FMA), single
 threaded, compared with BLIS 2.0 and OpenBLAS 0.3.34 built from source for the
@@ -76,6 +80,30 @@ These numbers hold for this CPU and the documented configurations only.  The
 documents hardware, compilers, library versions and build options, source
 revisions and methodology, and contains the raw measurements and further
 figures (thin matrices, syrk/symm/trmm/trsm, choice of block sizes).
+
+### AArch64: NEON (Apple silicon)
+
+DGEMM on one performance core of an Apple M5 (MacBook Air), single
+threaded, compared with BLIS 2.0 (configuration firestorm) and OpenBLAS
+0.3.34 built from source for the same machine:
+
+![DGEMM performance versus matrix size on an Apple M5](benchmark_results/2026-10-24-macbook-m5-neon/plots/dgemm_square.svg)
+
+| n = m = k ≥ 256 | NEON kernel relative to |
+|---|---|
+| ulmBLAS reference kernel (used on ARM before) | 1.96 – 2.06 |
+| BLIS 2.0 (same assembly kernel) | 0.986 – 0.994 |
+| OpenBLAS 0.3.34 | 1.07 – 1.14 |
+
+The NEON kernel reaches up to 66.2 GFLOP/s, 94 to 96% of the measured FMA
+peak of the core (68.9 GFLOP/s) for n ≥ 1024; the other level 3 routines
+reach 1.8 to 2.1 times the performance of the reference kernel and 0.96 to
+1.02 of BLIS.  For thin k (k = 32, 64) ulmBLAS is faster than BLIS and
+OpenBLAS; for n ≤ 31 OpenBLAS is faster.  The MacBook Air throttles under
+sustained load, so the measurements use a thermal guard; the
+[benchmark campaign](benchmark_results/2026-10-24-macbook-m5-neon/README.md)
+documents this together with hardware, software, methodology and the raw
+data.
 
 ## Architecture
 
@@ -107,14 +135,14 @@ performance of all level 3 routines.
 | Level 3 algorithms | `ulmblas/level3/*.tcc` | cache blocking (MC, KC, NC), structure of symmetric, Hermitian and triangular matrices |
 | Packing | `ulmblas/level3/pack` | copying blocks into MR and NR panels, zero padding, symmetric and triangular blocks |
 | Macro kernels | `ulmblas/level3/mkernel` | loops over the MR x NR tiles; edge tiles through a buffer; tiles on the diagonal of triangular results |
-| Micro kernels | `ulmblas/level3/ukernel/{ref,sse,avx}` | the MR x NR update — the architecture-specific part |
+| Micro kernels | `ulmblas/level3/ukernel/{ref,sse,avx,neon}` | the MR x NR update — the architecture-specific part |
 | Configuration | `ulmblas/config` | kernel selection, block sizes, compile-time checks |
 
 The macro kernels work with *any* register block size: the edge tiles of a
 block (mr < MR or nr < NR) are computed by the micro kernel into a local
 buffer, and the diagonal tiles of syrk, syr2k, herk and her2k are found by
 comparing row and column ranges.  MR and NR need not divide each other — the
-AVX/FMA kernel uses MR = 6, NR = 8, and a test configuration runs the
+AVX/FMA and NEON kernels use MR = 6, NR = 8, and a test configuration runs the
 reference kernel with these block sizes on every platform.  Static checks
 enforce the remaining constraints (MC a multiple of MR and NR, NC a multiple
 of NR, so that the packed panels fit the buffers).
@@ -123,25 +151,29 @@ of NR, so that the packed panels fit the buffers).
 
 | Kernel | Data types | MR x NR | Instruction set | Selected |
 |---|---|---|---|---|
-| reference (`ukernel/ref`) | all four | 4 x 4 (double; 8 x 4, 4 x 2, 2 x 2 for float, complex float, complex double) | portable C++ | without SSE3, and on all non-x86 targets |
+| reference (`ukernel/ref`) | all four | 4 x 4 (double; 8 x 4, 4 x 2, 2 x 2 for float, complex float, complex double) | portable C++ | on x86 without SSE3, on AArch64 with `-DULMBLAS_NO_NEON`, on all other targets |
 | SSE3 (`ukernel/sse`) | double: GEMM and TRSM kernels; level 1 kernels | 4 x 4 | x86-64 SSE3, inline assembly | by default on x86-64 |
 | AVX/FMA (`ukernel/avx`) | double: GEMM kernel | 6 x 8 | x86-64 AVX and FMA, inline assembly derived from BLIS | with `ARCHFLAGS='-mavx -mfma'` (or e.g. `-march=native`) |
+| NEON (`ukernel/neon`) | double: GEMM kernel | 6 x 8 | AArch64 AdvSIMD (NEON) FMA, inline assembly derived from BLIS | by default on AArch64 (64-bit pointers) |
 
 Kernels are selected at compile time from the compiler's target macros
 (`ulmblas/config/simd.h`); there is no runtime dispatch, so a library built
-with AVX/FMA requires a CPU with AVX and FMA.  Types without an optimized
-kernel use the reference kernel.
+with AVX/FMA requires a CPU with AVX and FMA.  AdvSIMD is part of every AArch64
+CPU, so the NEON kernel needs no flags; `CPPFLAGS=-DULMBLAS_NO_NEON` selects
+the reference kernels.  Types without an optimized kernel use the reference
+kernel.
 
 | Platform | Built | Test suite run | Optimized kernels executed and benchmarked |
 |---|---|---|---|
-| Linux x86-64, Debian 12, Intel Core i5-12500; GCC 12, clang 16 | yes | full `make check`, all seven configurations | SSE3 and AVX/FMA executed, both benchmarked |
-| macOS arm64 (Apple silicon); Apple clang 21, GCC 16 | yes | full `make check` (the AVX/FMA configurations are skipped) | — (reference kernels) |
+| Linux x86-64, Debian 12, Intel Core i5-12500; GCC 12, clang 16 | yes | full `make check`, all eight configurations (the NEON configuration is skipped) | SSE3 and AVX/FMA executed, both benchmarked |
+| macOS arm64, Apple M5; Apple clang 21, GCC 16 | yes | full `make check` (the AVX/FMA configurations are skipped) | NEON executed and benchmarked |
 | macOS x86-64 under Rosetta 2; Apple clang 21 | yes | numeric tests (SSE3 kernels) | SSE3 executed, not benchmarked; AVX/FMA only compiled (Rosetta 2 provides no AVX) |
 | 32-bit x86 | compiled (all interface sources; reference kernels), not linked | no | — |
 
 Other platforms supported by a C++11 compiler and GNU Make should work with
-the reference kernels but have not been tested.  Only x86-64 has optimized
-kernels so far.  Details: [BUILDING.md](BUILDING.md#tested-configurations).
+the reference kernels but have not been tested.  Optimized kernels exist for
+x86-64 and AArch64; the NEON kernel has only been run on Apple silicon (Linux
+on AArch64 is untested).  Details: [BUILDING.md](BUILDING.md#tested-configurations).
 
 ## Adding a micro kernel
 
@@ -149,7 +181,7 @@ A micro kernel for a new architecture or data type plugs into the existing
 algorithms: all routines that use the GEMM micro kernel — the complete
 level 3 BLAS — benefit without further changes.  Kernels from BLIS are a
 natural source (BLIS has kernels for many x86-64, ARM, POWER and RISC-V
-processors), and the AVX/FMA kernel shows the process.  A BLIS kernel cannot
+processors), and the AVX/FMA and NEON kernels show the process.  A BLIS kernel cannot
 simply be copied, though; an integration has to address:
 
 - **Interface.**  ulmBLAS calls
@@ -158,7 +190,9 @@ simply be copied, though; an integration has to address:
   different signature and context arguments.
 - **Packing layout.**  A is packed as MR x kc panels (column by column), B as
   kc x NR panels (row by row), as in BLIS; kernels expecting other layouts
-  need adapted packing.
+  need adapted packing.  A kernel that stores its tile with unit column
+  stride can compute the transposed product instead: the NEON kernel calls
+  the BLIS 8 x 6 kernel with the panels of B and A swapped (C^T = B^T A^T).
 - **Block sizes.**  MR, NR and the cache block sizes MC, KC, NC are set per
   kernel and data type in `ulmblas/config/blocksize.h`; MC and KC must be
   chosen (measured) for the cache sizes of the target.

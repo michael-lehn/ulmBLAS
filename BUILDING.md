@@ -79,8 +79,12 @@ defaults of the user variables are `CXXFLAGS = -Wall` and
 `FFLAGS = -Wall -fimplicit-none`.  As usual for GNU Make, variables given on
 the command line take precedence over the environment.  `ARCHFLAGS` defaults to
 `-msse3 -mfpmath=sse` if the C++ compiler accepts these flags (x86), which
-selects the optimized SSE kernels; on other architectures (e.g. ARM) the
-portable reference kernels are used.  With `ARCHFLAGS='-mavx -mfma'` (or
+selects the optimized SSE kernels; on other architectures it is empty.  On
+AArch64 (64-bit pointers) the NEON micro kernel for double (MR = 6, NR = 8,
+derived from BLIS, see `LICENSE`) is selected without any flags (AdvSIMD is
+part of every AArch64 CPU); `CPPFLAGS=-DULMBLAS_NO_NEON` selects the
+portable reference kernels instead.  Other architectures use the reference
+kernels.  With `ARCHFLAGS='-mavx -mfma'` (or
 e.g. `-march=native` on a CPU with AVX and FMA) the AVX/FMA micro kernel for
 double (MR = 6, NR = 8, derived from BLIS, see `LICENSE`) replaces the SSE
 micro kernel; the libraries then require a CPU with AVX and FMA.  Objects are rebuilt when the compiler
@@ -108,14 +112,16 @@ make check VERBOSE=1          # print every result
 make check STRICT=1           # skipped tests are errors
 ```
 
-All tests are run for seven configurations (`test/config`): four with tiny
+All tests are run for eight configurations (`test/config`): four with tiny
 block sizes and the reference kernels (so that small matrices cover multiple
 and partial blocks of the GEMM algorithm; one of them with MR = 6 and NR = 8,
 which do not divide each other), one with the default block sizes and
-kernels, and two with the AVX/FMA micro kernel (`-mavx -mfma`, default and
-tiny block sizes).  The AVX/FMA configurations are only built and run if the
-compiler, the CPU and the operating system support AVX and FMA; otherwise
-their tests are reported as SKIP.  The libraries of each configuration are
+kernels (on AArch64 the NEON kernel), two with the AVX/FMA micro kernel
+(`-mavx -mfma`, default and tiny block sizes), and one with the NEON micro
+kernel and tiny block sizes.  The AVX/FMA configurations are only built and
+run if the compiler, the CPU and the operating system support AVX and FMA,
+the NEON configuration only on AArch64; otherwise their tests are reported
+as SKIP.  The libraries of each configuration are
 built in `test/build/`.
 
 - **C++ tests** (`test/numeric`): levels 1, 2 and 3 of the C interface for
@@ -195,12 +201,16 @@ Tested (October 2026) on Debian 12 (x86-64, Intel Core i5-12500) with GNU
 Make 4.3: full `make check` with GCC 12.2 (`g++`, `gcc`) and with clang 16
 (`clang++-16`, `clang-16`), both with gfortran 12.2; the SSE kernels are
 selected by default, the AVX/FMA micro kernel is tested by the
-configurations 06 and 07 (and with `ARCHFLAGS='-mavx -mfma'`).
+configurations 06 and 07 (and with `ARCHFLAGS='-mavx -mfma'`); the NEON
+configuration 08 is skipped.
 
 C++11 is the minimum (C++98 is rejected: the code uses `decltype`, `auto`
 and `<type_traits>`).
 
-On arm64 the portable reference kernels are used.  The x86 SSE kernels
+On arm64 the NEON micro kernel is used (configurations 04 and 08; tested
+with Apple clang 21 and GCC 16, and with AddressSanitizer and
+UndefinedBehaviorSanitizer); it was only run on Apple silicon (an Apple M5),
+not on Linux or other AArch64 CPUs.  The x86 SSE kernels
 were tested on native x86-64 hardware (Linux, GCC 12 and clang 16) and on
 macOS x86-64 under Rosetta 2 (Apple clang 21), not on native macOS x86-64
 hardware.  The AVX/FMA micro kernel was tested on Linux x86-64 (GCC 12,
