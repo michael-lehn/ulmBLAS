@@ -14,6 +14,7 @@ new micro kernels are added or other hardware becomes available.
 | Campaign | Date | Machine | Experiment | Summary |
 |----------|------|---------|------------|---------|
 | [2026-10-24-heim-avx-fma](2026-10-24-heim-avx-fma/README.md) | 2026-10-24 | heim: Intel Core i5-12500 (Alder Lake, AVX2/FMA), Debian 12, x86-64 | AVX/FMA DGEMM micro kernel (6 x 8, derived from BLIS) vs. SSE, BLIS 2.0, OpenBLAS 0.3.34 | DGEMM: AVX/FMA 2.8x faster than SSE, on par with BLIS 2.0 (0.99-1.02), 96-100% of OpenBLAS for n >= 256; MC = 288 chosen (up to +11% for syrk, symm, trmm, trsm) |
+| [2026-10-24-macbook-m5-neon](2026-10-24-macbook-m5-neon/README.md) | 2026-10-24 | MacBook Air: Apple M5 (AArch64, NEON), macOS 26.6, arm64 | NEON DGEMM micro kernel (6 x 8, derived from BLIS) vs. reference kernel, BLIS 2.0, OpenBLAS 0.3.34 | DGEMM: NEON 2.0x faster than the reference kernel, 0.986-0.994 of BLIS 2.0, 1.07-1.14x OpenBLAS for n >= 256 (94-96% of the FMA peak); MC = 960, KC = 1024; thermal guard against throttling |
 
 <!-- END CAMPAIGNS -->
 
