@@ -85,6 +85,41 @@ error handlers return, failed intermittently (memory corruption).  Fixed by
 returning after the error handler, as the CBLAS `gemv` functions already
 did.  The error handlers still do not terminate the program.
 
+Issue #0008: SSE GEMM micro kernel reads C if beta = 0
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0301, T0309, T0315, T0321 (numeric, regression tests)
+
+The SSE kernel (`ulmblas/level3/ukernel/sse/ugemm.tcc`, double, x86-64)
+always computed `beta*C + alpha*A*B`.  With `beta = 0` (C need not be set)
+NaN or Inf in C was propagated into the result (`0*NaN` is NaN).  Worse,
+the buffered variant of the micro kernel (partial tiles at the edges of
+every level 3 operation, also in syrk, syr2k, herk and her2k) calls the
+kernel with `beta = 0` on an uninitialized local tile: depending on its
+previous contents, dgemm, dsymm, dsyrk, dsyr2k, dtrmm, dtrsm and dgetrf
+returned NaN or wrong results for any beta.  Confirmed on x86-64 hardware
+(Intel Core i5-12500, Debian 12, GCC 12 and Clang 16) and under Rosetta 2.
+Fixed by a `beta == 0` branch in the kernel: the accumulators scaled by
+alpha are stored without reading C; the code for `beta != 0` is unchanged.
+For `beta = 0` the kernel is faster than before (no loads of C, up to 23%
+for `k = 4`); for `beta != 0` the performance is unchanged.
+
+Issue #0009: SSE micro kernels: inline assembly writes memory without telling the compiler
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0305, T0327, T0331, T0400 (numeric, regression tests)
+
+The inline assembly of the SSE kernels `ugemm`, `utrlsm` and `utrusm`
+(`ulmblas/level3/ukernel/sse/`) writes C (and B) through pointers that are
+only input operands, without a `"memory"` clobber.  The compiler may then
+assume that the memory is not modified by the assembly, e.g. that the local
+tile of the buffered micro kernel still holds the values stored before the
+call: GCC 12 and 16 remove the stores and use the old values (shown with a
+minimal example).  Fixed by adding `"memory"` to the clobber lists; the
+instructions of the kernels are unchanged.  Fixed together with #0008; the
+native failures with GCC and beta != 0 (e.g. T0305, T0327, T0331, T0400 to
+T0407) were not attributed to #0008 or #0009 individually.
+
 ## Design questions
 
 Issue #0002: alpha = 0 with NaN or Inf in operands that reference BLAS does not reference

@@ -299,6 +299,50 @@ ugemm(IndexType      kc,
     "unpcklpd %%xmm1,            %%xmm1 \n\t"  // duplicate beta
     "                                   \n\t"
     "                                   \n\t"
+    "xorpd  %%xmm2,              %%xmm2 \n\t"  // zero
+    "ucomisd %%xmm2,             %%xmm1 \n\t"  // beta == 0 ?
+    "jne    .DBETANONZERO%=             \n\t"  // beta != 0
+    "jp     .DBETANONZERO%=             \n\t"  // beta is NaN
+    "                                   \n\t"
+//
+//  beta == 0: C is not read (it may contain NaN or Inf), C <- alpha*AB
+//
+    "mulpd  %%xmm0,              %%xmm8 \n\t"  // scale ab_00_11 by alpha
+    "movlpd %%xmm8,         (%%rcx)     \n\t"  // write (C00,
+    "movhpd %%xmm8,         (%%r10,%%r8)\n\t"  //        C11)
+    "mulpd  %%xmm0,              %%xmm9 \n\t"  // scale ab_20_31 by alpha
+    "movlpd %%xmm9,         (%%rdx)     \n\t"  // write (C20,
+    "movhpd %%xmm9,         (%%r11,%%r8)\n\t"  //        C31)
+    "mulpd  %%xmm0,              %%xmm10\n\t"  // scale ab_01_10 by alpha
+    "movlpd %%xmm10,        (%%r10)     \n\t"  // write (C01,
+    "movhpd %%xmm10,        (%%rcx,%%r8)\n\t"  //        C10)
+    "mulpd  %%xmm0,              %%xmm11\n\t"  // scale ab_21_30 by alpha
+    "movlpd %%xmm11,        (%%r11)     \n\t"  // write (C21,
+    "movhpd %%xmm11,        (%%rdx,%%r8)\n\t"  //        C30)
+    "                                   \n\t"
+    "leaq   (%%rcx,%%r9,2),      %%rcx  \n\t"  // Store addr of C02 in %rcx
+    "leaq   (%%r10,%%r9,2),      %%r10  \n\t"  // Store addr of C03 in %r10
+    "leaq   (%%rdx,%%r9,2),      %%rdx  \n\t"  // Store addr of C22 in %rdx
+    "leaq   (%%r11,%%r9,2),      %%r11  \n\t"  // Store addr of C23 in %r11
+    "                                   \n\t"
+    "mulpd  %%xmm0,              %%xmm12\n\t"  // scale ab_02_13 by alpha
+    "movlpd %%xmm12,        (%%rcx)     \n\t"  // write (C02,
+    "movhpd %%xmm12,        (%%r10,%%r8)\n\t"  //        C13)
+    "mulpd  %%xmm0,              %%xmm13\n\t"  // scale ab_22_33 by alpha
+    "movlpd %%xmm13,        (%%rdx)     \n\t"  // write (C22,
+    "movhpd %%xmm13,        (%%r11,%%r8)\n\t"  //        C33)
+    "mulpd  %%xmm0,              %%xmm14\n\t"  // scale ab_03_12 by alpha
+    "movlpd %%xmm14,        (%%r10)     \n\t"  // write (C03,
+    "movhpd %%xmm14,        (%%rcx,%%r8)\n\t"  //        C12)
+    "mulpd  %%xmm0,              %%xmm15\n\t"  // scale ab_23_32 by alpha
+    "movlpd %%xmm15,        (%%r11)     \n\t"  // write (C23,
+    "movhpd %%xmm15,        (%%rdx,%%r8)\n\t"  //        C32)
+    "jmp    .DUPDATEDONE%=              \n\t"
+    "                                   \n\t"
+//
+//  beta != 0: C <- beta*C + alpha*AB
+//
+    ".DBETANONZERO%=:                   \n\t"
     "movlpd (%%rcx),             %%xmm3 \n\t"  // load (C00,
     "movhpd (%%r10,%%r8),        %%xmm3 \n\t"  //       C11)
     "mulpd  %%xmm0,              %%xmm8 \n\t"  // scale ab_00_11 by alpha
@@ -372,6 +416,8 @@ ugemm(IndexType      kc,
     "addpd  %%xmm15,             %%xmm4 \n\t"  // add results
     "movlpd %%xmm4,        (%%r11)      \n\t"  // write back (C23,
     "movhpd %%xmm4,        (%%rdx,%%r8) \n\t"  //             C32)
+    "                                   \n\t"
+    ".DUPDATEDONE%=:                    \n\t"
     : // output
     : // input
         "m" (kb),       // 0
@@ -386,6 +432,7 @@ ugemm(IndexType      kc,
         "m" (nextA),    // 9
         "m" (nextB)     // 10
     : // register clobber list
+        "memory",       // C is written through a pointer operand
         "rax", "rbx", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11",
         "xmm0", "xmm1", "xmm2", "xmm3",
         "xmm4", "xmm5", "xmm6", "xmm7",
