@@ -31,9 +31,7 @@ gescal(IndexType    m,
         }
     } else {
         for (IndexType j=0; j<n; ++j) {
-            for (IndexType i=0; i<m; ++i) {
-                A[i*incRowA+j*incColA] *= alpha;
-            }
+            scal(m, alpha, &A[j*incColA], incRowA);
         }
     }
 }

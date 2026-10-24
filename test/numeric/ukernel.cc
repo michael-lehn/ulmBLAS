@@ -466,6 +466,81 @@ testSpecialOperands(Context &ctx)
     return true;
 }
 
+//
+//  gescal (computes beta*C in the buffered micro kernel and alpha = 0 or
+//  k = 0 in level 3): column major, row major and general strides, NaN and
+//  Inf in A.  alpha = 0 sets A to zero, also where A contains NaN or Inf
+//  (BLAS: C need not be set if beta is zero), alpha = 1 leaves A unchanged,
+//  otherwise A(i,j)*alpha.  Elements
+//  outside the matrix must not be modified.
+//
+template <typename T>
+bool
+testGescal(Context &ctx)
+{
+    const int dims[][2] = { { 0, 3 }, { 3, 0 }, { 1, 1 }, { 3, 4 }, { 5, 2 } };
+    const T   alphas[]  = { T(0), T(1), T(1.5), T(-2), nan<T>() };
+
+    Random random(11);
+
+    for (int d=0; d<5; ++d) {
+        int m = dims[d][0], n = dims[d][1];
+        for (int layout=0; layout<3; ++layout) {
+            Strides st(Layout(layout), std::max(m, 1), std::max(n, 1));
+            for (int a=0; a<5; ++a) {
+                std::vector<T> A0(st.size);
+                for (std::size_t p=0; p<A0.size(); ++p) {
+                    A0[p] = (p%4==1) ? special<T>(int(p)) : random.value<T>();
+                }
+                std::vector<T> A(A0);
+                ulmBLAS::gescal(m, n, alphas[a], &A[0], st.incRow, st.incCol);
+
+                std::vector<bool> inMatrix(A.size(), false);
+                for (int j=0; j<n; ++j) {
+                    for (int i=0; i<m; ++i) {
+                        int        p = i*st.incRow+j*st.incCol;
+                        const T    &x = A[p], &x0 = A0[p];
+                        bool       ok;
+                        inMatrix[p] = true;
+                        if (alphas[a]==T(0)) {
+                            ok = (x==T(0));         // +0 or -0, not NaN
+                        } else if (alphas[a]==T(1)) {
+                            ok = sameBits(x, x0);
+                        } else if (!isFinite(alphas[a]) || !isFinite(x0)) {
+                            T expected = x0*alphas[a];
+                            ok = isFinite(expected) ? sameBits(x, expected)
+                                                    : !isFinite(x);
+                        } else {
+                            ok = sameBits(x, x0*alphas[a]);
+                        }
+                        if (!ctx.check(ok, "gescal(m=%d,n=%d,alpha=%s,A %s): "
+                                       "A(%d,%d) is %s, A on entry %s, %s",
+                                       m, n, str(alphas[a]).c_str(),
+                                       layoutName(Layout(layout)), i, j,
+                                       str(x).c_str(), str(x0).c_str(),
+                                       typeName<T>()))
+                        {
+                            return false;
+                        }
+                    }
+                }
+                for (std::size_t p=0; p<A.size(); ++p) {
+                    if (!inMatrix[p] && !sameBits(A[p], A0[p])) {
+                        return ctx.check(false, "gescal(m=%d,n=%d,alpha=%s,A "
+                                         "%s): element %d outside the matrix "
+                                         "modified, %s", m, n,
+                                         str(alphas[a]).c_str(),
+                                         layoutName(Layout(layout)), int(p),
+                                         typeName<T>());
+                    }
+                }
+            }
+        }
+    }
+    ctx.pass();
+    return true;
+}
+
 } // namespace
 
 ULMBLAS_TEST(T0340, "ukernel/ugemm full tiles")
@@ -494,10 +569,12 @@ ULMBLAS_TEST(T0342, "ukernel/ugemm partial tiles, general strides of C")
     && testPartialTiles<cdouble>(ctx, true, false);
 }
 
-ULMBLAS_TEST_XFAIL(T0343, "ukernel/ugemm partial tiles, general strides, "
-                   "beta=0 with NaN and Inf in C", 6)
+ULMBLAS_TEST(T0343, "ukernel/gescal and ugemm partial tiles, general strides, "
+             "alpha or beta=0 with NaN and Inf")
 {
-    testPartialTiles<float>(ctx, true, true)
+    testGescal<float>(ctx) && testGescal<double>(ctx)
+    && testGescal<cfloat>(ctx) && testGescal<cdouble>(ctx)
+    && testPartialTiles<float>(ctx, true, true)
     && testPartialTiles<double>(ctx, true, true)
     && testPartialTiles<cfloat>(ctx, true, true)
     && testPartialTiles<cdouble>(ctx, true, true);

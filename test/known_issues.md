@@ -87,18 +87,18 @@ did.  The error handlers still do not terminate the program.
 
 Issue #0006: gescal with general strides propagates NaN and Inf if the scalar is zero
 Type: BUG
-Status: OPEN
-Covered by tests: T0343 (numeric, XFAIL)
+Status: RESOLVED
+Covered by tests: T0343 (numeric, regression tests)
 
-`ulmBLAS::gescal` (`ulmblas/level1extensions/gescal.tcc`) scales a matrix
+`ulmBLAS::gescal` (`ulmblas/level1extensions/gescal.tcc`) scaled a matrix
 with unit row or column stride through `scal`, which assigns zero if the
 scalar is zero, but a matrix with general strides by `A(i,j) *= alpha`, so
-NaN and Inf are kept for `alpha = 0`.  It computes `beta*C` in the buffered
-GEMM micro kernel (partial tiles) and in gemm, symm, hemm, trmm and trsm for
-`alpha = 0` or `k = 0`; with `beta = 0` (C need not be set) the result then
-contains NaN.  Only reachable through the C++ interface with general strides
-of C: the BLAS interfaces always pass a unit row or column stride.
-Expected: zero, as for unit strides.
+NaN and Inf were kept for `alpha = 0`.  It computes `beta*C` in the buffered
+GEMM micro kernel and in gemm, symm, hemm, trmm and trsm for `alpha = 0` or
+`k = 0`; with `beta = 0` (C need not be set) the result then contained NaN.
+Only reachable through the C++ interface with general strides of C: the
+BLAS interfaces always pass a unit row or column stride.  Fixed by scaling
+the columns of a matrix with general strides through `scal` as well.
 
 Issue #0007: SSE GEMM micro kernel: assembler labels are not local on Mach-O (macOS x86-64)
 Type: BUG
