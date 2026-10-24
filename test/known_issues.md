@@ -85,10 +85,25 @@ error handlers return, failed intermittently (memory corruption).  Fixed by
 returning after the error handler, as the CBLAS `gemv` functions already
 did.  The error handlers still do not terminate the program.
 
+Issue #0006: gescal with general strides propagates NaN and Inf if the scalar is zero
+Type: BUG
+Status: OPEN
+Covered by tests: T0343 (numeric, XFAIL)
+
+`ulmBLAS::gescal` (`ulmblas/level1extensions/gescal.tcc`) scales a matrix
+with unit row or column stride through `scal`, which assigns zero if the
+scalar is zero, but a matrix with general strides by `A(i,j) *= alpha`, so
+NaN and Inf are kept for `alpha = 0`.  It computes `beta*C` in the buffered
+GEMM micro kernel (partial tiles) and in gemm, symm, hemm, trmm and trsm for
+`alpha = 0` or `k = 0`; with `beta = 0` (C need not be set) the result then
+contains NaN.  Only reachable through the C++ interface with general strides
+of C: the BLAS interfaces always pass a unit row or column stride.
+Expected: zero, as for unit strides.
+
 Issue #0008: SSE GEMM micro kernel reads C if beta = 0
 Type: BUG
 Status: RESOLVED
-Covered by tests: T0301, T0309, T0315, T0321 (numeric, regression tests)
+Covered by tests: T0340, T0341, T0301, T0309, T0315, T0321 (numeric, regression tests)
 
 The SSE kernel (`ulmblas/level3/ukernel/sse/ugemm.tcc`, double, x86-64)
 always computed `beta*C + alpha*A*B`.  With `beta = 0` (C need not be set)
@@ -107,7 +122,7 @@ for `k = 4`); for `beta != 0` the performance is unchanged.
 Issue #0009: SSE micro kernels: inline assembly writes memory without telling the compiler
 Type: BUG
 Status: RESOLVED
-Covered by tests: T0305, T0327, T0331, T0400 (numeric, regression tests)
+Covered by tests: T0340, T0341, T0305, T0327, T0331, T0400 (numeric, regression tests)
 
 The inline assembly of the SSE kernels `ugemm`, `utrlsm` and `utrusm`
 (`ulmblas/level3/ukernel/sse/`) writes C (and B) through pointers that are
