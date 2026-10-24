@@ -188,6 +188,21 @@ changed.  Results are written to `bench/benchmarks/`; plots are created if
 gnuplot is found.  Comparisons with ATLAS or Intel MKL need `ATLAS_LIBDIR`
 or `MKLROOT` (variants `atlas`, `mkl`).
 
+### Benchmark results
+
+Published benchmark campaigns (measurements, Gnuplot scripts and SVG
+figures, documentation of hardware, software and methodology) are archived
+in [`benchmark_results/`](benchmark_results/README.md), e.g. the
+[AVX/FMA DGEMM micro kernel on an Intel Core i5-12500](benchmark_results/2026-10-24-heim-avx-fma/README.md).
+A completed campaign is added with
+
+```sh
+make add_benchmark_result BENCHMARK_DIR=path/to/campaign   # needs gnuplot
+```
+
+which validates it, regenerates its figures and updates the index (see
+`benchmark_results/README.md`).
+
 ### Tested configurations
 
 Tested (October 2026) on macOS 26 (arm64) with GNU Make 4.4.1 and 3.81:

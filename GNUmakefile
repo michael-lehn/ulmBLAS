@@ -12,7 +12,7 @@ include $(TOPDIR)/make.inc
 
 .PHONY : all cblas atlblas clapack atllapack f77blas refblas \
          check check-numeric check-netlib check_cblas check_f77blas \
-         bench benchmark-suite clean help
+         bench benchmark-suite add_benchmark_result clean help
 
 all : cblas clapack
 
@@ -64,6 +64,16 @@ bench : $(BENCH_LIBS) tool-cxx-link tool-cc tool-fc-link
 benchmark-suite : $(BENCH_LIBS) tool-cxx-link tool-cc tool-fc-link
 	$(MAKE) -C bench benchmark-suite
 
+#
+#  Benchmark archive (benchmark_results/, see the README.md there): adds a
+#  completed benchmark campaign, regenerates its plots (Gnuplot) and the
+#  index.  Independent of the build and of 'make check'; benchmarks are not
+#  run.
+#
+add_benchmark_result :
+	@$(SHELL) $(TOPDIR)/mk/benchmark_result.sh $(TOPDIR)/benchmark_results \
+	          '$(BENCHMARK_DIR)' '$(BENCHMARK_NAME)'
+
 clean :
 	$(MAKE) -C interfaces/blas/C clean
 	$(MAKE) -C interfaces/blas/F77 clean
@@ -85,6 +95,8 @@ help :
 	@echo '  check-numeric    only the C++ tests (no Fortran compiler needed)'
 	@echo '  check-netlib     only the Netlib BLAS test suites (needs FC and CC)'
 	@echo '  bench            benchmarks (long running, see bench/)'
+	@echo '  add_benchmark_result BENCHMARK_DIR=dir [BENCHMARK_NAME=name]'
+	@echo '                   add a benchmark campaign to benchmark_results/'
 	@echo '  clean            remove all generated files'
 	@echo
 	@echo 'Variables: CXX CC FC AR ARFLAGS RANLIB CXXSTD ARCHFLAGS OPTFLAGS FOPTFLAGS'

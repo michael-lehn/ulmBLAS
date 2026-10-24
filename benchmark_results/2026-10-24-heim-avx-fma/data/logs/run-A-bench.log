@@ -1,0 +1,35 @@
+ref: ARCHFLAGS='' 
+sse: ARCHFLAGS='-msse3 -mfpmath=sse' 
+avx: ARCHFLAGS='-mavx -mfma' 
+avx-72-256: ARCHFLAGS='-mavx -mfma' 
+avx-72-384: ARCHFLAGS='-mavx -mfma' 
+avx-72-512: ARCHFLAGS='-mavx -mfma' 
+avx-144-256: ARCHFLAGS='-mavx -mfma' 
+avx-144-384: ARCHFLAGS='-mavx -mfma' 
+avx-144-512: ARCHFLAGS='-mavx -mfma' 
+avx-288-256: ARCHFLAGS='-mavx -mfma' 
+avx-288-384: ARCHFLAGS='-mavx -mfma' 
+avx-288-512: ARCHFLAGS='-mavx -mfma' 
+avx-72-256 block sizes: 72 256 4080 6 8 
+avx-288-512 block sizes: 288 512 4080 6 8 
+== governor powersave, cpu 3, rounds 3, load 7.45 4.52 4.37
+round 1 ref done, load 4.91
+round 1 sse done, load 1.37
+round 1 avx done, load 1.10
+round 1 blis done, load 1.03
+round 1 openblas done, load 1.01
+round 1 sweep done
+round 2 sse done, load 1.00
+round 2 avx done, load 1.00
+round 2 blis done, load 1.00
+round 2 openblas done, load 1.00
+round 2 ref done, load 1.00
+round 2 sweep done
+round 3 avx done, load 1.00
+round 3 blis done, load 1.08
+round 3 openblas done, load 1.02
+round 3 ref done, load 1.01
+round 3 sse done, load 1.00
+round 3 sweep done
+wrong results: 0
+overall: all commands succeeded

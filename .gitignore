@@ -7,6 +7,8 @@ a.out
 *.dat
 *.png
 *.svg
+# the figures of the benchmark archive are part of the repository
+!benchmark_results/*/plots/*.svg
 *.bak
 bench/xdl[1-3]blastst
 test/dblat[1-3]_*
