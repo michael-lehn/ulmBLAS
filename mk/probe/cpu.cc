@@ -1,14 +1,15 @@
 //
 //  probe.sh cpu: exit status 0 if the CPU and the operating system support
-//  all features given as arguments (avx, fma, avx2), 1 if one of them is
-//  not supported, 2 for an unknown feature.
+//  all features given as arguments (avx, fma, avx2 on x86, neon on AArch64),
+//  1 if one of them is not supported, 2 for an unknown feature.  neon: an
+//  AArch64 (LP64) target, which always has AdvSIMD.
 //
 #include <cstring>
 
 int
 main(int argc, char **argv)
 {
-    static const char *known[] = { "avx", "fma", "avx2" };
+    static const char *known[] = { "avx", "fma", "avx2", "neon" };
     bool supported = true;
 
     for (int i=1; i<argc; ++i) {
@@ -18,6 +19,14 @@ main(int argc, char **argv)
         }
         if (!isKnown) {
             return 2;
+        }
+        if (!std::strcmp(argv[i], "neon")) {
+#if defined(__aarch64__) && defined(__ARM_NEON) && defined(__LP64__)
+            continue;
+#else
+            supported = false;
+            continue;
+#endif
         }
 #if defined(__x86_64__) || defined(__i386__)
         __builtin_cpu_init();
