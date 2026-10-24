@@ -85,20 +85,24 @@ struct BlockSize
 #elif defined(USE_NEON)
 
 //
-//  AArch64 NEON micro kernel for double (MR = 6, NR = 8).
+//  AArch64 NEON micro kernel for double (MR = 6, NR = 8).  MC, KC and NC for
+//  double were measured on an Apple M5 (performance cores: L1d 128 KiB, L2
+//  16 MiB shared): KC = 1024 instead of 256 is 1 to 1.5% faster for dgemm
+//  (fewer updates of C per element), MC = 960 instead of 240 2 to 4% faster
+//  for k = 32 and for dsyrk and dtrsm (see benchmark_results).
 //
 
 template <typename T>
 struct BlockSize
 {
     static const int MC = std::is_same<float, T>::value                ? 768
-                        : std::is_same<double, T>::value               ? 240
+                        : std::is_same<double, T>::value               ? 960
                         : std::is_same<std::complex<float>, T>::value  ? 384
                         : std::is_same<std::complex<double>, T>::value ? 192
                         : -1;
 
     static const int KC = std::is_same<float, T>::value                ? 384
-                        : std::is_same<double, T>::value               ? 256
+                        : std::is_same<double, T>::value               ? 1024
                         : std::is_same<std::complex<float>, T>::value  ? 384
                         : std::is_same<std::complex<double>, T>::value ? 192
                         : -1;
