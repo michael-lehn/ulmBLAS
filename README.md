@@ -1,268 +1,330 @@
 # ulmBLAS
 
-**A high performance BLAS implementation**
+**A BLAS implementation in C++ that makes the anatomy of high-performance
+matrix multiplication explicit — and extensible.**
 
----
-**Notable use:** ulmBLAS is listed in
-[Meta Quest's official third-party software notices](https://www.meta.com/en/legal/quest/third-party-notices/14/)
-as
-> **ulmBLAS Copyright (C) 2014 Michael C. Lehn. Ulm University**
----
+ulmBLAS implements the BLAS (Basic Linear Algebra Subprograms) for single and
+double precision, real and complex, with a CBLAS-compatible C interface and a
+Fortran 77 interface.  It follows the approach of
+[BLIS](https://github.com/flame/blis): all level 3 operations are built from
+the same few building blocks — cache blocking, packing of matrix blocks, and a
+small architecture-specific *micro kernel* that updates an MR x NR tile of the
+result in registers.  Everything except the micro kernels (and a few optional
+level 1 kernels) is portable C++, so a new CPU architecture needs one
+well-defined kernel, not a new BLAS.
 
-This library is part of my lecture:
+ulmBLAS started in 2014 as part of the lecture *Software Basics for High
+Performance Computing* at Ulm University, and it is still meant to be read:
+the code shows, step by step, how a matrix product reaches the performance
+of the hardware.  It is also a library with a portable build, a regression
+test suite running on several compilers and architectures, and documented,
+reproducible benchmarks.
 
-**Software Basics for High Performance Computing** (MATH9367)  
-Ulm University
+- **Complete level 3 BLAS** (gemm, symm, hemm, syrk, herk, syr2k, her2k,
+  trmm, trsm) for all four data types, and levels 1 and 2 (136 of the 142
+  routines of the CBLAS standard, see [Interfaces](#interfaces)); `dgetrf`
+  and `dlaswp` from LAPACK.
+- **Micro kernels**: portable reference kernels, SSE3 kernels for x86-64,
+  and an AVX/FMA 6 x 8 DGEMM kernel derived from BLIS — 2.8 times faster
+  than the SSE kernel and on par with BLIS on the tested CPU.
+- **Header-only C++ core** (templates, C++11 or newer), built with GNU Make;
+  besides the compilers only POSIX tools are needed, no other build system
+  and no BLAS library.
+- **Regression tests** for every routine, all matrix layouts and corner cases
+  (NaN, Inf, zero dimensions, invalid arguments), seven kernel and blocking
+  configurations, the Netlib BLAS test suites, and a registry of known issues.
 
-- [Course page for ulmBLAS](http://www.mathematik.uni-ulm.de/~lehn/ulmBLAS)
-- [General course page](http://www.mathematik.uni-ulm.de/~lehn/sghpc)
+> ulmBLAS is listed in
+> [Meta Quest's third-party software notices](https://www.meta.com/en/legal/quest/third-party-notices/14/)
+> ("ulmBLAS Copyright (C) 2014 Michael C. Lehn. Ulm University").
 
----
+## Contents
 
-And yes, I am particularly proud of the section demonstrating how to achieve
-peak performance for the matrix-matrix product:
+- [Performance](#performance)
+- [Architecture](#architecture)
+- [Micro kernels and platforms](#micro-kernels-and-platforms)
+- [Adding a micro kernel](#adding-a-micro-kernel)
+- [Getting started](#getting-started)
+- [Testing](#testing)
+- [Benchmark archive](#benchmark-archive)
+- [Interfaces](#interfaces)
+- [License, provenance and acknowledgments](#license-provenance-and-acknowledgments)
+- [Background and citation](#background-and-citation)
 
-👉 [Achieving peak performance for GEMM](http://www.mathematik.uni-ulm.de/~lehn/sghpc/gemm/index.html)
+## Performance
 
----
+DGEMM on one core of an Intel Core i5-12500 (Alder Lake, AVX2/FMA), single
+threaded, compared with BLIS 2.0 and OpenBLAS 0.3.34 built from source for the
+same machine:
 
-**Note:** Further development will take place in
-[ulmBLAS-core](https://github.com/michael-lehn/ulmBLAS-core).
+![DGEMM performance versus matrix size](benchmark_results/2026-10-24-heim-avx-fma/plots/dgemm_square.svg)
 
----
-## Building and testing
+| n = m = k ≥ 256 | AVX/FMA kernel relative to |
+|---|---|
+| ulmBLAS SSE kernel | 2.76 – 2.89 |
+| BLIS 2.0 (same assembly kernel) | 0.99 – 1.02 |
+| OpenBLAS 0.3.34 | 0.96 – 1.00 |
 
-ulmBLAS is built with **GNU Make 3.81 or newer** (no other build system is
-needed or supported).
+The AVX/FMA kernel reaches up to 59.7 GFLOP/s (OpenBLAS: 61.2 GFLOP/s); the
+other level 3 routines reach 2.3 to 2.9 times the performance of the SSE
+kernel.  For small matrices (n ≤ 128) BLIS and OpenBLAS are partly faster.
 
-```sh
-make              # libcblas.a, cblas.h, libclapack.a, clapack.h
-make -j8 check    # build and run the tests
-make help         # all targets and the current settings
-make clean        # remove all generated files
+![Speedup of the AVX/FMA micro kernel over the SSE micro kernel](benchmark_results/2026-10-24-heim-avx-fma/plots/dgemm_speedup.svg)
+
+These numbers hold for this CPU and the documented configurations only.  The
+[benchmark campaign](benchmark_results/2026-10-24-heim-avx-fma/README.md)
+documents hardware, compilers, library versions and build options, source
+revisions and methodology, and contains the raw measurements and further
+figures (thin matrices, syrk/symm/trmm/trsm, choice of block sizes).
+
+## Architecture
+
+All level 3 routines share the structure of the BLIS GEMM algorithm.  For
+C ← β C + α A B the operands are partitioned into blocks that fit into the
+caches, and the blocks are copied ("packed") into contiguous panels in the
+order in which the micro kernel reads them:
+
+```
+for jc = 0, NC, 2 NC, ...                    columns of C and B
+  for pc = 0, KC, 2 KC, ...                  rank-KC updates
+    pack B(pc:pc+KC, jc:jc+NC) -> B~         KC x NC, panels of NR columns (L3)
+    for ic = 0, MC, 2 MC, ...
+      pack A(ic:ic+MC, pc:pc+KC) -> A~       MC x KC, panels of MR rows    (L2)
+      macro kernel:
+        for each MR x NR tile of C(ic:ic+MC, jc:jc+NC):
+          micro kernel:  C_tile <- beta C_tile + alpha * (MR x KC panel of A~)
+                                                         * (KC x NR panel of B~)
 ```
 
-### GNU Make
+The micro kernel keeps the MR x NR tile in registers and performs
+2 · MR · NR · KC floating-point operations on data that streams from the
+L1 cache (B~ panel) and L2 cache (A~ panel).  Its performance determines the
+performance of all level 3 routines.
 
-- The minimum version is 3.81 (the build uses `$(abspath)` and `$(lastword)`).
-  Older versions stop with an error message naming the detected and the
-  required version.
-- On macOS `/usr/bin/make` is GNU Make 3.81, which works.  A newer GNU Make
-  from Homebrew or MacPorts is installed as `gmake`.  Sub-makes are always
-  invoked through `$(MAKE)`, so `gmake` works as well.
-- On the BSDs GNU Make is installed as `gmake`.  BSD make reads `Makefile`,
-  which only explains that GNU Make is required (the build itself is in
-  `GNUmakefile`, which GNU Make reads first).
+| Layer | Directory | Responsibility |
+|---|---|---|
+| BLAS interfaces | `interfaces/blas/C`, `interfaces/blas/F77`, `interfaces/lapack/C` | argument checks, `xerbla`, row major as transposed column major |
+| Level 3 algorithms | `ulmblas/level3/*.tcc` | cache blocking (MC, KC, NC), structure of symmetric, Hermitian and triangular matrices |
+| Packing | `ulmblas/level3/pack` | copying blocks into MR and NR panels, zero padding, symmetric and triangular blocks |
+| Macro kernels | `ulmblas/level3/mkernel` | loops over the MR x NR tiles; edge tiles through a buffer; tiles on the diagonal of triangular results |
+| Micro kernels | `ulmblas/level3/ukernel/{ref,sse,avx}` | the MR x NR update — the architecture-specific part |
+| Configuration | `ulmblas/config` | kernel selection, block sizes, compile-time checks |
 
-### Requirements
+The macro kernels work with *any* register block size: the edge tiles of a
+block (mr < MR or nr < NR) are computed by the micro kernel into a local
+buffer, and the diagonal tiles of syrk, syr2k, herk and her2k are found by
+comparing row and column ranges.  MR and NR need not divide each other — the
+AVX/FMA kernel uses MR = 6, NR = 8, and a test configuration runs the
+reference kernel with these block sizes on every platform.  Static checks
+enforce the remaining constraints (MC a multiple of MR and NR, NC a multiple
+of NR, so that the packed panels fit the buffers).
 
-| Tool | Needed for | Variable |
-| --- | --- | --- |
-| C++ compiler, C++11 or newer | all libraries, C++ tests | `CXX` (default `c++`), `CXXSTD` (default `-std=c++11`) |
-| `ar`, `ranlib` | static libraries | `AR`, `ARFLAGS`, `RANLIB` |
-| Fortran 77 compiler (gfortran) | `make f77blas`, `make refblas`, Netlib test suites, benchmarks | `FC` (default `gfortran`), `FLIBS` |
-| C compiler | Netlib CBLAS test suite, header tests, benchmarks | `CC` (default `cc`) |
-| gnuplot | plots of the benchmarks (optional) | `GNUPLOT` |
+## Micro kernels and platforms
 
-The default target and `make check-numeric` only need a C++ compiler and
-`ar`.  No reference BLAS or LAPACK library is needed: the tests bring their
-own reference implementations.  No scripting language besides the POSIX
-shell and awk is used.
+| Kernel | Data types | MR x NR | Instruction set | Selected |
+|---|---|---|---|---|
+| reference (`ukernel/ref`) | all four | 4 x 4 (double; 8 x 4, 4 x 2, 2 x 2 for float, complex float, complex double) | portable C++ | without SSE3, and on all non-x86 targets |
+| SSE3 (`ukernel/sse`) | double: GEMM and TRSM kernels; level 1 kernels | 4 x 4 | x86-64 SSE3, inline assembly | by default on x86-64 |
+| AVX/FMA (`ukernel/avx`) | double: GEMM kernel | 6 x 8 | x86-64 AVX and FMA, inline assembly derived from BLIS | with `ARCHFLAGS='-mavx -mfma'` (or e.g. `-march=native`) |
 
-Before building, each tool a target needs is checked by compiling (and,
-for the tests and benchmarks, linking) a tiny program (`mk/probe.sh`).  If a
-tool is missing or not usable, the error explains what it is needed for and
-how to select another one.  Fortran objects are linked with the C++
-compiler; for gfortran the Fortran runtime (`FLIBS`) is located
-automatically, for other Fortran compilers set `FLIBS` explicitly.
+Kernels are selected at compile time from the compiler's target macros
+(`ulmblas/config/simd.h`); there is no runtime dispatch, so a library built
+with AVX/FMA requires a CPU with AVX and FMA.  Types without an optimized
+kernel use the reference kernel.
 
-Building the libraries never executes programs for the target, so the
-libraries can be cross compiled (e.g. `make CXX="clang++ -arch x86_64"` on
-an ARM Mac).  `make check` and `make bench` run the programs they build and
-therefore need a native toolchain.
+| Platform | Built | Test suite run | Optimized kernels executed and benchmarked |
+|---|---|---|---|
+| Linux x86-64, Debian 12, Intel Core i5-12500; GCC 12, clang 16 | yes | full `make check`, all seven configurations | SSE3 and AVX/FMA executed, both benchmarked |
+| macOS arm64 (Apple silicon); Apple clang 21, GCC 16 | yes | full `make check` (the AVX/FMA configurations are skipped) | — (reference kernels) |
+| macOS x86-64 under Rosetta 2; Apple clang 21 | yes | numeric tests (SSE3 kernels) | SSE3 executed, not benchmarked; AVX/FMA only compiled (Rosetta 2 provides no AVX) |
+| 32-bit x86 | compiled (all interface sources; reference kernels), not linked | no | — |
 
-### Selecting compilers and flags
+Other platforms supported by a C++11 compiler and GNU Make should work with
+the reference kernels but have not been tested.  Only x86-64 has optimized
+kernels so far.  Details: [BUILDING.md](BUILDING.md#tested-configurations).
 
-All settings can be given on the command line or in the environment (see
-`make.inc`):
+## Adding a micro kernel
 
-```sh
-make CXX=g++-16 CC=gcc-16 FC=gfortran-16
-make CXX=clang++ CXXSTD=-std=c++20
-make CXXFLAGS=-g LDFLAGS=... LDLIBS=...
-make OPTFLAGS=-O0 CXXFLAGS=-g          # debug build without optimization
-```
+A micro kernel for a new architecture or data type plugs into the existing
+algorithms: all routines that use the GEMM micro kernel — the complete
+level 3 BLAS — benefit without further changes.  Kernels from BLIS are a
+natural source (BLIS has kernels for many x86-64, ARM, POWER and RISC-V
+processors), and the AVX/FMA kernel shows the process.  A BLIS kernel cannot
+simply be copied, though; an integration has to address:
 
-`CPPFLAGS`, `CXXFLAGS`, `CFLAGS`, `FFLAGS`, `LDFLAGS` and `LDLIBS` are user
-variables: setting them never removes flags required by the build (include
-paths, interface macros, test block sizes), which are kept in separate
-variables.  The optimization flags are kept separately as well:
-`OPTFLAGS = -O3 -fomit-frame-pointer` (C++), `FOPTFLAGS = -O3` (Fortran)
-and `COPTFLAGS = -O2` (C, test drivers and benchmark programs only).  They
-precede `CXXFLAGS`, `FFLAGS` and `CFLAGS` on the command lines, so `CXXFLAGS`
-set in the environment (e.g. for include paths) does not disable the
-optimization, while an `-O` option in `CXXFLAGS` takes precedence (the last
-`-O` option wins).  To build without optimization use `OPTFLAGS=-O0`.  The
-defaults of the user variables are `CXXFLAGS = -Wall` and
-`FFLAGS = -Wall -fimplicit-none`.  As usual for GNU Make, variables given on
-the command line take precedence over the environment.  `ARCHFLAGS` defaults to
-`-msse3 -mfpmath=sse` if the C++ compiler accepts these flags (x86), which
-selects the optimized SSE kernels; on other architectures (e.g. ARM) the
-portable reference kernels are used.  With `ARCHFLAGS='-mavx -mfma'` (or
-e.g. `-march=native` on a CPU with AVX and FMA) the AVX/FMA micro kernel for
-double (MR = 6, NR = 8, derived from BLIS, see `LICENSE`) replaces the SSE
-micro kernel; the libraries then require a CPU with AVX and FMA.  Objects are rebuilt when the compiler
-or the flags change, and header dependencies are tracked.
+- **Interface.**  ulmBLAS calls
+  `ugemm(kc, alpha, A, B, beta, C, incRowC, incColC, nextA, nextB)` with
+  references to alpha and beta and strides of C; BLIS kernels have a
+  different signature and context arguments.
+- **Packing layout.**  A is packed as MR x kc panels (column by column), B as
+  kc x NR panels (row by row), as in BLIS; kernels expecting other layouts
+  need adapted packing.
+- **Block sizes.**  MR, NR and the cache block sizes MC, KC, NC are set per
+  kernel and data type in `ulmblas/config/blocksize.h`; MC and KC must be
+  chosen (measured) for the cache sizes of the target.
+- **Edge tiles and strides.**  ulmBLAS calls the kernel for full tiles only;
+  edge tiles go through a buffer.  If the assembly code supports only unit
+  row or column strides of C (as the BLIS kernel), the kernel needs a fallback
+  for general strides.
+- **Numerical semantics.**  With β = 0, C must not be read (it may contain
+  NaN); β = NaN must not be taken as zero.
+- **Alignment and memory.**  The packing buffers are aligned for the kernel
+  (32 bytes for AVX) and padded for reading ahead; inline assembly must declare
+  all modified registers and memory.
+- **Instruction set, compiler and object format.**  The kernel is selected by
+  the compiler's target macros; inline assembly must assemble with GCC and
+  clang and work on ELF and Mach-O (e.g. numeric local labels).
+- **Tests.**  A test configuration with `CONFIG_REQUIRES` runs the complete
+  test suite with the new kernel where the CPU supports it and reports SKIP
+  elsewhere; `test/numeric/ukernel.cc` tests the micro kernel directly.
+- **License and attribution.**  The upstream copyright and license notices
+  must be preserved (see [License](#license-provenance-and-acknowledgments)).
 
-### Libraries
+The AVX/FMA kernel (`ulmblas/level3/ukernel/avx/ugemm.tcc`) lists its
+provenance and every modification of the BLIS code.
 
-| Target | Files (in the top-level directory) |
-| --- | --- |
-| `cblas` | `libcblas.a`, `cblas.h` (CBLAS, functions `cblas_*`) |
-| `clapack` | `libclapack.a`, `clapack.h` (`ulmblas_dgetrf`, `ulmblas_dlaswp`) |
-| `atlblas`, `atllapack` | `libatlblas.a`, `atlblas.h`, `libatllapack.a`, `atllapack.h` (ATLAS names, used by the benchmarks) |
-| `f77blas` | `libf77blas.a`, `f77blas.h` (Fortran 77 interface) |
-| `refblas` | `librefblas.a` (Netlib reference BLAS, for benchmarks) |
+## Getting started
 
-### Tests
-
-```sh
-make check                    # all tests
-make check-numeric            # only the C++ tests (no Fortran needed)
-make check-netlib             # only the Netlib BLAS test suites
-make check CONFIGS=testcase04 # only the default configuration (faster)
-make check TESTS=gemm         # only tests whose ID or name contains "gemm"
-make check VERBOSE=1          # print every result
-make check STRICT=1           # skipped tests are errors
-```
-
-All tests are run for seven configurations (`test/config`): four with tiny
-block sizes and the reference kernels (so that small matrices cover multiple
-and partial blocks of the GEMM algorithm; one of them with MR = 6 and NR = 8,
-which do not divide each other), one with the default block sizes and
-kernels, and two with the AVX/FMA micro kernel (`-mavx -mfma`, default and
-tiny block sizes).  The AVX/FMA configurations are only built and run if the
-compiler, the CPU and the operating system support AVX and FMA; otherwise
-their tests are reported as SKIP.  The libraries of each configuration are
-built in `test/build/`.
-
-- **C++ tests** (`test/numeric`): levels 1, 2 and 3 of the C interface for
-  float, double, complex float and complex double, row and column major,
-  all transpose/side/upper-lower/diagonal options, negative and non-unit
-  increments, leading dimensions larger than needed, zero dimensions,
-  alpha and beta of 0, 1 and general values (with NaN where BLAS documents
-  that an operand is not referenced or need not be set, e.g. C for beta = 0
-  or unit diagonals), matrices larger than the default block sizes MC and
-  KC (the default NC = 4096 is only exceeded with the small test block
-  sizes), and `dgetrf` (including pivot indices and row major storage) and
-  `dlaswp`.  Invalid arguments are tested as well: each function of the C
-  interface that checks its arguments must report an invalid argument
-  through `cblas_xerbla` and return without touching its operands.  Results are compared with straightforward reference
-  implementations using error bounds, not bitwise.  Padding and elements
-  that must not be written are checked bitwise.
-- **Netlib BLAS test suites** (`test/F77`, `test/C`): the official test
-  programs for the Fortran 77 and the C interface.  They need a Fortran and
-  a C compiler.  If these are not usable, `make check` reports the suites
-  as SKIP with the reason (and fails with `STRICT=1`).
-- **Header tests**: the generated headers can be used from C.
-
-Every test has a stable ID.  Results are PASS, FAIL, XFAIL (known bug),
-XPASS (known bug no longer observed: an error), DESIGN (open design
-question, observed behavior as recorded) and SKIP.  Known bugs and open
-design questions are listed in [`test/known_issues.md`](test/known_issues.md).
-`make check` exits with a nonzero status if a test fails.
-
-### Benchmarks
+Requirements: GNU Make 3.81 or newer and a C++11 compiler; the Netlib test
+suites additionally need a Fortran and a C compiler.
 
 ```sh
-make bench                    # long running, not part of make check
-make bench USE_BLAS_VARIANTS="ulmBLAS netlib" USE_BENCH_CASES=gemm
+git clone https://github.com/michael-lehn/ulmBLAS.git
+cd ulmBLAS
+make                              # libcblas.a, cblas.h, libclapack.a, clapack.h
+make ARCHFLAGS='-mavx -mfma'      # the same with the AVX/FMA kernel (x86-64)
+make -j8 check                    # build and run all tests
+make clean                        # remove all generated files
+make help                         # all targets and settings
 ```
 
-The benchmarks (ATLAS timing programs in `bench/`) need the C, C++ and
-Fortran compilers.  `make bench` first builds all libraries the benchmark
-programs are linked with (each library once), then the benchmark programs;
-`make benchmark-suite` only builds the programs.  A benchmark is run again
-when its program (or a library it is linked with) or its configuration has
-changed.  Results are written to `bench/benchmarks/`; plots are created if
-gnuplot is found.  Comparisons with ATLAS or Intel MKL need `ATLAS_LIBDIR`
-or `MKLROOT` (variants `atlas`, `mkl`).
+A program using the CBLAS interface ([examples/dgemm.c](examples/dgemm.c)):
 
-### Benchmark results
+```c
+#include <cblas.h>
 
-Published benchmark campaigns (measurements, Gnuplot scripts and SVG
-figures, documentation of hardware, software and methodology) are archived
-in [`benchmark_results/`](benchmark_results/README.md), e.g. the
-[AVX/FMA DGEMM micro kernel on an Intel Core i5-12500](benchmark_results/2026-10-24-heim-avx-fma/README.md).
-A completed campaign is added with
+/* column major: A is 2 x 3, B is 3 x 2, C is 2 x 2 */
+double A[] = { 1, 4,  2, 5,  3, 6 };
+double B[] = { 1, 0, 2,  0, 1, 1 };
+double C[4];
+
+cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 2, 2, 3,
+            1.0, A, 2, B, 3, 0.0, C, 2);          /* C = [ 7 5 ; 16 11 ] */
+```
 
 ```sh
-make add_benchmark_result BENCHMARK_DIR=path/to/campaign   # needs gnuplot
+cc -I. -c examples/dgemm.c -o dgemm.o
+c++ -o dgemm dgemm.o libcblas.a                   # the library needs the C++ runtime
+./dgemm
 ```
 
-which validates it, regenerates its figures and updates the index (see
-`benchmark_results/README.md`).
+Compilers, flags and the cross compilation of the libraries are described in
+[BUILDING.md](BUILDING.md).
 
-### Tested configurations
+## Testing
 
-Tested (October 2026) on macOS 26 (arm64) with GNU Make 4.4.1 and 3.81:
+`make check` builds the libraries for seven configurations and runs, for
+each of them:
 
-- full `make check` with Apple clang 21 (`c++`) and GCC 16.2 (`g++-16`,
-  `gcc-16`), both with gfortran 16.2;
-- `make check-numeric` with GCC 16.2 and Apple clang 21 (C++17, C++20,
-  C++23), LLVM clang 17 (C++11) and 23 (C++23), and with AddressSanitizer
-  and UndefinedBehaviorSanitizer;
-- compilation of the libraries only: LLVM clang 18 to 22 (C++11), GCC 16.2
-  and Apple clang 21 with C++14 and C++26 (`-std=c++2c`);
-- cross compilation for x86-64 with Apple clang 21
-  (`CXX="clang++ -arch x86_64"`, SSE kernels selected): `make check-numeric`
-  run under Rosetta 2 (the Netlib tests need an x86-64 gfortran, which was
-  not available).
+- **C++ tests** of every routine of the C interface for the four data types:
+  row and column major, all transposition, side, triangle and diagonal
+  options, negative increments, padded leading dimensions, zero dimensions,
+  alpha and beta of 0, 1 and other values, NaN where BLAS does not reference
+  an operand, invalid arguments; results are compared with reference
+  implementations using error bounds.
+- **Micro kernel tests** of the selected and the reference kernel: full and
+  edge tiles, all strides of C, k = 0, β = 0 with NaN and Inf in C, β = NaN,
+  NaN and Inf in A and B.
+- **Netlib BLAS test suites** for the C and the Fortran 77 interface.
 
-Tested (October 2026) on Debian 12 (x86-64, Intel Core i5-12500) with GNU
-Make 4.3: full `make check` with GCC 12.2 (`g++`, `gcc`) and with clang 16
-(`clang++-16`, `clang-16`), both with gfortran 12.2; the SSE kernels are
-selected by default, the AVX/FMA micro kernel is tested by the
-configurations 06 and 07 (and with `ARCHFLAGS='-mavx -mfma'`).
+The configurations combine tiny block sizes (so that small matrices cross
+all block boundaries), the default block sizes, MR x NR of 4 x 4, 2 x 4,
+4 x 2 and 6 x 8, and the reference, SSE3 and AVX/FMA kernels.  Configurations
+whose CPU features are not available (e.g. AVX/FMA on ARM or under Rosetta 2)
+are reported as SKIP with the reason; build errors, crashes and failures of
+supported configurations are never skipped.
 
-C++11 is the minimum (C++98 is rejected: the code uses `decltype`, `auto`
-and `<type_traits>`).
+Every test has a stable ID.  Known bugs are XFAIL tests until they are
+fixed, open design questions are DESIGN tests recording the current
+behavior; both are listed in [test/known_issues.md](test/known_issues.md)
+together with resolved issues and their regression tests.  `make check`
+fails on FAIL and on XPASS (a known bug that no longer occurs).  Options and
+the test layout: [BUILDING.md](BUILDING.md#tests).
 
-On arm64 the portable reference kernels are used.  The x86 SSE kernels
-were tested on native x86-64 hardware (Linux, GCC 12 and clang 16) and on
-macOS x86-64 under Rosetta 2 (Apple clang 21), not on native macOS x86-64
-hardware.  The AVX/FMA micro kernel was tested on Linux x86-64 (GCC 12,
-clang 16); for macOS x86-64 it was only compiled (Rosetta 2 does not
-provide AVX).  BSD was not tested.  The
-macOS system GNU Make 3.81 was tested; GNU Make 3.80 and older are rejected
-by a version check, which was only tested by simulating the version.
+## Benchmark archive
 
----
-## Background
+[benchmark_results/](benchmark_results/README.md) collects benchmark
+campaigns over time: different processors, compilers, micro kernels and
+blocking strategies.  Each campaign contains the raw measurements, CSV files,
+Gnuplot scripts and the generated SVG figures, the benchmark programs, and
+documentation of hardware, software, source revisions and methodology.
 
-The design and implementation of ulmBLAS was strongly inspired by the ideas
-presented in:
+A completed campaign directory is added with
+
+```sh
+make add_benchmark_result BENCHMARK_DIR=path/to/campaign   # needs Gnuplot
+```
+
+which validates the campaign, regenerates its figures and updates the index;
+it never overwrites archived measurements and does not run benchmarks.  The
+ATLAS-based benchmark programs in `bench/` (`make bench`) are described in
+[BUILDING.md](BUILDING.md#benchmarks).
+
+## Interfaces
+
+| Library | Header | Contents |
+|---|---|---|
+| `libcblas.a` | `cblas.h` | CBLAS (`cblas_dgemm`, ...): levels 1, 2 and 3 for float, double, complex float and complex double |
+| `libclapack.a` | `clapack.h` | `ulmblas_dgetrf` (LU factorization with partial pivoting) and `ulmblas_dlaswp` |
+| `libf77blas.a` | `f77blas.h` | Fortran 77 BLAS interface (`make f77blas`) |
+| `libatlblas.a`, `libatllapack.a` | `atlblas.h`, `atllapack.h` | ATLAS names, used by the benchmarks |
+
+Not implemented are `sdsdot`, `dsdot`, `srotm` and `srotmg`; `drotm` and
+`drotmg` exist only as empty functions (for linking the ATLAS benchmarks).
+The C++ templates in `ulmblas/` are the implementation, not a stable public
+interface.
+
+## License, provenance and acknowledgments
+
+ulmBLAS was written by Michael C. Lehn (Ulm University), with early
+contributions by Sebastian Kölle and GitHub user aquileia (repository setup,
+plots of the benchmarks).  Its design follows BLIS: the file
+[LICENSE](LICENSE) states that ulmBLAS uses code, concepts and ideas of the
+BLIS framework and reproduces the BLIS license (BSD 3-Clause, "Copyright (C)
+2014, The University of Texas").
+
+The AVX/FMA micro kernel is derived from the micro kernel
+`bli_dgemm_haswell_asm_6x8` of BLIS 2.0 (Copyright (C) 2014, The University
+of Texas at Austin; Copyright (C) 2018 - 2019, Advanced Micro Devices, Inc.;
+BSD 3-Clause), as adapted for the course High Performance Computing I (Ulm
+University, 2025/26).  Its license notice is preserved in the source file and
+in [LICENSE](LICENSE).  The comparison benchmarks use BLIS and OpenBLAS,
+which are not part of ulmBLAS.
+
+## Background and citation
+
+The design of ulmBLAS was strongly inspired by
 
 Field G. Van Zee and Robert A. van de Geijn. *BLIS: A Framework for Rapidly
 Instantiating BLAS Functionality.* ACM Transactions on Mathematical Software,
 41(3), 14:1–14:33, June 2015.
 [https://doi.org/10.1145/2764454](https://doi.org/10.1145/2764454)
+(at the time of the initial development, mainly in 2014, the
+[preprint](https://www.cs.utexas.edu/~flame/pubs/blis1_toms_rev3.pdf)).
 
-At the time of the initial development of ulmBLAS (mainly in 2014), I was
-referring to a preprint version of this paper:
-[https://www.cs.utexas.edu/~flame/pubs/blis1_toms_rev3.pdf](https://www.cs.utexas.edu/~flame/pubs/blis1_toms_rev3.pdf)
+ulmBLAS is part of the lecture *Software Basics for High Performance
+Computing* (MATH9367, Ulm University):
+[course page for ulmBLAS](http://www.mathematik.uni-ulm.de/~lehn/ulmBLAS),
+[general course page](http://www.mathematik.uni-ulm.de/~lehn/sghpc), and
+step by step from a naive loop to peak performance:
+[Achieving peak performance for GEMM](http://www.mathematik.uni-ulm.de/~lehn/sghpc/gemm/index.html).
+A related project is [ulmBLAS-core](https://github.com/michael-lehn/ulmBLAS-core).
 
----
+If you use ulmBLAS in your work, please cite it
+([CITATION.cff](CITATION.cff)):
 
-
-## Citation
-
-ulmBLAS is an independent project developed and maintained by **Michael C. Lehn** (Ulm University).  
-If you use ulmBLAS in your work, please cite it as:
-
-Michael C. Lehn. *ulmBLAS: A high performance BLAS implementation.* Ulm University, GitHub. https://github.com/michael-lehn/ulmBLAS, 2014.
-
-### BibTeX:
+Michael C. Lehn. *ulmBLAS: A high performance BLAS implementation.* Ulm
+University, GitHub. https://github.com/michael-lehn/ulmBLAS, 2014.
 
 ```bibtex
 @misc{Lehn_ulmBLAS,
@@ -273,4 +335,4 @@ Michael C. Lehn. *ulmBLAS: A high performance BLAS implementation.* Ulm Universi
   howpublished = {\url{https://github.com/michael-lehn/ulmBLAS}},
   note         = {Ulm University, Version 1.0}
 }
-
+```
