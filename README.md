@@ -191,16 +191,23 @@ Tested (October 2026) on macOS 26 (arm64) with GNU Make 4.4.1 and 3.81:
   and UndefinedBehaviorSanitizer;
 - compilation of the libraries only: LLVM clang 18 to 22 (C++11), GCC 16.2
   and Apple clang 21 with C++14 and C++26 (`-std=c++2c`);
-- cross compilation of the libraries for x86-64 with Apple clang 21
-  (`CXX="clang++ -arch x86_64"`, SSE kernels selected); the resulting
-  libraries could not be run on the test machine.
+- cross compilation for x86-64 with Apple clang 21
+  (`CXX="clang++ -arch x86_64"`, SSE kernels selected), `make check-numeric`
+  run under Rosetta 2: fails, see below.
+
+Tested (October 2026) on Debian 12 (x86-64, Intel Core i5-12500) with GNU
+Make 4.3: full `make check` with GCC 12.2 (`g++`, `gcc`) and with clang 16
+(`clang++-16`, `clang-16`), both with gfortran 12.2; the SSE kernels are
+selected by default.
 
 C++11 is the minimum (C++98 is rejected: the code uses `decltype`, `auto`
 and `<type_traits>`).
 
-On arm64 the portable reference kernels are used.  The x86 SSE kernels were
-only compiled (cross compilation for x86-64), not run; Linux and BSD were
-not tested but are expected to work with GCC or clang and gfortran.  The
+On arm64 the portable reference kernels are used.  The x86 SSE kernels
+were tested on native x86-64 hardware (Linux, GCC 12 and clang 16).  On
+macOS x86-64 they do not work yet: the assembler labels of the GEMM micro
+kernel are not local on Mach-O, which corrupts the linked kernel (issue
+#0007 in `test/known_issues.md`).  BSD was not tested.  The
 macOS system GNU Make 3.81 was tested; GNU Make 3.80 and older are rejected
 by a version check, which was only tested by simulating the version.
 

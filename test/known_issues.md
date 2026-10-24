@@ -100,6 +100,24 @@ contains NaN.  Only reachable through the C++ interface with general strides
 of C: the BLAS interfaces always pass a unit row or column stride.
 Expected: zero, as for unit strides.
 
+Issue #0007: SSE GEMM micro kernel: assembler labels are not local on Mach-O (macOS x86-64)
+Type: BUG
+Status: OPEN
+Covered by tests: none (x86-64 only, see below)
+
+The inline assembly of `ulmblas/level3/ukernel/sse/ugemm.tcc` uses labels
+`.D...%=` (`.DLOOP%=`, `.DBETANONZERO%=`, ...).  On Mach-O only labels
+starting with `L` are assembler local; the labels become symbols, and with
+`.subsections_via_symbols` the linker treats each of them as the start of a
+separate piece of code that can be merged with the identically named pieces
+of other copies of the kernel.  The linked kernel is corrupted: confirmed on
+x86-64 under Rosetta 2 (macOS 26), the programs crash (SIGSEGV inside the
+kernel, e.g. `make check`: dgemm, dsymm, dsyrk, dsyr2k, dtrmm, T0341, T0342)
+or compute wrong results (dgetrf for n > 64, dtrsm).  With labels starting
+with `L`, all these tests pass.  Not a problem with ELF: on Linux x86-64
+(GCC 12, Clang 16) the labels are local symbols and all tests pass.
+Expected: labels local for all object formats (e.g. numeric local labels).
+
 Issue #0008: SSE GEMM micro kernel reads C if beta = 0
 Type: BUG
 Status: RESOLVED
