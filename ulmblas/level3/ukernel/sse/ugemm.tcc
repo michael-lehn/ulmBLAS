@@ -24,6 +24,10 @@ ugemm(IndexType      kc,
     long incRowC = incRowC_;
     long incColC = incColC_;
 
+    //  Only numeric local labels (1: ... with 1b, 1f): they are local to the
+    //  assembler for all object formats.  Named labels become symbols on
+    //  Mach-O (macOS), which the linker may separate from the code before
+    //  them (see issue #0007 in test/known_issues.md).
     __asm__ volatile
     (
     "movq      %0,      %%rsi    \n\t"  // kb (32 bit) stored in %rsi
@@ -55,9 +59,9 @@ ugemm(IndexType      kc,
     "                            \n\t"
     "                            \n\t"
     "testq     %%rsi,   %%rsi    \n\t"  // if kb==0 handle remaining kl
-    "je        .DCONSIDERLEFT%=  \n\t"  // update iterations
+    "je        2f                \n\t"  // update iterations
     "                            \n\t"
-    ".DLOOP%=:                   \n\t"  // for l = kb,..,1 do
+    "1:                          \n\t"  // for l = kb,..,1 do
     "                            \n\t"
     "prefetcht0 (4*39+1)*8(%%rax)\n\t"
     "                            \n\t"
@@ -219,14 +223,14 @@ ugemm(IndexType      kc,
     "prefetcht2       64(%%r10)  \n\t"  // prefetch nextB[8]
     "                            \n\t"
     "decq      %%rsi             \n\t"  // --l
-    "jne       .DLOOP%=          \n\t"  // if l>= 1 go back
+    "jne       1b                \n\t"  // if l>= 1 go back
     "                            \n\t"
     "                            \n\t"
-    ".DCONSIDERLEFT%=:           \n\t"
+    "2:                          \n\t"  // remaining kl iterations
     "testq     %%rdi,   %%rdi    \n\t"  // if kl==0 writeback to AB
-    "je        .DPOSTACCUMULATE%=\n\t"
+    "je        4f                \n\t"  // if kl == 0 skip loop
     "                            \n\t"
-    ".DLOOPLEFT%=:               \n\t"  // for l = kl,..,1 do
+    "3:                          \n\t"  // for l = kl,..,1 do
     "                            \n\t"
     "addpd     %%xmm3,  %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
     "movapd  16(%%rbx), %%xmm3   \n\t"  // tmp3     = _mm_load_pd(B+2)
@@ -268,9 +272,9 @@ ugemm(IndexType      kc,
     "addq      $32,     %%rbx    \n\t"  // B += 4;
     "                            \n\t"
     "decq      %%rdi             \n\t"  // --l
-    "jne       .DLOOPLEFT%=      \n\t"  // if l>= 1 go back
+    "jne       3b                \n\t"  // if l>= 1 go back
     "                            \n\t"
-    ".DPOSTACCUMULATE%=:         \n\t"  // Update remaining ab_*_* registers
+    "4:                          \n\t"  // Update remaining ab_*_* registers
     "                            \n\t"
     "addpd    %%xmm3,   %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
     "addpd    %%xmm6,   %%xmm13  \n\t"  // ab_22_33 = _mm_add_pd(ab_22_33, tmp6)
@@ -301,8 +305,8 @@ ugemm(IndexType      kc,
     "                                   \n\t"
     "xorpd  %%xmm2,              %%xmm2 \n\t"  // zero
     "ucomisd %%xmm2,             %%xmm1 \n\t"  // beta == 0 ?
-    "jne    .DBETANONZERO%=             \n\t"  // beta != 0
-    "jp     .DBETANONZERO%=             \n\t"  // beta is NaN
+    "jne    5f                          \n\t"  // beta != 0
+    "jp     5f                          \n\t"  // beta is NaN
     "                                   \n\t"
 //
 //  beta == 0: C is not read (it may contain NaN or Inf), C <- alpha*AB
@@ -337,12 +341,12 @@ ugemm(IndexType      kc,
     "mulpd  %%xmm0,              %%xmm15\n\t"  // scale ab_23_32 by alpha
     "movlpd %%xmm15,        (%%r11)     \n\t"  // write (C23,
     "movhpd %%xmm15,        (%%rdx,%%r8)\n\t"  //        C32)
-    "jmp    .DUPDATEDONE%=              \n\t"
+    "jmp    6f                          \n\t"  // done
     "                                   \n\t"
 //
 //  beta != 0: C <- beta*C + alpha*AB
 //
-    ".DBETANONZERO%=:                   \n\t"
+    "5:                                 \n\t"  // beta != 0
     "movlpd (%%rcx),             %%xmm3 \n\t"  // load (C00,
     "movhpd (%%r10,%%r8),        %%xmm3 \n\t"  //       C11)
     "mulpd  %%xmm0,              %%xmm8 \n\t"  // scale ab_00_11 by alpha
@@ -417,7 +421,7 @@ ugemm(IndexType      kc,
     "movlpd %%xmm4,        (%%r11)      \n\t"  // write back (C23,
     "movhpd %%xmm4,        (%%rdx,%%r8) \n\t"  //             C32)
     "                                   \n\t"
-    ".DUPDATEDONE%=:                    \n\t"
+    "6:                                 \n\t"  // done
     : // output
     : // input
         "m" (kb),       // 0
