@@ -541,6 +541,86 @@ testGescal(Context &ctx)
     return true;
 }
 
+//
+//  trlscal and truscal (scaling of the lower or upper triangle, e.g. beta*C
+//  in syrk): column major, row major and general strides, unit and
+//  non-unit diagonal, NaN and Inf in A.  Elements of the triangle are
+//  scaled as by gescal (alpha = 0 sets them to zero), all other elements
+//  must not be modified.
+//
+template <typename T>
+bool
+testTrscal(Context &ctx)
+{
+    const int dims[][2] = { { 0, 3 }, { 3, 0 }, { 1, 1 }, { 3, 4 }, { 5, 2 } };
+    const T   alphas[]  = { T(0), T(1), T(1.5), T(-2), nan<T>() };
+
+    Random random(13);
+
+    for (int lower=0; lower<2; ++lower) {
+        for (int unit=0; unit<2; ++unit) {
+            for (int d=0; d<5; ++d) {
+                int m = dims[d][0], n = dims[d][1];
+                for (int layout=0; layout<3; ++layout) {
+                    Strides st(Layout(layout), std::max(m, 1), std::max(n, 1));
+                    for (int a=0; a<5; ++a) {
+                        std::vector<T> A0(st.size);
+                        for (std::size_t p=0; p<A0.size(); ++p) {
+                            A0[p] = (p%4==1) ? special<T>(int(p))
+                                             : random.value<T>();
+                        }
+                        std::vector<T> A(A0);
+                        if (lower) {
+                            ulmBLAS::trlscal(m, n, bool(unit), alphas[a],
+                                             &A[0], st.incRow, st.incCol);
+                        } else {
+                            ulmBLAS::truscal(m, n, bool(unit), alphas[a],
+                                             &A[0], st.incRow, st.incCol);
+                        }
+                        std::vector<bool> scaled(A.size(), false);
+                        for (int j=0; j<n; ++j) {
+                            for (int i=0; i<m; ++i) {
+                                bool inTriangle = lower ? (unit ? i>j : i>=j)
+                                                        : (unit ? i<j : i<=j);
+                                scaled[i*st.incRow+j*st.incCol] = inTriangle;
+                            }
+                        }
+                        for (std::size_t p=0; p<A.size(); ++p) {
+                            const T &x = A[p], &x0 = A0[p];
+                            bool    ok;
+                            if (!scaled[p] || alphas[a]==T(1)) {
+                                ok = sameBits(x, x0);
+                            } else if (alphas[a]==T(0)) {
+                                ok = (x==T(0));     // +0 or -0, not NaN
+                            } else {
+                                T expected = x0*alphas[a];
+                                ok = isFinite(expected) ? sameBits(x, expected)
+                                                        : !isFinite(x);
+                            }
+                            if (!ctx.check(ok, "%s(m=%d,n=%d,%s,alpha=%s,A "
+                                           "%s): element %d is %s, on entry "
+                                           "%s (%s), %s",
+                                           lower ? "trlscal" : "truscal", m,
+                                           n, unit ? "unit" : "non-unit",
+                                           str(alphas[a]).c_str(),
+                                           layoutName(Layout(layout)), int(p),
+                                           str(x).c_str(), str(x0).c_str(),
+                                           scaled[p] ? "in the triangle"
+                                                     : "not in the triangle",
+                                           typeName<T>()))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    ctx.pass();
+    return true;
+}
+
 } // namespace
 
 ULMBLAS_TEST(T0340, "ukernel/ugemm full tiles")
@@ -589,4 +669,11 @@ ULMBLAS_TEST(T0344, "ukernel/ugemm beta=NaN, full and partial tiles")
 ULMBLAS_TEST(T0345, "ukernel/ugemm NaN and Inf in A and B")
 {
     testSpecialOperands<float>(ctx) && testSpecialOperands<double>(ctx);
+}
+
+ULMBLAS_TEST(T0346, "ukernel/trlscal and truscal, all strides, alpha=0 with "
+             "NaN and Inf")
+{
+    testTrscal<float>(ctx) && testTrscal<double>(ctx)
+    && testTrscal<cfloat>(ctx) && testTrscal<cdouble>(ctx);
 }

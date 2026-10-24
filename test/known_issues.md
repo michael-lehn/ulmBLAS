@@ -161,6 +161,22 @@ instructions of the kernels are unchanged.  Fixed together with #0008; the
 native failures with GCC and beta != 0 (e.g. T0305, T0327, T0331, T0400 to
 T0407) were not attributed to #0008 or #0009 individually.
 
+Issue #0010: trlscal and truscal with general strides propagate NaN and Inf if the scalar is zero
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0346 (numeric, regression tests)
+
+Analogous to #0006 (GitHub issue #15): `ulmBLAS::trlscal` and
+`ulmBLAS::truscal` (`ulmblas/level1extensions/trlscal.tcc`, `truscal.tcc`)
+scaled a triangular matrix with unit row or column stride through `scal`,
+which assigns zero if the scalar is zero, but a matrix with general strides
+by `A(i,j) *= alpha`, so NaN and Inf were kept for `alpha = 0`.  They scale
+the triangle of C by beta in syrk, syr2k, herk and her2k and in the
+diagonal tiles of their macro kernels; with `beta = 0` (C need not be set)
+the result then contained NaN.  Only reachable through the C++ interface
+with general strides of C.  Fixed by scaling the columns (trlscal) or rows
+(truscal) of the triangle through `scal` as well.
+
 ## Design questions
 
 Issue #0002: alpha = 0 with NaN or Inf in operands that reference BLAS does not reference
