@@ -22,6 +22,12 @@ struct BlockSize
     static const int NR = USE_TESTPARAM_NR;
 
     static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0, "Invalid block size.");
+
+    //  The packing buffers hold MC x KC (A), KC x NC (B) or MC x MC and
+    //  MC x NC elements (plus MR or NR for reading ahead), panels are zero
+    //  padded to multiples of MR (A) and NR (B).
+    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+                  "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
 #elif defined(USE_SSE)
@@ -61,6 +67,12 @@ struct BlockSize
                         : -1;
 
     static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0, "Invalid block size.");
+
+    //  The packing buffers hold MC x KC (A), KC x NC (B) or MC x MC and
+    //  MC x NC elements (plus MR or NR for reading ahead), panels are zero
+    //  padded to multiples of MR (A) and NR (B).
+    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+                  "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
 #else
@@ -100,6 +112,12 @@ struct BlockSize
                         : -1;
 
     static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0, "Invalid block size.");
+
+    //  The packing buffers hold MC x KC (A), KC x NC (B) or MC x MC and
+    //  MC x NC elements (plus MR or NR for reading ahead), panels are zero
+    //  padded to multiples of MR (A) and NR (B).
+    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+                  "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
 #endif

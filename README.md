@@ -133,10 +133,11 @@ make check VERBOSE=1          # print every result
 make check STRICT=1           # skipped tests are errors
 ```
 
-All tests are run for four configurations (`test/config`): three with tiny
+All tests are run for five configurations (`test/config`): four with tiny
 block sizes (so that small matrices cover multiple and partial blocks of the
-GEMM algorithm) and one with the default block sizes and kernels.  The
-libraries of each configuration are built in `test/build/`.
+GEMM algorithm; one of them with MR = 6 and NR = 8, which do not divide each
+other) and one with the default block sizes and kernels.  The libraries of
+each configuration are built in `test/build/`.
 
 - **C++ tests** (`test/numeric`): levels 1, 2 and 3 of the C interface for
   float, double, complex float and complex double, row and column major,

@@ -24,16 +24,11 @@ msylrk(IndexType     mc,
     const IndexType MR = BlockSizeUGemm<T>::MR;
     const IndexType NR = BlockSizeUGemm<T>::NR;
 
-    assert((MR%NR==0) || (NR%MR==0));
-
     const IndexType mp = (mc+MR-1) / MR;
     const IndexType np = (nc+NR-1) / NR;
 
     const IndexType mr_ = mc % MR;
     const IndexType nr_ = nc % NR;
-
-    const IndexType ki = (MR<NR) ? NR/MR : 1;
-    const IndexType kj = (MR>NR) ? MR/NR : 1;
 
     IndexType mr, nr;
 
@@ -44,7 +39,9 @@ msylrk(IndexType     mc,
         nr    = (j!=np-1 || nr_==0) ? NR : nr_;
         nextB = &B_[j*kc*NR];
 
-        for (IndexType i=ki*(j/kj); i<mp; ++i) {
+        //  The diagonal of C runs through (0,0).  Start with the first row
+        //  panel containing elements on or below it (row j*NR).
+        for (IndexType i=(j*NR)/MR; i<mp; ++i) {
             mr    = (i!=mp-1 || mr_==0) ? MR : mr_;
             nextA = &A_[(i+1)*kc*MR];
 
@@ -56,7 +53,9 @@ msylrk(IndexType     mc,
                 }
             }
 
-            if ((i/ki)==(j/kj)) {
+            //  Unless all elements of the tile are on or below the diagonal
+            //  (first row >= last column) the tile contains the diagonal.
+            if (i*MR < j*NR+nr-1) {
                 usylrk(mr, nr, kc, i*MR, j*NR,
                        alpha, &A_[i*kc*MR], &B_[j*kc*NR],
                        beta,
