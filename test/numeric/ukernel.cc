@@ -161,7 +161,13 @@ testFullTiles(Context &ctx)
         for (int p=0; p<MR*kc; ++p) A[p] = random.value<T>();
         for (int p=0; p<NR*kc; ++p) B[p] = random.value<T>();
 
-#if defined(USE_SSE)
+#if defined(USE_AVX)
+        if (!ctx.check(ulmBLAS::isAligned(A, 32) && ulmBLAS::isAligned(B, 32),
+                       "packed buffers not aligned to 32 bytes"))
+        {
+            return false;
+        }
+#elif defined(USE_SSE)
         if (!ctx.check(ulmBLAS::isAligned(A, 16) && ulmBLAS::isAligned(B, 16),
                        "packed buffers not aligned to 16 bytes"))
         {
@@ -273,6 +279,193 @@ testPartialTiles(Context &ctx, bool generalStrides, bool specialValues)
     return true;
 }
 
+//
+//  beta = NaN: beta*C is NaN, hence the whole tile (BLAS computes beta*C if
+//  beta is not zero).  Elements outside the tile must not be modified.
+//
+template <typename T>
+bool
+checkNanTile(Context &ctx, const std::string &what, int m, int n,
+             const std::vector<T> &C0, const std::vector<T> &C,
+             const Strides &s)
+{
+    std::vector<bool> inTile(C.size(), false);
+    for (int j=0; j<n; ++j) {
+        for (int i=0; i<m; ++i) {
+            const T &c = C[i*s.incRow+j*s.incCol];
+            inTile[i*s.incRow+j*s.incCol] = true;
+            if (!std::isnan(std::real(c)) && !std::isnan(std::imag(c))) {
+                return ctx.check(false, "%s: C(%d,%d) is %s, expected NaN, %s",
+                                 what.c_str(), i, j, str(c).c_str(),
+                                 typeName<T>());
+            }
+        }
+    }
+    for (std::size_t p=0; p<C.size(); ++p) {
+        if (!inTile[p] && !sameBits(C[p], C0[p])) {
+            return ctx.check(false, "%s: element %d outside the tile "
+                             "modified, %s", what.c_str(), int(p),
+                             typeName<T>());
+        }
+    }
+    ctx.pass();
+    return true;
+}
+
+template <typename T>
+bool
+testBetaNan(Context &ctx)
+{
+    const int MR = ulmBLAS::BlockSizeUGemm<T>::MR;
+    const int NR = ulmBLAS::BlockSizeUGemm<T>::NR;
+    const int kcList[] = { 0, 1, 5, 13 };
+    const T   alphas[] = { T(0), T(1), T(1.5) };
+
+    static ulmBLAS::MemoryPool<T> pool;
+    Random                        random(5);
+
+    for (int k=0; k<4; ++k) {
+        int kc = kcList[k];
+        T   *A_ = pool.allocate(MR*kc+MR);
+        T   *B_ = pool.allocate(NR*kc+NR);
+        for (int p=0; p<MR*kc; ++p) A_[p] = random.value<T>();
+        for (int p=0; p<NR*kc; ++p) B_[p] = random.value<T>();
+        bool ok = true;
+
+        for (int a=0; a<3 && ok; ++a) {
+            // full tiles (selected kernel) and partial tiles (buffered)
+            for (int full=1; full>=0 && ok; --full) {
+                int m = full ? MR : MR-1, n = full ? NR : NR-1;
+                if (m<1 || n<1) {
+                    continue;
+                }
+                for (int layout=0; layout<3 && ok; ++layout) {
+                    Strides st(Layout(layout), m, n);
+                    std::vector<T> C0 = makeC<T>(random, st, m, n, false);
+                    std::vector<T> C(C0);
+                    if (full) {
+                        ulmBLAS::ugemm(kc, alphas[a], A_, B_, nan<T>(),
+                                       &C[0], st.incRow, st.incCol, A_, B_);
+                    } else {
+                        ulmBLAS::ugemm(m, n, kc, alphas[a], A_, B_, nan<T>(),
+                                       &C[0], st.incRow, st.incCol, A_, B_);
+                    }
+                    ok = checkNanTile(ctx, format("ugemm(mr=%d,nr=%d,kc=%d,"
+                                                  "alpha=%s,beta=NaN,C %s)",
+                                                  m, n, kc,
+                                                  str(alphas[a]).c_str(),
+                                                  layoutName(Layout(layout))),
+                                      m, n, C0, C, st);
+                }
+            }
+        }
+        pool.release(A_);
+        pool.release(B_);
+        if (!ok) {
+            return false;
+        }
+    }
+    return true;
+}
+
+//
+//  NaN and Inf in the packed operands (real types): with A(i0,l0) = Inf and
+//  B(l1,j1) = NaN the column j1 of the result is NaN and the row i0 is +-Inf
+//  (sign of alpha*B(l0,j)); the other elements are finite.
+//
+template <typename T>
+bool
+testSpecialOperands(Context &ctx)
+{
+    const int MR = ulmBLAS::BlockSizeUGemm<T>::MR;
+    const int NR = ulmBLAS::BlockSizeUGemm<T>::NR;
+    const int kcList[] = { 1, 4, 5, 13, 64 };
+    const T   alphas[] = { T(1.5), T(-1) };
+    const T   betas[]  = { T(0), T(1) };
+    const T   inf      = std::numeric_limits<T>::infinity();
+
+    static ulmBLAS::MemoryPool<T> pool;
+    Random                        random(7);
+
+    for (int k=0; k<5; ++k) {
+        int kc = kcList[k];
+        int i0 = MR-1, l0 = kc-1, j1 = 0, l1 = 0;
+        T   *A_ = pool.allocate(MR*kc+MR);
+        T   *B_ = pool.allocate(NR*kc+NR);
+        for (int p=0; p<MR*kc; ++p) A_[p] = random.value<T>();
+        for (int p=0; p<NR*kc; ++p) B_[p] = random.value<T>();
+        A_[l0*MR+i0] = inf;
+        B_[l1*NR+j1] = nan<T>();
+        bool ok = true;
+
+        for (int layout=0; layout<3 && ok; ++layout) {
+            Strides st(Layout(layout), MR, NR);
+            for (int a=0; a<2 && ok; ++a) {
+                for (int b=0; b<2 && ok; ++b) {
+                    std::vector<T> C0 = makeC<T>(random, st, MR, NR,
+                                                 betas[b]==T(0));
+                    std::vector<T> C(C0);
+                    ulmBLAS::ugemm(kc, alphas[a], A_, B_, betas[b], &C[0],
+                                   st.incRow, st.incCol, A_, B_);
+                    std::string what = format("ugemm(kc=%d,alpha=%s,beta=%s,"
+                                              "C %s, Inf in A, NaN in B)",
+                                              kc, str(alphas[a]).c_str(),
+                                              str(betas[b]).c_str(),
+                                              layoutName(Layout(layout)));
+                    for (int j=0; j<NR && ok; ++j) {
+                        for (int i=0; i<MR && ok; ++i) {
+                            T c = C[i*st.incRow+j*st.incCol];
+                            if (j==j1) {
+                                ok = ctx.check(std::isnan(c), "%s: C(%d,%d) "
+                                               "is %s, expected NaN, %s",
+                                               what.c_str(), i, j,
+                                               str(c).c_str(), typeName<T>());
+                            } else if (i==i0) {
+                                T sign = alphas[a]*B_[l0*NR+j];
+                                ok = ctx.check(std::isinf(c)
+                                               && (c>0)==(sign>0),
+                                               "%s: C(%d,%d) is %s, expected "
+                                               "%sInf, %s", what.c_str(), i,
+                                               j, str(c).c_str(),
+                                               sign>0 ? "+" : "-",
+                                               typeName<T>());
+                            } else {
+                                double sum = 0, bound = 0;
+                                for (int l=0; l<kc; ++l) {
+                                    sum   += double(A_[l*MR+i])*B_[l*NR+j];
+                                    bound += std::abs(double(A_[l*MR+i])
+                                                      *B_[l*NR+j]);
+                                }
+                                double c0 = C0[i*st.incRow+j*st.incCol];
+                                sum   *= double(alphas[a]);
+                                bound *= std::abs(double(alphas[a]));
+                                if (betas[b]!=T(0)) {
+                                    sum   += double(betas[b])*c0;
+                                    bound += std::abs(double(betas[b])*c0);
+                                }
+                                ok = ctx.check(closeEnough(c, T(sum), bound,
+                                                           kc),
+                                               "%s: C(%d,%d) is %s, expected "
+                                               "%s, %s", what.c_str(), i, j,
+                                               str(c).c_str(),
+                                               str(T(sum)).c_str(),
+                                               typeName<T>());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        pool.release(A_);
+        pool.release(B_);
+        if (!ok) {
+            return false;
+        }
+    }
+    ctx.pass();
+    return true;
+}
+
 } // namespace
 
 ULMBLAS_TEST(T0340, "ukernel/ugemm full tiles")
@@ -308,4 +501,15 @@ ULMBLAS_TEST_XFAIL(T0343, "ukernel/ugemm partial tiles, general strides, "
     && testPartialTiles<double>(ctx, true, true)
     && testPartialTiles<cfloat>(ctx, true, true)
     && testPartialTiles<cdouble>(ctx, true, true);
+}
+
+ULMBLAS_TEST(T0344, "ukernel/ugemm beta=NaN, full and partial tiles")
+{
+    testBetaNan<float>(ctx) && testBetaNan<double>(ctx)
+    && testBetaNan<cfloat>(ctx) && testBetaNan<cdouble>(ctx);
+}
+
+ULMBLAS_TEST(T0345, "ukernel/ugemm NaN and Inf in A and B")
+{
+    testSpecialOperands<float>(ctx) && testSpecialOperands<double>(ctx);
 }

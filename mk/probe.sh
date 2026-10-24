@@ -13,10 +13,17 @@
 #     fc        Fortran compiler      (compile mk/probe/fc.f)
 #     fc-link   Fortran objects linked by the C++ compiler using FLIBS
 #               (link and run a program)
+#     cpu       CPU features PROBE_FEATURES (e.g. avx fma) supported by the
+#               compiler (with the flags of PROBE_CXX), the CPU and the
+#               operating system (compile, link and run mk/probe/cpu.cc).
+#               PROBE_CXX_BASE: the compiler without the flags required for
+#               the features; if the probe cannot be built with it, or for
+#               an unknown feature, the exit status is 2 (an error, not an
+#               unsupported feature)
 #
 # Building the libraries does not require executing programs for the target
-# (cross compilation): only fc-link runs a program, it is used by targets
-# that run programs anyway (Netlib test suites, benchmarks) and detects a
+# (cross compilation): only fc-link and cpu run a program.  They are used by
+# targets that run programs anyway (tests, benchmarks); fc-link detects a
 # Fortran runtime library that is not found at run time.
 #
 # The tools and flags are passed through the environment as command lines
@@ -31,7 +38,8 @@
 #     PROBE_RANLIB   $(RANLIB)
 #
 # Exit status 0 if the tool works.  Otherwise an explanation is printed to
-# standard error and the exit status is 1.
+# standard error and the exit status is 1 (cpu: 1 if a feature is not
+# supported, 2 for an error of the probe itself).
 #
 
 src=`dirname "$0"`/probe
@@ -88,6 +96,12 @@ case $kind in
         what="Fortran objects are linked with the C++ compiler as linker front
   end.  FLIBS must name the libraries of the Fortran runtime (for gfortran
   determined automatically: -L<dir> -lgfortran)."
+        ;;
+    cpu)
+        tool="CPU features ($PROBE_FEATURES)"
+        var=CXX
+        cmd=$PROBE_CXX
+        what="They are required by a test configuration (CONFIG_REQUIRES)."
         ;;
     *)
         echo "$0: unknown kind '$kind'" >&2
@@ -185,6 +199,31 @@ case $kind in
             || fail "linking a Fortran program with the C++ compiler failed"
         run "$tmp/fc_link" \
             || fail "the linked program does not run (runtime library not found?)"
+        ;;
+    cpu)
+        hint="CXX=g++"
+        exists "$PROBE_CXX_BASE"
+        if ! run $PROBE_CXX_BASE -o "$tmp/cpu" "$src/cpu.cc" $PROBE_LD; then
+            ( fail "the probe cannot be built (without the flags of the features)" )
+            exit 2
+        fi
+        run "$tmp/cpu" $PROBE_FEATURES
+        if [ $? -eq 2 ]; then
+            ( fail "unknown feature" )
+            exit 2
+        fi
+        run $PROBE_CXX -o "$tmp/cpu" "$src/cpu.cc" $PROBE_LD \
+            || fail "the compiler does not accept the flags for the features"
+        run "$tmp/cpu" $PROBE_FEATURES
+        status=$?
+        case $status in
+            0)  ;;
+            1)  fail "not supported by the CPU or the operating system" ;;
+            2)  ( fail "unknown feature" ); exit 2 ;;
+            132)
+                fail "not supported by the CPU or the operating system (illegal instruction)" ;;
+            *)  ( fail "the probe terminated abnormally (status $status)" ); exit 2 ;;
+        esac
         ;;
 esac
 

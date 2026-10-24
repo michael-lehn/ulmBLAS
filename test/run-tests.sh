@@ -550,6 +550,45 @@ skip_netlib()
 #
 # Header tests: the generated headers compile as C
 #
+# skip_config CONFIG REASON: report the selected tests of a configuration
+# that is not supported here (CONFIG_REQUIRES, see Makefile.config) as SKIP.
+# The IDs of the numeric tests are listed by the program of the first
+# configuration (as for the registry).
+skip_config()
+{
+    config=$1
+    reason=$2
+    if [ "$NUMERIC" = yes ]; then
+        first=`echo $CONFIGS | awk '{print $1}'`
+        numeric=$TEST_BUILD/$first/numeric/numeric_tests
+        if [ -x "$numeric" ]; then
+            "$numeric" --list | while read id kind issue name; do
+                selected "$id" "numeric/$name" && echo "$id numeric/$name"
+            done > "$TEST_BUILD/skip.list"
+        else
+            echo "T0100-T0699 numeric" > "$TEST_BUILD/skip.list"
+        fi
+        echo "$header_tests" | while read id header; do
+            [ -n "$id" ] || continue
+            selected "$id" "header/$header" && echo "$id header/$header"
+        done >> "$TEST_BUILD/skip.list"
+        while read id name; do
+            report SKIP "$id" "$config" "$name" "$reason"
+        done < "$TEST_BUILD/skip.list"
+        rm -f "$TEST_BUILD/skip.list"
+    fi
+    for suite in $NETLIB_SUITES; do
+        echo "$netlib_tests" | while read id s program; do
+            [ "$s" = "$suite" ] || continue
+            selected "$id" "netlib-$s/$program" && echo "$id $s/$program"
+        done > "$TEST_BUILD/skip.list"
+        while read id name; do
+            report SKIP "$id" "$config" "netlib-$name" "$reason"
+        done < "$TEST_BUILD/skip.list"
+        rm -f "$TEST_BUILD/skip.list"
+    done
+}
+
 run_headers()
 {
     config=$1
@@ -606,6 +645,10 @@ fi
 
 for config in $CONFIGS; do
     echo "Running tests for configuration $config"
+    if [ -f "$TEST_BUILD/$config/unsupported" ]; then
+        skip_config "$config" "`cat "$TEST_BUILD/$config/unsupported"`"
+        continue
+    fi
     if [ "$NUMERIC" = yes ]; then
         run_numeric "$config"
         run_headers "$config"

@@ -1,7 +1,11 @@
 #ifndef ULMBLAS_CONFIG_SIMD_H
 #define ULMBLAS_CONFIG_SIMD_H 1
 
-#ifndef USE_TESTPARAM
+//
+//  The test configurations with small block sizes (USE_TESTPARAM) use the
+//  reference kernels, unless USE_TESTPARAM_KEEP_KERNELS is defined.
+//
+#if !defined(USE_TESTPARAM) || defined(USE_TESTPARAM_KEEP_KERNELS)
 
 //
 //  The SSE kernels need SSE3 and contain x86-64 inline assembly (64-bit
