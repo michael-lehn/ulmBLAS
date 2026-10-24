@@ -18,7 +18,9 @@ template <typename T>
 T *
 malloc(size_t n)
 {
-#if defined(USE_SSE)
+#if defined(USE_AVX)
+    return reinterpret_cast<T *>(_mm_malloc(n*sizeof(T), 32));
+#elif defined(USE_SSE)
     return reinterpret_cast<T *>(_mm_malloc(n*sizeof(T), 16));
 #   else
     return new T[n];

@@ -108,7 +108,10 @@ defaults of the user variables are `CXXFLAGS = -Wall` and
 the command line take precedence over the environment.  `ARCHFLAGS` defaults to
 `-msse3 -mfpmath=sse` if the C++ compiler accepts these flags (x86), which
 selects the optimized SSE kernels; on other architectures (e.g. ARM) the
-portable reference kernels are used.  Objects are rebuilt when the compiler
+portable reference kernels are used.  With `ARCHFLAGS='-mavx -mfma'` (or
+e.g. `-march=native` on a CPU with AVX and FMA) the AVX/FMA micro kernel for
+double (MR = 6, NR = 8, derived from BLIS, see `LICENSE`) replaces the SSE
+micro kernel; the libraries then require a CPU with AVX and FMA.  Objects are rebuilt when the compiler
 or the flags change, and header dependencies are tracked.
 
 ### Libraries

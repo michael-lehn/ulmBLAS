@@ -9,6 +9,12 @@
 //
     #if defined(__SSE3__) && defined(__x86_64__) && !defined(__ILP32__)
     #   define USE_SSE
+    //
+    //  The AVX micro kernel needs AVX and FMA (e.g. ARCHFLAGS='-mavx -mfma').
+    //
+    #   if defined(__AVX__) && defined(__FMA__)
+    #       define USE_AVX
+    #   endif
     #endif
 
 #endif

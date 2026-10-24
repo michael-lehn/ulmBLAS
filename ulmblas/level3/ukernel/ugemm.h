@@ -4,7 +4,10 @@
 //
 //  Selected optimized micro kernel
 //
-#if defined(USE_SSE)
+#if defined(USE_AVX)
+#   define  SELECT_UGEMM_KERNEL     avx
+#   include <ulmblas/level3/ukernel/avx/ugemm.h>
+#elif defined(USE_SSE)
 #   define  SELECT_UGEMM_KERNEL     sse
 #   include <ulmblas/level3/ukernel/sse/ugemm.h>
 #else
