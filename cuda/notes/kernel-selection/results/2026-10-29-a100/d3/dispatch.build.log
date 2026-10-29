@@ -1,0 +1,26 @@
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/test/test_gemm.o test/test_gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/culmblas/gemm.o culmblas/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step01/gemm.o step01/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step02/gemm.o step02/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step03/gemm.o step03/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step04/gemm.o step04/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step05/gemm.o step05/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step06/gemm.o step06/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step07/gemm.o step07/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step08/gemm.o step08/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step09/gemm.o step09/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step10/gemm.o step10/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step11/gemm.o step11/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step12/gemm.o step12/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step13/gemm.o step13/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -c -o build/step14/gemm.o step14/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -DCULMBLAS_BUILD_FLAGS='"/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3   -lcublas"' -c -o build/bench/bench_gemm.o bench/bench_gemm.cu
+step14/gemm.cu(135): warning #177-D: variable "S" was declared but never referenced
+      constexpr int NumThreads = P::NumThreads, S = P::S;
+                                                ^
+          detected during instantiation of "void cULMblas::step14::<unnamed>::launch<P>(std::ptrdiff_t, std::ptrdiff_t, std::ptrdiff_t, double, const double *, std::ptrdiff_t, const double *, std::ptrdiff_t, double, double *, std::ptrdiff_t, cudaStream_t) [with P=cULMblas::step14::<unnamed>::ShapeSmall]" at line 436
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -o build/test_gemm build/test/test_gemm.o build/culmblas/gemm.o build/step01/gemm.o build/step02/gemm.o build/step03/gemm.o build/step04/gemm.o build/step05/gemm.o build/step06/gemm.o build/step07/gemm.o build/step08/gemm.o build/step09/gemm.o build/step10/gemm.o build/step11/gemm.o build/step12/gemm.o build/step13/gemm.o build/step14/gemm.o  -lcublas
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -o build/bench_gemm build/bench/bench_gemm.o build/culmblas/gemm.o build/step01/gemm.o build/step02/gemm.o build/step03/gemm.o build/step04/gemm.o build/step05/gemm.o build/step06/gemm.o build/step07/gemm.o build/step08/gemm.o build/step09/gemm.o build/step10/gemm.o build/step11/gemm.o build/step12/gemm.o build/step13/gemm.o build/step14/gemm.o  -lcublas

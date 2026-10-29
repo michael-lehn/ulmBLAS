@@ -1,0 +1,4 @@
+current (m*n)                      geo-mean vs current 1.0000  min 1.000  max 1.000  shapes changed 0
+large from m*n >= 2048^2           geo-mean vs current 1.0003  min 0.928  max 1.070  shapes changed 28
+large from 2048^2 if k <= 1024     geo-mean vs current 1.0008  min 0.928  max 1.070  shapes changed 21
+oracle (best of three)             geo-mean vs current 1.0184  min 1.000  max 1.269  shapes changed 29

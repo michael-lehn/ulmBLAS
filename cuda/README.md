@@ -106,8 +106,15 @@
   - none reproducibly faster: one wait shrinks, the other grows, or the
     blocks per SM go down; with the defaults as fast as step 13
   - `cULMblas::gemm` stays at step 13
-- **Further steps**: in the works.  Candidates:
-  - choosing the kernel by more than m*n (k, shape of C)
+- **[Note: choosing the kernel by more than m*n?](notes/kernel-selection/README.md)**
+  - the three kernels forced for 64 shapes (tall, wide, k = 64 to 4096)
+  - even the best kernel for every shape would gain only 1.8%; simple
+    rules by k or by the number of blocks gain less than 0.1%: the
+    selection of step 12 stays
+- **Further steps**: closing the rest of the gap to cuBLAS (Tensor
+  Cores 7 to 22% idle, step 14) needs a new organization of the loop over
+  the panels (fewer, larger blocks; operands of the next `mma.sync` loaded
+  while the current ones run): no longer a small step.
 
 ## Build, test, benchmark
 

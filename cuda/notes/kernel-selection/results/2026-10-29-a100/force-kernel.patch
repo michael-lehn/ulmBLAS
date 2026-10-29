@@ -1,0 +1,25 @@
+diff --git a/step14/gemm.cu b/step14/gemm.cu
+index c825e36..7c0700d 100644
+--- a/step14/gemm.cu
++++ b/step14/gemm.cu
+@@ -418,6 +418,20 @@ gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
+ 
+     //  the block per warp by the size of C (thresholds from the
+     //  measurements, README.md)
++#if defined(FORCE)
++    //  experiment: one kernel for all shapes
++    if (FORCE == 0) {
++        launch<ShapeSmall>(m, n, k, alpha, A, ldA, B, ldB, beta, C, ldC,
++                           stream);
++    } else if (FORCE == 1) {
++        launch<ShapeMedium>(m, n, k, alpha, A, ldA, B, ldB, beta, C, ldC,
++                            stream);
++    } else {
++        launch<ShapeLarge>(m, n, k, alpha, A, ldA, B, ldB, beta, C, ldC,
++                           stream);
++    }
++    return;
++#endif
+     if (m*n < 1000*1000) {
+         launch<ShapeSmall>(m, n, k, alpha, A, ldA, B, ldB, beta, C, ldC,
+                            stream);
