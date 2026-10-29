@@ -1,5 +1,20 @@
 # cULMblas: BLAS with CUDA, step by step
 
+This is currently a rather crude outline of experiments to arrive at a good
+GEMM implementation with CUDA.  The tricky part is figuring out which
+experiments to do, and in which order.
+
+It is similar to my earlier
+[GEMM tutorial using SSE](https://github.com/michael-lehn/gemm-tutorial).
+There, the key was to work from coarse to fine.  Had we started playing
+with SSE intrinsics before taking care of the cache hierarchy, we would not
+have got very far.
+
+I think the same applies here.  Before worrying about individual
+instructions, we need to understand how to organize the computation and
+move the data.  Getting the order of these experiments right is probably
+the most important part.
+
 - How can BLAS operations be implemented with CUDA, and how far does one get
   by improving them one step at a time?  Starting with GEMM.
 - Same approach as for the CPU part of ulmBLAS:
