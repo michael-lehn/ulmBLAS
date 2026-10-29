@@ -11,6 +11,7 @@ multiplication works, and that is easy to extend.
 - [How to Install](#how-to-install)
 - [How to Use](#how-to-use)
 - [How ulmBLAS is organized](#how-ulmblas-is-organized)
+- [Use of AI-assisted development](#use-of-ai-assisted-development)
 - [License, provenance and acknowledgments](#license-provenance-and-acknowledgments)
 - [Background and citation](#background-and-citation)
 
@@ -277,6 +278,16 @@ How the GEMM algorithm and the source tree are organized, how micro
 kernels are selected and how to add one, the interfaces, the tests, and
 how to run your own benchmarks: all of that is in
 [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## Use of AI-assisted development
+
+I started developing ulmBLAS in 2014, and the core library was implemented well before the widespread availability of modern AI coding assistants. Its numerical algorithms, BLAS implementation, and overall architecture are my own work and were not AI-generated.
+
+More recently, I have used Claude to expand existing test cases into a comprehensive, extensible regression test suite, modernize the build system, and develop infrastructure for automated, reproducible benchmarking.
+
+My approach to AI-assisted development is to delegate tasks that I could carry out myself, while retaining responsibility for the architecture, numerical correctness, performance, and verification of the results.
+
+The origins and licenses of third-party micro-kernels are documented separately in this repository.
 
 ## License, provenance and acknowledgments
 
