@@ -36,7 +36,7 @@ dotxaxpyf(IndexType      n,
           double         *rho,
           IndexType      incRho)
 {
-    const IndexType bf = FuseFactor<double>::dotxaxpyf;
+    constexpr IndexType bf = FuseFactor<double>::dotxaxpyf;
 
     for (IndexType l=0; l<bf; ++l) {
         rho[l*incRho] = 0;
@@ -99,7 +99,7 @@ dotxaxpyf(IndexType      n,
         rho00     = _mm_setzero_pd();
         rho11     = _mm_setzero_pd();
 
-        double rho00_[2], rho11_[2];
+        alignas(16) double rho00_[2], rho11_[2];
 
         for (IndexType i=0; i<nb; ++i) {
             x0_12 = _mm_load_pd(x0);

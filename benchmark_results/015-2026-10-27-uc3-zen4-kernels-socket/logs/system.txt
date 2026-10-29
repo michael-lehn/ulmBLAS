@@ -1,0 +1,17 @@
+host uc3n002.localdomain job 8009214 partition cpu date 2026-10-27T01:15:23+01:00
+cpu 51 numa node 4: numactl --physcpubind=51 --membind=4
+model name	: AMD EPYC 9454 48-Core Processor
+microcode	: 0xa101158
+5.14.0-570.149.1.el9_6.x86_64
+governor performance driver amd-pstate
+no_turbo  boost 1 smt on
+thp [always] madvise never
+modules: compiler/gnu/14.2 
+allowed cpus: 48-95,144-191
+allocation: 96 CPUs; exclusive: OverSubscribe=OK
+sockets of the allocated CPUs: 1 
+measured CPU 51, NUMA node 4
+load 37.41 39.92 41.78 34/2794 143248; processes of other users: 20
+available: 8 nodes (0-7)
+node 0 cpus: 0 1 2 3 4 5 6 7 8 9 10 11 96 97 98 99 100 101 102 103 104 105 106 107
+node 0 size: 48127 MB

@@ -42,10 +42,10 @@ trusv(IndexType    n,
 {
     typedef decltype(TA(0)*TX(0))  T;
 
-    const IndexType    UnitStride(1);
+    constexpr IndexType   UnitStride(1);
 
     if (incRowA==UnitStride) {
-        const IndexType bf = FuseFactor<T>::axpyf;
+        constexpr IndexType bf = FuseFactor<T>::axpyf;
         const IndexType nl = n % bf;
 
         for (IndexType j=n-bf; j>=0; j-=bf) {
@@ -66,7 +66,7 @@ trusv(IndexType    n,
                     &x[0*incX], incX);
 
     } else if (incColA==UnitStride) {
-        const IndexType bf = FuseFactor<T>::dotuxf;
+        constexpr IndexType bf = FuseFactor<T>::dotuxf;
         const IndexType nl = n % bf;
 
         for (IndexType j=n-bf; j>=0; j-=bf) {

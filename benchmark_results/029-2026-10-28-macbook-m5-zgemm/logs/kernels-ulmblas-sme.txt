@@ -1,0 +1,5 @@
+ulmBLAS kernel set: sme
+ulmBLAS float: kernel ref, MR x NR = 8 x 4, MC, KC, NC = 768, 384, 4096
+ulmBLAS double: kernel sme, MR x NR = 32 x 16, MC, KC, NC = 384, 1024, 1024
+ulmBLAS complex float: kernel ref, MR x NR = 4 x 2, MC, KC, NC = 384, 384, 4096
+ulmBLAS complex double: kernel sme, MR x NR = 16 x 16, MC, KC, NC = 384, 1024, 1024

@@ -1,0 +1,24 @@
+# Sampling profiles of bench2 (macOS 'sample PID 3' for 3 s while
+# bench2 runs one square shape n), summarized with
+# source/experiments/profile-summary.py: share of the samples, inclusive
+# (callees counted).  "buffers" = the memory pool or malloc/free with
+# everything they call.  The raw profiles are not archived (they list the
+# call stacks inside the system libraries).
+#
+#   pool, malloc, malloc2   2a-allocation: packfix (shared pool) and
+#                           packfix+malloc (two separate runs), n = 64
+#   after-cache             2b-buffer-cache: packfix+tcache (after changes 1, 2)
+#   final                   4-prefetch: prefetch-ordinary (after all four)
+#
+profile                      samples  micro kernel        pack B        pack A   direct path       buffers          rest
+sample-after-cache-n16.txt       854         57.8%         30.1%          6.3%          0.0%          1.1%          4.7%
+sample-after-cache-n32.txt       856         62.0%         32.8%          2.6%          0.0%          0.7%          1.9%
+sample-after-cache-n64.txt       857         84.8%          9.9%          4.1%          0.0%          0.2%          0.9%
+sample-after-cache-n8.txt        858         61.9%         28.6%          4.7%          0.0%          0.8%          4.1%
+sample-final-n128.txt            779         87.2%          7.7%          4.4%          0.0%          0.0%          0.8%
+sample-final-n24.txt             778         77.6%         16.1%          2.6%          0.0%          0.4%          3.3%
+sample-final-n32.txt             777         74.9%         18.3%          2.2%          0.0%          0.4%          4.2%
+sample-final-n64.txt             777         80.6%         12.7%          5.0%          0.0%          0.1%          1.5%
+sample-malloc-n64.txt            777         77.2%         10.8%          4.4%          0.0%          6.8%          0.8%
+sample-malloc2-n64.txt           779         78.8%          9.1%          4.0%          0.0%          7.7%          0.4%
+sample-pool-n64.txt              778         81.5%          7.2%          4.5%          0.0%          6.0%          0.8%

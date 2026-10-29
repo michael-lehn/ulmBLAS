@@ -17,7 +17,7 @@ trlspack_MRxk(IndexType   k,
               IndexType   incColL,
               Buffer      *buffer)
 {
-    const IndexType MR  = BlockSizeUGemm<Buffer>::MR;
+    constexpr IndexType MR  = BlockSizeUGemm<Buffer>::MR;
 
     if (!conj) {
         for (IndexType j=0; j<k-MR; ++j) {
@@ -60,7 +60,7 @@ trlspack(IndexType   mc,
          IndexType   incColL,
          Buffer      *buffer)
 {
-    const IndexType MR  = BlockSizeUGemm<Buffer>::MR;
+    constexpr IndexType MR  = BlockSizeUGemm<Buffer>::MR;
     const IndexType mp  = mc / MR;
     const IndexType mr_ = mc % MR;
 

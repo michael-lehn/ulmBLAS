@@ -1,0 +1,21 @@
+== run B start 2026-10-24 22:45:59, rounds 3, pause 10 s, peak 67.458 GFLOP/s, thermal fair, load averages: 16.61 11.27 7.50
+round 1 base done 22:52:59: peak 66.844 GFLOP/s, thermal nominal, load averages: 5.95 7.12 6.76
+round 1 neon done 22:57:27: peak 67.933 GFLOP/s, thermal nominal, load averages: 5.68 6.19 6.41
+round 1 neon-gcc done 23:01:12: peak 68.411 GFLOP/s, thermal nominal, load averages: 5.97 5.91 6.22
+round 1 blis done 23:04:58: peak 66.160 GFLOP/s, thermal nominal, load averages: 5.69 5.66 6.02
+round 1 openblas done 23:08:46: peak 68.888 GFLOP/s, thermal nominal, load averages: 8.01 6.28 6.17
+round 1 accelerate done 23:11:56: peak 68.177 GFLOP/s, thermal nominal, load averages: 4.55 5.84 6.02
+round 2 neon done 23:16:18: peak 68.636 GFLOP/s, thermal nominal, load averages: 3.05 4.04 5.15
+round 2 neon-gcc done 23:20:00: peak 68.613 GFLOP/s, thermal nominal, load averages: 2.06 3.01 4.44
+round 2 blis done 23:23:40: peak 68.774 GFLOP/s, thermal nominal, load averages: 1.80 2.46 3.88
+round 2 openblas done 23:27:26: peak 68.876 GFLOP/s, thermal nominal, load averages: 5.61 4.10 4.25
+round 2 accelerate done 23:30:35: peak 68.908 GFLOP/s, thermal nominal, load averages: 4.59 4.40 4.35
+round 2 base done 23:35:06: peak 68.980 GFLOP/s, thermal nominal, load averages: 4.75 4.47 4.37
+round 3 neon done 23:38:47: peak 69.013 GFLOP/s, thermal nominal, load averages: 4.35 4.68 4.50
+round 3 neon-gcc done 23:42:28: peak 68.954 GFLOP/s, thermal nominal, load averages: 5.17 4.99 4.67
+round 3 blis done 23:46:09: peak 68.986 GFLOP/s, thermal nominal, load averages: 4.90 4.89 4.68
+round 3 openblas done 23:49:54: peak 68.974 GFLOP/s, thermal nominal, load averages: 6.89 5.34 4.88
+round 3 accelerate done 23:53:03: peak 69.004 GFLOP/s, thermal nominal, load averages: 6.34 5.33 4.94
+round 3 base done 23:57:34: peak 68.968 GFLOP/s, thermal nominal, load averages: 4.51 4.99 4.89
+discarded:        1, wrong results: 0
+overall: all commands succeeded

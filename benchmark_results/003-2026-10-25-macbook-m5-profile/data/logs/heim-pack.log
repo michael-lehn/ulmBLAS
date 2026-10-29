@@ -1,0 +1,72 @@
+== checks start 2026-10-25 07:20:15
+gcc:   PASS 832, FAIL 0, XFAIL 0, XPASS 0, DESIGN 7, SKIP 119, warnings 0, jobserver 0
+clang:   PASS 832, FAIL 0, XFAIL 0, XPASS 0, DESIGN 7, SKIP 119, warnings 0, jobserver 0
+== builds 07:33:27
+== benchmarks start 07:34:43, 5 rounds, CPU 3
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+round 1 done 07:44:22, load 1.00 1.42 2.00
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+round 2 done 07:54:00, load 1.00 1.05 1.52
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+round 3 done 08:03:39, load 1.02 1.02 1.27
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+round 4 done 08:13:18, load 1.00 1.00 1.13
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+round 5 done 08:22:57, load 1.00 1.00 1.05
+wrong results: 0
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof master avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+FAILED (exit 139): prof p4 avx
+== done 2026-10-25 08:22:57

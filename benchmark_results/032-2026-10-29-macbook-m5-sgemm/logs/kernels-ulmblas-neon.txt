@@ -1,0 +1,5 @@
+ulmBLAS kernel set: neon
+ulmBLAS float: kernel neon, MR x NR = 8 x 12, MC, KC, NC = 960, 1024, 4080
+ulmBLAS double: kernel neon, MR x NR = 6 x 8, MC, KC, NC = 960, 1024, 4080
+ulmBLAS complex float: kernel neon, MR x NR = 4 x 6, MC, KC, NC = 384, 1024, 4080
+ulmBLAS complex double: kernel neon, MR x NR = 4 x 3, MC, KC, NC = 192, 512, 4080

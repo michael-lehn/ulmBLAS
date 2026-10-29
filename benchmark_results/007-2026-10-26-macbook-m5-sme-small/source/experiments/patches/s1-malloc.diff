@@ -1,0 +1,132 @@
+diff --git a/ulmblas/auxiliary/memorypool.h b/ulmblas/auxiliary/memorypool.h
+index cb0546a..ffdd220 100644
+--- a/ulmblas/auxiliary/memorypool.h
++++ b/ulmblas/auxiliary/memorypool.h
+@@ -1,36 +1,34 @@
+ #ifndef ULMBLAS_AUXILIARY_MEMORYPOOL_H
+ #define ULMBLAS_AUXILIARY_MEMORYPOOL_H 1
+ 
+-#include <list>
+-#include <unordered_map>
+-#include <mutex>
++#include <cstddef>
+ 
+ namespace ulmBLAS {
+ 
++//
++//  Buffers for the packed operands of the level 2 and level 3 routines: a
++//  routine takes its buffers with allocate(n) at the beginning of a call
++//  and returns them with release(block) at the end.
++//
++//  This used to be a pool that kept released blocks for later calls (lists
++//  of free blocks in hash tables behind a mutex).  Measured on an Apple M5
++//  (macOS 26) for the buffers of a DGEMM call, the pool cost more than
++//  allocating and freeing the blocks each time: the allocator of the C
++//  library keeps freed blocks itself, also large ones.  For a 16 x 16 x 16
++//  DGEMM the pool took about a third of the time.  allocate and release now
++//  call the allocator directly; they are thread safe because the
++//  allocator is, and a block may be released by any thread.
++//
+ template <typename T>
+ class MemoryPool
+ {
+     public:
+ 
+         T *
+-        allocate(size_t n);
++        allocate(std::size_t n);
+ 
+         void
+         release(T *block);
+-
+-        virtual
+-        ~MemoryPool();
+-
+-    private:
+-
+-        typedef std::list<T *>                           BlockList;
+-        typedef std::unordered_map<size_t, BlockList>    Free;
+-        typedef std::unordered_map<T *, size_t>          Used;
+-
+-        Free        free_;
+-        Used        used_;
+-        BlockList   allocated_;
+-        std::mutex  mutex_;
+ };
+ 
+ 
+diff --git a/ulmblas/auxiliary/memorypool.tcc b/ulmblas/auxiliary/memorypool.tcc
+index b27265c..9b61f9f 100644
+--- a/ulmblas/auxiliary/memorypool.tcc
++++ b/ulmblas/auxiliary/memorypool.tcc
+@@ -1,10 +1,6 @@
+ #ifndef ULMBLAS_AUXILIARY_MEMORYPOOL_TCC
+ #define ULMBLAS_AUXILIARY_MEMORYPOOL_TCC 1
+ 
+-#include <cassert>
+-#include <list>
+-#include <unordered_map>
+-
+ #include <ulmblas/auxiliary/memorypool.h>
+ #include <ulmblas/config/simd.h>
+ 
+@@ -16,7 +12,7 @@ namespace ulmBLAS {
+ 
+ template <typename T>
+ T *
+-malloc(size_t n)
++malloc(std::size_t n)
+ {
+ #if defined(USE_AVX)
+     return reinterpret_cast<T *>(_mm_malloc(n*sizeof(T), 32));
+@@ -40,47 +36,17 @@ free(T *block)
+ 
+ template <typename T>
+ T *
+-MemoryPool<T>::allocate(size_t n)
++MemoryPool<T>::allocate(std::size_t n)
+ {
+-    mutex_.lock();
+-
+-    BlockList &free = free_[n];
+-    T         *block;
+-
+-    if (free.empty()) {
+-        block = malloc<T>(n);
+-        allocated_.push_back(block);
+-    } else {
+-        block = free.back();
+-        free.pop_back();
+-    }
+-    used_[block] = n;
+-
+-    mutex_.unlock();
+-    return block;
++    return malloc<T>(n);
+ }
+ 
+ template <typename T>
+ void
+ MemoryPool<T>::release(T *block)
+ {
+-    mutex_.lock();
+-
+     if (block) {
+-        assert(used_.count(block)==1);
+-        size_t n = used_[block];
+-        free_[n].push_back(block);
+-    }
+-
+-    mutex_.unlock();
+-}
+-
+-template <typename T>
+-MemoryPool<T>::~MemoryPool()
+-{
+-    while (!allocated_.empty()) {
+-        free(allocated_.back());
+-        allocated_.pop_back();
++        free(block);
+     }
+ }
+ 

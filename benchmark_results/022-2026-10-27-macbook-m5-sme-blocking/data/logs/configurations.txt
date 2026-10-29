@@ -1,0 +1,31 @@
+# Configuration matrix of the campaign: SME2 double block sizes MC, KC, NC
+# (MR x NR = 32 x 16) and the experiments in which a configuration was
+# measured.  All ulmBLAS builds: master 21197f2, only MC, KC, NC changed
+# (data/logs/configs/CONFIG.txt).
+#
+# config            MC    KC    NC  role                           experiments
+b192_1024_1024     192  1024  1024  MC varied                      coarse
+b256_1024_1024     256  1024  1024  MC varied                      coarse
+b320_1024_1024     320  1024  1024  MC varied                      coarse
+b352_1024_1024     352  1024  1024  MC varied                      coarse fine rect rect2
+b352_1024_1216     352  1024  1216  MC and NC varied               fine
+b352_1024_2208     352  1024  2208  MC and NC varied               fine
+b384_1024_512      384  1024   512  NC varied                      coarse
+b384_1024_768      384  1024   768  NC varied                      coarse
+b384_1024_896      384  1024   896  NC varied                      coarse
+b384_1024_1024     384  1024  1024  production (control)           repro coarse fine rect rect2 blis blis-aborted
+b384_1024_1056     384  1024  1056  NC varied                      coarse
+b384_1024_1216     384  1024  1216  NC varied                      coarse fine
+b384_1024_1536     384  1024  1536  NC varied                      coarse
+b384_1024_2112     384  1024  2112  NC varied                      coarse
+b384_1024_2208     384  1024  2208  NC varied                      coarse fine
+b384_1024_4096     384  1024  4096  NC varied                      coarse fine rect rect2
+b384_1088_1024     384  1088  1024  diagnostic (KC varied)         rect rect2
+b384_2048_1024     384  2048  1024  diagnostic (KC varied)         rect rect2
+b416_1024_1024     416  1024  1024  MC varied                      coarse
+b448_1024_1024     448  1024  1024  MC varied                      coarse
+b512_1024_1024     512  1024  1024  MC varied                      coarse
+b608_1024_1024     608  1024  1024  MC varied                      coarse
+b608_2240_3072     608  2240  3072  BLIS block sizes (all varied)  blis blis-aborted
+b768_1024_1024     768  1024  1024  MC varied                      coarse
+blis-sme           608  2240  3072  BLIS PR #921 (m4sme_p)         blis blis-aborted

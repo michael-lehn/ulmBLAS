@@ -1,0 +1,15 @@
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -c -o build/test/test_gemm.o test/test_gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -c -o build/culmblas/gemm.o culmblas/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -c -o build/step01/gemm.o step01/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -c -o build/step02/gemm.o step02/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -c -o build/step03/gemm.o step03/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -c -o build/step04/gemm.o step04/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -c -o build/step05/gemm.o step05/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -c -o build/step06/gemm.o step06/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -c -o build/step07/gemm.o step07/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -c -o build/step08/gemm.o step08/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -c -o build/step09/gemm.o step09/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -c -o build/step10/gemm.o step10/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -DCULMBLAS_BUILD_FLAGS='"/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8  -lcublas"' -c -o build/bench/bench_gemm.o bench/bench_gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -o build/test_gemm build/test/test_gemm.o build/culmblas/gemm.o build/step01/gemm.o build/step02/gemm.o build/step03/gemm.o build/step04/gemm.o build/step05/gemm.o build/step06/gemm.o build/step07/gemm.o build/step08/gemm.o build/step09/gemm.o build/step10/gemm.o  -lcublas
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8 -o build/bench_gemm build/bench/bench_gemm.o build/culmblas/gemm.o build/step01/gemm.o build/step02/gemm.o build/step03/gemm.o build/step04/gemm.o build/step05/gemm.o build/step06/gemm.o build/step07/gemm.o build/step08/gemm.o build/step09/gemm.o build/step10/gemm.o  -lcublas

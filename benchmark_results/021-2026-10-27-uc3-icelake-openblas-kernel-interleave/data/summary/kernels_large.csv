@@ -1,0 +1,4 @@
+variant,kernel,reference,n1000_gflops,n1024_gflops,n1500_gflops,n2000_gflops,n2048_gflops,n3000_gflops,n4000_gflops,n4096_gflops,n1000_over_ref,n1024_over_ref,n1500_over_ref,n2000_over_ref,n2048_over_ref,n3000_over_ref,n4000_over_ref,n4096_over_ref,over_ref_median,over_ref_min,over_ref_max,rating,over_ulmblas_avx_median
+ulmblas-openblas-skylakex_16x12-k5,openblas-skylakex_16x12,openblas,90.94,89.29,93.76,93.66,91.03,95.77,96.33,92.45,0.956,0.959,0.968,0.961,0.958,0.968,0.970,0.964,0.963,0.956,0.970,excellent,
+ulmblas-openblas-skylakex_16x12-k6,openblas-skylakex_16x12,openblas,91.86,90.27,94.39,94.66,91.87,96.12,96.61,92.53,0.966,0.969,0.975,0.971,0.967,0.972,0.972,0.965,0.970,0.965,0.975,excellent,
+ulmblas-zen4_32x6-k2,zen4_32x6,openblas,92.46,93.38,93.84,93.60,91.87,94.83,93.90,90.33,0.972,1.003,0.969,0.960,0.967,0.959,0.945,0.942,0.964,0.942,1.003,excellent,

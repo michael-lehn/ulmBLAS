@@ -1,0 +1,16 @@
+date 2026-10-27T22:35:20+0100
+ProductName:		macOS
+ProductVersion:		26.6
+BuildVersion:		25G72
+Darwin Mac.fritz.box 25.6.0 Darwin Kernel Version 25.6.0: Sat Jul 11 15:26:12 PDT 2026; root:xnu-12377.161.13~4/RELEASE_ARM64_T8142 arm64
+Apple M5
+hw.perflevel0.physicalcpu: 4
+hw.perflevel1.physicalcpu: 6
+hw.memsize: 34359738368
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+eigen 5.0.1
+openblas 0.3.34
+variants: ulmblas-neon ulmblas-sme accelerate openblas eigen; once: ; rounds 3; samples 3
+loadmax 4; pause 10
+sizes 50 100 150 200 250 300 350 400 450 500 550 600 650 700 750 800 850 900 950 1000 1050 1100 1150 1200 1250 1300 1350 1400 1450 1500 1550 1600 1650 1700 1750 1800 1850 1900 1950 2000 2050 2100 2150 2200 2250 2300 2350 2400 2450 2500 2550 2600 2650 2700 2750 2800 2850 2900 2950 3000 3050 3100 3150 3200 3250 3300 3350 3400 3450 3500 3550 3600 3650 3700 3750 3800 3850 3900 3950 4000 
+status: peak 60.003 GFLOP/s, thermal fair, load averages: 3.48 3.26 3.79

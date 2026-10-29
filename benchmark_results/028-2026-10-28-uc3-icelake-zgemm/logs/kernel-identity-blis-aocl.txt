@@ -1,0 +1,22 @@
+9f17eedff050adc2742fb53472b11261c680bbb964e3d42d3c35151a16529460  /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c
+== blis-auto
+blis arch skx
+blis gemm ukr impl refrnce
+blis gemm ukr unknown (0x485bd0)
+blis MR 4 NR 4 MC 64 KC 256 NC 4096
+blis gemm method 1m
+blis real gemm ukr impl optimzd
+blis real gemm ukr bli_dgemm_skx_asm_16x14 (0x407940)
+blis real MR 16 NR 14 MC 240 KC 256 NC 3752
+== blis-haswell
+blis arch haswell
+blis gemm ukr impl optimzd
+blis gemm ukr bli_zgemm_haswell_asm_3x4 (0x40ded0)
+blis MR 3 NR 4 MC 192 KC 256 NC 4080
+blis gemm method native
+== aocl
+blis arch zen4
+blis gemm ukr impl optimzd
+blis gemm ukr bli_zgemm_zen4_asm_12x4 (0x438f80)
+blis MR 12 NR 4 MC 60 KC 512 NC 2004
+blis gemm method native

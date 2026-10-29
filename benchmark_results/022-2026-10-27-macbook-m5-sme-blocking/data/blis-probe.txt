@@ -1,0 +1,23 @@
+BLIS 3.0, configuration at run time: m4sme_p
+double MR: default 32, max 32
+double NR: default 16, max 16
+double MC: default 608, max 608
+double KC: default 2240, max 2240
+double NC: default 3072, max 3072
+double MT: default 0, max 0
+double NT: default 0, max 0
+double KT: default 0, max 0
+1000 1000 1000: max |error| 6.39e-14 ok; micro kernel calls (m n k: calls): 32 16 1000: 1922, 32 8 1000: 31, 8 16 1000: 62, 8 8 1000: 1, total 2016; k blocks: 1000
+1024 1024 1024: max |error| 6.75e-14 ok; micro kernel calls (m n k: calls): 32 16 1024: 2048, total 2048; k blocks: 1024
+1025 1025 1025: max |error| 5.68e-14 ok; micro kernel calls (m n k: calls): 32 16 1025: 2048, 32 1 1025: 32, 1 16 1025: 64, 1 1 1025: 1, total 2145; k blocks: 1025
+1050 1050 1050: max |error| 7.11e-14 ok; micro kernel calls (m n k: calls): 32 16 1050: 2080, 32 10 1050: 32, 26 16 1050: 65, 26 10 1050: 1, total 2178; k blocks: 1050
+1100 1100 1100: max |error| 9.24e-14 ok; micro kernel calls (m n k: calls): 32 16 1100: 2312, 32 12 1100: 34, 12 16 1100: 68, 12 12 1100: 1, total 2415; k blocks: 1100
+2000 2000 2000: max |error| 1.35e-13 ok; micro kernel calls (m n k: calls): 32 16 2000: 7750, 16 16 2000: 125, total 7875; k blocks: 2000
+2048 2048 2048: max |error| 2.13e-13 ok; micro kernel calls (m n k: calls): 32 16 2048: 8192, total 8192; k blocks: 2048
+2049 2049 2049: max |error| 1.24e-13 ok; micro kernel calls (m n k: calls): 32 16 2049: 8192, 32 1 2049: 64, 1 16 2049: 128, 1 1 2049: 1, total 8385; k blocks: 2049
+2050 2050 2050: max |error| 1.31e-13 ok; micro kernel calls (m n k: calls): 32 16 2050: 8192, 32 2 2050: 64, 2 16 2050: 128, 2 2 2050: 1, total 8385; k blocks: 2050
+2100 2100 2100: max |error| 1.31e-13 ok; micro kernel calls (m n k: calls): 32 16 2100: 8515, 32 4 2100: 65, 20 16 2100: 131, 20 4 2100: 1, total 8712; k blocks: 2100
+2240 2240 2240: max |error| 1.42e-13 ok; micro kernel calls (m n k: calls): 32 16 2240: 9800, total 9800; k blocks: 2240
+2241 2241 2241: max |error| 1.31e-13 ok; micro kernel calls (m n k: calls): 32 16 2240: 9800, 32 1 2240: 70, 1 16 2240: 140, 1 1 2240: 1, 32 16 1: 9800, 32 1 1: 70, 1 16 1: 140, 1 1 1: 1, total 20022; k blocks: 2240 1
+3073 1000 1000: max |error| 7.82e-14 ok; micro kernel calls (m n k: calls): 32 16 1000: 5952, 32 8 1000: 96, 1 16 1000: 62, 1 8 1000: 1, total 6111; k blocks: 1000
+1000 3073 1000: max |error| 7.46e-14 ok; micro kernel calls (m n k: calls): 32 16 1000: 5952, 8 16 1000: 192, 32 1 1000: 31, 8 1 1000: 1, total 6176; k blocks: 1000

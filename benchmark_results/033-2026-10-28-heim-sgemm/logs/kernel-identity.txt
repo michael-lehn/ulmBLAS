@@ -1,0 +1,13 @@
+openblas corename HASWELL
+openblas config OpenBLAS 0.3.34 NO_LAPACK NO_LAPACKE NO_AFFINITY HASWELL SINGLE_THREADED
+openblas sgemm_p 320 sgemm_q 320 sgemm_r 128
+CORE=HASWELL
+LIBCORE=haswell
+TARGET=HASWELL
+USE_THREAD=0
+sgemm_beta.o sgemm_incopy.o sgemm_itcopy.o sgemm_kernel.o sgemm_oncopy.o sgemm_otcopy.o sgemm_small_kernel_b0_nn.o sgemm_small_kernel_b0_nt.o sgemm_small_kernel_b0_tn.o sgemm_small_kernel_b0_tt.o sgemm_small_kernel_nn.o sgemm_small_kernel_nt.o sgemm_small_kernel_tn.o sgemm_small_kernel_tt.o sgemm_small_matrix_permit.o 
+blis arch haswell
+blis gemm ukr impl optimzd
+blis gemm ukr bli_sgemm_haswell_asm_6x16 (0x55db4cb133c0)
+blis MR 6 NR 16 MC 168 KC 256 NC 4080
+blis gemm method native

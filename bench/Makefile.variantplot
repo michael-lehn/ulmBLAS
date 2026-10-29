@@ -8,6 +8,8 @@ CONFIG_FILES  = $(foreach blas, $(BLAS_VARIANTS), \
                      $(CONFIG_PATH)config/make.$(blas).inc)
 include $(CONFIG_FILES)
 
+GNUPLOT ?= gnuplot
+
 SUMM_FILES    = $(foreach blas, $(BLAS_VARIANTS), \
                      $(DIR)/$(blas).summ)
 EXTRACT_FILES = $(foreach summ, $(SUMM_FILES),\
@@ -38,7 +40,7 @@ SED_CMD = $(foreach gps_var, $(filter GPS_%, $(.VARIABLES)),\
                -e 's;$(patsubst GPS_$(VARIANT)_%,GPS_%, $(gps_var));$($(gps_var));g')
 
 all : $(GPS)
-	gnuplot $(GPS)
+	$(GNUPLOT) $(GPS)
 
 $(GPS) : $(EXTRACT_FILES) gnuplot.in $(GPS_MAKE_INC_DEPS)
 	sed $(SED_CMD) gnuplot.in > $(GPS)

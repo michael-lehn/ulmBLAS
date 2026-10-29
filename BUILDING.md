@@ -1,0 +1,261 @@
+# Building, testing and benchmarking ulmBLAS
+
+This document describes the build system, the test suite and the benchmarks
+of ulmBLAS in detail.  For an overview of the project see
+[README.md](README.md).
+
+ulmBLAS is built with **GNU Make 3.81 or newer** (no other build system is
+needed or supported).
+
+```sh
+make              # libcblas.a, cblas.h, libclapack.a, clapack.h
+make -j8 check    # build and run the tests
+make help         # all targets and the current settings
+make clean        # remove all generated files
+```
+
+## GNU Make
+
+- The minimum version is 3.81 (the build uses `$(abspath)` and `$(lastword)`).
+  Older versions stop with an error message naming the detected and the
+  required version.
+- On macOS `/usr/bin/make` is GNU Make 3.81, which works.  A newer GNU Make
+  from Homebrew or MacPorts is installed as `gmake`.  Sub-makes are always
+  invoked through `$(MAKE)`, so `gmake` works as well.
+- On the BSDs GNU Make is installed as `gmake`.  BSD make reads `Makefile`,
+  which only explains that GNU Make is required (the build itself is in
+  `GNUmakefile`, which GNU Make reads first).
+
+## Requirements
+
+| Tool | Needed for | Variable |
+| --- | --- | --- |
+| C++ compiler, C++11 or newer | all libraries, C++ tests | `CXX` (default `c++`), `CXXSTD` (default `-std=c++11`) |
+| `ar`, `ranlib` | static libraries | `AR`, `ARFLAGS`, `RANLIB` |
+| Fortran 77 compiler (gfortran) | `make f77blas`, `make refblas`, Netlib test suites, benchmarks | `FC` (default `gfortran`), `FLIBS` |
+| C compiler | Netlib CBLAS test suite, header tests, benchmarks | `CC` (default `cc`) |
+| gnuplot | plots of the benchmarks (optional) | `GNUPLOT` |
+
+The default target and `make check-numeric` only need a C++ compiler and
+`ar`.  No reference BLAS or LAPACK library is needed: the tests bring their
+own reference implementations.  The build and the tests use no scripting
+language besides the POSIX shell and awk; Python 3 is only used for the
+summary of `make bench-gemm`, the archive checks and the vendoring
+scripts in `mk/`.
+
+Before building, each tool a target needs is checked by compiling (and,
+for the tests and benchmarks, linking) a tiny program (`mk/probe.sh`).  If a
+tool is missing or not usable, the error explains what it is needed for and
+how to select another one.  Fortran objects are linked with the C++
+compiler; for gfortran the Fortran runtime (`FLIBS`) is located
+automatically, for other Fortran compilers set `FLIBS` explicitly.
+
+Building the libraries never executes programs for the target, so the
+libraries can be cross compiled (e.g. `make CXX="clang++ -arch x86_64"` on
+an ARM Mac).  `make check` and `make bench` run the programs they build and
+therefore need a native toolchain.
+
+## Selecting compilers and flags
+
+All settings can be given on the command line or in the environment (see
+`make.inc`):
+
+```sh
+make CXX=g++-16 CC=gcc-16 FC=gfortran-16
+make CXX=clang++ CXXSTD=-std=c++20
+make CXXFLAGS=-g LDFLAGS=... LDLIBS=...
+make OPTFLAGS=-O0 CXXFLAGS=-g          # debug build without optimization
+```
+
+`CPPFLAGS`, `CXXFLAGS`, `CFLAGS`, `FFLAGS`, `LDFLAGS` and `LDLIBS` are user
+variables: setting them never removes flags required by the build (include
+paths, interface macros, test block sizes), which are kept in separate
+variables.  The optimization flags are kept separately as well:
+`OPTFLAGS = -O3 -fomit-frame-pointer` (C++), `FOPTFLAGS = -O3` (Fortran)
+and `COPTFLAGS = -O2` (C, test drivers and benchmark programs only).  They
+precede `CXXFLAGS`, `FFLAGS` and `CFLAGS` on the command lines, so `CXXFLAGS`
+set in the environment (e.g. for include paths) does not disable the
+optimization, while an `-O` option in `CXXFLAGS` takes precedence (the last
+`-O` option wins).  To build without optimization use `OPTFLAGS=-O0`.  The
+defaults of the user variables are `CXXFLAGS = -Wall` and
+`FFLAGS = -Wall -fimplicit-none`.  As usual for GNU Make, variables given on
+the command line take precedence over the environment.  `ARCHFLAGS` defaults to
+`-msse3 -mfpmath=sse` if the C++ compiler accepts these flags (x86), which
+selects the optimized SSE kernels; on other architectures it is empty.  On
+AArch64 (64-bit pointers) the NEON micro kernels are selected without any
+flags (AdvSIMD is part of every AArch64 CPU): for double MR = 6, NR = 8,
+derived from BLIS (see `LICENSE`), and kernels of their own for float,
+complex float and complex double; `CPPFLAGS=-DULMBLAS_NO_NEON` selects the
+portable reference kernels instead.  Other architectures use the reference
+kernels.  With `ARCHFLAGS='-mavx -mfma'` (or
+e.g. `-march=native` on a CPU with AVX and FMA) the AVX/FMA micro kernel for
+double (MR = 6, NR = 8, derived from BLIS, see `LICENSE`) replaces the SSE
+micro kernel; the libraries then require a CPU with AVX and FMA.  With clang
+and flags that enable SME2 (e.g. `ARCHFLAGS=-mcpu=apple-m4` on an Apple M4
+or M5) the experimental SME2 backend (for double MR = 32, NR = 16, micro
+kernel derived from BLIS pull request #921, see `LICENSE`; kernels of their
+own for the other three types; panel packing in streaming mode) replaces
+the NEON kernels; the libraries then require a
+CPU with SME2, SME_F64F64 and a streaming vector length of 512 bits.
+`CPPFLAGS=-DULMBLAS_NO_SME` keeps the NEON kernels.  GCC 16 on macOS cannot
+link the SME2 backend (its runtime lacks `__arm_get_current_vg`).  Objects are rebuilt when the compiler
+or the flags change, and header dependencies are tracked.
+
+## Libraries
+
+| Target | Files (in the top-level directory) |
+| --- | --- |
+| `cblas` | `libcblas.a`, `cblas.h` (CBLAS, functions `cblas_*`) |
+| `clapack` | `libclapack.a`, `clapack.h` (`ulmblas_dgetrf`, `ulmblas_dlaswp`) |
+| `atlblas`, `atllapack` | `libatlblas.a`, `atlblas.h`, `libatllapack.a`, `atllapack.h` (ATLAS names, used by the benchmarks) |
+| `f77blas` | `libf77blas.a`, `f77blas.h` (Fortran 77 interface) |
+| `refblas` | `librefblas.a` (Netlib reference BLAS, for benchmarks) |
+
+## Tests
+
+```sh
+make check                    # all tests
+make check-numeric            # only the C++ tests (no Fortran needed)
+make check-netlib             # only the Netlib BLAS test suites
+make check CONFIGS=testcase04 # only the default configuration (faster)
+make check TESTS=gemm         # only tests whose ID or name contains "gemm"
+make check VERBOSE=1          # print every result
+make check STRICT=1           # skipped tests are errors
+```
+
+All tests are run for eleven configurations (`test/config`): four with tiny
+block sizes and the reference kernels (so that small matrices cover multiple
+and partial blocks of the GEMM algorithm; one of them with MR = 6 and NR = 8,
+which do not divide each other), one with the default block sizes and
+kernels (on AArch64 the NEON kernel), two with the AVX/FMA micro kernel
+(`-mavx -mfma`, default and tiny block sizes), one with the NEON micro
+kernel and tiny block sizes, one with the SME2 backend and tiny block
+sizes (MR = 32, NR = 16; `-mcpu=apple-m4`), and two with a 64-bit
+`ULMBLAS_INDEX_TYPE` (default and tiny block sizes; see
+[INSTALL.md](INSTALL.md#index-type)).  The AVX/FMA configurations are only built and
+run if the compiler, the CPU and the operating system support AVX and FMA,
+the NEON configuration only on AArch64, the SME2 configuration only with
+clang on a CPU with SME2; otherwise their tests are reported as SKIP.  The libraries of each configuration are
+built in `test/build/`.  The vendored kernels of BLIS, AOCL-BLAS and
+OpenBLAS have configurations of their own (`blis-NAME`, `openblas-NAME`,
+`s-NAME`, `c-NAME`, `z-NAME`, each also with `-small`), which are not
+part of the default set and are run with `CONFIGS=...` (see the
+[micro kernel README](ulmblas/level3/ukernel/README.md)).
+
+- **C++ tests** (`test/numeric`): levels 1, 2 and 3 of the C interface for
+  float, double, complex float and complex double, row and column major,
+  all transpose/side/upper-lower/diagonal options, negative and non-unit
+  increments, leading dimensions larger than needed, zero dimensions,
+  alpha and beta of 0, 1 and general values (with NaN where BLAS documents
+  that an operand is not referenced or need not be set, e.g. C for beta = 0
+  or unit diagonals), matrices larger than the default block sizes MC and
+  KC (the default NC = 4096 is only exceeded with the small test block
+  sizes), and `dgetrf` (including pivot indices and row major storage) and
+  `dlaswp`.  Invalid arguments are tested as well: each function of the C
+  interface that checks its arguments must report an invalid argument
+  through `cblas_xerbla` and return without touching its operands.  Results are compared with straightforward reference
+  implementations using error bounds, not bitwise.  Padding and elements
+  that must not be written are checked bitwise.
+- **Netlib BLAS test suites** (`test/F77`, `test/C`): the official test
+  programs for the Fortran 77 and the C interface (`sblat1` and `dblat1`
+  from LAPACK 3.12.1, the others from Netlib), and `test/F77/ublat1.f` for
+  routines of the Fortran 77 interface they do not cover and for the
+  arguments passed to `XERBLA`.  They need a Fortran and a C compiler.  If
+  these are not usable, `make check` reports the suites as SKIP with the
+  reason (and fails with `STRICT=1`).
+- **Reference-LAPACK test programs** (`make check-reference-lapack`, not
+  part of `make check`): downloads Reference-LAPACK 3.12.1 (SHA-256
+  checked), builds its unmodified BLAS and CBLAS test programs against the
+  libraries of the default configuration and runs them.  `?gemmtr`, which
+  ulmBLAS does not provide, is disabled in the input files.  The programs
+  `cblat1` and `zblat1` of 3.12.1 report infinite results of `scnrm2` and
+  `dznrm2` as failures; they are also run with the reference BLAS of the
+  tarball and reported as REF if exactly the same cases fail.
+- **Header tests**: the generated headers can be used from C.
+
+Every test has a stable ID.  Results are PASS, FAIL, XFAIL (known bug),
+XPASS (known bug no longer observed: an error), DESIGN (open design
+question, observed behavior as recorded) and SKIP.  Known bugs and open
+design questions are listed in [`test/known_issues.md`](test/known_issues.md).
+`make check` exits with a nonzero status if a test fails.
+
+## Benchmarks
+
+```sh
+make bench                    # long running, not part of make check
+make bench USE_BLAS_VARIANTS="ulmBLAS netlib" USE_BENCH_CASES=gemm
+```
+
+The benchmarks (ATLAS timing programs in `bench/`) need the C, C++ and
+Fortran compilers.  `make bench` first builds all libraries the benchmark
+programs are linked with (each library once), then the benchmark programs;
+`make benchmark-suite` only builds the programs.  A benchmark is run again
+when its program (or a library it is linked with) or its configuration has
+changed.  Results are written to `bench/benchmarks/`; plots are created if
+gnuplot is found.  Comparisons with ATLAS or Intel MKL need `ATLAS_LIBDIR`
+or `MKLROOT` (variants `atlas`, `mkl`).
+
+## Benchmark results
+
+Published benchmark campaigns (measurements, Gnuplot scripts and SVG
+figures, documentation of hardware, software and methodology) are archived
+in [`benchmark_results/`](benchmark_results/README.md), e.g. the
+[AVX/FMA DGEMM micro kernel on an Intel Core i5-12500](benchmark_results/001-2026-10-24-heim-avx-fma/README.md).
+A completed campaign is added with
+
+```sh
+make add_benchmark_result BENCHMARK_DIR=path/to/campaign   # needs gnuplot
+make check_benchmark_results                                # names, numbers, links
+```
+
+which validates it, regenerates its figures and updates the index (see
+`benchmark_results/README.md`).
+
+## Tested configurations
+
+Tested (October 2026) on macOS 26 (arm64) with GNU Make 4.4.1 and 3.81:
+
+- full `make check` with Apple clang 21 (`c++`) and GCC 16.2 (`g++-16`,
+  `gcc-16`), both with gfortran 16.2;
+- `make check-numeric` with GCC 16.2 and Apple clang 21 (C++17, C++20,
+  C++23), LLVM clang 17 (C++11) and 23 (C++23), and with AddressSanitizer
+  and UndefinedBehaviorSanitizer;
+- compilation of the libraries only: LLVM clang 18 to 22 (C++11), GCC 16.2
+  and Apple clang 21 with C++14 and C++26 (`-std=c++2c`);
+- cross compilation for x86-64 with Apple clang 21
+  (`CXX="clang++ -arch x86_64"`, SSE kernels selected): `make check-numeric`
+  run under Rosetta 2 (the Netlib tests need an x86-64 gfortran, which was
+  not available).
+
+Tested (October 2026) on Debian 12 (x86-64, Intel Core i5-12500) with GNU
+Make 4.3: full `make check` with GCC 12.2 (`g++`, `gcc`) and with clang 16
+(`clang++-16`, `clang-16`), both with gfortran 12.2; the SSE kernels are
+selected by default, the AVX/FMA micro kernel is tested by the
+configurations 06 and 07 (and with `ARCHFLAGS='-mavx -mfma'`); the NEON
+configuration 08 is skipped.
+
+C++11 is the minimum (C++98 is rejected: the code uses `decltype`, `auto`
+and `<type_traits>`).
+
+On arm64 the NEON micro kernel is used (configurations 04 and 08; tested
+with Apple clang 21 and GCC 16, and with AddressSanitizer and
+UndefinedBehaviorSanitizer); it was only run on Apple silicon (an Apple M5),
+not on Linux or other AArch64 CPUs.  The SME2 backend (configuration 09,
+and configuration 04 with `ARCHFLAGS=-mcpu=apple-m4`) was tested with Apple
+clang 21 on an Apple M5 only.  The x86 SSE kernels
+were tested on native x86-64 hardware (Linux, GCC 12 and clang 16) and on
+macOS x86-64 under Rosetta 2 (Apple clang 21), not on native macOS x86-64
+hardware.  The AVX/FMA micro kernel was tested on Linux x86-64 (GCC 12,
+clang 16); for macOS x86-64 it was only compiled (Rosetta 2 does not
+provide AVX).  BSD was not tested.  The
+macOS system GNU Make 3.81 was tested; GNU Make 3.80 and older are rejected
+by a version check, which was only tested by simulating the version.
+
+The vendored x86-64 kernels were tested on an Intel Xeon Platinum 8358
+(Ice Lake), those that need no AVX-512 also on the Intel Core i5-12500
+(except the SGEMM kernels), and the DGEMM kernels on an AMD EPYC 9454
+(Zen 4); the test records are in
+[investigations/2026-10-bwunicluster3/kernels/tests](investigations/2026-10-bwunicluster3/kernels/tests/README.md)
+(DGEMM) and
+[investigations/2026-10-gemm-datatypes](investigations/2026-10-gemm-datatypes/README.md)
+(ZGEMM, CGEMM).

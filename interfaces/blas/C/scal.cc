@@ -5,125 +5,125 @@
 extern "C" {
 
 void
-ULMBLAS(sscal)(const int    n,
-               const float  alpha,
-               float        *x,
-               const int    incX)
+ULMBLAS(sscal)(const ULMBLAS_INDEX_TYPE n,
+               const float              alpha,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE incX)
 {
-    ulmBLAS::scal(n, alpha, x, incX);
+    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
-ULMBLAS(dscal)(const int    n,
-               const double alpha,
-               double       *x,
-               const int    incX)
+ULMBLAS(dscal)(const ULMBLAS_INDEX_TYPE n,
+               const double             alpha,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE incX)
 {
-    ulmBLAS::scal(n, alpha, x, incX);
+    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
-ULMBLAS(csscal)(const int    n,
-                const float  alpha,
-                float        *x_,
-                const int    incX)
+ULMBLAS(csscal)(const ULMBLAS_INDEX_TYPE n,
+                const float              alpha,
+                float                    *x_,
+                const ULMBLAS_INDEX_TYPE incX)
 {
     typedef std::complex<float> fcomplex;
     fcomplex *x = reinterpret_cast<fcomplex *>(x_);
 
-    ulmBLAS::scal(n, alpha, x, incX);
+    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 
 void
-ULMBLAS(zdscal)(const int    n,
-                const double alpha,
-                double       *x_,
-                const int    incX)
+ULMBLAS(zdscal)(const ULMBLAS_INDEX_TYPE n,
+                const double             alpha,
+                double                   *x_,
+                const ULMBLAS_INDEX_TYPE incX)
 {
     typedef std::complex<double> dcomplex;
     dcomplex *x = reinterpret_cast<dcomplex *>(x_);
 
-    ulmBLAS::scal(n, alpha, x, incX);
+    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
-ULMBLAS(cscal)(const int    n,
-               const float  *alpha_,
-               float        *x_,
-               const int    incX)
+ULMBLAS(cscal)(const ULMBLAS_INDEX_TYPE n,
+               const float              *alpha_,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE incX)
 {
     typedef std::complex<float> fcomplex;
     fcomplex alpha = fcomplex(alpha_[0], alpha_[1]);
     fcomplex *x    = reinterpret_cast<fcomplex *>(x_);
 
-    ulmBLAS::scal(n, alpha, x, incX);
+    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 
 void
-ULMBLAS(zscal)(const int    n,
-               const double *alpha_,
-               double       *x_,
-               const int    incX)
+ULMBLAS(zscal)(const ULMBLAS_INDEX_TYPE n,
+               const double             *alpha_,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE incX)
 {
     typedef std::complex<double> dcomplex;
     dcomplex alpha = dcomplex(alpha_[0], alpha_[1]);
     dcomplex *x    = reinterpret_cast<dcomplex *>(x_);
 
-    ulmBLAS::scal(n, alpha, x, incX);
+    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
-CBLAS(sscal)(const int    n,
-             const float  alpha,
-             float        *x,
-             const int    incX)
+CBLAS(sscal)(const ULMBLAS_INDEX_TYPE n,
+             const float              alpha,
+             float                    *x,
+             const ULMBLAS_INDEX_TYPE incX)
 {
     ULMBLAS(sscal)(n, alpha, x, incX);
 }
 
 void
-CBLAS(dscal)(const int    n,
-             const double alpha,
-             double       *x,
-             const int    incX)
+CBLAS(dscal)(const ULMBLAS_INDEX_TYPE n,
+             const double             alpha,
+             double                   *x,
+             const ULMBLAS_INDEX_TYPE incX)
 {
     ULMBLAS(dscal)(n, alpha, x, incX);
 }
 
 void
-CBLAS(csscal)(const int    n,
-              const float  alpha,
-              float        *x,
-              const int    incX)
+CBLAS(csscal)(const ULMBLAS_INDEX_TYPE n,
+              const float              alpha,
+              float                    *x,
+              const ULMBLAS_INDEX_TYPE incX)
 {
     ULMBLAS(csscal)(n, alpha, x, incX);
 }
 
 void
-CBLAS(zdscal)(const int    n,
-              const double alpha,
-              double       *x,
-              const int    incX)
+CBLAS(zdscal)(const ULMBLAS_INDEX_TYPE n,
+              const double             alpha,
+              double                   *x,
+              const ULMBLAS_INDEX_TYPE incX)
 {
     ULMBLAS(zdscal)(n, alpha, x, incX);
 }
 
 void
-CBLAS(cscal)(const int    n,
-             const float  *alpha,
-             float        *x,
-             const int    incX)
+CBLAS(cscal)(const ULMBLAS_INDEX_TYPE n,
+             const float              *alpha,
+             float                    *x,
+             const ULMBLAS_INDEX_TYPE incX)
 {
     ULMBLAS(cscal)(n, alpha, x, incX);
 }
 
 void
-CBLAS(zscal)(const int    n,
-             const double *alpha,
-             double       *x,
-             const int    incX)
+CBLAS(zscal)(const ULMBLAS_INDEX_TYPE n,
+             const double             *alpha,
+             double                   *x,
+             const ULMBLAS_INDEX_TYPE incX)
 {
     ULMBLAS(zscal)(n, alpha, x, incX);
 }

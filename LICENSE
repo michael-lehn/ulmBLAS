@@ -1,6 +1,53 @@
-The ulmBLAS framework uses code, concepts and ideas of the great BLIS framework:
+ulmBLAS is licensed under the BSD 3-Clause License below.  The
+third-party components listed in the second part of this file are not
+covered by this license; they keep their own copyright and license terms.
 
----
+======================================================================
+ulmBLAS
+======================================================================
+
+Copyright (c) 2014-2026, Michael C. Lehn and the ulmBLAS contributors.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+======================================================================
+Third-party components
+======================================================================
+
+The following components are not covered by the license above.  They keep
+the copyright and license terms of their authors, reproduced below.
+
+----------------------------------------------------------------------
+1. BLIS
+----------------------------------------------------------------------
+
+The design of ulmBLAS follows BLIS (https://github.com/flame/blis), and
+ulmBLAS uses code, concepts and ideas of the BLIS framework.
 
 The BLIS framework is licensed under the following license, typically
 known as the "new" or "modified" or "3-clause" BSD license.
@@ -31,3 +78,406 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----------------------------------------------------------------------
+2. AVX/FMA micro kernel (ulmblas/level3/ukernel/avx/ugemm.tcc)
+----------------------------------------------------------------------
+
+The AVX/FMA micro kernel ulmblas/level3/ukernel/avx/ugemm.tcc is derived
+from the micro kernel bli_dgemm_haswell_asm_6x8 of BLIS (file
+kernels/haswell/3/bli_gemm_haswell_asm_d6x8.c, BLIS 2.0) and is distributed
+under the license of that file (provenance and modifications are listed in
+ugemm.tcc):
+
+BLIS
+An object-based framework for developing high-performance BLAS-like
+libraries.
+
+Copyright (C) 2014, The University of Texas at Austin
+Copyright (C) 2018 - 2019, Advanced Micro Devices, Inc.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+ - Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+ - Neither the name(s) of the copyright holder(s) nor the names of its
+   contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----------------------------------------------------------------------
+3. NEON micro kernel (ulmblas/level3/ukernel/neon/ugemm.tcc)
+----------------------------------------------------------------------
+
+The NEON micro kernel ulmblas/level3/ukernel/neon/ugemm.tcc is derived from
+the micro kernel bli_dgemm_armv8a_asm_8x6r of BLIS (file
+kernels/armv8a/3/bli_gemm_armv8a_asm_d8x6r.c with the macros of
+armv8a_asm_utils.h and armv8a_asm_d2x2.h, BLIS 2.0, which carry the same
+notice) and is distributed under the license of that file (provenance and
+modifications are listed in ugemm.tcc):
+
+BLIS
+An object-based framework for developing high-performance BLAS-like
+libraries.
+
+Copyright (C) 2014, The University of Texas at Austin
+Copyright (C) 2021, The University of Tokyo
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+ - Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+ - Neither the name(s) of the copyright holder(s) nor the names of its
+   contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----------------------------------------------------------------------
+4. SME2 micro kernel (ulmblas/level3/ukernel/sme/ugemm.tcc)
+----------------------------------------------------------------------
+
+The experimental SME2 micro kernel ulmblas/level3/ukernel/sme/ugemm.tcc is
+derived from the double precision micro kernel of BLIS pull request #921
+(https://github.com/flame/blis/pull/921, file
+kernels/armsme/3/bli_gemm_armsme_int_2SVLx2SVL.c, commit
+235ef8ec097c43ab8299c89071af1b5b5e180843) and is distributed under the
+license of that file (provenance and modifications are listed in
+ugemm.tcc):
+
+BLIS
+An object-based framework for developing high-performance BLAS-like
+libraries.
+
+Copyright (C) 2014, The University of Texas at Austin
+Copyright (C) 2021, The University of Tokyo
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+ - Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+ - Neither the name(s) of the copyright holder(s) nor the names of its
+   contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----------------------------------------------------------------------
+5. ATLAS (bench/)
+----------------------------------------------------------------------
+
+The benchmark programs in bench/ use timing programs, test drivers and
+headers of ATLAS (Automatically Tuned Linear Algebra Software, version
+3.10.1, http://math-atlas.sourceforge.net/), Copyright R. Clint Whaley,
+Antoine P. Petitet, Jeff Horner and other contributors:
+
+- unmodified copies of ATLAS 3.10.1 files (with their copyright notices);
+- bench/l1blastst.c and bench/lutst.c: ATLAS 3.10.1 files with small
+  modifications by ulmBLAS (a help text, a printf format, a return type);
+- bench/atlas_type.h, bench/atlas_dsysinfo.h, bench/dXover.h,
+  bench/dmm.h: headers generated by an ATLAS installation.
+
+The build files in bench/ (Makefile, Makefile.*, cases/, config/,
+gnuplot.in) belong to ulmBLAS.  The ATLAS license, as stated in the
+headers of the ATLAS files (here from bench/ATL_cputime.c):
+
+            Automatically Tuned Linear Algebra Software v3.10.1
+                   (C) Copyright 1997 R. Clint Whaley
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions, and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+  3. The name of the ATLAS group or the names of its contributers may
+     not be used to endorse or promote products derived from this
+     software without specific written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE ATLAS GROUP OR ITS CONTRIBUTORS
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+----------------------------------------------------------------------
+6. Reference BLAS and BLAS test programs (refblas/, test/F77/, test/C/)
+----------------------------------------------------------------------
+
+- refblas/*.f except xerbla.f: the reference implementation of the BLAS as
+  distributed with LAPACK 3.3.1 (BLAS/SRC of lapack-3.3.1.tgz,
+  https://www.netlib.org/lapack/), unmodified.
+- refblas/xerbla.f: XERBLA of the reference BLAS from Netlib
+  (https://www.netlib.org/blas/).
+- test/F77/: the BLAS test programs from Netlib (xblat1, xblat2, xblat3),
+  adapted for the test suite of ulmBLAS; the input files *.dat.in are
+  derived from the Netlib input files.  test/F77/sblat1.f and
+  test/F77/dblat1.f are the test programs of LAPACK 3.12.1
+  (BLAS/TESTING of https://github.com/Reference-LAPACK/lapack, tag
+  v3.12.1), unmodified.  test/F77/ublat1.f belongs to ulmBLAS.
+- ulmblas/level1/rot.tcc: rotm and rotmg implement the algorithms of
+  SROTM/DROTM and SROTMG/DROTMG of the reference BLAS (LAPACK 3.12.1, with
+  the correction of the rescaling in SROTMG/DROTMG of the Reference-LAPACK
+  development version, commit 6a1a8b8a), rewritten in C++.
+- test/C/: the CBLAS test programs from Netlib (cblas.tgz,
+  https://www.netlib.org/blas/blast-forum/), adapted for the test suite of
+  ulmBLAS.
+
+The changes made by ulmBLAS are recorded in the Git history.
+refblas/Makefile belongs to ulmBLAS.
+
+Netlib states the following terms for the reference BLAS
+(https://www.netlib.org/blas/faq.html):
+
+  The reference BLAS is a freely-available software package.  It is
+  available from netlib via anonymous ftp and the World Wide Web.  Thus,
+  it can be included in commercial software packages (and has been).  We
+  only ask that proper credit be given to the authors.
+
+  Like all software, it is copyrighted.  It is not trademarked, but we do
+  ask the following:
+
+  If you modify the source for these routines we ask that you change the
+  name of the routine and comment the changes made to the original.
+
+  We will gladly answer any questions regarding the software.  If a
+  modification is done, however, it is the responsibility of the person
+  who modified the routine to provide support.
+
+The license of LAPACK 3.3.1 (file LICENSE of lapack-3.3.1.tgz, verbatim).
+LAPACK 3.12.1 has the same license with the following copyright notice:
+
+  Copyright (c) 1992-2023 The University of Tennessee and The University
+                          of Tennessee Research Foundation.  All rights
+                          reserved.
+  Copyright (c) 2000-2023 The University of California Berkeley. All
+                          rights reserved.
+  Copyright (c) 2006-2023 The University of Colorado Denver.  All rights
+                          reserved.
+
+Copyright (c) 1992-2010 The University of Tennessee and The University
+                        of Tennessee Research Foundation.  All rights
+                        reserved.
+Copyright (c) 2000-2010 The University of California Berkeley. All
+                        rights reserved.
+Copyright (c) 2006-2010 The University of Colorado Denver.  All rights
+                        reserved.
+
+$COPYRIGHT$
+
+Additional copyrights may follow
+
+$HEADER$
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+- Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+
+- Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer listed
+  in this license in the documentation and/or other materials
+  provided with the distribution.
+
+- Neither the name of the copyright holders nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+The copyright holders provide no reassurances that the source code
+provided does not infringe any patent, copyright, or any other
+intellectual property rights of third parties.  The copyright holders
+disclaim any liability to any recipient for claims brought against
+recipient by any third party for infringement of that parties
+intellectual property rights.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----------------------------------------------------------------------
+7. BLIS-derived GEMM micro kernels (ulmblas/level3/ukernel/blis/)
+----------------------------------------------------------------------
+
+The files in ulmblas/level3/ukernel/blis/kernel/ and asm/ are generated by
+mk/vendor_blis_kernels.py from unmodified files of BLIS 2.0
+(https://github.com/flame/blis, tag 2.0) and AOCL-BLAS 5.0 and 5.1
+(https://github.com/amd/blis, tags 5.0, 5.1); each file names its source,
+revision and SHA-256 and lists the mechanical changes.  They are
+distributed under the license of their source files, which carry the
+following copyright notices:
+
+  kernel/haswell_6x8.h,
+  kernel/z_haswell_3x4.h      Copyright (C) 2014, The University of Texas at Austin
+                              Copyright (C) 2018 - 2019, Advanced Micro Devices, Inc.
+  kernel/z_aocl_haswell_3x4.h Copyright (C) 2014, The University of Texas at Austin
+                              Copyright (C) 2018 - 2023, Advanced Micro Devices, Inc.
+                              All rights reserved.
+  kernel/haswell_8x6.h,
+  kernel/z_haswell_4x3.h,
+  kernel/z_sandybridge_4x4.h,
+  kernel/haswell_12x4.h,
+  kernel/haswell_4x12.h,
+  kernel/sandybridge_8x4.h,
+  kernel/sandybridge_int_8x4.h,
+  kernel/penryn_4x4.h,
+  kernel/skx_16x14.h,
+  kernel/skx_16x12_l2.h       Copyright (C) 2014, The University of Texas at Austin
+  kernel/zen4_32x6.h          Copyright (C) 2022 - 2024, Advanced Micro Devices, Inc.
+                              All rights reserved.
+  kernel/zen4_8x24.h          Copyright (C) 2023 - 2024, Advanced Micro Devices, Inc.
+                              All rights reserved.
+  kernel/zen5_8x24.h          Copyright (C) 2024 - 2025, Advanced Micro Devices, Inc.
+                              All rights reserved.
+  kernel/z_zen4_12x4.h        Copyright (C) 2023, Advanced Micro Devices, Inc.
+                              All rights reserved.
+  kernel/z_zen4_4x12.h        Copyright (C) 2023 - 2024, Advanced Micro Devices, Inc.
+                              All rights reserved.
+  asm/bli_x86_asm_macros_blis-2.0.h
+                              Copyright (C) 2018, The University of Texas at Austin
+                              Copyright (C) 2019, Advanced Micro Devices, Inc.
+  asm/bli_x86_asm_macros_aocl-5.0.h
+                              Copyright (C) 2018, The University of Texas at Austin
+                              Copyright (C) 2019 - 2024, Advanced Micro Devices, Inc.
+                              All rights reserved.
+
+The license of all these files:
+
+BLIS
+An object-based framework for developing high-performance BLAS-like
+libraries.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+ - Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+ - Neither the name(s) of the copyright holder(s) nor the names of its
+   contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+The adapter and compatibility headers ulmblas/level3/ukernel/blis/ugemm.h,
+select.h, compat.h and compat_end.h are part of ulmBLAS (BSD 3-Clause
+License above).
+
+----------------------------------------------------------------------
+8. OpenBLAS-derived GEMM micro kernels (ulmblas/level3/ukernel/openblas/)
+----------------------------------------------------------------------
+
+The files in ulmblas/level3/ukernel/openblas/kernel/ (except
+haswell_4x8.h) and ulmblas/level3/ukernel/openblas/asm/ (except compat.h)
+are generated by mk/vendor_openblas_kernels.py from files of OpenBLAS
+0.3.34 (https://github.com/OpenMathLib/OpenBLAS, tag v0.3.34); each file
+names its source, revision and SHA-256 and lists its changes.  They are
+distributed under the license of OpenBLAS.  asm/haswell_4x8.S keeps the
+license comment of its source file (Copyright (c) 2015, The OpenBLAS
+Project, the same terms); the license of the OpenBLAS repository:
+
+Copyright (c) 2011-2014, The OpenBLAS Project
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+   1. Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+
+   2. Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in
+      the documentation and/or other materials provided with the
+      distribution.
+   3. Neither the name of the OpenBLAS project nor the names of
+      its contributors may be used to endorse or promote products
+      derived from this software without specific prior written
+      permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+The adapter (ulmblas/level3/ukernel/blis/ugemm.h),
+ulmblas/level3/ukernel/openblas/compat.h, asm/compat.h and
+kernel/haswell_4x8.h are part of ulmBLAS.

@@ -1,0 +1,47 @@
+host uc3n026.localdomain job 8003999 date 2026-10-26T22:58:08+01:00 ulmBLAS f530d1a91fa8ad738658d53f5eb816911e379d38
+model name	: AMD EPYC 9454 48-Core Processor
+CONFIGS=testcase06 blis-haswell_6x8 blis-haswell_6x8-small blis-haswell_8x6 blis-haswell_8x6-small blis-sandybridge_8x4 blis-sandybridge_8x4-small blis-penryn_4x4 blis-penryn_4x4-small blis-skx_16x14 blis-skx_16x14-small blis-skx_16x12_l2 blis-skx_16x12_l2-small blis-zen4_32x6 blis-zen4_32x6-small blis-zen4_8x24 blis-zen4_8x24-small blis-zen5_8x24 blis-zen5_8x24-small
+make check exit 2 2026-10-26T23:17:28+01:00
+Summary (testcase06 blis-haswell_6x8 blis-haswell_6x8-small blis-haswell_8x6 blis-haswell_8x6-small blis-sandybridge_8x4 blis-sandybridge_8x4-small blis-penryn_4x4 blis-penryn_4x4-small blis-skx_16x14 blis-skx_16x14-small blis-skx_16x12_l2 blis-skx_16x12_l2-small blis-zen4_32x6 blis-zen4_32x6-small blis-zen4_8x24 blis-zen4_8x24-small blis-zen5_8x24 blis-zen5_8x24-small):
+  PASS 3202, FAIL 34, XFAIL 0, XPASS 0, DESIGN 38, SKIP 0
+
+Results other than PASS and DESIGN:
+  FAIL   T0301 [blis-zen5_8x24] numeric/level3/dgemm: gemm(col,N,N,m=5,n=7,k=3,alpha=1,beta=0): element (1,3) is (-nan,0), expected (1.61321,0), bound 1.61321, double
+  FAIL   T0301 [blis-zen5_8x24-small] numeric/level3/dgemm: gemm(col,N,N,m=33,n=31,k=40,alpha=1,beta=0): element (5,25) is (-nan,0), expected (0.65435,0), bound 11.8187, double
+  FAIL   T0305 [blis-zen5_8x24] numeric/level3/dgemm large: gemm(row,N,C,m=405,n=19,k=397,alpha=0.5,beta=-1.5): element (1,17) is (-nan,0), expected (3.32548,0), bound 51.0265, double
+  FAIL   T0305 [blis-zen5_8x24-small] numeric/level3/dgemm large: gemm(col,N,N,m=801,n=37,k=403,alpha=0.5,beta=-1.5): element (5,24) is (-nan,0), expected (3.33172,0), bound 51.2476, double
+  FAIL   T0309 [blis-zen5_8x24] numeric/level3/dsymm: symm(col,L,L,m=17,n=13,alpha=1,beta=0): element (5,5) is (-nan,0), expected (1.29378,0), bound 3.90448, double
+  FAIL   T0309 [blis-zen5_8x24-small] numeric/level3/dsymm: symm(col,R,L,m=33,n=31,alpha=1,beta=0): element (32,1) is (-nan,0), expected (0.743163,0), bound 9.46699, double
+  FAIL   T0315 [blis-zen5_8x24] numeric/level3/dsyrk: syrk(col,L,N,n=7,k=3,alpha=1,beta=0): element (5,1) is (-nan,0), expected (0.123465,0), bound 0.392847, double
+  FAIL   T0315 [blis-zen5_8x24-small] numeric/level3/dsyrk: syrk(col,L,N,n=7,k=3,alpha=1,beta=0): element (5,0) is (-nan,0), expected (-0.197705,0), bound 0.197705, double
+  FAIL   T0321 [blis-zen5_8x24] numeric/level3/dsyr2k: syr2k(col,L,N,n=13,k=19,alpha=1,beta=0): element (11,8) is (-nan,0), expected (-0.325876,0), bound 7.77842, double
+  FAIL   T0321 [blis-zen5_8x24-small] numeric/level3/dsyr2k: syr2k(col,L,N,n=13,k=19,alpha=1,beta=0): element (11,7) is (-nan,0), expected (0.94225,0), bound 8.28156, double
+  FAIL   T0327 [blis-zen5_8x24] numeric/level3/dtrmm: trmm(col,L,L,T,N,m=17,n=13,alpha=1): element (7,1) is (-nan,0), expected (-1.00577,0), bound 3.02949, double
+  FAIL   T0327 [blis-zen5_8x24-small] numeric/level3/dtrmm: trmm(col,L,L,T,N,m=17,n=13,alpha=1): element (7,2) is (-nan,0), expected (1.70821,0), bound 4.54885, double
+  FAIL   T0331 [blis-zen5_8x24] numeric/level3/dtrsm: trsm(col,L,L,N,N,m=33,n=31,alpha=1): residual (32,0) is nan, bound nan, double
+  FAIL   T0331 [blis-zen5_8x24-small] numeric/level3/dtrsm: trsm(col,L,L,N,N,m=33,n=31,alpha=1): residual (32,0) is nan, bound nan, double
+  FAIL   T0334 [blis-zen5_8x24] numeric/level3/dgemm all k mod 8 with partial panels: gemm(col,N,N,m=12,n=8,k=25,alpha=1,beta=1): element (3,3) is (-nan,0), expected (0.255819,0), bound 5.9993, double
+  FAIL   T0334 [blis-zen5_8x24-small] numeric/level3/dgemm all k mod 8 with partial panels: gemm(row,N,N,m=31,n=8,k=1,alpha=1,beta=1): element (25,3) is (-nan,0), expected (0.647427,0), bound 1.15469, double
+  FAIL   T0340 [blis-zen5_8x24] numeric/ukernel/ugemm full tiles: selected ugemm(kc=0,alpha=0,beta=0,C col): C(0,0) is nan, expected 0 (C on entry nan), double
+  FAIL   T0340 [blis-zen5_8x24-small] numeric/ukernel/ugemm full tiles: selected ugemm(kc=0,alpha=0,beta=0,C col): C(0,0) is nan, expected 0 (C on entry nan), double
+  FAIL   T0341 [blis-zen5_8x24] numeric/ukernel/ugemm partial tiles, unit stride C: ugemm(mr=4,nr=3,kc=0,alpha=0,beta=0,C col): C(3,2) is -nan, expected 0 (C on entry -inf), double
+  FAIL   T0342 [blis-zen5_8x24] numeric/ukernel/ugemm partial tiles, general strides of C: ugemm(mr=4,nr=3,kc=0,alpha=0,beta=0,C general): C(3,2) is -nan, expected 0 (C on entry 0.0173223), double
+  FAIL   T0343 [blis-zen5_8x24] numeric/ukernel/gescal and ugemm partial tiles, general strides, alpha or beta=0 with NaN and Inf: ugemm(mr=1,nr=2,kc=0,alpha=0,beta=0,C general): C(0,1) is -nan, expected 0 (C on entry inf), double
+  FAIL   T0345 [blis-zen5_8x24] numeric/ukernel/ugemm NaN and Inf in A and B: ugemm(kc=1,alpha=1.5,beta=0,C col, Inf in A, NaN in B): C(0,1) is -nan, expected 0.557405, double
+  FAIL   T0345 [blis-zen5_8x24-small] numeric/ukernel/ugemm NaN and Inf in A and B: ugemm(kc=1,alpha=1.5,beta=0,C col, Inf in A, NaN in B): C(0,1) is -nan, expected 0.557405, double
+  FAIL   T0351 [blis-zen5_8x24] numeric/level3/dgemm from 8 threads at the same time, own matrices, irregular dimensions and leading dimensions: thread 6: dgemm(RowMajor,N,N,m=47,n=15,k=32,ldC=20): wrong C(22,13)
+  FAIL   T0352 [blis-zen5_8x24] numeric/level3/dgemm small problems (direct path), all tile remainders, beta=0 with NaN in C: gemm(row,N,N,m=17,n=4,k=1,alpha=1,beta=0): element (3,3) is (-nan,0), expected (-0.232617,0), bound 0.232617, double
+  FAIL   T0352 [blis-zen5_8x24-small] numeric/level3/dgemm small problems (direct path), all tile remainders, beta=0 with NaN in C: gemm(row,N,N,m=17,n=4,k=1,alpha=1,beta=0): element (1,3) is (-nan,0), expected (-0.101268,0), bound 0.101268, double
+  FAIL   T0400 [blis-zen5_8x24] numeric/lapack/dgetrf column major: dgetrf(col,m=97,n=131,ld=99): (P*A-L*U)(96,65) = -nan, bound nan
+  FAIL   T0400 [blis-zen5_8x24-small] numeric/lapack/dgetrf column major: dgetrf(col,m=97,n=131,ld=99): (P*A-L*U)(96,65) = -nan, bound nan
+  FAIL   T0404 [blis-zen5_8x24] numeric/lapack/dgetrf row major, m != n: dgetrf(row,m=131,n=97,ld=97): (P*A-L*U)(96,65) = -nan, bound nan
+  FAIL   T0404 [blis-zen5_8x24-small] numeric/lapack/dgetrf row major, m != n: dgetrf(row,m=131,n=97,ld=97): (P*A-L*U)(96,65) = -nan, bound nan
+  FAIL   T0406 [blis-zen5_8x24] numeric/lapack/dgetrf pivot indices, column major: dgetrf(col,m=97,n=150,ld=102, prescribed pivots): (P*A-L*U)(96,97) = -nan, bound nan
+  FAIL   T0406 [blis-zen5_8x24-small] numeric/lapack/dgetrf pivot indices, column major: dgetrf(col,m=97,n=150,ld=102, prescribed pivots): (P*A-L*U)(96,97) = -nan, bound nan
+  FAIL   T0407 [blis-zen5_8x24] numeric/lapack/dgetrf pivot indices, row major: dgetrf(row,m=150,n=97,ld=97, prescribed pivots): (P*A-L*U)(96,97) = -nan, bound nan
+  FAIL   T0407 [blis-zen5_8x24-small] numeric/lapack/dgetrf pivot indices, row major: dgetrf(row,m=150,n=97,ld=97, prescribed pivots): (P*A-L*U)(96,97) = -nan, bound nan
+
+Known issues: test/known_issues.md.  All results: test/build/check.log
+make[1]: *** [Makefile:85: check] Error 1
+make[1]: Leaving directory '/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/zen4/check-f530d1a/src/test'
+make: *** [GNUmakefile:47: check] Error 2

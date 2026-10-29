@@ -1,0 +1,15 @@
+host uc2n601.localdomain job 8028075 date 2026-10-27T17:25:54+01:00
+tarball 216ae5e920aac69990491633bff0c46d71f4263c86568d4506ccc7fb05184cfe  /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/zt2.tgz
+model name	: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+avx512 avx512bw avx512cd avx512dq avx512f avx512ifma avx512vbmi avx512vl 
+g++ (GCC) 14.2.0
+CONFIGS=z-blis_zen4_12x4 z-blis_zen4_12x4-small z-blis_zen4_4x12 z-blis_zen4_4x12-small z-openblas_skylakex_4x2 z-openblas_skylakex_4x2-small
+make check exit 0 2026-10-27T17:37:12+01:00
+Summary (z-blis_zen4_12x4 z-blis_zen4_12x4-small z-blis_zen4_4x12 z-blis_zen4_4x12-small z-openblas_skylakex_4x2 z-openblas_skylakex_4x2-small):
+  PASS 1038, FAIL 0, XFAIL 0, XPASS 0, DESIGN 12, SKIP 0
+
+Known issues: test/known_issues.md.  All results: test/build/check.log
+make[1]: Leaving directory '/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/icelake/xcheck-z2san/src/test'
+
+compile lines with -fsanitize=address: 792
+files with sanitizer reports (runtime error:, ERROR: AddressSanitizer, ERROR: LeakSanitizer) under test/build, excluding the registry fixtures: 0

@@ -1,0 +1,81 @@
+== valgrind-c-blis_aocl_haswell_3x8.txt: 145 PASS, 0 FAIL
+==1792427== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==1792427== Command: ./numeric_tests
+==1792427== HEAP SUMMARY:
+==1792427==     in use at exit: 0 bytes in 0 blocks
+==1792427== All heap blocks were freed -- no leaks are possible
+==1792427== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+exit 0
+== valgrind-c-blis_haswell_3x8.txt: 145 PASS, 0 FAIL
+==1792397== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==1792397== Command: ./numeric_tests
+==1792397== HEAP SUMMARY:
+==1792397==     in use at exit: 0 bytes in 0 blocks
+==1792397== All heap blocks were freed -- no leaks are possible
+==1792397== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+exit 0
+== valgrind-c-blis_haswell_8x3.txt: 145 PASS, 0 FAIL
+==1792407== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==1792407== Command: ./numeric_tests
+==1792407== HEAP SUMMARY:
+==1792407==     in use at exit: 0 bytes in 0 blocks
+==1792407== All heap blocks were freed -- no leaks are possible
+==1792407== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+exit 0
+== valgrind-c-blis_sandybridge_8x4.txt: 145 PASS, 0 FAIL
+==1792417== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==1792417== Command: ./numeric_tests
+==1792417== HEAP SUMMARY:
+==1792417==     in use at exit: 0 bytes in 0 blocks
+==1792417== All heap blocks were freed -- no leaks are possible
+==1792417== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+exit 0
+== valgrind-c-openblas_haswell_8x2.txt: 145 PASS, 0 FAIL
+==1792437== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==1792437== Command: ./numeric_tests
+==1792437== HEAP SUMMARY:
+==1792437==     in use at exit: 0 bytes in 0 blocks
+==1792437== All heap blocks were freed -- no leaks are possible
+==1792437== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+exit 0
+== valgrind-c-blis_aocl_haswell_3x8-small.txt: 145 PASS, 0 FAIL
+==1792432== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==1792432== Command: ./numeric_tests
+==1792432== HEAP SUMMARY:
+==1792432==     in use at exit: 0 bytes in 0 blocks
+==1792432== All heap blocks were freed -- no leaks are possible
+==1792432== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+exit 0
+== valgrind-c-blis_haswell_3x8-small.txt: 145 PASS, 0 FAIL
+==1792403== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==1792403== Command: ./numeric_tests
+==1792403== HEAP SUMMARY:
+==1792403==     in use at exit: 0 bytes in 0 blocks
+==1792403== All heap blocks were freed -- no leaks are possible
+==1792403== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+exit 0
+== valgrind-c-blis_haswell_8x3-small.txt: 145 PASS, 0 FAIL
+==1799674== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==1799674== Command: ./numeric_tests
+==1799674== HEAP SUMMARY:
+==1799674==     in use at exit: 0 bytes in 0 blocks
+==1799674== All heap blocks were freed -- no leaks are possible
+==1799674== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+exit 0
+== valgrind-c-blis_sandybridge_8x4-small.txt: 145 PASS, 0 FAIL
+==1792422== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==1792422== Command: ./numeric_tests
+==1792422== HEAP SUMMARY:
+==1792422==     in use at exit: 0 bytes in 0 blocks
+==1792422== All heap blocks were freed -- no leaks are possible
+==1792422== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+exit 0
+== valgrind-c-openblas_haswell_8x2-small.txt: 145 PASS, 0 FAIL
+==1792442== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==1792442== Command: ./numeric_tests
+==1792442== HEAP SUMMARY:
+==1792442==     in use at exit: 0 bytes in 0 blocks
+==1792442== All heap blocks were freed -- no leaks are possible
+==1792442== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+exit 0
+== valgrind-c-blis_haswell_8x3-small.hung.txt: first run, stopped after 3.5 h at 100% CPU in T0351 (dgemm from 8 threads) under the default scheduler; rerun with --fair-sched=yes above

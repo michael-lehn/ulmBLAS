@@ -1,0 +1,148 @@
+diff --git a/ulmblas/auxiliary/memorypool.h b/ulmblas/auxiliary/memorypool.h
+index cb0546a..c8eff0e 100644
+--- a/ulmblas/auxiliary/memorypool.h
++++ b/ulmblas/auxiliary/memorypool.h
+@@ -1,12 +1,26 @@
+ #ifndef ULMBLAS_AUXILIARY_MEMORYPOOL_H
+ #define ULMBLAS_AUXILIARY_MEMORYPOOL_H 1
+ 
++#include <cstddef>
+ #include <list>
+ #include <unordered_map>
+ #include <mutex>
+ 
+ namespace ulmBLAS {
+ 
++//
++//  Buffers for packed operands, reused between calls.  allocate(n) and
++//  release(block) are called once per buffer and call of a BLAS routine,
++//  which is significant for small problems: with the shared pool alone
++//  (mutex, hash tables, list nodes) about a third of the time of a 16 x 16
++//  x 16 DGEMM on an Apple M5.  Therefore each thread keeps a few blocks per
++//  element type in a cache (ThreadCache): a block released by a thread is
++//  kept there and handed out again to the same pool and size without lock
++//  or heap allocation.  Blocks remain owned by their pool; the cache of a
++//  thread returns the blocks to their pools when the thread ends.  The
++//  pools of ulmBLAS are static objects (destroyed after the caches of the
++//  main thread).
++//
+ template <typename T>
+ class MemoryPool
+ {
+@@ -23,6 +37,32 @@ class MemoryPool
+ 
+     private:
+ 
++        T *
++        allocateShared(size_t n);
++
++        void
++        releaseShared(T *block);
++
++        struct CacheEntry
++        {
++            MemoryPool  *pool;
++            T           *block;
++            size_t      n;
++            bool        used;
++        };
++
++        struct ThreadCache
++        {
++            static constexpr int numEntries = 16;
++
++            CacheEntry  entry[numEntries] = {};
++
++            ~ThreadCache();
++        };
++
++        static ThreadCache &
++        threadCache();
++
+         typedef std::list<T *>                           BlockList;
+         typedef std::unordered_map<size_t, BlockList>    Free;
+         typedef std::unordered_map<T *, size_t>          Used;
+diff --git a/ulmblas/auxiliary/memorypool.tcc b/ulmblas/auxiliary/memorypool.tcc
+index b27265c..a9862ec 100644
+--- a/ulmblas/auxiliary/memorypool.tcc
++++ b/ulmblas/auxiliary/memorypool.tcc
+@@ -38,9 +38,70 @@ free(T *block)
+ #   endif
+ }
+ 
++//
++//  The cache of the calling thread (one per element type T, shared by all
++//  pools of T).
++//
++template <typename T>
++typename MemoryPool<T>::ThreadCache &
++MemoryPool<T>::threadCache()
++{
++    thread_local ThreadCache cache;
++    return cache;
++}
++
++template <typename T>
++MemoryPool<T>::ThreadCache::~ThreadCache()
++{
++    for (CacheEntry &e : entry) {
++        if (e.pool && !e.used) {
++            e.pool->releaseShared(e.block);
++        }
++    }
++}
++
+ template <typename T>
+ T *
+ MemoryPool<T>::allocate(size_t n)
++{
++    ThreadCache &cache = threadCache();
++    CacheEntry  *empty = nullptr;
++
++    for (CacheEntry &e : cache.entry) {
++        if (e.pool==this && e.n==n && !e.used) {
++            e.used = true;
++            return e.block;
++        }
++        if (!e.pool && !empty) {
++            empty = &e;
++        }
++    }
++    T *block = allocateShared(n);
++    if (empty) {
++        *empty = CacheEntry{this, block, n, true};
++    }
++    return block;
++}
++
++template <typename T>
++void
++MemoryPool<T>::release(T *block)
++{
++    if (!block) {
++        return;
++    }
++    for (CacheEntry &e : threadCache().entry) {
++        if (e.pool==this && e.block==block) {
++            e.used = false;
++            return;
++        }
++    }
++    releaseShared(block);
++}
++
++template <typename T>
++T *
++MemoryPool<T>::allocateShared(size_t n)
+ {
+     mutex_.lock();
+ 
+@@ -62,7 +123,7 @@ MemoryPool<T>::allocate(size_t n)
+ 
+ template <typename T>
+ void
+-MemoryPool<T>::release(T *block)
++MemoryPool<T>::releaseShared(T *block)
+ {
+     mutex_.lock();
+ 

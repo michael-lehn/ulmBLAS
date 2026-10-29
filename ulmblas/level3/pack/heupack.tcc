@@ -16,7 +16,7 @@ heupack_mrxmr(IndexType   mr,
               IndexType   incColA,
               Buffer      *buffer)
 {
-    const IndexType MR  = BlockSizeUGemm<Buffer>::MR;
+    constexpr IndexType MR  = BlockSizeUGemm<Buffer>::MR;
 
     for (IndexType j=0; j<mr; ++j) {
         for (IndexType i=0; i<mr; ++i) {
@@ -39,7 +39,7 @@ heupack(IndexType   mc,
         IndexType   incColA,
         Buffer      *buffer)
 {
-    const IndexType MR  = BlockSizeUGemm<Buffer>::MR;
+    constexpr IndexType MR  = BlockSizeUGemm<Buffer>::MR;
     const IndexType mp  = mc / MR;
     const IndexType mr_ = mc % MR;
 

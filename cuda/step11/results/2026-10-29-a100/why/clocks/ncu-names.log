@@ -1,0 +1,109 @@
+==PROF== Connected to process 1349883 (/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-clocks/kn/cuda/build/bench_gemm)
+==PROF== Profiling "Kernel2" - 0 (1/40): 0%....50%....100% - 3 passes
+==PROF== Profiling "Kernel2" - 1 (2/40): 0%....50%....100% - 3 passes
+==PROF== Profiling "dgemm" - 2 (3/40): 0%....50%....100% - 3 passes
+==PROF== Profiling "dgemm" - 3 (4/40): 0%....50%....100% - 3 passes
+# host uc2n902.localdomain, 2026-10-29T11:21:45
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 1 warm-up calls, 1 timed calls, CUDA events
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     2048   2048   2048    162.519    162.519    162.519      105.7    1.000
+step10     2048   2048   2048    145.245    145.245    145.245      118.3    1.119
+==PROF== Profiling "Kernel2" - 4 (5/40): 0%....50%....100% - 3 passes
+==PROF== Profiling "Kernel2" - 5 (6/40): 0%....50%....100% - 3 passes
+==PROF== Profiling "dgemm" - 6 (7/40): 0%....50%....100% - 3 passes
+==PROF== Profiling "dgemm" - 7 (8/40): 0%....50%....100% - 3 passes
+cuBLAS     4000   4000   4000    176.590    176.590    176.590      724.8    1.000
+step10     4000   4000   4000    178.386    178.386    178.386      717.5    0.990
+==PROF== Disconnected from process 1349883
+[1349883] bench_gemm@127.0.0.1
+  void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params) (256, 4, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                            Metric Unit Metric Value
+    ---------------------------------------------------------------------- ----------- ------------
+    dram__bytes_read.sum                                                         Mbyte       275.55
+    gpu__time_duration.sum                                                          ms         1.26
+    lts__t_sector_hit_rate.pct                                                       %        81.16
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active           %        98.13
+    ---------------------------------------------------------------------- ----------- ------------
+
+  void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params) (256, 4, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                            Metric Unit Metric Value
+    ---------------------------------------------------------------------- ----------- ------------
+    dram__bytes_read.sum                                                         Mbyte       274.15
+    gpu__time_duration.sum                                                          ms         1.28
+    lts__t_sector_hit_rate.pct                                                       %        81.29
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active           %        98.18
+    ---------------------------------------------------------------------- ----------- ------------
+
+  void cULMblas::<unnamed>::dgemm<1>(long, long, long, double, const double *, int, const double *, int, double, double *, long) (32, 64, 1)x(32, 4, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                            Metric Unit Metric Value
+    ---------------------------------------------------------------------- ----------- ------------
+    dram__bytes_read.sum                                                         Mbyte       595.24
+    gpu__time_duration.sum                                                          ms         1.41
+    lts__t_sector_hit_rate.pct                                                       %        82.04
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active           %        84.20
+    ---------------------------------------------------------------------- ----------- ------------
+
+  void cULMblas::<unnamed>::dgemm<1>(long, long, long, double, const double *, int, const double *, int, double, double *, long) (32, 64, 1)x(32, 4, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                            Metric Unit Metric Value
+    ---------------------------------------------------------------------- ----------- ------------
+    dram__bytes_read.sum                                                         Mbyte       595.47
+    gpu__time_duration.sum                                                          ms         1.41
+    lts__t_sector_hit_rate.pct                                                       %        81.86
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active           %        84.18
+    ---------------------------------------------------------------------- ----------- ------------
+
+  void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params) (504, 8, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                            Metric Unit Metric Value
+    ---------------------------------------------------------------------- ----------- ------------
+    dram__bytes_read.sum                                                         Gbyte         1.89
+    gpu__time_duration.sum                                                          ms         9.01
+    lts__t_sector_hit_rate.pct                                                       %        82.28
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active           %        99.26
+    ---------------------------------------------------------------------- ----------- ------------
+
+  void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params) (504, 8, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                            Metric Unit Metric Value
+    ---------------------------------------------------------------------- ----------- ------------
+    dram__bytes_read.sum                                                         Gbyte         1.89
+    gpu__time_duration.sum                                                          ms         8.99
+    lts__t_sector_hit_rate.pct                                                       %        82.35
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active           %        99.26
+    ---------------------------------------------------------------------- ----------- ------------
+
+  void cULMblas::<unnamed>::dgemm<1>(long, long, long, double, const double *, int, const double *, int, double, double *, long) (63, 125, 1)x(32, 4, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                            Metric Unit Metric Value
+    ---------------------------------------------------------------------- ----------- ------------
+    dram__bytes_read.sum                                                         Gbyte        11.83
+    gpu__time_duration.sum                                                          ms        10.13
+    lts__t_sector_hit_rate.pct                                                       %        64.53
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active           %        87.30
+    ---------------------------------------------------------------------- ----------- ------------
+
+  void cULMblas::<unnamed>::dgemm<1>(long, long, long, double, const double *, int, const double *, int, double, double *, long) (63, 125, 1)x(32, 4, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                            Metric Unit Metric Value
+    ---------------------------------------------------------------------- ----------- ------------
+    dram__bytes_read.sum                                                         Gbyte        11.67
+    gpu__time_duration.sum                                                          ms        10.12
+    lts__t_sector_hit_rate.pct                                                       %        64.67
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active           %        87.34
+    ---------------------------------------------------------------------- ----------- ------------
+

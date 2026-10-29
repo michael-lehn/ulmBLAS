@@ -1,0 +1,22 @@
+g++ -march=native resolves to:
+  -march=                     		alderlake
+  -mavx2                      		[enabled]
+  -mavx512f                   		[disabled]
+  -mfma                       		[enabled]
+
+Eigen 5.0.1
+SIMD instruction sets in use: AVX SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2
+EIGEN_VECTORIZE_AVX2 defined
+EIGEN_VECTORIZE_FMA defined
+EIGEN_USE_BLAS not defined (Eigen's own product kernels)
+OpenMP not enabled
+Eigen::nbThreads() = 1
+packet size (double) = 4
+EIGEN_GEMM_TO_COEFFBASED_THRESHOLD = 20 (lazy coefficient-based product if m+n+k < threshold)
+EIGEN_STACK_ALLOCATION_LIMIT = 131072 bytes
+cache sizes used for blocking: L1 49152, L2 1310720, L3 18874368 bytes
+blocking for n =    8: kc 8, mc 8, nc 8
+blocking for n =   64: kc 64, mc 64, nc 24
+blocking for n =  256: kc 256, mc 132, nc 256
+blocking for n = 1024: kc 344, mc 1024, nc 256
+blocking for n = 4096: kc 376, mc 4096, nc 256

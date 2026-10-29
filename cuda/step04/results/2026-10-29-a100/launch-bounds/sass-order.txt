@@ -1,0 +1,27 @@
+Order of the global loads (LDG), multiply-adds (DFMA), compares (ISETP)
+and branches (BRA) in the SASS of the step 04 kernel (4 x 4, passes of 4;
+cuobjdump -sass, sm_80, CUDA 12.8), consecutive equal instructions counted.
+The loop over the whole passes is the part with 32 LDG and 64 DFMA.
+
+== code-forms/final-gemm.cu, __launch_bounds__(256): 70 registers
+4 ISETP, 1 BRA, 2 ISETP, 1 BRA, 3 ISETP, 1 LDG, 2 ISETP, 1 LDG, 3 ISETP, 3 
+LDG, 4 ISETP, 2 LDG, 4 DFMA, 1 LDG, 11 DFMA, 1 LDG, 1 DFMA, 4 LDG, 4 DFMA, 
+1 LDG, 4 DFMA, 1 LDG, 4 DFMA, 1 LDG, 3 DFMA, 1 LDG, 1 DFMA, 4 LDG, 4 DFMA, 
+1 LDG, 4 DFMA, 1 LDG, 4 DFMA, 1 LDG, 3 DFMA, 1 LDG, 1 DFMA, 5 LDG, 6 DFMA, 
+1 LDG, 2 DFMA, 1 LDG, 2 ISETP, 8 DFMA, 1 BRA, 2 ISETP, 1 BRA, 12 ISETP, 6 
+LDG, 6 DFMA, 1 LDG, 2 DFMA, 1 LDG, 2 DFMA, 2 ISETP, 6 DFMA, 2 BRA, 1 LDG, 6 
+ISETP, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 LDG, 5 ISETP, 
+1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 
+LDG, 3 ISETP, 1 DFMA, 2 ISETP, 1 BRA, 1 LDG, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 
+1 BRA, 1 LDG, 1 DFMA, 1 LDG, 5 ISETP, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 BRA, 
+1 LDG, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 LDG, 1 DFMA, 21 ISETP, 1 BRA, 
+
+== code-forms/final-min-blocks-1-gemm.cu, __launch_bounds__(256, 1): 118 registers
+4 ISETP, 1 BRA, 2 ISETP, 1 BRA, 5 ISETP, 1 LDG, 2 ISETP, 1 LDG, 2 ISETP, 1 
+LDG, 3 ISETP, 29 LDG, 7 DFMA, 1 ISETP, 9 DFMA, 1 ISETP, 48 DFMA, 1 BRA, 2 
+ISETP, 1 BRA, 12 ISETP, 8 LDG, 4 DFMA, 2 ISETP, 12 DFMA, 2 BRA, 1 LDG, 6 
+ISETP, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 LDG, 5 ISETP, 
+1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 
+LDG, 3 ISETP, 1 DFMA, 2 ISETP, 1 BRA, 1 LDG, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 
+1 BRA, 1 LDG, 1 DFMA, 1 LDG, 5 ISETP, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 BRA, 
+1 LDG, 1 DFMA, 1 BRA, 1 LDG, 1 DFMA, 1 LDG, 1 DFMA, 21 ISETP, 1 BRA, 

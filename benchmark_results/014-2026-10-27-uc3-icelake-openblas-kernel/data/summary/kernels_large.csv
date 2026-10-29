@@ -1,0 +1,5 @@
+variant,kernel,reference,n1000_gflops,n1024_gflops,n1500_gflops,n2000_gflops,n2048_gflops,n3000_gflops,n4000_gflops,n4096_gflops,n1000_over_ref,n1024_over_ref,n1500_over_ref,n2000_over_ref,n2048_over_ref,n3000_over_ref,n4000_over_ref,n4096_over_ref,over_ref_median,over_ref_min,over_ref_max,rating,over_ulmblas_avx_median
+ulmblas-avx-k2,avx,blis-auto,48.90,47.98,48.52,48.76,48.23,49.18,49.32,47.97,0.614,0.623,0.603,0.599,0.619,0.603,0.603,0.622,0.609,0.599,0.623,investigate,
+ulmblas-openblas-skylakex_16x12-k3,openblas-skylakex_16x12,openblas,89.41,87.86,92.00,91.38,88.56,93.37,93.06,88.34,0.939,0.943,0.950,0.937,0.932,0.944,0.937,0.921,0.938,0.921,0.950,target,1.858
+ulmblas-skx_16x14-k2,skx_16x14,blis-auto,80.09,77.49,81.20,82.05,78.30,82.06,82.44,77.88,1.006,1.006,1.010,1.009,1.005,1.005,1.008,1.010,1.007,1.005,1.010,excellent,1.653
+ulmblas-zen4_32x6-k2,zen4_32x6,openblas,92.63,93.56,94.10,93.78,91.89,95.04,94.01,90.43,0.973,1.004,0.971,0.962,0.967,0.961,0.946,0.943,0.964,0.943,1.004,excellent,1.915

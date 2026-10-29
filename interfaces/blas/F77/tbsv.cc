@@ -8,31 +8,32 @@
 extern "C" {
 
 void
-F77BLAS(stbsv)(const char     *upLo_,
-               const char     *transA_,
-               const char     *diag_,
-               const int      *n_,
-               const int      *k_,
-               const float    *A,
-               const int      *ldA_,
-               float          *x,
-               const int      *incX_)
+F77BLAS(stbsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE *incX_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lowerA   = (toupper(*upLo_) == 'L');
-    bool transA   = (toupper(*transA_) == 'T' || toupper(*transA_) == 'C');
-    bool unitDiag = (toupper(*diag_) == 'U');
-    int n         = *n_;
-    int k         = *k_;
-    int ldA       = *ldA_;
-    int incX      = *incX_;
+    bool lowerA             = (toupper(*upLo_) == 'L');
+    bool transA             = (toupper(*transA_) == 'T'
+                            || toupper(*transA_) == 'C');
+    bool unitDiag           = (toupper(*diag_) == 'U');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE k    = *k_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='U' && toupper(*upLo_)!='L') {
         info = 1;
@@ -46,14 +47,15 @@ F77BLAS(stbsv)(const char     *upLo_,
         info = 4;
     } else if (k<0) {
         info = 5;
-    } else if (ldA<std::max(1,k+1)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,k+1)) {
         info = 7;
     } else if (incX==0) {
         info = 9;
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("STBSV ", &info);
+        F77BLAS(xerbla)("STBSV ", &info, 6);
+        return;
     }
 
     if (incX<0) {
@@ -65,45 +67,46 @@ F77BLAS(stbsv)(const char     *upLo_,
 //
     if (!transA) {
         if (lowerA) {
-            ulmBLAS::tblsv(n, k, unitDiag, A, ldA, x, incX);
+            ulmBLAS::tblsv<std::ptrdiff_t>(n, k, unitDiag, A, ldA, x, incX);
         } else {
-            ulmBLAS::tbusv(n, k, unitDiag, A, ldA, x, incX);
+            ulmBLAS::tbusv<std::ptrdiff_t>(n, k, unitDiag, A, ldA, x, incX);
         }
     } else {
         if (lowerA) {
-            ulmBLAS::tblstv(n, k, unitDiag, A, ldA, x, incX);
+            ulmBLAS::tblstv<std::ptrdiff_t>(n, k, unitDiag, A, ldA, x, incX);
         } else {
-            ulmBLAS::tbustv(n, k, unitDiag, A, ldA, x, incX);
+            ulmBLAS::tbustv<std::ptrdiff_t>(n, k, unitDiag, A, ldA, x, incX);
         }
     }
 }
 
 void
-F77BLAS(dtbsv)(const char     *upLo_,
-               const char     *transA_,
-               const char     *diag_,
-               const int      *n_,
-               const int      *k_,
-               const double   *A,
-               const int      *ldA_,
-               double         *x,
-               const int      *incX_)
+F77BLAS(dtbsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE *incX_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lowerA   = (toupper(*upLo_) == 'L');
-    bool transA   = (toupper(*transA_) == 'T' || toupper(*transA_) == 'C');
-    bool unitDiag = (toupper(*diag_) == 'U');
-    int n         = *n_;
-    int k         = *k_;
-    int ldA       = *ldA_;
-    int incX      = *incX_;
+    bool lowerA             = (toupper(*upLo_) == 'L');
+    bool transA             = (toupper(*transA_) == 'T'
+                            || toupper(*transA_) == 'C');
+    bool unitDiag           = (toupper(*diag_) == 'U');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE k    = *k_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='U' && toupper(*upLo_)!='L') {
         info = 1;
@@ -117,14 +120,15 @@ F77BLAS(dtbsv)(const char     *upLo_,
         info = 4;
     } else if (k<0) {
         info = 5;
-    } else if (ldA<std::max(1,k+1)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,k+1)) {
         info = 7;
     } else if (incX==0) {
         info = 9;
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("DTBSV ", &info);
+        F77BLAS(xerbla)("DTBSV ", &info, 6);
+        return;
     }
 
     if (incX<0) {
@@ -136,41 +140,42 @@ F77BLAS(dtbsv)(const char     *upLo_,
 //
     if (!transA) {
         if (lowerA) {
-            ulmBLAS::tblsv(n, k, unitDiag, A, ldA, x, incX);
+            ulmBLAS::tblsv<std::ptrdiff_t>(n, k, unitDiag, A, ldA, x, incX);
         } else {
-            ulmBLAS::tbusv(n, k, unitDiag, A, ldA, x, incX);
+            ulmBLAS::tbusv<std::ptrdiff_t>(n, k, unitDiag, A, ldA, x, incX);
         }
     } else {
         if (lowerA) {
-            ulmBLAS::tblstv(n, k, unitDiag, A, ldA, x, incX);
+            ulmBLAS::tblstv<std::ptrdiff_t>(n, k, unitDiag, A, ldA, x, incX);
         } else {
-            ulmBLAS::tbustv(n, k, unitDiag, A, ldA, x, incX);
+            ulmBLAS::tbustv<std::ptrdiff_t>(n, k, unitDiag, A, ldA, x, incX);
         }
     }
 }
 
 void
-F77BLAS(ctbsv)(const char     *upLo_,
-               const char     *transA_,
-               const char     *diag_,
-               const int      *n_,
-               const int      *k_,
-               const float    *A_,
-               const int      *ldA_,
-               float          *x_,
-               const int      *incX_)
+F77BLAS(ctbsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE *incX_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lowerA   = (toupper(*upLo_) == 'L');
-    bool transA   = (toupper(*transA_) == 'T' || toupper(*transA_) == 'C');
-    bool unitDiag = (toupper(*diag_) == 'U');
-    bool conjA    = toupper(*transA_) == 'C';
-    int n         = *n_;
-    int k         = *k_;
-    int ldA       = *ldA_;
-    int incX      = *incX_;
+    bool lowerA             = (toupper(*upLo_) == 'L');
+    bool transA             = (toupper(*transA_) == 'T'
+                            || toupper(*transA_) == 'C');
+    bool unitDiag           = (toupper(*diag_) == 'U');
+    bool conjA              = toupper(*transA_) == 'C';
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE k    = *k_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
 
     typedef std::complex<float> fcomplex;
     const fcomplex *A = reinterpret_cast<const fcomplex *>(A_);
@@ -179,7 +184,7 @@ F77BLAS(ctbsv)(const char     *upLo_,
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='U' && toupper(*upLo_)!='L') {
         info = 1;
@@ -193,14 +198,15 @@ F77BLAS(ctbsv)(const char     *upLo_,
         info = 4;
     } else if (k<0) {
         info = 5;
-    } else if (ldA<std::max(1,k+1)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,k+1)) {
         info = 7;
     } else if (incX==0) {
         info = 9;
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("CTBSV ", &info);
+        F77BLAS(xerbla)("CTBSV ", &info, 6);
+        return;
     }
 
     if (incX<0) {
@@ -212,41 +218,46 @@ F77BLAS(ctbsv)(const char     *upLo_,
 //
     if (!transA) {
         if (lowerA) {
-            ulmBLAS::tblsv(n, k, unitDiag, conjA, A, ldA, x, incX);
+            ulmBLAS::tblsv<std::ptrdiff_t>(n, k, unitDiag, conjA, A, ldA,
+                                           x, incX);
         } else {
-            ulmBLAS::tbusv(n, k, unitDiag, conjA, A, ldA, x, incX);
+            ulmBLAS::tbusv<std::ptrdiff_t>(n, k, unitDiag, conjA, A, ldA,
+                                           x, incX);
         }
     } else {
         if (lowerA) {
-            ulmBLAS::tblstv(n, k, unitDiag, conjA, A, ldA, x, incX);
+            ulmBLAS::tblstv<std::ptrdiff_t>(n, k, unitDiag, conjA, A, ldA,
+                                            x, incX);
         } else {
-            ulmBLAS::tbustv(n, k, unitDiag, conjA, A, ldA, x, incX);
+            ulmBLAS::tbustv<std::ptrdiff_t>(n, k, unitDiag, conjA, A, ldA,
+                                            x, incX);
         }
     }
 }
 
 void
-F77BLAS(ztbsv)(const char     *upLo_,
-               const char     *transA_,
-               const char     *diag_,
-               const int      *n_,
-               const int      *k_,
-               const double   *A_,
-               const int      *ldA_,
-               double         *x_,
-               const int      *incX_)
+F77BLAS(ztbsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE *incX_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lowerA   = (toupper(*upLo_) == 'L');
-    bool transA   = (toupper(*transA_) == 'T' || toupper(*transA_) == 'C');
-    bool unitDiag = (toupper(*diag_) == 'U');
-    bool conjA    = toupper(*transA_) == 'C';
-    int n         = *n_;
-    int k         = *k_;
-    int ldA       = *ldA_;
-    int incX      = *incX_;
+    bool lowerA             = (toupper(*upLo_) == 'L');
+    bool transA             = (toupper(*transA_) == 'T'
+                            || toupper(*transA_) == 'C');
+    bool unitDiag           = (toupper(*diag_) == 'U');
+    bool conjA              = toupper(*transA_) == 'C';
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE k    = *k_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
 
     typedef std::complex<double> dcomplex;
     const dcomplex *A = reinterpret_cast<const dcomplex *>(A_);
@@ -255,7 +266,7 @@ F77BLAS(ztbsv)(const char     *upLo_,
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='U' && toupper(*upLo_)!='L') {
         info = 1;
@@ -269,14 +280,15 @@ F77BLAS(ztbsv)(const char     *upLo_,
         info = 4;
     } else if (k<0) {
         info = 5;
-    } else if (ldA<std::max(1,k+1)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,k+1)) {
         info = 7;
     } else if (incX==0) {
         info = 9;
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("ZTBSV ", &info);
+        F77BLAS(xerbla)("ZTBSV ", &info, 6);
+        return;
     }
 
     if (incX<0) {
@@ -288,15 +300,19 @@ F77BLAS(ztbsv)(const char     *upLo_,
 //
     if (!transA) {
         if (lowerA) {
-            ulmBLAS::tblsv(n, k, unitDiag, conjA, A, ldA, x, incX);
+            ulmBLAS::tblsv<std::ptrdiff_t>(n, k, unitDiag, conjA, A, ldA,
+                                           x, incX);
         } else {
-            ulmBLAS::tbusv(n, k, unitDiag, conjA, A, ldA, x, incX);
+            ulmBLAS::tbusv<std::ptrdiff_t>(n, k, unitDiag, conjA, A, ldA,
+                                           x, incX);
         }
     } else {
         if (lowerA) {
-            ulmBLAS::tblstv(n, k, unitDiag, conjA, A, ldA, x, incX);
+            ulmBLAS::tblstv<std::ptrdiff_t>(n, k, unitDiag, conjA, A, ldA,
+                                            x, incX);
         } else {
-            ulmBLAS::tbustv(n, k, unitDiag, conjA, A, ldA, x, incX);
+            ulmBLAS::tbustv<std::ptrdiff_t>(n, k, unitDiag, conjA, A, ldA,
+                                            x, incX);
         }
     }
 }

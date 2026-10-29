@@ -1,0 +1,8 @@
+config b608_2240_3072
+ulmBLAS 21197f2ac62af471144bc5b26d6e2d5c302bc7ed
+blocks USE_SME MC 608 KC 2240 NC 3072 MR 32 NR 16
+compile /usr/bin/clang++ -I../../.. -I../../.. -DADD_ -D'BLAS_HEADER=<cblas.h>' -D'CBLAS(x)=cblas_ ## x' -D'ULMBLAS(x)=ulmblas_ ## x' -D'CBLAS_H=ULMBLAS_CBLAS_H' -std=c++11 -mcpu=apple-m4 -O3 -fomit-frame-pointer -Wall -MMD -MP
+compiler Apple clang version 21.0.0 (clang-2100.3.34.2)
+55c332c376520abfeff4934808c0029f3257e74ccd7ccd9fd2e34219b8abcb9b  lib/b608_2240_3072/libcblas.a
+8a582c99a83133e8b7c881dcec41e6268a84c3c093d3dd60db5f56c048e3f103  bench2-b608_2240_3072
+02b744a66003be52632e890d18b321ceba3b3a45eb8f483943cbb0ae3abcb398  verify-b608_2240_3072

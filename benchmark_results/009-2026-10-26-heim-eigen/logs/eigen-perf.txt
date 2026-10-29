@@ -1,0 +1,59 @@
+== n = 4 (C.noalias() += A*B): share of task-clock samples
+    4     4     4 1    9.984    9.982    9.984 6618791 ok
+ 53.38% [.] run - - 
+ 25.05% [.] product - - 
+ 14.64% [.] 0x00000000000006b8 - - 
+ 4.64% [.] __vdso_clock_gettime - - 
+
+
+== n = 6 (C.noalias() += A*B): share of task-clock samples
+    6     6     6 1    8.967    8.965    8.969 2916393 ok
+ 61.15% [.] run - - 
+ 31.06% [.] product - - 
+ 5.51% [.] 0x00000000000006b8 - - 
+
+
+== n = 7 (C.noalias() += A*B): share of task-clock samples
+    7     7     7 1    7.189    7.183    7.191 1793685 ok
+ 55.10% [.] Eigen::internal::gebp_kernel<double, double, long, Eigen::internal::blas_data_mapper<double, long, 0, 0, 1>, 12, 4, false, false>::operator() - - 
+ 16.89% [.] Eigen::internal::gemm_pack_rhs<double, long, Eigen::internal::const_blas_data_mapper<double, long, 0>, 4, 0, false, false>::operator() - - 
+ 10.38% [.] Eigen::internal::gemm_pack_lhs<double, long, Eigen::internal::const_blas_data_mapper<double, long, 0>, 12, 4, double __vector(4), 0, false, false>::operator()
+ 7.09% [.] Eigen::internal::general_matrix_matrix_product<long, double, 0, false, double, 0, false, 0, 1>::run - - 
+ 3.38% [.] 0x00000000000006b8 - - 
+ 2.09% [.] Eigen::internal::generic_product_impl<Eigen::Matrix<double, -1, -1, 0, -1, -1>, Eigen::Matrix<double, -1, -1, 0, -1, -1>, Eigen::DenseShape, Eigen::DenseShape,
+ 2.06% [.] run - - 
+
+
+== n = 8 (C.noalias() += A*B): share of task-clock samples
+    8     8     8 1   17.031   17.028   17.083 2631377 ok
+ 42.45% [.] Eigen::internal::gebp_kernel<double, double, long, Eigen::internal::blas_data_mapper<double, long, 0, 0, 1>, 12, 4, false, false>::operator() - - 
+ 19.82% [.] Eigen::internal::gemm_pack_rhs<double, long, Eigen::internal::const_blas_data_mapper<double, long, 0>, 4, 0, false, false>::operator() - - 
+ 11.07% [.] Eigen::internal::general_matrix_matrix_product<long, double, 0, false, double, 0, false, 0, 1>::run - - 
+ 10.56% [.] Eigen::internal::gemm_pack_lhs<double, long, Eigen::internal::const_blas_data_mapper<double, long, 0>, 12, 4, double __vector(4), 0, false, false>::operator()
+ 4.42% [.] 0x00000000000006b8 - - 
+ 3.42% [.] run - - 
+ 3.32% [.] Eigen::internal::generic_product_impl<Eigen::Matrix<double, -1, -1, 0, -1, -1>, Eigen::Matrix<double, -1, -1, 0, -1, -1>, Eigen::DenseShape, Eigen::DenseShape,
+ 2.36% [.] Eigen::internal::evaluateProductBlockingSizesHeuristic<double, double, 1, long> - - 
+
+
+== n = 16 (C.noalias() += A*B): share of task-clock samples
+   16    16    16 1   38.326   38.323   38.346 863460 ok
+ 66.80% [.] Eigen::internal::gebp_kernel<double, double, long, Eigen::internal::blas_data_mapper<double, long, 0, 0, 1>, 12, 4, false, false>::operator() - - 
+ 16.72% [.] Eigen::internal::gemm_pack_rhs<double, long, Eigen::internal::const_blas_data_mapper<double, long, 0>, 4, 0, false, false>::operator() - - 
+ 8.34% [.] Eigen::internal::gemm_pack_lhs<double, long, Eigen::internal::const_blas_data_mapper<double, long, 0>, 12, 4, double __vector(4), 0, false, false>::operator() 
+ 3.48% [.] Eigen::internal::general_matrix_matrix_product<long, double, 0, false, double, 0, false, 0, 1>::run - - 
+
+
+== n = 64 (C.noalias() += A*B): share of task-clock samples
+   64    64    64 1   52.264   52.245   52.286  20170 ok
+ 85.07% [.] Eigen::internal::gebp_kernel<double, double, long, Eigen::internal::blas_data_mapper<double, long, 0, 0, 1>, 12, 4, false, false>::operator() - - 
+ 7.99% [.] Eigen::internal::gemm_pack_lhs<double, long, Eigen::internal::const_blas_data_mapper<double, long, 0>, 12, 4, double __vector(4), 0, false, false>::operator() 
+ 6.42% [.] Eigen::internal::gemm_pack_rhs<double, long, Eigen::internal::const_blas_data_mapper<double, long, 0>, 4, 0, false, false>::operator() - - 
+
+
+== n = 512 (C.noalias() += A*B): share of task-clock samples
+  512   512   512 1   59.369   59.349   59.379     45 ok
+ 72.97% [.] Eigen::internal::gebp_kernel<double, double, long, Eigen::internal::blas_data_mapper<double, long, 0, 0, 1>, 12, 4, false, false>::operator() - - 
+ 22.69% [.] run - - 
+
+

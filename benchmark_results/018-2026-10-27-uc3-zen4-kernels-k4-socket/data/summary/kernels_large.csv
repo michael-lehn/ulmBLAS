@@ -1,0 +1,6 @@
+variant,kernel,reference,n1000_gflops,n1024_gflops,n1500_gflops,n2000_gflops,n2048_gflops,n3000_gflops,n4000_gflops,n4096_gflops,n1000_over_ref,n1024_over_ref,n1500_over_ref,n2000_over_ref,n2048_over_ref,n3000_over_ref,n4000_over_ref,n4096_over_ref,over_ref_median,over_ref_min,over_ref_max,rating,over_ulmblas_avx_median
+ulmblas-haswell_12x4-k4,haswell_12x4,blis-haswell,52.66,52.47,52.98,53.12,53.14,53.55,53.60,53.23,0.940,0.964,0.943,0.945,0.977,0.944,0.943,0.991,0.945,0.940,0.991,target,
+ulmblas-haswell_4x12-k4,haswell_4x12,blis-haswell,52.80,50.40,53.01,53.08,48.90,53.45,53.37,47.45,0.943,0.926,0.944,0.944,0.899,0.943,0.939,0.883,0.941,0.883,0.944,target,
+ulmblas-haswell_6x8-k2,haswell_6x8,blis-haswell,56.07,55.40,55.70,55.94,55.46,56.34,56.40,55.36,1.001,1.018,0.992,0.995,1.019,0.993,0.992,1.031,0.998,0.992,1.031,excellent,
+ulmblas-zen4_32x6-k2,zen4_32x6,aocl,57.02,58.40,58.29,58.10,58.64,58.77,59.05,58.67,0.970,1.146,1.006,1.004,1.204,1.007,1.017,1.247,1.012,0.970,1.247,excellent,
+ulmblas-zen5_8x24-k4,zen5_8x24,aocl,57.33,53.62,56.93,57.58,54.35,58.01,58.20,54.74,0.976,1.052,0.982,0.995,1.116,0.994,1.002,1.163,0.999,0.976,1.163,excellent,

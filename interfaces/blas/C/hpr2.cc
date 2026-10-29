@@ -6,14 +6,14 @@
 extern "C" {
 
 void
-ULMBLAS(chpr2)(enum CBLAS_UPLO  upLo,
-               int              n,
-               const float      *alpha_,
-               const float      *x_,
-               int              incX,
-               const float      *y_,
-               int              incY,
-               float            *A_)
+ULMBLAS(chpr2)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               const float        *alpha_,
+               const float        *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               const float        *y_,
+               ULMBLAS_INDEX_TYPE incY,
+               float              *A_)
 {
     typedef std::complex<float> fcomplex;
     fcomplex alpha    = fcomplex(alpha_[0], alpha_[1]);
@@ -31,21 +31,21 @@ ULMBLAS(chpr2)(enum CBLAS_UPLO  upLo,
 //  Start the operations.
 //
     if (upLo==CblasLower) {
-        ulmBLAS::hplr2(n, alpha, x, incX, y, incY, A);
+        ulmBLAS::hplr2<std::ptrdiff_t>(n, alpha, x, incX, y, incY, A);
     } else {
-        ulmBLAS::hpur2(n, alpha, x, incX, y, incY, A);
+        ulmBLAS::hpur2<std::ptrdiff_t>(n, alpha, x, incX, y, incY, A);
     }
 }
 
 void
-ULMBLAS(chpr2_)(enum CBLAS_UPLO  upLo,
-                int              n,
-                const float      *alpha_,
-                const float      *x_,
-                int              incX,
-                const float      *y_,
-                int              incY,
-                float            *A_)
+ULMBLAS(chpr2_)(enum CBLAS_UPLO    upLo,
+                ULMBLAS_INDEX_TYPE n,
+                const float        *alpha_,
+                const float        *x_,
+                ULMBLAS_INDEX_TYPE incX,
+                const float        *y_,
+                ULMBLAS_INDEX_TYPE incY,
+                float              *A_)
 {
     typedef std::complex<float> fcomplex;
     fcomplex alpha    = fcomplex(alpha_[0], alpha_[1]);
@@ -63,21 +63,21 @@ ULMBLAS(chpr2_)(enum CBLAS_UPLO  upLo,
 //  Start the operations.
 //
     if (upLo==CblasLower) {
-        ulmBLAS::hplr2(n, true, alpha, x, incX, y, incY, A);
+        ulmBLAS::hplr2<std::ptrdiff_t>(n, true, alpha, x, incX, y, incY, A);
     } else {
-        ulmBLAS::hpur2(n, true, alpha, x, incX, y, incY, A);
+        ulmBLAS::hpur2<std::ptrdiff_t>(n, true, alpha, x, incX, y, incY, A);
     }
 }
 
 void
-ULMBLAS(zhpr2)(enum CBLAS_UPLO  upLo,
-               int              n,
-               const double     *alpha_,
-               const double     *x_,
-               int              incX,
-               const double     *y_,
-               int              incY,
-               double           *A_)
+ULMBLAS(zhpr2)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               const double       *alpha_,
+               const double       *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               const double       *y_,
+               ULMBLAS_INDEX_TYPE incY,
+               double             *A_)
 {
     typedef std::complex<double> dcomplex;
     dcomplex alpha    = dcomplex(alpha_[0], alpha_[1]);
@@ -95,21 +95,21 @@ ULMBLAS(zhpr2)(enum CBLAS_UPLO  upLo,
 //  Start the operations.
 //
     if (upLo==CblasLower) {
-        ulmBLAS::hplr2(n, alpha, x, incX, y, incY, A);
+        ulmBLAS::hplr2<std::ptrdiff_t>(n, alpha, x, incX, y, incY, A);
     } else {
-        ulmBLAS::hpur2(n, alpha, x, incX, y, incY, A);
+        ulmBLAS::hpur2<std::ptrdiff_t>(n, alpha, x, incX, y, incY, A);
     }
 }
 
 void
-ULMBLAS(zhpr2_)(enum CBLAS_UPLO  upLo,
-                int              n,
-                const double     *alpha_,
-                const double     *x_,
-                int              incX,
-                const double     *y_,
-                int              incY,
-                double           *A_)
+ULMBLAS(zhpr2_)(enum CBLAS_UPLO    upLo,
+                ULMBLAS_INDEX_TYPE n,
+                const double       *alpha_,
+                const double       *x_,
+                ULMBLAS_INDEX_TYPE incX,
+                const double       *y_,
+                ULMBLAS_INDEX_TYPE incY,
+                double             *A_)
 {
     typedef std::complex<double> dcomplex;
     dcomplex alpha    = dcomplex(alpha_[0], alpha_[1]);
@@ -127,22 +127,22 @@ ULMBLAS(zhpr2_)(enum CBLAS_UPLO  upLo,
 //  Start the operations.
 //
     if (upLo==CblasLower) {
-        ulmBLAS::hplr2(n, true, alpha, x, incX, y, incY, A);
+        ulmBLAS::hplr2<std::ptrdiff_t>(n, true, alpha, x, incX, y, incY, A);
     } else {
-        ulmBLAS::hpur2(n, true, alpha, x, incX, y, incY, A);
+        ulmBLAS::hpur2<std::ptrdiff_t>(n, true, alpha, x, incX, y, incY, A);
     }
 }
 
 void
-CBLAS(chpr2)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             const float       *alpha,
-             const float       *x,
-             int               incX,
-             const float       *y,
-             int               incY,
-             float             *A)
+CBLAS(chpr2)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             const float        *alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const float        *y,
+             ULMBLAS_INDEX_TYPE incY,
+             float              *A)
 {
 //
 //  Test the input parameters
@@ -166,6 +166,7 @@ CBLAS(chpr2)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_chpr2", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -177,15 +178,15 @@ CBLAS(chpr2)(enum CBLAS_ORDER  order,
 }
 
 void
-CBLAS(zhpr2)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             const double      *alpha,
-             const double      *x,
-             int               incX,
-             const double      *y,
-             int               incY,
-             double            *A)
+CBLAS(zhpr2)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             const double       *alpha,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const double       *y,
+             ULMBLAS_INDEX_TYPE incY,
+             double             *A)
 {
 //
 //  Test the input parameters
@@ -209,6 +210,7 @@ CBLAS(zhpr2)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_zhpr2", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {

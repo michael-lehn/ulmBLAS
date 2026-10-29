@@ -1,0 +1,8 @@
+config b352_1024_1216
+ulmBLAS 21197f2ac62af471144bc5b26d6e2d5c302bc7ed
+blocks USE_SME MC 352 KC 1024 NC 1216 MR 32 NR 16
+compile /usr/bin/clang++ -I../../.. -I../../.. -DADD_ -D'BLAS_HEADER=<cblas.h>' -D'CBLAS(x)=cblas_ ## x' -D'ULMBLAS(x)=ulmblas_ ## x' -D'CBLAS_H=ULMBLAS_CBLAS_H' -std=c++11 -mcpu=apple-m4 -O3 -fomit-frame-pointer -Wall -MMD -MP
+compiler Apple clang version 21.0.0 (clang-2100.3.34.2)
+33d280dbb585d79fb2dd1319023d139f2a9ccf0d77f9cf9e6cb7249b5d5ef594  lib/b352_1024_1216/libcblas.a
+d4555619f044c15b2b93b1b2fd0a4c32110a017ac2b8e8ec03c961e654fba1c2  bench2-b352_1024_1216
+37c675d230ac9a66272b35de8390896d9682bf4b28a77fa445b4270a66a67e63  verify-b352_1024_1216

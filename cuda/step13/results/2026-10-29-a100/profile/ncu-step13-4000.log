@@ -1,0 +1,40 @@
+==PROF== Connected to process 2628127 (/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-s13-ncu/cuda/build/bench_gemm)
+==PROF== Profiling "dgemm": 0%....50%....100% - 10 passes
+# host uc2n902.localdomain, 2026-10-29T18:08:38
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 2 warm-up calls, 1 timed calls, CUDA events
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     4000   4000   4000      6.899      6.899      6.899    18554.3    1.000
+step13     4000   4000   4000   1080.780   1080.780   1080.780      118.4    0.006
+==PROF== Disconnected from process 2628127
+[2628127] bench_gemm@127.0.0.1
+  void unnamed>::dgemm<unnamed>::Shape<4, 4, 8>, 1>(long, long, long, double, const double *, int, const double *, int, double, double *, long) (63, 63, 1)x(32, 4, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                            Metric Unit Metric Value
+    ---------------------------------------------------------------------- ----------- ------------
+    dram__bytes_read.sum                                                         Gbyte         2.91
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                               %        16.27
+    gpu__time_duration.sum                                                          ms         9.82
+    lts__t_sector_hit_rate.pct                                                       %        84.47
+    lts__t_sectors_srcunit_tex_op_read.sum                                      sector  760,164,764
+    lts__throughput.avg.pct_of_peak_sustained_elapsed                                %        57.28
+    sm__cycles_elapsed.avg.per_second                                              Ghz         1.06
+    sm__inst_executed_pipe_tensor_op_dmma.sum                                     inst  254,016,000
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active           %        92.73
+    sm__warps_active.avg.pct_of_peak_sustained_active                                %        23.78
+    smsp__average_warp_latency_issue_stalled_barrier.ratio                   inst/warp    69,131.67
+    smsp__average_warp_latency_issue_stalled_long_scoreboard.ratio           inst/warp    43,968.50
+    smsp__average_warp_latency_issue_stalled_math_pipe_throttle.ratio        inst/warp   599,336.14
+    smsp__average_warp_latency_issue_stalled_mio_throttle.ratio              inst/warp    15,101.58
+    smsp__average_warp_latency_issue_stalled_not_selected.ratio              inst/warp    27,286.00
+    smsp__average_warp_latency_issue_stalled_short_scoreboard.ratio          inst/warp    45,545.41
+    smsp__average_warp_latency_issue_stalled_wait.ratio                      inst/warp   185,799.86
+    smsp__inst_executed.sum                                                       inst  745,859,638
+    smsp__inst_executed_pipe_lsu.sum                                              inst  130,475,426
+    smsp__inst_executed_pipe_uniform.sum                                          inst  108,601,964
+    smsp__issue_active.avg.pct_of_peak_sustained_active                              %        17.02
+    ---------------------------------------------------------------------- ----------- ------------
+

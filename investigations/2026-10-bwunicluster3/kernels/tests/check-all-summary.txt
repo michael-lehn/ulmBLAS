@@ -1,0 +1,14 @@
+Summary (testcase01 testcase02 testcase03 testcase04 testcase05 testcase06 testcase07 testcase08 testcase09 blis-haswell_6x8 blis-haswell_6x8-small blis-haswell_8x6 blis-haswell_8x6-small blis-sandybridge_8x4 blis-sandybridge_8x4-small blis-penryn_4x4 blis-penryn_4x4-small):
+  PASS 2268, FAIL 8, XFAIL 0, XPASS 0, DESIGN 30, SKIP 344
+
+Results other than PASS and DESIGN:
+  FAIL   T0009 [blis-sandybridge_8x4] netlib-F77/sblat3: exit status 139, see build/blis-sandybridge_8x4/netlib-F77/sblat3.out
+  FAIL   T0009 [blis-sandybridge_8x4-small] netlib-F77/sblat3: exit status 139, see build/blis-sandybridge_8x4-small/netlib-F77/sblat3.out
+  FAIL   T0010 [blis-sandybridge_8x4] netlib-F77/dblat3: exit status 139, see build/blis-sandybridge_8x4/netlib-F77/dblat3.out
+  FAIL   T0010 [blis-sandybridge_8x4-small] netlib-F77/dblat3: exit status 139, see build/blis-sandybridge_8x4-small/netlib-F77/dblat3.out
+  FAIL   T0030 [blis-sandybridge_8x4] netlib-C/c_dblat3: exit status 139, see build/blis-sandybridge_8x4/netlib-C/c_dblat3.out
+  FAIL   T0030 [blis-sandybridge_8x4-small] netlib-C/c_dblat3: exit status 139, see build/blis-sandybridge_8x4-small/netlib-C/c_dblat3.out
+  FAIL   T0100-T0699 [blis-sandybridge_8x4] numeric: test program terminated abnormally (status 139), see build/blis-sandybridge_8x4/numeric/results.txt
+  FAIL   T0100-T0699 [blis-sandybridge_8x4-small] numeric: test program terminated abnormally (status 139), see build/blis-sandybridge_8x4-small/numeric/results.txt
+
+Known issues: test/known_issues.md.  All results: test/build/check.log

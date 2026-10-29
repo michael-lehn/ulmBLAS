@@ -1,0 +1,19 @@
+start 2026-10-27T13:22:05+01:00
+2026-10-27T14:10:05+01:00 round 1 ulmblas-avx done, load 0.98
+2026-10-27T14:11:34+01:00 round 1 ulmblas-blis-haswell_6x8 done, load 1.00
+2026-10-27T14:13:10+01:00 round 1 ulmblas-openblas-haswell_4x8 done, load 1.00
+2026-10-27T14:14:37+01:00 round 1 openblas done, load 1.00
+2026-10-27T14:16:07+01:00 round 1 blis done, load 1.00
+2026-10-27T14:17:36+01:00 round 2 ulmblas-blis-haswell_6x8 done, load 0.98
+2026-10-27T14:19:13+01:00 round 2 ulmblas-openblas-haswell_4x8 done, load 1.00
+2026-10-27T14:20:41+01:00 round 2 openblas done, load 0.98
+2026-10-27T14:22:10+01:00 round 2 blis done, load 1.00
+2026-10-27T14:23:39+01:00 round 2 ulmblas-avx done, load 1.00
+2026-10-27T14:25:15+01:00 round 3 ulmblas-openblas-haswell_4x8 done, load 1.00
+2026-10-27T14:26:43+01:00 round 3 openblas done, load 1.00
+2026-10-27T14:28:12+01:00 round 3 blis done, load 0.98
+2026-10-27T14:29:41+01:00 round 3 ulmblas-avx done, load 0.98
+2026-10-27T14:31:10+01:00 round 3 ulmblas-blis-haswell_6x8 done, load 1.02
+wrong results: 0
+end 2026-10-27T14:32:02+01:00
+overall: all commands succeeded

@@ -6,137 +6,254 @@
 VERBOSE(#ifndef) F77BLAS_H
 VERBOSE(#define) F77BLAS_H 1
 
+//
+//  ULMBLAS_INDEX_TYPE: the integer type of dimensions, increments, leading
+//  dimensions and indices.  It is chosen when ulmBLAS is built (make
+//  ULMBLAS_INDEX_TYPE=..., default int; see INSTALL.md), and programs must
+//  use the type of the library they link.
+//
+VERBOSE(#include) <stddef.h>
+VERBOSE(#include) <stdint.h>
+
+VERBOSE(#define) ULMBLAS_INDEX_TYPE ULMBLAS_INDEX_TYPE_OF_BUILD
+
 VERBOSE(#ifdef) __cplusplus
 extern "C" {
 VERBOSE(#endif)
 
 //
-//  Declaration of BLAS functions currently implemented in ulmBLAS
+//  Fortran 77 interface of ulmBLAS for calls from C: all subroutines.  The
+//  Fortran functions (e.g. DDOT, DZNRM2, ICAMAX, SDSDOT) are wrappers of
+//  the subroutines declared here with the suffix _sub, which return the
+//  result in their last argument.  All arguments are passed by reference.
 //
-void
-F77BLAS(sasum_sub)(const int    *n_,
-                   const float  *x,
-                   const int    *incX_,
-                   float        *result_);
+
+//
+//  Level 1
+//
 
 void
-F77BLAS(dasum_sub)(const int    *n_,
-                   const double *x,
-                   const int    *incX_,
-                   double       *result_);
+F77BLAS(sasum_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const float              *x,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   float                    *result_);
 
 void
-F77BLAS(saxpy)(const int     *n_,
-               const float   *alpha_,
-               const float   *x,
-               const int     *incX_,
-               float         *y,
-               int           *incY_);
-void
-F77BLAS(daxpy)(const int     *n_,
-               const double  *alpha_,
-               const double  *x,
-               const int     *incX_,
-               double        *y,
-               int           *incY_);
+F77BLAS(dasum_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const double             *x,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   double                   *result_);
 
 void
-F77BLAS(scopy)(const int    *n_,
-               const float  *x,
-               const int    *incX_,
-               float        *y,
-               const int    *incY_);
+F77BLAS(scasum_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                    const float              *x_,
+                    const ULMBLAS_INDEX_TYPE *incX_,
+                    float                    *result_);
 
 void
-F77BLAS(dcopy)(const int    *n_,
-               const double *x,
-               const int    *incX_,
-               double       *y,
-               const int    *incY_);
+F77BLAS(dzasum_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                    const double             *x_,
+                    const ULMBLAS_INDEX_TYPE *incX_,
+                    double                   *result_);
 
 void
-F77BLAS(sscal)(const int    *n_,
-               const float  *alpha_,
-               float        *x,
-               const int    *incX_);
+F77BLAS(saxpy)(const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               float                    *y,
+               ULMBLAS_INDEX_TYPE       *incY_);
 
 void
-F77BLAS(dscal)(const int    *n_,
-               const double *alpha_,
-               double       *x,
-               const int    *incX_);
+F77BLAS(daxpy)(const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               double                   *y,
+               ULMBLAS_INDEX_TYPE       *incY_);
 
 void
-F77BLAS(sswap)(const int *n_,
-               float     *x,
-               const int *incX_,
-               float     *y,
-               const int *incY_);
+F77BLAS(caxpy)(const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               float                    *y_,
+               ULMBLAS_INDEX_TYPE       *incY_);
 
 void
-F77BLAS(dswap)(const int *n_,
-               double    *x,
-               const int *incX_,
-               double    *y,
-               const int *incY_);
+F77BLAS(zaxpy)(const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               double                   *y_,
+               ULMBLAS_INDEX_TYPE       *incY_);
 
 void
-F77BLAS(sdot_sub)(const int     *n_,
-                  const float   *x,
-                  const int     *incX_,
-                  const float   *y,
-                  const int     *incY_,
-                  float         *result_);
+F77BLAS(scopy)(const ULMBLAS_INDEX_TYPE *n_,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
 
 void
-F77BLAS(ddot_sub)(const int     *n_,
-                  const double  *x,
-                  const int     *incX_,
-                  const double  *y,
-                  const int     *incY_,
-                  double        *result_);
+F77BLAS(dcopy)(const ULMBLAS_INDEX_TYPE *n_,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
 
 void
-F77BLAS(isamax_sub)(const int       *n_,
-                    const float     *x,
-                    const int       *incX_,
-                    int             *result_);
+F77BLAS(ccopy)(const ULMBLAS_INDEX_TYPE *n_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
 
 void
-F77BLAS(idamax_sub)(const int       *n_,
-                    const double    *x,
-                    const int       *incX_,
-                    int             *result_);
+F77BLAS(zcopy)(const ULMBLAS_INDEX_TYPE *n_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
 
 void
-F77BLAS(snrm2_sub)(const int     *n_,
-                   const float   *x,
-                   const int     *incX_,
-                   float         *result_);
+F77BLAS(sdot_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                  const float              *x,
+                  const ULMBLAS_INDEX_TYPE *incX_,
+                  const float              *y,
+                  const ULMBLAS_INDEX_TYPE *incY_,
+                  float                    *result_);
 
 void
-F77BLAS(dnrm2_sub)(const int     *n_,
-                   const double  *x,
-                   const int     *incX_,
-                   double        *result_);
+F77BLAS(ddot_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                  const double             *x,
+                  const ULMBLAS_INDEX_TYPE *incX_,
+                  const double             *y,
+                  const ULMBLAS_INDEX_TYPE *incY_,
+                  double                   *result_);
 
 void
-F77BLAS(srot)(const int      *n_,
-              float          *x,
-              const int      *incX_,
-              float          *y,
-              const int      *incY_,
-              const float    *c_,
-              const float    *s_);
+F77BLAS(cdotu_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const float              *x_,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   const float              *y_,
+                   const ULMBLAS_INDEX_TYPE *incY_,
+                   double                   *result_);
 
 void
-F77BLAS(drot)(const int      *n_,
-              double         *x,
-              const int      *incX_,
-              double         *y,
-              const int      *incY_,
-              const double   *c_,
-              const double   *s_);
+F77BLAS(cdotc_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const float              *x_,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   const float              *y_,
+                   const ULMBLAS_INDEX_TYPE *incY_,
+                   double                   *result_);
+
+void
+F77BLAS(zdotu_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const double             *x_,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   const double             *y_,
+                   const ULMBLAS_INDEX_TYPE *incY_,
+                   double                   *result_);
+
+void
+F77BLAS(zdotc_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const double             *x_,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   const double             *y_,
+                   const ULMBLAS_INDEX_TYPE *incY_,
+                   double                   *result_);
+
+void
+F77BLAS(sdsdot_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                    const float              *alpha_,
+                    const float              *x,
+                    const ULMBLAS_INDEX_TYPE *incX_,
+                    const float              *y,
+                    const ULMBLAS_INDEX_TYPE *incY_,
+                    float                    *result_);
+
+void
+F77BLAS(dsdot_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const float              *x,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   const float              *y,
+                   const ULMBLAS_INDEX_TYPE *incY_,
+                   double                   *result_);
+
+void
+F77BLAS(snrm2_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const float              *x,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   float                    *result_);
+
+void
+F77BLAS(dnrm2_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const double             *x,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   double                   *result_);
+
+void
+F77BLAS(scnrm2_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                    const float              *x_,
+                    const ULMBLAS_INDEX_TYPE *incX_,
+                    float                    *result_);
+
+void
+F77BLAS(dznrm2_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                    const double             *x_,
+                    const ULMBLAS_INDEX_TYPE *incX_,
+                    double                   *result_);
+
+void
+F77BLAS(isamax_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                    const float              *x,
+                    const ULMBLAS_INDEX_TYPE *incX_,
+                    ULMBLAS_INDEX_TYPE       *result_);
+
+void
+F77BLAS(idamax_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                    const double             *x,
+                    const ULMBLAS_INDEX_TYPE *incX_,
+                    ULMBLAS_INDEX_TYPE       *result_);
+
+void
+F77BLAS(icamax_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                    const float              *x_,
+                    const ULMBLAS_INDEX_TYPE *incX_,
+                    ULMBLAS_INDEX_TYPE       *result_);
+
+void
+F77BLAS(izamax_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                    const double             *x_,
+                    const ULMBLAS_INDEX_TYPE *incX_,
+                    ULMBLAS_INDEX_TYPE       *result_);
+
+void
+F77BLAS(scabs1_sub)(const float   *z_,
+                    float         *result_);
+
+void
+F77BLAS(dcabs1_sub)(const double  *z_,
+                    double        *result_);
+
+void
+F77BLAS(srot)(const ULMBLAS_INDEX_TYPE *n_,
+              float                    *x,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              float                    *y,
+              const ULMBLAS_INDEX_TYPE *incY_,
+              const float              *c_,
+              const float              *s_);
+
+void
+F77BLAS(drot)(const ULMBLAS_INDEX_TYPE *n_,
+              double                   *x,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              double                   *y,
+              const ULMBLAS_INDEX_TYPE *incY_,
+              const double             *c_,
+              const double             *s_);
 
 void
 F77BLAS(srotg)(float *a,
@@ -151,141 +268,1263 @@ F77BLAS(drotg)(double *a,
                double *s);
 
 void
-F77BLAS(dger)(const int         *m_,
-              const int         *n_,
-              const double      *alpha_,
-              const double      *x,
-              const int         *incX_,
-              const double      *y,
-              const int         *incY_,
-              double            *A,
-              const int         *ldA_);
+F77BLAS(csrot)(const ULMBLAS_INDEX_TYPE *n_,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               const float              *c_,
+               const float              *s_);
 
 void
-F77BLAS(dgemv)(const char     *transA_,
-               const int      *m_,
-               const int      *n_,
-               const double   *alpha_,
-               const double   *A,
-               const int      *ldA_,
-               const double   *x,
-               const int      *incX_,
-               const double   *beta_,
-               double         *y,
-               const int      *incY_);
+F77BLAS(zdrot)(const ULMBLAS_INDEX_TYPE *n_,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               const double             *c_,
+               const double             *s_);
 
 void
-F77BLAS(dsymv)(const char     *upLo_,
-               const int      *n_,
-               const double   *alpha_,
-               const double   *A,
-               const int      *ldA_,
-               const double   *x,
-               const int      *incX_,
-               const double   *beta_,
-               double         *y,
-               const int      *incY_);
+F77BLAS(crotg)(float *a_,
+               float *b_,
+               float *c,
+               float *s_);
 
 void
-F77BLAS(dtrmv)(const char     *upLo_,
-               const char     *transA_,
-               const char     *diag_,
-               const int      *n_,
-               const double   *A,
-               const int      *ldA_,
-               double         *x,
-               const int      *incX_);
+F77BLAS(zrotg)(double *a_,
+               double *b_,
+               double *c,
+               double *s_);
 
 void
-F77BLAS(dtrsv)(const char     *upLo_,
-               const char     *transA_,
-               const char     *diag_,
-               const int      *n_,
-               const double   *A,
-               const int      *ldA_,
-               double         *x,
-               const int      *incX_);
+F77BLAS(srotm)(const ULMBLAS_INDEX_TYPE *n_,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               const float              *param);
 
 void
-F77BLAS(dgemm)(const char     *transA_,
-               const char     *transB_,
-               const int      *m_,
-               const int      *n_,
-               const int      *k_,
-               const double   *alpha_,
-               const double   *A,
-               const int      *ldA_,
-               const double   *B,
-               const int      *ldB_,
-               const double   *beta_,
-               double         *C,
-               const int      *ldC_);
+F77BLAS(drotm)(const ULMBLAS_INDEX_TYPE *n_,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               const double             *param);
 
 void
-F77BLAS(dsymm)(const char     *side_,
-               const char     *upLo_,
-               const int      *m_,
-               const int      *n_,
-               const double   *alpha_,
-               const double   *A,
-               const int      *ldA_,
-               const double   *B,
-               const int      *ldB_,
-               const double   *beta_,
-               double         *C,
-               const int      *ldC_);
+F77BLAS(srotmg)(float          *d1,
+                float          *d2,
+                float          *x1,
+                const float    *y1,
+                float          *param);
 
 void
-F77BLAS(dtrmm)(const char     *side_,
-               const char     *upLo_,
-               const char     *transA_,
-               const char     *diag_,
-               const int      *m_,
-               const int      *n_,
-               const double   *alpha_,
-               const double   *A,
-               const int      *ldA_,
-               double         *B,
-               const int      *ldB_);
+F77BLAS(drotmg)(double         *d1,
+                double         *d2,
+                double         *x1,
+                const double   *y1,
+                double         *param);
 
 void
-F77BLAS(dtrsm)(const char     *side_,
-               const char     *upLo_,
-               const char     *transA_,
-               const char     *diag_,
-               const int      *m_,
-               const int      *n_,
-               const double   *alpha_,
-               const double   *A,
-               const int      *ldA_,
-               double         *B,
-               const int      *ldB_);
+F77BLAS(sscal)(const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
 
 void
-F77BLAS(dsyrk)(const char     *upLo_,
-               const char     *trans_,
-               const int      *n_,
-               const int      *k_,
-               const double   *alpha_,
-               const double   *A,
-               const int      *ldA_,
-               const double   *beta_,
-               double         *C,
-               const int      *ldC_);
+F77BLAS(dscal)(const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
 
 void
-F77BLAS(dsyr2k)(const char     *upLo_,
-                const char     *trans_,
-                const int      *n_,
-                const int      *k_,
-                const double   *alpha_,
-                const double   *A,
-                const int      *ldA_,
-                const double   *B,
-                const int      *ldB_,
-                const double   *beta_,
-                double         *C,
-                const int      *ldC_);
+F77BLAS(cscal)(const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(zscal)(const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(csscal)(const ULMBLAS_INDEX_TYPE *n_,
+                const float              *alpha_,
+                float                    *x_,
+                const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(zdscal)(const ULMBLAS_INDEX_TYPE *n_,
+                const double             *alpha_,
+                double                   *x_,
+                const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(sswap)(const ULMBLAS_INDEX_TYPE *n_,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(dswap)(const ULMBLAS_INDEX_TYPE *n_,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(cswap)(const ULMBLAS_INDEX_TYPE *n_,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(zswap)(const ULMBLAS_INDEX_TYPE *n_,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+//
+//  Level 2
+//
+
+void
+F77BLAS(sgemv)(const char               *transA_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(dgemv)(const char               *transA_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(cgemv)(const char               *transA_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(zgemv)(const char               *transA_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(sgbmv)(const char               *transA_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *kl_,
+               const ULMBLAS_INDEX_TYPE *ku_,
+               const float              *alpha_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(dgbmv)(const char               *transA_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *kl_,
+               const ULMBLAS_INDEX_TYPE *ku_,
+               const double             *alpha_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(cgbmv)(const char               *transA_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *kl_,
+               const ULMBLAS_INDEX_TYPE *ku_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(zgbmv)(const char               *transA_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *kl_,
+               const ULMBLAS_INDEX_TYPE *ku_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(sger)(const ULMBLAS_INDEX_TYPE *m_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const float              *alpha_,
+              const float              *x,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              const float              *y,
+              const ULMBLAS_INDEX_TYPE *incY_,
+              float                    *A,
+              const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(dger)(const ULMBLAS_INDEX_TYPE *m_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const double             *alpha_,
+              const double             *x,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              const double             *y,
+              const ULMBLAS_INDEX_TYPE *incY_,
+              double                   *A,
+              const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(cgeru)(const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *y_,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               float                    *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(zgeru)(const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *y_,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               double                   *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(cgerc)(const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *y_,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               float                    *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(zgerc)(const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *y_,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               double                   *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(chemv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(zhemv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(chbmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(zhbmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(chpmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *AP_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(zhpmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *AP_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(ssymv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(dsymv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(ssbmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *alpha_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(dsbmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *alpha_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(sspmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *AP,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(dspmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *AP,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE *incY_);
+
+void
+F77BLAS(cher)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const float              *alpha_,
+              const float              *x_,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              float                    *A_,
+              const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(zher)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const double             *alpha_,
+              const double             *x_,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              double                   *A_,
+              const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(chpr)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const float              *alpha_,
+              const float              *x_,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              float                    *A_);
+
+void
+F77BLAS(zhpr)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const double             *alpha_,
+              const double             *x_,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              double                   *A_);
+
+void
+F77BLAS(cher2)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *y_,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               float                    *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(zher2)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *y_,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               double                   *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(chpr2)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *y_,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               float                    *A_);
+
+void
+F77BLAS(zhpr2)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *y_,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               double                   *A_);
+
+void
+F77BLAS(ssyr)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const float              *alpha_,
+              const float              *x,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              float                    *A,
+              const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(dsyr)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const double             *alpha_,
+              const double             *x,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              double                   *A,
+              const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(sspr)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const float              *alpha_,
+              const float              *x,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              float                    *A);
+
+void
+F77BLAS(dspr)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const double             *alpha_,
+              const double             *x,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              double                   *A);
+
+void
+F77BLAS(ssyr2)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *y,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               float                    *A,
+               const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(dsyr2)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *y,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               double                   *A,
+               const ULMBLAS_INDEX_TYPE *ldA_);
+
+void
+F77BLAS(sspr2)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *y,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               float                    *A);
+
+void
+F77BLAS(dspr2)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *y,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               double                   *A);
+
+void
+F77BLAS(strmv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(dtrmv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(ctrmv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(ztrmv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(stbmv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(dtbmv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(ctbmv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(ztbmv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(stpmv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *AP,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(dtpmv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *AP,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(ctpmv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *AP_,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(ztpmv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *AP_,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(strsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(dtrsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(ctrsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(ztrsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(stbsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(dtbsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(ctbsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(ztbsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(stpsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *AP,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(dtpsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *AP,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(ctpsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *AP_,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+void
+F77BLAS(ztpsv)(const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *AP_,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE *incX_);
+
+//
+//  Level 3
+//
+
+void
+F77BLAS(sgemm)(const char               *transA_,
+               const char               *transB_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *alpha_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *B,
+               const ULMBLAS_INDEX_TYPE *ldB_,
+               const float              *beta_,
+               float                    *C,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(dgemm)(const char               *transA_,
+               const char               *transB_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *alpha_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *B,
+               const ULMBLAS_INDEX_TYPE *ldB_,
+               const double             *beta_,
+               double                   *C,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(cgemm)(const char               *transA_,
+               const char               *transB_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_,
+               const float              *beta_,
+               float                    *C_,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(zgemm)(const char               *transA_,
+               const char               *transB_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_,
+               const double             *beta_,
+               double                   *C_,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(ssymm)(const char               *side_,
+               const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *B,
+               const ULMBLAS_INDEX_TYPE *ldB_,
+               const float              *beta_,
+               float                    *C,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(dsymm)(const char               *side_,
+               const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *B,
+               const ULMBLAS_INDEX_TYPE *ldB_,
+               const double             *beta_,
+               double                   *C,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(csymm)(const char               *side_,
+               const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_,
+               const float              *beta_,
+               float                    *C_,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(zsymm)(const char               *side_,
+               const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_,
+               const double             *beta_,
+               double                   *C_,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(chemm)(const char               *side_,
+               const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_,
+               const float              *beta_,
+               float                    *C_,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(zhemm)(const char               *side_,
+               const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_,
+               const double             *beta_,
+               double                   *C_,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(ssyrk)(const char               *upLo_,
+               const char               *trans_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *alpha_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *beta_,
+               float                    *C,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(dsyrk)(const char               *upLo_,
+               const char               *trans_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *alpha_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *beta_,
+               double                   *C,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(csyrk)(const char               *upLo_,
+               const char               *trans_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *beta_,
+               float                    *C_,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(zsyrk)(const char               *upLo_,
+               const char               *trans_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *beta_,
+               double                   *C_,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(cherk)(const char               *upLo_,
+               const char               *trans_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *beta_,
+               float                    *C_,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(zherk)(const char               *upLo_,
+               const char               *trans_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *beta_,
+               double                   *C_,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(ssyr2k)(const char               *upLo_,
+                const char               *trans_,
+                const ULMBLAS_INDEX_TYPE *n_,
+                const ULMBLAS_INDEX_TYPE *k_,
+                const float              *alpha_,
+                const float              *A,
+                const ULMBLAS_INDEX_TYPE *ldA_,
+                const float              *B,
+                const ULMBLAS_INDEX_TYPE *ldB_,
+                const float              *beta_,
+                float                    *C,
+                const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(dsyr2k)(const char               *upLo_,
+                const char               *trans_,
+                const ULMBLAS_INDEX_TYPE *n_,
+                const ULMBLAS_INDEX_TYPE *k_,
+                const double             *alpha_,
+                const double             *A,
+                const ULMBLAS_INDEX_TYPE *ldA_,
+                const double             *B,
+                const ULMBLAS_INDEX_TYPE *ldB_,
+                const double             *beta_,
+                double                   *C,
+                const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(csyr2k)(const char               *upLo_,
+                const char               *trans_,
+                const ULMBLAS_INDEX_TYPE *n_,
+                const ULMBLAS_INDEX_TYPE *k_,
+                const float              *alpha_,
+                const float              *A_,
+                const ULMBLAS_INDEX_TYPE *ldA_,
+                const float              *B_,
+                const ULMBLAS_INDEX_TYPE *ldB_,
+                const float              *beta_,
+                float                    *C_,
+                const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(zsyr2k)(const char               *upLo_,
+                const char               *trans_,
+                const ULMBLAS_INDEX_TYPE *n_,
+                const ULMBLAS_INDEX_TYPE *k_,
+                const double             *alpha_,
+                const double             *A_,
+                const ULMBLAS_INDEX_TYPE *ldA_,
+                const double             *B_,
+                const ULMBLAS_INDEX_TYPE *ldB_,
+                const double             *beta_,
+                double                   *C_,
+                const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(cher2k)(const char               *upLo_,
+                const char               *trans_,
+                const ULMBLAS_INDEX_TYPE *n_,
+                const ULMBLAS_INDEX_TYPE *k_,
+                const float              *alpha_,
+                const float              *A_,
+                const ULMBLAS_INDEX_TYPE *ldA_,
+                const float              *B_,
+                const ULMBLAS_INDEX_TYPE *ldB_,
+                const float              *beta_,
+                float                    *C_,
+                const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(zher2k)(const char               *upLo_,
+                const char               *trans_,
+                const ULMBLAS_INDEX_TYPE *n_,
+                const ULMBLAS_INDEX_TYPE *k_,
+                const double             *alpha_,
+                const double             *A_,
+                const ULMBLAS_INDEX_TYPE *ldA_,
+                const double             *B_,
+                const ULMBLAS_INDEX_TYPE *ldB_,
+                const double             *beta_,
+                double                   *C_,
+                const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(strmm)(const char               *side_,
+               const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *B,
+               const ULMBLAS_INDEX_TYPE *ldB_);
+
+void
+F77BLAS(dtrmm)(const char               *side_,
+               const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *B,
+               const ULMBLAS_INDEX_TYPE *ldB_);
+
+void
+F77BLAS(ctrmm)(const char               *side_,
+               const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_);
+
+void
+F77BLAS(ztrmm)(const char               *side_,
+               const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_);
+
+void
+F77BLAS(strsm)(const char               *side_,
+               const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *B,
+               const ULMBLAS_INDEX_TYPE *ldB_);
+
+void
+F77BLAS(dtrsm)(const char               *side_,
+               const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *B,
+               const ULMBLAS_INDEX_TYPE *ldB_);
+
+void
+F77BLAS(ctrsm)(const char               *side_,
+               const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_);
+
+void
+F77BLAS(ztrsm)(const char               *side_,
+               const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_);
+
+//
+//  Error handler, called with the name of the routine (length len, not
+//  terminated by a null character) and the number of the invalid argument.
+//  A program can replace it (SUBROUTINE XERBLA( SRNAME, INFO )).
+//
+
+void
+F77BLAS(xerbla)(const char *rout, const ULMBLAS_INDEX_TYPE *info, size_t len);
 
 VERBOSE(#ifdef) __cplusplus
 } // extern "C"

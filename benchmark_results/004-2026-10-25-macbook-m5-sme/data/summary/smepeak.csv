@@ -1,0 +1,14 @@
+test,parameter,rounds,gflops,spread
+panel,kc=1024,3,541.6,0.0006
+panel,kc=16384,3,541.5,0.0018
+panel,kc=2048,3,541.9,0.0009
+panel,kc=256,3,542.1,0.0006
+panel,kc=262144,3,213.9,0.0122
+panel,kc=4096,3,541.7,0.0018
+panel,kc=512,3,541.8,0.0042
+panel,kc=64,3,541.3,0.0028
+panel,kc=65536,3,216.1,0.0602
+regs,tiles=1,3,135.2,0.003
+regs,tiles=2,3,270.5,0.0026
+regs,tiles=4,3,542.0,0.0024
+regs,tiles=8,3,541.8,0.0024

@@ -2,6 +2,7 @@
 #define ULMBLAS_LAPACK_GETF2_TCC 1
 
 #include <algorithm>
+#include <cmath>
 #include <ulmblas/lapack/getf2.h>
 #include <ulmblas/lapack/safemin.h>
 #include <ulmblas/level1/iamax.h>
@@ -11,14 +12,14 @@
 
 namespace ulmBLAS {
 
-template <typename IndexType, typename T>
+template <typename IndexType, typename T, typename PivIndex>
 IndexType
 getf2(IndexType    m,
       IndexType    n,
       T            *A,
       IndexType    incRowA,
       IndexType    incColA,
-      IndexType    *piv,
+      PivIndex     *piv,
       IndexType    incPiv)
 {
     const T sMin = safeMin<T>();
@@ -39,7 +40,7 @@ getf2(IndexType    m,
                 swap(n, &A[j*incRowA], incColA, &A[jp*incRowA], incColA);
             }
             if (j<m-1) {
-                if (fabs(A[j*incRowA+j*incColA])>= sMin) {
+                if (std::abs(A[j*incRowA+j*incColA])>= sMin) {
                     scal(m-j-1, T(1)/A[j*incRowA+j*incColA],
                          &A[(j+1)*incRowA+j*incColA], incRowA);
                 } else {

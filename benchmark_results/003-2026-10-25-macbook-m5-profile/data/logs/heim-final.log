@@ -1,0 +1,12 @@
+== checks start 2026-10-25 09:25:27
+gcc:   PASS 839, FAIL 0, XFAIL 0, XPASS 0, DESIGN 7, SKIP 120, warnings 0, jobserver 0, T0347 8
+clang:   PASS 839, FAIL 0, XFAIL 0, XPASS 0, DESIGN 7, SKIP 120, warnings 0, jobserver 0, T0347 8
+== builds 09:38:42
+pT = final
+== benchmarks start 09:39:27, CPU 3
+round 1 done 09:49:25, load 1.00 1.37 2.00
+round 2 done 09:59:23, load 1.00 1.04 1.51
+round 3 done 10:09:20, load 1.00 1.00 1.24
+wrong results: 0
+overall: all commands succeeded
+== done 2026-10-25 10:09:20

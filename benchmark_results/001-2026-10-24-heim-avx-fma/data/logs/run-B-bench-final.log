@@ -1,0 +1,17 @@
+sse:  -std=c++11 -msse3 -mfpmath=sse -O3 -fomit-frame-pointer
+avx:  -std=c++11 -mavx -mfma -O3 -fomit-frame-pointer
+governor powersave, load 2.86 3.19 2.87
+round 1 sse done, load 1.06
+round 1 avx done, load 1.01
+round 1 blis done, load 1.00
+round 1 openblas done, load 1.00
+round 2 avx done, load 1.00
+round 2 blis done, load 1.00
+round 2 openblas done, load 1.00
+round 2 sse done, load 1.00
+round 3 blis done, load 1.00
+round 3 openblas done, load 1.00
+round 3 sse done, load 1.00
+round 3 avx done, load 1.00
+wrong results: 0
+overall: all commands succeeded

@@ -1,0 +1,2 @@
+        #pragma unroll 2
+        for (std::ptrdiff_t l = 0; l < k; ++l) {

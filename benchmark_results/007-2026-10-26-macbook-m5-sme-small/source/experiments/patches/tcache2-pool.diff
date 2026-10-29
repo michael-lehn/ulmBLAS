@@ -1,0 +1,216 @@
+diff --git a/ulmblas/auxiliary/memorypool.h b/ulmblas/auxiliary/memorypool.h
+index cb0546a..5ccd70b 100644
+--- a/ulmblas/auxiliary/memorypool.h
++++ b/ulmblas/auxiliary/memorypool.h
+@@ -1,36 +1,66 @@
+ #ifndef ULMBLAS_AUXILIARY_MEMORYPOOL_H
+ #define ULMBLAS_AUXILIARY_MEMORYPOOL_H 1
+ 
+-#include <list>
+-#include <unordered_map>
+-#include <mutex>
++#include <cstddef>
+ 
+ namespace ulmBLAS {
+ 
++//
++//  Buffers for the packed operands of the level 2 and level 3 routines: a
++//  routine takes its buffers with allocate(n) at the beginning of a call
++//  and returns them with release(block) at the end.
++//
++//  Each thread keeps the blocks it released (up to numEntries per element
++//  type; if all are taken, a block not in use makes room) and hands them
++//  out again for the same size, without a lock.
++//  Measured on an Apple M5 (macOS 26) for the buffers of DGEMM (MC*KC+MR
++//  and KC*NC+NR elements):
++//
++//  - Allocating and freeing the blocks in every call made DGEMM up to two
++//    times slower for n <= 256 (n = 8: 0.39 instead of 0.20 us), although
++//    the calls of malloc and free themselves took little time: the
++//    allocator marks freed large blocks for deferred reclamation, and the
++//    whole call (packing and micro kernel) became slower.  Blocks have to
++//    be kept.
++//  - The previous pool shared by all threads (lists of free blocks in hash
++//    tables behind a mutex) kept them, but its bookkeeping took about a
++//    third of the time of a 16 x 16 x 16 DGEMM.
++//
++//  A block is owned by the cache of the thread that allocated it; the
++//  cache frees its blocks when the thread ends.  A block released by
++//  another thread (or not cached because the cache was full) is freed.
++//
+ template <typename T>
+ class MemoryPool
+ {
+     public:
+ 
+         T *
+-        allocate(size_t n);
++        allocate(std::size_t n);
+ 
+         void
+         release(T *block);
+ 
+-        virtual
+-        ~MemoryPool();
+-
+     private:
+ 
+-        typedef std::list<T *>                           BlockList;
+-        typedef std::unordered_map<size_t, BlockList>    Free;
+-        typedef std::unordered_map<T *, size_t>          Used;
++        struct Entry
++        {
++            T            *block;
++            std::size_t  n;
++            bool         used;
++        };
++
++        struct ThreadCache
++        {
++            static constexpr int numEntries = 16;
++
++            Entry  entry[numEntries] = {};
++
++            ~ThreadCache();
++        };
+ 
+-        Free        free_;
+-        Used        used_;
+-        BlockList   allocated_;
+-        std::mutex  mutex_;
++        static ThreadCache &
++        threadCache();
+ };
+ 
+ 
+diff --git a/ulmblas/auxiliary/memorypool.tcc b/ulmblas/auxiliary/memorypool.tcc
+index b27265c..ea68751 100644
+--- a/ulmblas/auxiliary/memorypool.tcc
++++ b/ulmblas/auxiliary/memorypool.tcc
+@@ -1,10 +1,6 @@
+ #ifndef ULMBLAS_AUXILIARY_MEMORYPOOL_TCC
+ #define ULMBLAS_AUXILIARY_MEMORYPOOL_TCC 1
+ 
+-#include <cassert>
+-#include <list>
+-#include <unordered_map>
+-
+ #include <ulmblas/auxiliary/memorypool.h>
+ #include <ulmblas/config/simd.h>
+ 
+@@ -16,7 +12,7 @@ namespace ulmBLAS {
+ 
+ template <typename T>
+ T *
+-malloc(size_t n)
++malloc(std::size_t n)
+ {
+ #if defined(USE_AVX)
+     return reinterpret_cast<T *>(_mm_malloc(n*sizeof(T), 32));
+@@ -39,49 +35,78 @@ free(T *block)
+ }
+ 
+ template <typename T>
+-T *
+-MemoryPool<T>::allocate(size_t n)
++typename MemoryPool<T>::ThreadCache &
++MemoryPool<T>::threadCache()
+ {
+-    mutex_.lock();
+-
+-    BlockList &free = free_[n];
+-    T         *block;
++    thread_local ThreadCache cache;
++    return cache;
++}
+ 
+-    if (free.empty()) {
+-        block = malloc<T>(n);
+-        allocated_.push_back(block);
+-    } else {
+-        block = free.back();
+-        free.pop_back();
++template <typename T>
++MemoryPool<T>::ThreadCache::~ThreadCache()
++{
++    for (Entry &e : entry) {
++        if (e.block && !e.used) {
++            free(e.block);
++        }
+     }
+-    used_[block] = n;
+-
+-    mutex_.unlock();
+-    return block;
+ }
+ 
+ template <typename T>
+-void
+-MemoryPool<T>::release(T *block)
++T *
++MemoryPool<T>::allocate(std::size_t n)
+ {
+-    mutex_.lock();
++    ThreadCache &cache = threadCache();
+ 
+-    if (block) {
+-        assert(used_.count(block)==1);
+-        size_t n = used_[block];
+-        free_[n].push_back(block);
++    for (Entry &e : cache.entry) {
++        if (e.block && !e.used && e.n==n) {
++            e.used = true;
++            return e.block;
++        }
+     }
+ 
+-    mutex_.unlock();
++    T     *block = malloc<T>(n);
++    Entry *empty = nullptr, *unused = nullptr;
++
++    for (Entry &e : cache.entry) {
++        //  An entry with the address of a new block is stale: its block
++        //  was released by another thread and freed.
++        if (e.block==block) {
++            e = Entry();
++        }
++        if (!e.block && !empty) {
++            empty = &e;
++        }
++        if (e.block && !e.used && !unused) {
++            unused = &e;
++        }
++    }
++    //  If the cache is full, a block of another size that is not in use
++    //  makes room.
++    if (!empty && unused) {
++        free(unused->block);
++        empty = unused;
++    }
++    if (empty) {
++        *empty = Entry{block, n, true};
++    }
++    return block;
+ }
+ 
+ template <typename T>
+-MemoryPool<T>::~MemoryPool()
++void
++MemoryPool<T>::release(T *block)
+ {
+-    while (!allocated_.empty()) {
+-        free(allocated_.back());
+-        allocated_.pop_back();
++    if (!block) {
++        return;
++    }
++    for (Entry &e : threadCache().entry) {
++        if (e.block==block) {
++            e.used = false;
++            return;
++        }
+     }
++    free(block);
+ }
+ 
+ } // namespace ulmBLAS

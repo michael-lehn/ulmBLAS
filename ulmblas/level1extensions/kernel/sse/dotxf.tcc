@@ -145,10 +145,10 @@ dotuxf(IndexType      n,
             y  += 4;
         }
 
-        double rho0_[2];
-        double rho1_[2];
-        double rho2_[2];
-        double rho3_[2];
+        alignas(16) double rho0_[2];
+        alignas(16) double rho1_[2];
+        alignas(16) double rho2_[2];
+        alignas(16) double rho3_[2];
 
         _mm_store_pd(rho0_, rho0);
         _mm_store_pd(rho1_, rho1);

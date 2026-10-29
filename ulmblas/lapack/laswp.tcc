@@ -9,7 +9,7 @@
 
 namespace ulmBLAS {
 
-template <typename IndexType, typename T>
+template <typename IndexType, typename T, typename PivIndex>
 void
 laswp(IndexType    n,
       T            *A,
@@ -17,7 +17,7 @@ laswp(IndexType    n,
       IndexType    incColA,
       IndexType    k1,
       IndexType    k2,
-      IndexType    *piv,
+      PivIndex     *piv,
       IndexType    incPiv)
 {
     const IndexType inc = (incPiv > 0) ? 1    : -1;
@@ -35,7 +35,7 @@ laswp(IndexType    n,
             for (IndexType i=i1; i<=i2; i+=inc) {
                 IndexType ip = piv[i*incPiv];
                 if (ip!=i) {
-                    swap(32,
+                    swap(IndexType(32),
                          &A[ip*incRowA+j*incColA], incColA,
                          &A[i *incRowA+j*incColA], incColA);
                 }

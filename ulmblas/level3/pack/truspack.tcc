@@ -17,7 +17,7 @@ truspack_MRxk(IndexType   k,
               IndexType   incColU,
               Buffer      *buffer)
 {
-    const IndexType MR  = BlockSizeUGemm<Buffer>::MR;
+    constexpr IndexType MR  = BlockSizeUGemm<Buffer>::MR;
 
     for (IndexType j=0; j<MR; ++j) {
         for (IndexType i=0; i<j; ++i) {
@@ -60,7 +60,7 @@ truspack(IndexType   mc,
          IndexType   incColU,
          Buffer      *buffer)
 {
-    const IndexType MR  = BlockSizeUGemm<Buffer>::MR;
+    constexpr IndexType MR  = BlockSizeUGemm<Buffer>::MR;
     const IndexType mp  = mc / MR;
     const IndexType mr_ = mc % MR;
 

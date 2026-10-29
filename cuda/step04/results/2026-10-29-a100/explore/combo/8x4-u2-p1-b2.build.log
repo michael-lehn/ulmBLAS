@@ -1,0 +1,36 @@
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DCULMBLAS_STEP04_THREAD_ROWS=8 -DCULMBLAS_STEP04_THREAD_COLS=4 -DCULMBLAS_STEP04_UNROLL=2 -DCULMBLAS_STEP04_PREFETCH=1 -DCULMBLAS_STEP04_MIN_BLOCKS=2 -c -o build/test/test_gemm.o test/test_gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DCULMBLAS_STEP04_THREAD_ROWS=8 -DCULMBLAS_STEP04_THREAD_COLS=4 -DCULMBLAS_STEP04_UNROLL=2 -DCULMBLAS_STEP04_PREFETCH=1 -DCULMBLAS_STEP04_MIN_BLOCKS=2 -c -o build/culmblas/gemm.o culmblas/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DCULMBLAS_STEP04_THREAD_ROWS=8 -DCULMBLAS_STEP04_THREAD_COLS=4 -DCULMBLAS_STEP04_UNROLL=2 -DCULMBLAS_STEP04_PREFETCH=1 -DCULMBLAS_STEP04_MIN_BLOCKS=2 -c -o build/step01/gemm.o step01/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DCULMBLAS_STEP04_THREAD_ROWS=8 -DCULMBLAS_STEP04_THREAD_COLS=4 -DCULMBLAS_STEP04_UNROLL=2 -DCULMBLAS_STEP04_PREFETCH=1 -DCULMBLAS_STEP04_MIN_BLOCKS=2 -c -o build/step02/gemm.o step02/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DCULMBLAS_STEP04_THREAD_ROWS=8 -DCULMBLAS_STEP04_THREAD_COLS=4 -DCULMBLAS_STEP04_UNROLL=2 -DCULMBLAS_STEP04_PREFETCH=1 -DCULMBLAS_STEP04_MIN_BLOCKS=2 -c -o build/step03/gemm.o step03/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DCULMBLAS_STEP04_THREAD_ROWS=8 -DCULMBLAS_STEP04_THREAD_COLS=4 -DCULMBLAS_STEP04_UNROLL=2 -DCULMBLAS_STEP04_PREFETCH=1 -DCULMBLAS_STEP04_MIN_BLOCKS=2 -c -o build/step04/gemm.o step04/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DCULMBLAS_STEP04_THREAD_ROWS=8 -DCULMBLAS_STEP04_THREAD_COLS=4 -DCULMBLAS_STEP04_UNROLL=2 -DCULMBLAS_STEP04_PREFETCH=1 -DCULMBLAS_STEP04_MIN_BLOCKS=2 -DCULMBLAS_BUILD_FLAGS='"/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DCULMBLAS_STEP04_THREAD_ROWS=8 -DCULMBLAS_STEP04_THREAD_COLS=4 -DCULMBLAS_STEP04_UNROLL=2 -DCULMBLAS_STEP04_PREFETCH=1 -DCULMBLAS_STEP04_MIN_BLOCKS=2  -lcublas"' -c -o build/bench/bench_gemm.o bench/bench_gemm.cu
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0139_GLOBAL__N__d72ab3c3_7_gemm_cu_463dffe95dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0139_GLOBAL__N__d72ab3c3_7_gemm_cu_463dffe95dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 31 registers, used 0 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 10.534 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0239_GLOBAL__N__eea78f06_7_gemm_cu_1c5cc0895dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0239_GLOBAL__N__eea78f06_7_gemm_cu_1c5cc0895dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 48 registers, used 0 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 13.827 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0339_GLOBAL__N__f9dc9b45_7_gemm_cu_9cacd7965dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0339_GLOBAL__N__f9dc9b45_7_gemm_cu_9cacd7965dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 125 registers, used 0 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 33.223 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0439_GLOBAL__N__9dbdf68c_7_gemm_cu_a89ebe495dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0439_GLOBAL__N__9dbdf68c_7_gemm_cu_a89ebe495dgemmEllldPKdlS3_ldPdl
+    400 bytes stack frame, 804 bytes spill stores, 996 bytes spill loads
+ptxas info    : Used 128 registers, used 0 barriers, 400 bytes cumulative stack size, 440 bytes cmem[0]
+ptxas info    : Compile time = 90.643 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : 0 bytes gmem
+ptxas info    : 0 bytes gmem
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DCULMBLAS_STEP04_THREAD_ROWS=8 -DCULMBLAS_STEP04_THREAD_COLS=4 -DCULMBLAS_STEP04_UNROLL=2 -DCULMBLAS_STEP04_PREFETCH=1 -DCULMBLAS_STEP04_MIN_BLOCKS=2 -o build/test_gemm build/test/test_gemm.o build/culmblas/gemm.o build/step01/gemm.o build/step02/gemm.o build/step03/gemm.o build/step04/gemm.o  -lcublas
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DCULMBLAS_STEP04_THREAD_ROWS=8 -DCULMBLAS_STEP04_THREAD_COLS=4 -DCULMBLAS_STEP04_UNROLL=2 -DCULMBLAS_STEP04_PREFETCH=1 -DCULMBLAS_STEP04_MIN_BLOCKS=2 -o build/bench_gemm build/bench/bench_gemm.o build/culmblas/gemm.o build/step01/gemm.o build/step02/gemm.o build/step03/gemm.o build/step04/gemm.o  -lcublas

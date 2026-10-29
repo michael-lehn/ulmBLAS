@@ -1,0 +1,18 @@
+host uc2n645.localdomain job 8050788 partition cpu_il date 2026-10-28T18:50:17+01:00
+cpu 3 numa node 0: numactl --physcpubind=3 --membind=0
+model name	: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+microcode	: 0xd000421
+5.14.0-570.149.1.el9_6.x86_64
+governor performance driver intel_pstate
+no_turbo 0 boost  smt on
+allocation: 128 CPUs; exclusive: OverSubscribe=NO
+prec s; variants: ulmblas-ref ulmblas-haswell_6x16 ulmblas-haswell_16x6 ulmblas-haswell_24x4 ulmblas-haswell_4x24 ulmblas-sandybridge_8x8 ulmblas-penryn_8x4 ulmblas-aocl_haswell_6x16 ulmblas-openblas-haswell_8x4 ulmblas-skx_32x12_l2 ulmblas-openblas-skylakex_16x4 openblas blis-auto blis-haswell mkl aocl; once: ulmblas-ref; rounds 3; samples 3
+sizes 50 100 150 200 250 300 350 400 450 500 550 600 650 700 750 800 850 900 950 1000 1050 1100 1150 1200 1250 1300 1350 1400 1450 1500 1550 1600 1650 1700 1750 1800 1850 1900 1950 2000 2050 2100 2150 2200 2250 2300 2350 2400 2450 2500 2550 2600 2650 2700 2750 2800 2850 2900 2950 3000 3050 3100 3150 3200 3250 3300 3350 3400 3450 3500 3550 3600 3650 3700 3750 3800 3850 3900 3950 4000 
+load 0.90 0.81 2.74 1/1680 112815; processes of other users: 9
+gcc (GCC) 14.2.0
+== environment
+BLIS_NUM_THREADS=1
+MKL_DYNAMIC=FALSE
+MKL_NUM_THREADS=1
+OMP_NUM_THREADS=1
+OPENBLAS_NUM_THREADS=1

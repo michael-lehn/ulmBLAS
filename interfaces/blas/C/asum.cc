@@ -5,71 +5,71 @@
 extern "C" {
 
 float
-ULMBLAS(sasum)(int           n,
-               const float   *x,
-               int           incX)
+ULMBLAS(sasum)(ULMBLAS_INDEX_TYPE n,
+               const float        *x,
+               ULMBLAS_INDEX_TYPE incX)
 {
-    return ulmBLAS::asum(n, x, incX);
+    return ulmBLAS::asum<std::ptrdiff_t>(n, x, incX);
 }
 
 double
-ULMBLAS(dasum)(int           n,
-               const double  *x,
-               int           incX)
+ULMBLAS(dasum)(ULMBLAS_INDEX_TYPE n,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX)
 {
-    return ulmBLAS::asum(n, x, incX);
+    return ulmBLAS::asum<std::ptrdiff_t>(n, x, incX);
 }
 
 float
-ULMBLAS(scasum)(int           n,
-                const float   *x_,
-                int           incX)
+ULMBLAS(scasum)(ULMBLAS_INDEX_TYPE n,
+                const float        *x_,
+                ULMBLAS_INDEX_TYPE incX)
 {
     typedef std::complex<float> fcomplex;
     const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
 
-    return ulmBLAS::asum(n, x, incX);
+    return ulmBLAS::asum<std::ptrdiff_t>(n, x, incX);
 }
 
 double
-ULMBLAS(dzasum)(int           n,
-                const double  *x_,
-                int           incX)
+ULMBLAS(dzasum)(ULMBLAS_INDEX_TYPE n,
+                const double       *x_,
+                ULMBLAS_INDEX_TYPE incX)
 {
     typedef std::complex<double> dcomplex;
     const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
 
-    return ulmBLAS::asum(n, x, incX);
+    return ulmBLAS::asum<std::ptrdiff_t>(n, x, incX);
 }
 
 float
-CBLAS(sasum)(int           n,
-             const float   *x,
-             int           incX)
+CBLAS(sasum)(ULMBLAS_INDEX_TYPE n,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX)
 {
-    return ulmBLAS::asum(n, x, incX);
+    return ulmBLAS::asum<std::ptrdiff_t>(n, x, incX);
 }
 
 double
-CBLAS(dasum)(int           n,
-             const double  *x,
-             int           incX)
+CBLAS(dasum)(ULMBLAS_INDEX_TYPE n,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX)
 {
-    return ulmBLAS::asum(n, x, incX);
+    return ulmBLAS::asum<std::ptrdiff_t>(n, x, incX);
 }
 
 float
-CBLAS(scasum)(int           n,
-              const float   *x,
-              int           incX)
+CBLAS(scasum)(ULMBLAS_INDEX_TYPE n,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX)
 {
     return ULMBLAS(scasum)(n, x, incX);
 }
 
 double
-CBLAS(dzasum)(int           n,
-              const double  *x,
-              int           incX)
+CBLAS(dzasum)(ULMBLAS_INDEX_TYPE n,
+              const double       *x,
+              ULMBLAS_INDEX_TYPE incX)
 {
     return ULMBLAS(dzasum)(n, x, incX);
 }

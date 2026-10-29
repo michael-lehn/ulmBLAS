@@ -1,0 +1,6 @@
+orig: 881d321 + 
+orig+malloc: 881d321 + source/experiments/patches/s1-malloc.diff
+packfix: master d7ca66a + 
+packfix+malloc: master d7ca66a + source/experiments/patches/s1-malloc.diff
+packfix+malloc+exact: master d7ca66a + source/experiments/patches/s1-malloc.diff source/experiments/patches/s2-exact.diff
+packfix+tcache: master d7ca66a + source/experiments/patches/threadcache-pool.diff

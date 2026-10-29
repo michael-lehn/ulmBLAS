@@ -1,0 +1,3 @@
+g++ -std=c++17 -O3 -DNDEBUG -march=native -I/tmp/ulmblas-eigen.QjL78w/eigen-5.0.1 src/bench-eigen.cpp -o bin/bench-eigen
+g++ -std=c++17 -O3 -DNDEBUG -march=native -I/tmp/ulmblas-eigen.QjL78w/eigen-5.0.1 src/verify-eigen.cpp -o bin/verify-eigen
+g++ -std=c++17 -O3 -DNDEBUG -march=native -I/tmp/ulmblas-eigen.QjL78w/eigen-5.0.1 src/eigen-info.cpp -o bin/eigen-info

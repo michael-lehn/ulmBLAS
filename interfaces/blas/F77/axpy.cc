@@ -5,20 +5,20 @@
 extern "C" {
 
 void
-F77BLAS(saxpy)(const int     *n_,
-               const float   *alpha_,
-               const float   *x,
-               const int     *incX_,
-               float         *y,
-               int           *incY_)
+F77BLAS(saxpy)(const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               float                    *y,
+               ULMBLAS_INDEX_TYPE       *incY_)
 {
 //
 //  Dereference scalar parameters
 //
-    int     n     = *n_;
+    ULMBLAS_INDEX_TYPE     n     = *n_;
     float   alpha = *alpha_;
-    int     incX  = *incX_;
-    int     incY  = *incY_;
+    ULMBLAS_INDEX_TYPE     incX  = *incX_;
+    ULMBLAS_INDEX_TYPE     incY  = *incY_;
 
     if (incX<0) {
         x -= incX*(n-1);
@@ -26,24 +26,24 @@ F77BLAS(saxpy)(const int     *n_,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    ulmBLAS::axpy(n, alpha, x, incX, y, incY);
+    ulmBLAS::axpy<std::ptrdiff_t>(n, alpha, x, incX, y, incY);
 }
 
 void
-F77BLAS(daxpy)(const int     *n_,
-               const double  *alpha_,
-               const double  *x,
-               const int     *incX_,
-               double        *y,
-               int           *incY_)
+F77BLAS(daxpy)(const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               double                   *y,
+               ULMBLAS_INDEX_TYPE       *incY_)
 {
 //
 //  Dereference scalar parameters
 //
-    int     n     = *n_;
+    ULMBLAS_INDEX_TYPE     n     = *n_;
     double  alpha = *alpha_;
-    int     incX  = *incX_;
-    int     incY  = *incY_;
+    ULMBLAS_INDEX_TYPE     incX  = *incX_;
+    ULMBLAS_INDEX_TYPE     incY  = *incY_;
 
     if (incX<0) {
         x -= incX*(n-1);
@@ -51,23 +51,23 @@ F77BLAS(daxpy)(const int     *n_,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    ulmBLAS::axpy(n, alpha, x, incX, y, incY);
+    ulmBLAS::axpy<std::ptrdiff_t>(n, alpha, x, incX, y, incY);
 }
 
 void
-F77BLAS(caxpy)(const int     *n_,
-               const float   *alpha_,
-               const float   *x_,
-               const int     *incX_,
-               float         *y_,
-               int           *incY_)
+F77BLAS(caxpy)(const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               float                    *y_,
+               ULMBLAS_INDEX_TYPE       *incY_)
 {
 //
 //  Dereference scalar parameters
 //
-    int     n     = *n_;
-    int     incX  = *incX_;
-    int     incY  = *incY_;
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     typedef std::complex<float> dcomplex;
 
@@ -82,23 +82,23 @@ F77BLAS(caxpy)(const int     *n_,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    ulmBLAS::axpy(n, alpha, x, incX, y, incY);
+    ulmBLAS::axpy<std::ptrdiff_t>(n, alpha, x, incX, y, incY);
 }
 
 void
-F77BLAS(zaxpy)(const int     *n_,
-               const double  *alpha_,
-               const double  *x_,
-               const int     *incX_,
-               double        *y_,
-               int           *incY_)
+F77BLAS(zaxpy)(const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               double                   *y_,
+               ULMBLAS_INDEX_TYPE       *incY_)
 {
 //
 //  Dereference scalar parameters
 //
-    int     n     = *n_;
-    int     incX  = *incX_;
-    int     incY  = *incY_;
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     typedef std::complex<double> dcomplex;
 
@@ -113,7 +113,7 @@ F77BLAS(zaxpy)(const int     *n_,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    ulmBLAS::axpy(n, alpha, x, incX, y, incY);
+    ulmBLAS::axpy<std::ptrdiff_t>(n, alpha, x, incX, y, incY);
 }
 
 } // extern "C"

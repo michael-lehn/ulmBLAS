@@ -3,14 +3,14 @@
 
 namespace ulmBLAS {
 
-template <typename IndexType, typename T>
+template <typename IndexType, typename T, typename PivIndex>
     IndexType
     getrf(IndexType    m,
           IndexType    n,
           T            *A,
           IndexType    incRowA,
           IndexType    incColA,
-          IndexType    *piv,
+          PivIndex     *piv,
           IndexType    incPiv);
 
 } // namespace ulmBLAS

@@ -54,7 +54,7 @@ axpyf(IndexType      n,
 {
     typedef decltype(Alpha(0)*VA(0)*VX(0)+VY(0))    T;
 
-    const IndexType ff = FuseFactor<T>::axpyf;
+    constexpr IndexType ff = FuseFactor<T>::axpyf;
 
     for (IndexType i=0; i<n; ++i) {
         for (IndexType j=0; j<ff; ++j) {
@@ -114,7 +114,7 @@ acxpyf(IndexType      n,
 {
     typedef decltype(Alpha(0)*VA(0)*VX(0)+VY(0))    T;
 
-    const IndexType ff = FuseFactor<T>::axpyf;
+    constexpr IndexType ff = FuseFactor<T>::axpyf;
 
     for (IndexType i=0; i<n; ++i) {
         for (IndexType j=0; j<ff; ++j) {

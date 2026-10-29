@@ -1,0 +1,16 @@
+host uc2n630.localdomain job 8026489 2026-10-27T15:51:42+01:00 ulmBLAS df58cfa6a355a28a15e87c6a6060ac9762cf3884
+built ulmBLAS
+c++ -I../../.. -I../../.. -DADD_ -D'BLAS_HEADER=<cblas.h>' -D'CBLAS(x)=cblas_ ## x' -D'ULMBLAS(x)=ulmblas_ ## x' -D'CBLAS_H=ULMBLAS_CBLAS_H' -std=c++11 -mavx -mfma -mavx512f -DULMBLAS_DGEMM_UKERNEL_openblas_skylakex_16x12 -O3 -fomit-frame-pointer -Wall -MMD -MP
+built bench-ulmblas
+built bench-openblas
+built prof
+built prof-cblas
+corename SKYLAKEX
+config OpenBLAS 0.3.34 NO_LAPACK NO_LAPACKE NO_AFFINITY SKYLAKEX SINGLE_THREADED
+0000000000000000 T dgemm_small_kernel_b0_nn
+0000000000000000 T dgemm_small_kernel_nn
+fee60a9986ebb56ed8ffc08481daf6fc4246c7ad0c72c2ef55bfdd3128c8aab6  bench-openblas
+be0e9b60e422f1d2465a4fd69234d8fbf65a7b654a938937a99b991ba858783d  bench-ulmblas
+e13f6f58bbb32a96236f273204e70abc387d6a9f43f1361aa15b2f5b0e6f4e36  prof
+e20d29e37633131e5fc7a60a97701428b8eabc445c9b4fdaf87a2be3d7a4e954  prof-cblas
+60a9bbeca53d9a571d5c50dcdb6e33b4850d69c911894af0f9dccd40373db5bc  /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/icelake/refs/openblas/lib/libopenblas.a

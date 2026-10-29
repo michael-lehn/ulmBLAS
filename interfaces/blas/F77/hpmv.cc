@@ -9,24 +9,24 @@
 extern "C" {
 
 void
-F77BLAS(chpmv)(const char     *upLo_,
-               const int      *n_,
-               const float    *alpha_,
-               const float    *AP_,
-               const float    *x_,
-               const int      *incX_,
-               const float    *beta_,
-               float          *y_,
-               const int      *incY_)
+F77BLAS(chpmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *AP_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE *incY_)
 {
     typedef std::complex<float> fcomplex;
 //
 //  Dereference scalar parameters
 //
-    bool lowerA  = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    int incX     = *incX_;
-    int incY     = *incY_;
+    bool lowerA             = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     const fcomplex *AP = reinterpret_cast<const fcomplex *>(AP_);
     const fcomplex *x  = reinterpret_cast<const fcomplex *>(x_);
@@ -38,7 +38,7 @@ F77BLAS(chpmv)(const char     *upLo_,
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='U' && toupper(*upLo_)!='L') {
         info = 1;
@@ -51,7 +51,8 @@ F77BLAS(chpmv)(const char     *upLo_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("CHPMV ", &info);
+        F77BLAS(xerbla)("CHPMV ", &info, 6);
+        return;
     }
 
     if (incX<0) {
@@ -65,32 +66,32 @@ F77BLAS(chpmv)(const char     *upLo_,
 //  Start the operations.
 //
     if (lowerA) {
-        ulmBLAS::hplmv(n, alpha, AP, x, incX, beta, y, incY);
+        ulmBLAS::hplmv<std::ptrdiff_t>(n, alpha, AP, x, incX, beta, y, incY);
     } else {
-        ulmBLAS::hpumv(n, alpha, AP, x, incX, beta, y, incY);
+        ulmBLAS::hpumv<std::ptrdiff_t>(n, alpha, AP, x, incX, beta, y, incY);
     }
 }
 
 
 void
-F77BLAS(zhpmv)(const char     *upLo_,
-               const int      *n_,
-               const double   *alpha_,
-               const double   *AP_,
-               const double   *x_,
-               const int      *incX_,
-               const double   *beta_,
-               double         *y_,
-               const int      *incY_)
+F77BLAS(zhpmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *AP_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE *incY_)
 {
     typedef std::complex<double> dcomplex;
 //
 //  Dereference scalar parameters
 //
-    bool lowerA  = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    int incX     = *incX_;
-    int incY     = *incY_;
+    bool lowerA             = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     const dcomplex *AP = reinterpret_cast<const dcomplex *>(AP_);
     const dcomplex *x  = reinterpret_cast<const dcomplex *>(x_);
@@ -102,7 +103,7 @@ F77BLAS(zhpmv)(const char     *upLo_,
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='U' && toupper(*upLo_)!='L') {
         info = 1;
@@ -115,7 +116,8 @@ F77BLAS(zhpmv)(const char     *upLo_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("ZHPMV ", &info);
+        F77BLAS(xerbla)("ZHPMV ", &info, 6);
+        return;
     }
 
     if (incX<0) {
@@ -129,9 +131,9 @@ F77BLAS(zhpmv)(const char     *upLo_,
 //  Start the operations.
 //
     if (lowerA) {
-        ulmBLAS::hplmv(n, alpha, AP, x, incX, beta, y, incY);
+        ulmBLAS::hplmv<std::ptrdiff_t>(n, alpha, AP, x, incX, beta, y, incY);
     } else {
-        ulmBLAS::hpumv(n, alpha, AP, x, incX, beta, y, incY);
+        ulmBLAS::hpumv<std::ptrdiff_t>(n, alpha, AP, x, incX, beta, y, incY);
     }
 }
 

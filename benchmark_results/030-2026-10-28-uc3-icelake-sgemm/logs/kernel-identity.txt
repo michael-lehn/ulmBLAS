@@ -1,0 +1,25 @@
+openblas corename SKYLAKEX
+openblas config OpenBLAS 0.3.34 NO_LAPACK NO_LAPACKE NO_AFFINITY SKYLAKEX SINGLE_THREADED
+openblas sgemm_p 448 sgemm_q 448 sgemm_r 128
+== blis-auto
+blis arch skx
+blis gemm ukr impl optimzd
+blis gemm ukr bli_sgemm_skx_asm_32x12_l2 (0x409440)
+blis MR 32 NR 12 MC 480 KC 384 NC 3072
+blis gemm method native
+== blis-haswell
+blis arch haswell
+blis gemm ukr impl optimzd
+blis gemm ukr bli_sgemm_haswell_asm_6x16 (0x40b540)
+blis MR 6 NR 16 MC 168 KC 256 NC 4080
+blis gemm method native
+== aocl
+blis arch zen4
+blis gemm ukr impl optimzd
+blis gemm ukr bli_sgemm_skx_asm_32x12_l2 (0x4249c0)
+blis MR 32 NR 12 MC 512 KC 480 NC 6144
+blis gemm method native
+== mkl (MKL_VERBOSE=1, n = 1000)
+MKL_VERBOSE oneMKL 2025 Patch 1 Product build 20241031 for Intel(R) 64 architecture Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) with support of Intel(R) Deep Learning Boost (Intel(R) DL Boost), EVEX-encoded AES and Carry-Less Multiplication Quadword instructions, Lnx 2.60GHz lp64 sequential
+MKL_VERBOSE SGEMM(N,N,1000,1000,1000,0x7ffda733d2b0,0x14a24e62f010,1000,0x14a24e25e010,1000,0x7ffda733d2ac,0x14a24de8d010,1000) 11.55ms CNR:OFF Dyn:1 FastMM:1
+MKL_VERBOSE SGEMM(N,N,1000,1000,1000,0x7ffda733d2b0,0x14a24e62f010,1000,0x14a24e25e010,1000,0x7ffda733d2ac,0x14a24de8d010,1000) 10.75ms CNR:OFF Dyn:1 FastMM:1

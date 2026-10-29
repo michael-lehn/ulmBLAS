@@ -39,6 +39,23 @@ template <typename TA, typename TB, typename T>
          T                  &c,
          std::complex<T>    &s);
 
+template <typename IndexType, typename VX, typename VY, typename T>
+    void
+    rotm(IndexType   n,
+         VX          *x,
+         IndexType   incX,
+         VY          *y,
+         IndexType   incY,
+         const T     *param);
+
+template <typename T>
+    void
+    rotmg(T        &d1,
+          T        &d2,
+          T        &x1,
+          const T  &y1,
+          T        *param);
+
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL1_ROT_H 1

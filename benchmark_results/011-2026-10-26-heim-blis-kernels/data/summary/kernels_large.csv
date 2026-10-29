@@ -1,0 +1,8 @@
+variant,kernel,reference,n1000_gflops,n1024_gflops,n1500_gflops,n2000_gflops,n2048_gflops,n3000_gflops,n4000_gflops,n4096_gflops,n1000_over_ref,n1024_over_ref,n1500_over_ref,n2000_over_ref,n2048_over_ref,n3000_over_ref,n4000_over_ref,n4096_over_ref,over_ref_median,over_ref_min,over_ref_max,rating,over_ulmblas_avx_median
+ulmblas-avx,avx,blis-haswell,59.79,58.83,59.55,59.85,59.05,60.19,60.21,59.16,1.014,1.015,1.009,1.016,1.023,1.001,1.002,1.033,1.014,1.001,1.033,excellent,
+ulmblas-avx-febb852,avx,blis-haswell,59.80,58.83,59.57,59.88,59.00,60.25,60.26,59.16,1.014,1.015,1.010,1.016,1.023,1.002,1.003,1.033,1.014,1.002,1.033,excellent,1.000
+ulmblas-haswell_6x8,haswell_6x8,blis-haswell,59.24,58.22,58.98,58.96,57.48,59.44,58.90,57.30,1.005,1.004,0.999,1.001,0.996,0.988,0.981,1.001,1.000,0.981,1.005,excellent,0.986
+ulmblas-haswell_8x6,haswell_8x6,blis-haswell,59.83,58.87,59.74,59.96,59.11,60.45,60.37,59.16,1.015,1.016,1.012,1.018,1.025,1.005,1.005,1.033,1.015,1.005,1.033,excellent,1.001
+ulmblas-penryn_4x4,penryn_4x4,blis-penryn,20.71,20.59,20.76,20.75,20.71,20.85,20.85,20.80,1.001,1.009,1.001,0.998,1.004,0.999,0.999,1.001,1.001,0.998,1.009,excellent,0.348
+ulmblas-sandybridge_8x4,sandybridge_8x4,blis-sandybridge,37.96,37.65,37.78,38.01,37.86,38.18,38.27,38.15,1.003,1.002,0.998,1.002,1.001,1.000,1.001,1.001,1.001,0.998,1.003,excellent,0.635
+ulmblas-sse,sse,blis-penryn,20.66,20.53,20.68,20.67,20.60,20.75,20.77,20.64,0.999,1.006,0.997,0.994,0.999,0.995,0.995,0.993,0.996,0.993,1.006,excellent,0.346

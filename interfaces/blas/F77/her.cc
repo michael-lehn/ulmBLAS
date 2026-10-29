@@ -8,22 +8,22 @@
 extern "C" {
 
 void
-F77BLAS(cher)(const char        *upLo_,
-              const int         *n_,
-              const float       *alpha_,
-              const float       *x_,
-              const int         *incX_,
-              float             *A_,
-              const int         *ldA_)
+F77BLAS(cher)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const float              *alpha_,
+              const float              *x_,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              float                    *A_,
+              const ULMBLAS_INDEX_TYPE *ldA_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lower   = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    float alpha  = *alpha_;
-    int incX     = *incX_;
-    int ldA      = *ldA_;
+    bool lower              = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    float alpha             = *alpha_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
 
     typedef std::complex<float> fcomplex;
     const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
@@ -31,7 +31,7 @@ F77BLAS(cher)(const char        *upLo_,
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
         info = 1;
@@ -39,12 +39,13 @@ F77BLAS(cher)(const char        *upLo_,
         info = 2;
     } else if (incX==0) {
         info = 5;
-    } else if (ldA<std::max(1,n)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 7;
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("CHER  ", &info);
+        F77BLAS(xerbla)("CHER  ", &info, 6);
+        return;
     }
 
 //
@@ -55,29 +56,29 @@ F77BLAS(cher)(const char        *upLo_,
     }
 
     if (lower) {
-        ulmBLAS::helr(n, alpha, false, x, incX, A, 1, ldA);
+        ulmBLAS::helr<std::ptrdiff_t>(n, alpha, false, x, incX, A, 1, ldA);
     } else {
-        ulmBLAS::helr(n, alpha, true, x, incX, A, ldA, 1);
+        ulmBLAS::helr<std::ptrdiff_t>(n, alpha, true, x, incX, A, ldA, 1);
     }
 }
 
 void
-F77BLAS(zher)(const char        *upLo_,
-              const int         *n_,
-              const double      *alpha_,
-              const double      *x_,
-              const int         *incX_,
-              double            *A_,
-              const int         *ldA_)
+F77BLAS(zher)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const double             *alpha_,
+              const double             *x_,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              double                   *A_,
+              const ULMBLAS_INDEX_TYPE *ldA_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lower   = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    double alpha = *alpha_;
-    int incX     = *incX_;
-    int ldA      = *ldA_;
+    bool lower              = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    double alpha            = *alpha_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
 
     typedef std::complex<double> dcomplex;
     const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
@@ -85,7 +86,7 @@ F77BLAS(zher)(const char        *upLo_,
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
         info = 1;
@@ -93,12 +94,13 @@ F77BLAS(zher)(const char        *upLo_,
         info = 2;
     } else if (incX==0) {
         info = 5;
-    } else if (ldA<std::max(1,n)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 7;
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("ZHER  ", &info);
+        F77BLAS(xerbla)("ZHER  ", &info, 6);
+        return;
     }
 
 //
@@ -109,9 +111,9 @@ F77BLAS(zher)(const char        *upLo_,
     }
 
     if (lower) {
-        ulmBLAS::helr(n, alpha, false, x, incX, A, 1, ldA);
+        ulmBLAS::helr<std::ptrdiff_t>(n, alpha, false, x, incX, A, 1, ldA);
     } else {
-        ulmBLAS::helr(n, alpha, true, x, incX, A, ldA, 1);
+        ulmBLAS::helr<std::ptrdiff_t>(n, alpha, true, x, incX, A, ldA, 1);
     }
 }
 

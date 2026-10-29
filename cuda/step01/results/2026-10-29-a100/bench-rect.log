@@ -1,0 +1,27 @@
+# host uc2n902.localdomain, 2026-10-29T00:50:18
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -L/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lmagma -Xlinker -rpath=/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 2 warm-up calls, 10 timed calls, CUDA events
+# MAGMA 2.10.0 (magma: magma_dgemm, which calls cublasDgemm; magmablas: magmablas_dgemm, MAGMA's own kernel)
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     4096   4096    256      0.519      0.516      0.522    16561.9    1.000
+step01     4096   4096    256      3.982      3.974      4.006     2157.0    0.130
+magma      4096   4096    256      0.520      0.518      0.520    16513.0    0.997
+magmablas   4096   4096    256      1.148      1.147      1.151     7483.1    0.452
+cuBLAS     4096    256   4096      0.487      0.485      0.490    17641.7    1.000
+step01     4096    256   4096      4.781      4.775      4.786     1796.9    0.102
+magma      4096    256   4096      0.486      0.485      0.487    17660.2    1.001
+magmablas   4096    256   4096      1.662      1.657      1.670     5168.6    0.293
+cuBLAS      256   4096   4096      0.499      0.498      0.501    17225.1    1.000
+step01      256   4096   4096      4.590      4.582      4.606     1871.4    0.109
+magma       256   4096   4096      0.500      0.499      0.501    17189.8    0.998
+magmablas    256   4096   4096      1.634      1.632      1.635     5256.0    0.305
+cuBLAS     1000   1000   1000      0.145      0.144      0.147    13754.4    1.000
+step01     1000   1000   1000      1.053      1.051      1.055     1899.9    0.138
+magma      1000   1000   1000      0.144      0.143      0.146    13852.0    1.007
+magmablas   1000   1000   1000      0.404      0.402      0.406     4950.9    0.360
+cuBLAS     1500    700   3000      0.371      0.370      0.373    16995.4    1.000
+step01     1500    700   3000      3.494      3.488      3.501     1802.9    0.106
+magma      1500    700   3000      0.372      0.369      0.373    16948.6    0.997
+magmablas   1500    700   3000      1.213      1.212      1.229     5191.9    0.305

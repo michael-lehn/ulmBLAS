@@ -1,0 +1,12 @@
+# heim (Intel Core i5-12500), working tree before commit; make check
+Summary (blis-sandybridge_int_8x4 blis-sandybridge_int_8x4-small):
+  PASS 346, FAIL 0, XFAIL 0, XPASS 0, DESIGN 4, SKIP 0
+
+Known issues: test/known_issues.md.  All results: test/build/check.log
+
+# the same with ASan/UBSan (-O1); files with sanitizer reports:
+Summary (blis-sandybridge_int_8x4 blis-sandybridge_int_8x4-small):
+  PASS 346, FAIL 0, XFAIL 0, XPASS 0, DESIGN 4, SKIP 0
+
+Known issues: test/known_issues.md.  All results: test/build/check.log
+0

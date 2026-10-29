@@ -1,0 +1,39 @@
+==PROF== Connected to process 1307149 (/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-s10-ncu3/mapp8/cuda/build/bench_gemm)
+==PROF== Profiling "dgemm": 0%....50%....100% - 5 passes
+# host uc2n902.localdomain, 2026-10-29T11:05:38
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_PANEL=8  -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 2 warm-up calls, 1 timed calls, CUDA events
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     2048   2048   2048      1.002      1.002      1.002    17137.1    1.000
+step10     2048   2048   2048    863.225    863.225    863.225       19.9    0.001
+==PROF== Disconnected from process 1307149
+[1307149] bench_gemm@127.0.0.1
+  void unnamed>::dgemm<1>(long, long, long, double, const double *, int, const double *, int, double, double *, long) (32, 64, 1)x(32, 4, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- --------------- ------------
+    Metric Name                                                                Metric Unit Metric Value
+    ---------------------------------------------------------------------- --------------- ------------
+    gpu__time_duration.sum                                                              ms         1.47
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                                     19,380
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum                                          0
+    l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum                                     50,361,083
+    l1tex__t_requests_pipe_lsu_mem_global_op_st.sum                                             131,072
+    l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum                                  sector    2,097,152
+    launch__occupancy_limit_registers                                                block            5
+    launch__occupancy_limit_shared_mem                                               block            5
+    launch__registers_per_thread                                           register/thread           82
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active               %        79.95
+    sm__warps_active.avg.pct_of_peak_sustained_active                                    %        28.73
+    smsp__average_warp_latency_issue_stalled_barrier.ratio                       inst/warp    31,994.84
+    smsp__average_warp_latency_issue_stalled_long_scoreboard.ratio               inst/warp    46,314.57
+    smsp__average_warp_latency_issue_stalled_math_pipe_throttle.ratio            inst/warp   129,895.25
+    smsp__average_warp_latency_issue_stalled_mio_throttle.ratio                  inst/warp     7,002.06
+    smsp__average_warp_latency_issue_stalled_not_selected.ratio                  inst/warp    16,818.04
+    smsp__average_warp_latency_issue_stalled_selected.ratio                      inst/warp    25,444.66
+    smsp__average_warp_latency_issue_stalled_short_scoreboard.ratio              inst/warp    30,959.78
+    smsp__average_warp_latency_issue_stalled_wait.ratio                          inst/warp    70,779.90
+    smsp__inst_executed.sum                                                           inst  208,412,672
+    ---------------------------------------------------------------------- --------------- ------------
+

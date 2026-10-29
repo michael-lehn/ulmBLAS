@@ -24,6 +24,13 @@ template <typename IndexType, typename VX, typename Result>
          IndexType  incX,
          Result     &result);
 
+template <typename IndexType, typename VX, typename Result>
+    void
+    nrm2(IndexType                n,
+         const std::complex<VX>   *x,
+         IndexType                incX,
+         Result                   &result);
+
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL1_NRM2_H 1

@@ -1,6 +1,7 @@
 #ifndef ULMBLAS_LEVEL3_LEVEL3_H
 #define ULMBLAS_LEVEL3_LEVEL3_H 1
 
+#include <ulmblas/config/simd.h>
 #include <ulmblas/level3/gemm.h>
 #include <ulmblas/level3/helmm.h>
 #include <ulmblas/level3/helr2k.h>
@@ -38,9 +39,22 @@
 #include <ulmblas/level3/ukernel/ref/ugemm.h>
 #include <ulmblas/level3/ukernel/ref/utrlsm.h>
 #include <ulmblas/level3/ukernel/ref/utrusm.h>
-#include <ulmblas/level3/ukernel/sse/ugemm.h>
-#include <ulmblas/level3/ukernel/sse/utrlsm.h>
-#include <ulmblas/level3/ukernel/sse/utrusm.h>
+#if defined(USE_SSE)
+#   include <ulmblas/level3/ukernel/sse/ugemm.h>
+#endif
+#if defined(USE_SSE) && !defined(USE_AVX) && !defined(USE_BLIS_DGEMM)
+#   include <ulmblas/level3/ukernel/sse/utrlsm.h>
+#   include <ulmblas/level3/ukernel/sse/utrusm.h>
+#endif
+#if defined(USE_AVX) && !defined(USE_BLIS_DGEMM)
+#   include <ulmblas/level3/ukernel/avx/ugemm.h>
+#endif
+#if defined(USE_NEON) && !defined(USE_SME)
+#   include <ulmblas/level3/ukernel/neon/ugemm.h>
+#endif
+#if defined(USE_SME)
+#   include <ulmblas/level3/ukernel/sme/ugemm.h>
+#endif
 #include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level3/ukernel/usylrk.h>
 #include <ulmblas/level3/ukernel/usyurk.h>

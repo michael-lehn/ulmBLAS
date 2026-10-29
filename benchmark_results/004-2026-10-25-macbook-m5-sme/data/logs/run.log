@@ -1,0 +1,25 @@
+== start 2026-10-25 15:22:57, rounds 3, pause 10 s, peak 69.321 GFLOP/s, thermal nominal, load averages: 2.26 3.25 3.12
+round 1 sme done 15:26:41: peak 69.155 GFLOP/s, thermal nominal, load averages: 1.80 2.53 2.83
+round 1 neon done 15:30:51: peak 68.849 GFLOP/s, thermal nominal, load averages: 2.45 2.49 2.73
+round 1 blis-sme done 15:34:36: peak 69.281 GFLOP/s, thermal nominal, load averages: 1.75 2.18 2.54
+round 1 blis done 15:38:46: peak 68.641 GFLOP/s, thermal nominal, load averages: 2.34 2.79 2.75
+round 1 openblas done 15:42:58: peak 68.824 GFLOP/s, thermal nominal, load averages: 1.52 2.22 2.52
+round 1 accelerate done 15:46:42: peak 68.702 GFLOP/s, thermal nominal, load averages: 1.83 1.98 2.34
+round 1 micro kernels done 15:48:12: peak 68.930 GFLOP/s, thermal nominal, load averages: 1.95 1.94 2.28
+round 2 neon done 15:52:21: peak 69.273 GFLOP/s, thermal nominal, load averages: 2.22 2.11 2.26
+round 2 blis-sme done 15:56:06: peak 69.160 GFLOP/s, thermal nominal, load averages: 1.71 2.02 2.19
+round 2 blis done 16:00:16: peak 66.820 GFLOP/s, thermal nominal, load averages: 2.18 2.20 2.23
+round 2 openblas done 16:04:30: peak 68.081 GFLOP/s, thermal nominal, load averages: 1.89 2.05 2.15
+round 2 accelerate done 16:08:14: peak 68.385 GFLOP/s, thermal nominal, load averages: 2.77 2.24 2.20
+round 2 sme done 16:11:59: peak 69.196 GFLOP/s, thermal nominal, load averages: 1.89 2.02 2.11
+round 2 micro kernels done 16:13:28: peak 69.150 GFLOP/s, thermal nominal, load averages: 1.96 1.99 2.08
+round 3 blis-sme done 16:17:13: peak 69.276 GFLOP/s, thermal nominal, load averages: 2.35 2.00 2.04
+round 3 blis done 16:21:22: peak 69.069 GFLOP/s, thermal nominal, load averages: 1.78 1.97 2.01
+round 3 openblas done 16:25:36: peak 69.534 GFLOP/s, thermal nominal, load averages: 1.82 1.88 1.96
+round 3 accelerate done 16:29:19: peak 69.325 GFLOP/s, thermal nominal, load averages: 2.56 2.01 1.97
+round 3 sme done 16:33:03: peak 68.276 GFLOP/s, thermal nominal, load averages: 2.56 2.17 2.04
+round 3 neon done 16:37:13: peak 68.970 GFLOP/s, thermal nominal, load averages: 1.98 2.00 1.98
+round 3 micro kernels done 16:38:42: peak 69.010 GFLOP/s, thermal nominal, load averages: 1.63 1.88 1.93
+discarded:        0, wrong results: 0
+overall: all commands succeeded
+== done 2026-10-25 16:38:43, peak 69.250 GFLOP/s, thermal nominal, load averages: 1.63 1.88 1.93

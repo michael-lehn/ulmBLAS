@@ -6,6 +6,17 @@
 VERBOSE(#ifndef) CBLAS_H
 VERBOSE(#define) CBLAS_H 1
 
+//
+//  ULMBLAS_INDEX_TYPE: the integer type of dimensions, increments, leading
+//  dimensions and indices.  It is chosen when ulmBLAS is built (make
+//  ULMBLAS_INDEX_TYPE=..., default int; see INSTALL.md), and programs must
+//  use the type of the library they link.
+//
+VERBOSE(#include) <stddef.h>
+VERBOSE(#include) <stdint.h>
+
+VERBOSE(#define) ULMBLAS_INDEX_TYPE ULMBLAS_INDEX_TYPE_OF_BUILD
+
 VERBOSE(#ifdef) __cplusplus
 extern "C" {
 VERBOSE(#endif)
@@ -52,164 +63,164 @@ CBLAS(xerbla)(int info, const char *rout, const char *form, ...);
 //  Level 1
 //
 float
-CBLAS(sasum)(int           n,
-             const float   *x,
-             int           incX);
+CBLAS(sasum)(ULMBLAS_INDEX_TYPE n,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX);
 
 double
-CBLAS(dasum)(int           n,
-             const double  *x,
-             int           incX);
+CBLAS(dasum)(ULMBLAS_INDEX_TYPE n,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX);
 
 float
-CBLAS(scasum)(int           n,
-              const float   *x,
-              int           incX);
+CBLAS(scasum)(ULMBLAS_INDEX_TYPE n,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX);
 
 double
-CBLAS(dzasum)(int           n,
-              const double  *x,
-              int           incX);
+CBLAS(dzasum)(ULMBLAS_INDEX_TYPE n,
+              const double       *x,
+              ULMBLAS_INDEX_TYPE incX);
 
 void
-CBLAS(saxpy)(int           n,
-             float         alpha,
-             const float   *x,
-             int           incX,
-             float         *y,
-             int           incY);
+CBLAS(saxpy)(ULMBLAS_INDEX_TYPE n,
+             float              alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             float              *y,
+             ULMBLAS_INDEX_TYPE incY);
 
 void
-CBLAS(daxpy)(int           n,
-             double        alpha,
-             const double  *x,
-             int           incX,
-             double        *y,
-             int           incY);
+CBLAS(daxpy)(ULMBLAS_INDEX_TYPE n,
+             double             alpha,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             double             *y,
+             ULMBLAS_INDEX_TYPE incY);
 
 void
-CBLAS(caxpy)(int           n,
-             const float   *alpha,
-             const float   *x,
-             int           incX,
-             float         *y,
-             int           incY);
+CBLAS(caxpy)(ULMBLAS_INDEX_TYPE n,
+             const float        *alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             float              *y,
+             ULMBLAS_INDEX_TYPE incY);
 
 void
-CBLAS(zaxpy)(int           n,
-             const double  *alpha,
-             const double  *x,
-             int           incX,
-             double        *y,
-             int           incY);
+CBLAS(zaxpy)(ULMBLAS_INDEX_TYPE n,
+             const double       *alpha,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             double             *y,
+             ULMBLAS_INDEX_TYPE incY);
 
 void
-CBLAS(scopy)(int          n,
-             const float  *x,
-             int          incX,
-             float        *y,
-             int          incY);
+CBLAS(scopy)(ULMBLAS_INDEX_TYPE n,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             float              *y,
+             ULMBLAS_INDEX_TYPE incY);
 
 void
-CBLAS(dcopy)(int          n,
-             const double *x,
-             int          incX,
-             double       *y,
-             int          incY);
+CBLAS(dcopy)(ULMBLAS_INDEX_TYPE n,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             double             *y,
+             ULMBLAS_INDEX_TYPE incY);
 
 float
-CBLAS(sdot)(int           n,
-            const float   *x,
-            int           incX,
-            const float   *y,
-            int           incY);
+CBLAS(sdot)(ULMBLAS_INDEX_TYPE n,
+            const float        *x,
+            ULMBLAS_INDEX_TYPE incX,
+            const float        *y,
+            ULMBLAS_INDEX_TYPE incY);
 
 double
-CBLAS(ddot)(int           n,
-            const double  *x,
-            int           incX,
-            const double  *y,
-            int           incY);
+CBLAS(ddot)(ULMBLAS_INDEX_TYPE n,
+            const double       *x,
+            ULMBLAS_INDEX_TYPE incX,
+            const double       *y,
+            ULMBLAS_INDEX_TYPE incY);
 
 void
-CBLAS(cdotc_sub)(int           n,
-                 const float   *x,
-                 int           incX,
-                 const float   *y,
-                 int           incY,
-                 float         *dotc);
+CBLAS(cdotc_sub)(ULMBLAS_INDEX_TYPE n,
+                 const float        *x,
+                 ULMBLAS_INDEX_TYPE incX,
+                 const float        *y,
+                 ULMBLAS_INDEX_TYPE incY,
+                 float              *dotc);
 
 void
-CBLAS(zdotc_sub)(int           n,
-                 const double  *x,
-                 int           incX,
-                 const double  *y,
-                 int           incY,
-                 double        *dotc);
+CBLAS(zdotc_sub)(ULMBLAS_INDEX_TYPE n,
+                 const double       *x,
+                 ULMBLAS_INDEX_TYPE incX,
+                 const double       *y,
+                 ULMBLAS_INDEX_TYPE incY,
+                 double             *dotc);
 
 void
-CBLAS(cdotu_sub)(int           n,
-                 const float   *x,
-                 int           incX,
-                 const float   *y,
-                 int           incY,
-                 float         *dotc);
+CBLAS(cdotu_sub)(ULMBLAS_INDEX_TYPE n,
+                 const float        *x,
+                 ULMBLAS_INDEX_TYPE incX,
+                 const float        *y,
+                 ULMBLAS_INDEX_TYPE incY,
+                 float              *dotc);
 
 void
-CBLAS(zdotu_sub)(int           n,
-                 const double  *x,
-                 int           incX,
-                 const double  *y,
-                 int           incY,
-                 double        *dotc);
+CBLAS(zdotu_sub)(ULMBLAS_INDEX_TYPE n,
+                 const double       *x,
+                 ULMBLAS_INDEX_TYPE incX,
+                 const double       *y,
+                 ULMBLAS_INDEX_TYPE incY,
+                 double             *dotc);
 
-int
-CBLAS(isamax)(int           n,
-              const float   *x,
-              int           incX);
+ULMBLAS_INDEX_TYPE
+CBLAS(isamax)(ULMBLAS_INDEX_TYPE n,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX);
 
-int
-CBLAS(idamax)(int           n,
-              const double  *x,
-              int           incX);
+ULMBLAS_INDEX_TYPE
+CBLAS(idamax)(ULMBLAS_INDEX_TYPE n,
+              const double       *x,
+              ULMBLAS_INDEX_TYPE incX);
 
 float
-CBLAS(snrm2)(int            n,
-             const float    *x,
-             int            incX);
+CBLAS(snrm2)(ULMBLAS_INDEX_TYPE n,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX);
 
 double
-CBLAS(dnrm2)(int           n,
-             const double  *x,
-             int           incX);
+CBLAS(dnrm2)(ULMBLAS_INDEX_TYPE n,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX);
 
 float
-CBLAS(scnrm2)(int           n,
-              const float   *x,
-              int           incX);
+CBLAS(scnrm2)(ULMBLAS_INDEX_TYPE n,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX);
 
 double
-CBLAS(dznrm2)(int           n,
-              const double  *x,
-              int           incX);
+CBLAS(dznrm2)(ULMBLAS_INDEX_TYPE n,
+              const double       *x,
+              ULMBLAS_INDEX_TYPE incX);
 
 void
-CBLAS(srot)(const int      n,
-            float          *x,
-            const int      incX,
-            float          *y,
-            const int      incY,
-            const float    c,
-            const float    s);
+CBLAS(srot)(const ULMBLAS_INDEX_TYPE n,
+            float                    *x,
+            const ULMBLAS_INDEX_TYPE incX,
+            float                    *y,
+            const ULMBLAS_INDEX_TYPE incY,
+            const float              c,
+            const float              s);
 
 void
-CBLAS(drot)(const int      n,
-            double         *x,
-            const int      incX,
-            double         *y,
-            const int      incY,
-            const double   c,
-            const double   s);
+CBLAS(drot)(const ULMBLAS_INDEX_TYPE n,
+            double                   *x,
+            const ULMBLAS_INDEX_TYPE incX,
+            double                   *y,
+            const ULMBLAS_INDEX_TYPE incY,
+            const double             c,
+            const double             s);
 
 void
 CBLAS(srotg)(float *a,
@@ -224,131 +235,173 @@ CBLAS(drotg)(double *a,
              double *s);
 
 void
-CBLAS(sscal)(const int    n,
-             const float  alpha,
-             float        *x,
-             const int    incX);
+CBLAS(crotg)(float *a,
+             float *b,
+             float *c,
+             float *s);
 
 void
-CBLAS(dscal)(const int    n,
-             const double alpha,
-             double       *x,
-             const int    incX);
+CBLAS(zrotg)(double *a,
+             double *b,
+             double *c,
+             double *s);
 
 void
-CBLAS(sswap)(const int n,
-             float     *x,
-             const int incX,
-             float     *y,
-             const int incY);
+CBLAS(srotm)(const ULMBLAS_INDEX_TYPE n,
+             float                    *x,
+             const ULMBLAS_INDEX_TYPE incX,
+             float                    *y,
+             const ULMBLAS_INDEX_TYPE incY,
+             const float              *param);
 
 void
-CBLAS(dswap)(const int n,
-             double    *x,
-             const int incX,
-             double    *y,
-             const int incY);
+CBLAS(drotm)(const ULMBLAS_INDEX_TYPE n,
+             double                   *x,
+             const ULMBLAS_INDEX_TYPE incX,
+             double                   *y,
+             const ULMBLAS_INDEX_TYPE incY,
+             const double             *param);
 
 void
-CBLAS(cswap)(const int n,
-             float     *x,
-             const int incX,
-             float     *y,
-             const int incY);
+CBLAS(srotmg)(float          *d1,
+              float          *d2,
+              float          *x1,
+              const float    y1,
+              float          *param);
 
 void
-CBLAS(zswap)(const int n,
-             double    *x,
-             const int incX,
-             double    *y,
-             const int incY);
+CBLAS(drotmg)(double         *d1,
+              double         *d2,
+              double         *x1,
+              const double   y1,
+              double         *param);
 
 void
-CBLAS(zdotu_sub)(const int     N,
-                 const double  *X,
-                 const int     incX,
-                 const double   *Y,
-                 const int     incY,
-                 double        *dotu);
+CBLAS(csrot)(const ULMBLAS_INDEX_TYPE n,
+             float                    *x,
+             const ULMBLAS_INDEX_TYPE incX,
+             float                    *y,
+             const ULMBLAS_INDEX_TYPE incY,
+             const float              c,
+             const float              s);
 
 void
-CBLAS(zdotc_sub)(const int     N,
-                 const double  *X,
-                 const int     incX,
-                 const double  *Y,
-                 const int     incY,
-                 double        *dotc);
+CBLAS(zdrot)(const ULMBLAS_INDEX_TYPE n,
+             double                   *x,
+             const ULMBLAS_INDEX_TYPE incX,
+             double                   *y,
+             const ULMBLAS_INDEX_TYPE incY,
+             const double             c,
+             const double             s);
 
 float
-CBLAS(scasum)(int           n,
-              const float   *x,
-              int           incX);
+CBLAS(sdsdot)(ULMBLAS_INDEX_TYPE n,
+              float              alpha,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX,
+              const float        *y,
+              ULMBLAS_INDEX_TYPE incY);
 
 double
-CBLAS(dzasum)(int           N,
-              const double  *X,
-              int           incX);
+CBLAS(dsdot)(ULMBLAS_INDEX_TYPE n,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const float        *y,
+             ULMBLAS_INDEX_TYPE incY);
 
-int
-CBLAS(icamax)(int           N,
-              const float   *X,
-              int           incX);
-
-int
-CBLAS(izamax)(int           N,
-              const double  *X,
-              int           incX);
-
-void
-CBLAS(zswap)(const int   N,
-             double      *X,
-             const int   incX,
-             double      *Y,
-             const int   incY);
-
-void
-CBLAS(zcopy)(const int     N,
-             const double  *X,
-             const int     incX,
-             double        *Y,
-             const int     incY);
-
-void
-CBLAS(zaxpy)(int            N,
-             const double  *alpha,
-             const double  *X,
-             int            incX,
-             double        *Y,
-             int           incY);
-
-void
-CBLAS(cscal)(const int    n,
-             const float  *alpha,
-             float        *x,
-             const int    incX);
-
-void
-CBLAS(zscal)(const int       N,
-              const double   *alpha,
-              double         *X,
-              const int      incX);
-
-void
-CBLAS(csscal)(const int    n,
-              const float  alpha,
-              float        *x,
-              const int    incX);
-
-void
-CBLAS(zdscal)(const int      N,
-             const double   alpha,
-             double         *X,
-             const int      incX);
+float
+CBLAS(scabs1)(const float *z);
 
 double
-CBLAS(dznrm2)(int           n,
-              const double  *x,
-              int           incX);
+CBLAS(dcabs1)(const double *z);
+
+void
+CBLAS(sscal)(const ULMBLAS_INDEX_TYPE n,
+             const float              alpha,
+             float                    *x,
+             const ULMBLAS_INDEX_TYPE incX);
+
+void
+CBLAS(dscal)(const ULMBLAS_INDEX_TYPE n,
+             const double             alpha,
+             double                   *x,
+             const ULMBLAS_INDEX_TYPE incX);
+
+void
+CBLAS(sswap)(const ULMBLAS_INDEX_TYPE n,
+             float                    *x,
+             const ULMBLAS_INDEX_TYPE incX,
+             float                    *y,
+             const ULMBLAS_INDEX_TYPE incY);
+
+void
+CBLAS(dswap)(const ULMBLAS_INDEX_TYPE n,
+             double                   *x,
+             const ULMBLAS_INDEX_TYPE incX,
+             double                   *y,
+             const ULMBLAS_INDEX_TYPE incY);
+
+void
+CBLAS(cswap)(const ULMBLAS_INDEX_TYPE n,
+             float                    *x,
+             const ULMBLAS_INDEX_TYPE incX,
+             float                    *y,
+             const ULMBLAS_INDEX_TYPE incY);
+
+void
+CBLAS(zswap)(const ULMBLAS_INDEX_TYPE n,
+             double                   *x,
+             const ULMBLAS_INDEX_TYPE incX,
+             double                   *y,
+             const ULMBLAS_INDEX_TYPE incY);
+
+ULMBLAS_INDEX_TYPE
+CBLAS(icamax)(ULMBLAS_INDEX_TYPE N,
+              const float        *X,
+              ULMBLAS_INDEX_TYPE incX);
+
+ULMBLAS_INDEX_TYPE
+CBLAS(izamax)(ULMBLAS_INDEX_TYPE N,
+              const double       *X,
+              ULMBLAS_INDEX_TYPE incX);
+
+void
+CBLAS(ccopy)(ULMBLAS_INDEX_TYPE n,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             float              *y,
+             ULMBLAS_INDEX_TYPE incY);
+
+void
+CBLAS(zcopy)(const ULMBLAS_INDEX_TYPE N,
+             const double             *X,
+             const ULMBLAS_INDEX_TYPE incX,
+             double                   *Y,
+             const ULMBLAS_INDEX_TYPE incY);
+
+void
+CBLAS(cscal)(const ULMBLAS_INDEX_TYPE n,
+             const float              *alpha,
+             float                    *x,
+             const ULMBLAS_INDEX_TYPE incX);
+
+void
+CBLAS(zscal)(const ULMBLAS_INDEX_TYPE  N,
+              const double             *alpha,
+              double                   *X,
+              const ULMBLAS_INDEX_TYPE incX);
+
+void
+CBLAS(csscal)(const ULMBLAS_INDEX_TYPE n,
+              const float              alpha,
+              float                    *x,
+              const ULMBLAS_INDEX_TYPE incX);
+
+void
+CBLAS(zdscal)(const ULMBLAS_INDEX_TYPE N,
+             const double              alpha,
+             double                    *X,
+             const ULMBLAS_INDEX_TYPE  incX);
 
 
 //
@@ -358,810 +411,797 @@ CBLAS(dznrm2)(int           n,
 void
 CBLAS(sgbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
-             int                   m,
-             int                   n,
-             int                   kl,
-             int                   ku,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    kl,
+             ULMBLAS_INDEX_TYPE    ku,
              float                 alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const float           *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              float                 beta,
              float                 *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(dgbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
-             int                   m,
-             int                   n,
-             int                   kl,
-             int                   ku,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    kl,
+             ULMBLAS_INDEX_TYPE    ku,
              double                alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              double                beta,
              double                *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(cgbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
-             int                   m,
-             int                   n,
-             int                   kl,
-             int                   ku,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    kl,
+             ULMBLAS_INDEX_TYPE    ku,
              const float           *alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const float           *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              const float           *beta,
              float                 *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(zgbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
-             int                   m,
-             int                   n,
-             int                   kl,
-             int                   ku,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    kl,
+             ULMBLAS_INDEX_TYPE    ku,
              const double          *alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              const double          *beta,
              double                *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(sgemv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
-             int                   m,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
              float                 alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const float           *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              float                 beta,
              float                 *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(dgemv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
-             int                   m,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
              double                alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              double                beta,
              double                *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(cgemv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
-             int                   m,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
              const float           *alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const float           *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              const float           *beta,
              float                 *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(zgemv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
-             int                   m,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
              const double          *alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              const double          *beta,
              double                *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
-CBLAS(sger)(enum CBLAS_ORDER  order,
-            int               m,
-            int               n,
-            float             alpha,
-            const float       *x,
-            int               incX,
-            const float       *y,
-            int               incY,
-            float             *A,
-            int               ldA);
+CBLAS(sger)(enum CBLAS_ORDER   order,
+            ULMBLAS_INDEX_TYPE m,
+            ULMBLAS_INDEX_TYPE n,
+            float              alpha,
+            const float        *x,
+            ULMBLAS_INDEX_TYPE incX,
+            const float        *y,
+            ULMBLAS_INDEX_TYPE incY,
+            float              *A,
+            ULMBLAS_INDEX_TYPE ldA);
 
 void
-CBLAS(dger)(enum CBLAS_ORDER  order,
-            int               m,
-            int               n,
-            double            alpha,
-            const double      *x,
-            int               incX,
-            const double      *y,
-            int               incY,
-            double            *A,
-            int               ldA);
+CBLAS(dger)(enum CBLAS_ORDER   order,
+            ULMBLAS_INDEX_TYPE m,
+            ULMBLAS_INDEX_TYPE n,
+            double             alpha,
+            const double       *x,
+            ULMBLAS_INDEX_TYPE incX,
+            const double       *y,
+            ULMBLAS_INDEX_TYPE incY,
+            double             *A,
+            ULMBLAS_INDEX_TYPE ldA);
 
 void
-CBLAS(cgeru)(enum CBLAS_ORDER  order,
-             int               m,
-             int               n,
-             const float       *alpha,
-             const float       *x,
-             int               incX,
-             const float       *y,
-             int               incY,
-             float             *A,
-             int               ldA);
+CBLAS(cgeru)(enum CBLAS_ORDER   order,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             const float        *alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const float        *y,
+             ULMBLAS_INDEX_TYPE incY,
+             float              *A,
+             ULMBLAS_INDEX_TYPE ldA);
 
 void
-CBLAS(zgeru)(enum CBLAS_ORDER  order,
-             int               m,
-             int               n,
-             const double      *alpha,
-             const double      *x,
-             int               incX,
-             const double      *y,
-             int               incY,
-             double            *A,
-             int               ldA);
+CBLAS(zgeru)(enum CBLAS_ORDER   order,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             const double       *alpha,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const double       *y,
+             ULMBLAS_INDEX_TYPE incY,
+             double             *A,
+             ULMBLAS_INDEX_TYPE ldA);
 
 void
-CBLAS(cgerc)(enum CBLAS_ORDER  order,
-             int               m,
-             int               n,
-             const float       *alpha,
-             const float       *x,
-             int               incX,
-             const float       *y,
-             int               incY,
-             float             *A,
-             int               ldA);
+CBLAS(cgerc)(enum CBLAS_ORDER   order,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             const float        *alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const float        *y,
+             ULMBLAS_INDEX_TYPE incY,
+             float              *A,
+             ULMBLAS_INDEX_TYPE ldA);
 
 void
-CBLAS(zgerc)(enum CBLAS_ORDER  order,
-             int               m,
-             int               n,
-             const double      *alpha,
-             const double      *x,
-             int               incX,
-             const double      *y,
-             int               incY,
-             double            *A,
-             int               ldA);
+CBLAS(zgerc)(enum CBLAS_ORDER   order,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             const double       *alpha,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const double       *y,
+             ULMBLAS_INDEX_TYPE incY,
+             double             *A,
+             ULMBLAS_INDEX_TYPE ldA);
 
 void
-CBLAS(ssymm)(enum CBLAS_ORDER  order,
-             enum CBLAS_SIDE   side,
-             enum CBLAS_UPLO   upLo,
-             int               m,
-             int               n,
-             float             alpha,
-             const float       *A,
-             int               ldA,
-             float             *B,
-             int               ldB,
-             float             beta,
-             float             *C,
-             int               ldC);
+CBLAS(ssymm)(enum CBLAS_ORDER   order,
+             enum CBLAS_SIDE    side,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             float              alpha,
+             const float        *A,
+             ULMBLAS_INDEX_TYPE ldA,
+             float              *B,
+             ULMBLAS_INDEX_TYPE ldB,
+             float              beta,
+             float              *C,
+             ULMBLAS_INDEX_TYPE ldC);
 
 void
-CBLAS(ssymv)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             float             alpha,
-             const float       *A,
-             int               ldA,
-             const float       *x,
-             int               incX,
-             float             beta,
-             float             *y,
-             int               incY);
+CBLAS(ssymv)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             float              alpha,
+             const float        *A,
+             ULMBLAS_INDEX_TYPE ldA,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             float              beta,
+             float              *y,
+             ULMBLAS_INDEX_TYPE incY);
 
 void
-CBLAS(dsymv)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             double            alpha,
-             const double      *A,
-             int               ldA,
-             const double      *x,
-             int               incX,
-             double            beta,
-             double            *y,
-             int               incY);
+CBLAS(dsymv)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             double             alpha,
+             const double       *A,
+             ULMBLAS_INDEX_TYPE ldA,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             double             beta,
+             double             *y,
+             ULMBLAS_INDEX_TYPE incY);
 
 void
-CBLAS(chemv)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             const float       *alpha,
-             const float       *A,
-             int               ldA,
-             const float       *x,
-             int               incX,
-             const float       *beta,
-             float             *y,
-             int               incY);
+CBLAS(chemv)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             const float        *alpha,
+             const float        *A,
+             ULMBLAS_INDEX_TYPE ldA,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const float        *beta,
+             float              *y,
+             ULMBLAS_INDEX_TYPE incY);
 
 void
-CBLAS(zhemv)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             const double      *alpha,
-             const double      *A,
-             int               ldA,
-             const double      *x,
-             int               incX,
-             const double      *beta,
-             double            *y,
-             int               incY);
+CBLAS(zhemv)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             const double       *alpha,
+             const double       *A,
+             ULMBLAS_INDEX_TYPE ldA,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const double       *beta,
+             double             *y,
+             ULMBLAS_INDEX_TYPE incY);
 
 void
 CBLAS(strmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(dtrmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(ctrmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(ztrmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(strsv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(dtrsv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
+
+void
+CBLAS(ctrsv)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             enum CBLAS_DIAG       diag,
+             ULMBLAS_INDEX_TYPE    n,
+             const float           *A,
+             ULMBLAS_INDEX_TYPE    ldA,
+             float                 *x,
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(ztrsv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
-CBLAS(ssyr)(enum CBLAS_ORDER  order,
-            enum CBLAS_UPLO   upLo,
-            int               n,
-            float             alpha,
-            const float       *x,
-            int               incX,
-            float             *A,
-            int               ldA);
+CBLAS(ssyr)(enum CBLAS_ORDER   order,
+            enum CBLAS_UPLO    upLo,
+            ULMBLAS_INDEX_TYPE n,
+            float              alpha,
+            const float        *x,
+            ULMBLAS_INDEX_TYPE incX,
+            float              *A,
+            ULMBLAS_INDEX_TYPE ldA);
 
 void
 CBLAS(dsyr)(const enum CBLAS_ORDER  order,
             const enum CBLAS_UPLO   Uplo,
-            int                     N,
+            ULMBLAS_INDEX_TYPE      N,
             double                  alpha,
             const double            *X,
-            int                     incX,
+            ULMBLAS_INDEX_TYPE      incX,
             double                  *A,
-            int                     lda);
+            ULMBLAS_INDEX_TYPE      lda);
 
 void
-CBLAS(cher)(enum CBLAS_ORDER  order,
-            enum CBLAS_UPLO   upLo,
-            int               n,
-            float             alpha,
-            const float       *x,
-            int               incX,
-            float             *A,
-            int               ldA);
+CBLAS(cher)(enum CBLAS_ORDER   order,
+            enum CBLAS_UPLO    upLo,
+            ULMBLAS_INDEX_TYPE n,
+            float              alpha,
+            const float        *x,
+            ULMBLAS_INDEX_TYPE incX,
+            float              *A,
+            ULMBLAS_INDEX_TYPE ldA);
 
 void
-CBLAS(zher)(enum CBLAS_ORDER  order,
-            enum CBLAS_UPLO   upLo,
-            int               n,
-            double            alpha,
-            const double      *x,
-            int               incX,
-            double            *A,
-            int               ldA);
+CBLAS(zher)(enum CBLAS_ORDER   order,
+            enum CBLAS_UPLO    upLo,
+            ULMBLAS_INDEX_TYPE n,
+            double             alpha,
+            const double       *x,
+            ULMBLAS_INDEX_TYPE incX,
+            double             *A,
+            ULMBLAS_INDEX_TYPE ldA);
 
 void
-CBLAS(ssyr2)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             float             alpha,
-             const float       *x,
-             int               incX,
-             const float       *y,
-             int               incY,
-             float             *A,
-             int               ldA);
+CBLAS(ssyr2)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             float              alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const float        *y,
+             ULMBLAS_INDEX_TYPE incY,
+             float              *A,
+             ULMBLAS_INDEX_TYPE ldA);
 
 void
-CBLAS(dsyr2)(const enum CBLAS_ORDER order,
-             const enum CBLAS_UPLO  Uplo,
-             const int              N,
-             const double           alpha,
-             const double           *X,
-             const int              incX,
-             const double           *Y,
-             const int              incY,
-             double                 *A,
-             const int              lda);
+CBLAS(dsyr2)(const enum CBLAS_ORDER   order,
+             const enum CBLAS_UPLO    Uplo,
+             const ULMBLAS_INDEX_TYPE N,
+             const double             alpha,
+             const double             *X,
+             const ULMBLAS_INDEX_TYPE incX,
+             const double             *Y,
+             const ULMBLAS_INDEX_TYPE incY,
+             double                   *A,
+             const ULMBLAS_INDEX_TYPE lda);
 
 void
-CBLAS(cher2)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             const float       *alpha,
-             const float       *x,
-             int               incX,
-             const float       *y,
-             int               incY,
-             float             *A,
-             int               ldA);
+CBLAS(cher2)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             const float        *alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const float        *y,
+             ULMBLAS_INDEX_TYPE incY,
+             float              *A,
+             ULMBLAS_INDEX_TYPE ldA);
 
 void
-CBLAS(zher2)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             const double      *alpha,
-             const double      *x,
-             int               incX,
-             const double      *y,
-             int               incY,
-             double            *A,
-             int               ldA);
+CBLAS(zher2)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             const double       *alpha,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const double       *y,
+             ULMBLAS_INDEX_TYPE incY,
+             double             *A,
+             ULMBLAS_INDEX_TYPE ldA);
 
 void
 CBLAS(stbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(dtbmv)(const enum CBLAS_ORDER     order,
              const enum CBLAS_UPLO      Uplo,
              const enum CBLAS_TRANSPOSE TransA,
              const enum CBLAS_DIAG      Diag,
-             const int                  N,
-             const int                  K,
+             const ULMBLAS_INDEX_TYPE   N,
+             const ULMBLAS_INDEX_TYPE   K,
              const double               *A,
-             const int                  lda,
+             const ULMBLAS_INDEX_TYPE   lda,
              double                     *X,
-             const int                  incX);
+             const ULMBLAS_INDEX_TYPE   incX);
 
 void
 CBLAS(ctbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(ztbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(stbsv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(dtbsv)(const enum CBLAS_ORDER     order,
              const enum CBLAS_UPLO      Uplo,
              const enum CBLAS_TRANSPOSE TransA,
              const enum CBLAS_DIAG      Diag,
-             const int                  N,
-             const int                  K,
+             const ULMBLAS_INDEX_TYPE   N,
+             const ULMBLAS_INDEX_TYPE   K,
              const double               *A,
-             const int                  lda,
+             const ULMBLAS_INDEX_TYPE   lda,
              double                     *X,
-             const int                  incX);
+             const ULMBLAS_INDEX_TYPE   incX);
 
 void
 CBLAS(ctbsv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 *x,
-             int                   incX);
-
-void
-CBLAS(ctbsv)(enum CBLAS_ORDER      order,
-             enum CBLAS_UPLO       upLo,
-             enum CBLAS_TRANSPOSE  trans,
-             enum CBLAS_DIAG       diag,
-             int                   n,
-             int                   k,
-             const float           *A,
-             int                   ldA,
-             float                 *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(ztbsv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(ssbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              float                 alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const float           *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              float                 beta,
              float                 *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(dsbmv)(const enum CBLAS_ORDER     order,
              const enum CBLAS_UPLO      Uplo,
-             const int                  N,
-             const int                  K,
+             const ULMBLAS_INDEX_TYPE   N,
+             const ULMBLAS_INDEX_TYPE   K,
              const double               alpha,
              const double               *A,
-             const int                  lda,
+             const ULMBLAS_INDEX_TYPE   lda,
              const double               *X,
-             const int                  incX,
+             const ULMBLAS_INDEX_TYPE   incX,
              const double               beta,
              double                     *Y,
-             const int                  incY);
+             const ULMBLAS_INDEX_TYPE   incY);
 
 void
 CBLAS(chbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const float           *alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const float           *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              const float           *beta,
              float                 *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(zhbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const double          *alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              const double          *beta,
              double                *y,
-             int                   incY);
-
-void
-CBLAS(ztbsv)(enum CBLAS_ORDER      order,
-             enum CBLAS_UPLO       upLo,
-             enum CBLAS_TRANSPOSE  trans,
-             enum CBLAS_DIAG       diag,
-             int                   n,
-             int                   k,
-             const double          *A,
-             int                   ldA,
-             double                *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(sspmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              float                 alpha,
              const float           *A,
              const float           *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              float                 beta,
              float                 *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(dspmv)(const enum CBLAS_ORDER     order,
              const enum CBLAS_UPLO      Uplo,
-             const int                  N,
+             const ULMBLAS_INDEX_TYPE   N,
              const double               alpha,
              const double               *Ap,
              const double               *X,
-             const int                  incX,
+             const ULMBLAS_INDEX_TYPE   incX,
              const double               beta,
              double                     *Y,
-             const int                  incY);
+             const ULMBLAS_INDEX_TYPE   incY);
 
 void
 CBLAS(chpmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const float           *alpha,
              const float           *AP,
              const float           *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              const float           *beta,
              float                 *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(zhpmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const double          *alpha,
              const double          *AP,
              const double          *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              const double          *beta,
              double                *y,
-             int                   incY);
+             ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(stpmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const float           *A,
              float                 *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(dtpmv)(const enum CBLAS_ORDER     order,
              const enum CBLAS_UPLO      Uplo,
              const enum CBLAS_TRANSPOSE TransA,
              const enum CBLAS_DIAG      Diag,
-             const int                  N,
+             const ULMBLAS_INDEX_TYPE   N,
              const double               *Ap,
              double                     *X,
-             const int                  incX);
+             const ULMBLAS_INDEX_TYPE   incX);
 
 void
 CBLAS(ctpmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const float           *A,
              float                 *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(ztpmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const double          *A,
              double                *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(stpsv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const float           *A,
              float                 *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(dtpsv)(const enum CBLAS_ORDER     order,
              const enum CBLAS_UPLO      Uplo,
              const enum CBLAS_TRANSPOSE TransA,
              const enum CBLAS_DIAG      Diag,
-             const int                  N,
+             const ULMBLAS_INDEX_TYPE   N,
              const double               *Ap,
              double                     *X,
-             const int                  incX);
+             const ULMBLAS_INDEX_TYPE   incX);
 
 void
 CBLAS(ctpsv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const float           *A,
              float                 *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
 CBLAS(ztpsv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const double          *A,
              double                *x,
-             int                   incX);
+             ULMBLAS_INDEX_TYPE    incX);
 
 void
-CBLAS(sspr)(enum CBLAS_ORDER  order,
-            enum CBLAS_UPLO   upLo,
-            int               n,
-            float             alpha,
-            const float       *x,
-            int               incX,
-            float             *A);
+CBLAS(sspr)(enum CBLAS_ORDER   order,
+            enum CBLAS_UPLO    upLo,
+            ULMBLAS_INDEX_TYPE n,
+            float              alpha,
+            const float        *x,
+            ULMBLAS_INDEX_TYPE incX,
+            float              *A);
 
 void
 CBLAS(dspr)(const enum CBLAS_ORDER      order,
             const enum CBLAS_UPLO       Uplo,
-            const int                   N,
+            const ULMBLAS_INDEX_TYPE    N,
             const double                alpha,
             const double                *X,
-            const int                   incX,
+            const ULMBLAS_INDEX_TYPE    incX,
             double                      *Ap);
 
 void
-CBLAS(chpr)(enum CBLAS_ORDER  order,
-            enum CBLAS_UPLO   upLo,
-            int               n,
-            float             alpha,
-            const float       *x,
-            int               incX,
-            float             *A);
+CBLAS(chpr)(enum CBLAS_ORDER   order,
+            enum CBLAS_UPLO    upLo,
+            ULMBLAS_INDEX_TYPE n,
+            float              alpha,
+            const float        *x,
+            ULMBLAS_INDEX_TYPE incX,
+            float              *A);
 
 void
-CBLAS(zhpr)(enum CBLAS_ORDER  order,
-            enum CBLAS_UPLO   upLo,
-            int               n,
-            double            alpha,
-            const double      *x,
-            int               incX,
-            double            *A);
+CBLAS(zhpr)(enum CBLAS_ORDER   order,
+            enum CBLAS_UPLO    upLo,
+            ULMBLAS_INDEX_TYPE n,
+            double             alpha,
+            const double       *x,
+            ULMBLAS_INDEX_TYPE incX,
+            double             *A);
 
 void
-CBLAS(sspr2)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             float             alpha,
-             const float       *x,
-             int               incX,
-             const float       *y,
-             int               incY,
-             float             *A);
+CBLAS(sspr2)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             float              alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const float        *y,
+             ULMBLAS_INDEX_TYPE incY,
+             float              *A);
 
 void
 CBLAS(dspr2)(const enum CBLAS_ORDER     order,
              const enum CBLAS_UPLO      Uplo,
-             const int                  N,
+             const ULMBLAS_INDEX_TYPE   N,
              const double               alpha,
              const double               *X,
-             const int                  incX,
+             const ULMBLAS_INDEX_TYPE   incX,
              const double               *Y,
-             const int                  incY,
+             const ULMBLAS_INDEX_TYPE   incY,
              double                     *A);
 
 void
-CBLAS(chpr2)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             const float       *alpha,
-             const float       *x,
-             int               incX,
-             const float       *y,
-             int               incY,
-             float             *A);
+CBLAS(chpr2)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             const float        *alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const float        *y,
+             ULMBLAS_INDEX_TYPE incY,
+             float              *A);
 
 void
-CBLAS(zhpr2)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             const double      *alpha,
-             const double      *x,
-             int               incX,
-             const double      *y,
-             int               incY,
-             double            *A);
+CBLAS(zhpr2)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             const double       *alpha,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const double       *y,
+             ULMBLAS_INDEX_TYPE incY,
+             double             *A);
 
 //
 //  Level 3
@@ -1170,320 +1210,364 @@ void
 CBLAS(sgemm)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              enum CBLAS_TRANSPOSE  transB,
-             int                   m,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              float                 alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const float           *B,
-             int                   ldB,
+             ULMBLAS_INDEX_TYPE    ldB,
              float                 beta,
              float                 *C,
-             int                   ldC);
+             ULMBLAS_INDEX_TYPE    ldC);
 
 void
 CBLAS(dgemm)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              enum CBLAS_TRANSPOSE  transB,
-             int                   m,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              double                alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *B,
-             int                   ldB,
+             ULMBLAS_INDEX_TYPE    ldB,
              double                beta,
              double                *C,
-             int                   ldC);
+             ULMBLAS_INDEX_TYPE    ldC);
+
+void
+CBLAS(cgemm)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             enum CBLAS_TRANSPOSE  transB,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
+             const float           *alpha,
+             const float           *A,
+             ULMBLAS_INDEX_TYPE    ldA,
+             const float           *B,
+             ULMBLAS_INDEX_TYPE    ldB,
+             const float           *beta,
+             float                 *C,
+             ULMBLAS_INDEX_TYPE    ldC);
 
 void
 CBLAS(zgemm)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              enum CBLAS_TRANSPOSE  transB,
-             int                   m,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const double          *alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *B,
-             int                   ldB,
+             ULMBLAS_INDEX_TYPE    ldB,
              const double          *beta,
              double                *C,
-             int                   ldC);
+             ULMBLAS_INDEX_TYPE    ldC);
 
 void
-CBLAS(dsymm)(enum CBLAS_ORDER  order,
-             enum CBLAS_SIDE   side,
-             enum CBLAS_UPLO   upLo,
-             int               m,
-             int               n,
-             double            alpha,
-             const double      *A,
-             int               ldA,
-             double            *B,
-             int               ldB,
-             double            beta,
-             double            *C,
-             int               ldC);
+CBLAS(dsymm)(enum CBLAS_ORDER   order,
+             enum CBLAS_SIDE    side,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             double             alpha,
+             const double       *A,
+             ULMBLAS_INDEX_TYPE ldA,
+             double             *B,
+             ULMBLAS_INDEX_TYPE ldB,
+             double             beta,
+             double             *C,
+             ULMBLAS_INDEX_TYPE ldC);
 
 void
-CBLAS(csymm)(enum CBLAS_ORDER  order,
-             enum CBLAS_SIDE   side,
-             enum CBLAS_UPLO   upLo,
-             int               m,
-             int               n,
-             const float       *alpha,
-             const float       *A,
-             int               ldA,
-             float             *B,
-             int               ldB,
-             const float       *beta,
-             float             *C,
-             int               ldC);
+CBLAS(csymm)(enum CBLAS_ORDER   order,
+             enum CBLAS_SIDE    side,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             const float        *alpha,
+             const float        *A,
+             ULMBLAS_INDEX_TYPE ldA,
+             float              *B,
+             ULMBLAS_INDEX_TYPE ldB,
+             const float        *beta,
+             float              *C,
+             ULMBLAS_INDEX_TYPE ldC);
 
 void
-CBLAS(zsymm)(enum CBLAS_ORDER  order,
-             enum CBLAS_SIDE   side,
-             enum CBLAS_UPLO   upLo,
-             int               m,
-             int               n,
-             const double      *alpha,
-             const double      *A,
-             int               ldA,
-             double            *B,
-             int               ldB,
-             const double      *beta,
-             double            *C,
-             int               ldC);
+CBLAS(zsymm)(enum CBLAS_ORDER   order,
+             enum CBLAS_SIDE    side,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             const double       *alpha,
+             const double       *A,
+             ULMBLAS_INDEX_TYPE ldA,
+             double             *B,
+             ULMBLAS_INDEX_TYPE ldB,
+             const double       *beta,
+             double             *C,
+             ULMBLAS_INDEX_TYPE ldC);
 
 void
-CBLAS(chemm)(enum CBLAS_ORDER  order,
-             enum CBLAS_SIDE   side,
-             enum CBLAS_UPLO   upLo,
-             int               m,
-             int               n,
-             float             *alpha,
-             const float       *A,
-             int               ldA,
-             float             *B,
-             int               ldB,
-             float             *beta,
-             float             *C,
-             int               ldC);
+CBLAS(chemm)(enum CBLAS_ORDER   order,
+             enum CBLAS_SIDE    side,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             float              *alpha,
+             const float        *A,
+             ULMBLAS_INDEX_TYPE ldA,
+             float              *B,
+             ULMBLAS_INDEX_TYPE ldB,
+             float              *beta,
+             float              *C,
+             ULMBLAS_INDEX_TYPE ldC);
 
 void
-CBLAS(zhemm)(enum CBLAS_ORDER  order,
-             enum CBLAS_SIDE   side,
-             enum CBLAS_UPLO   upLo,
-             int               m,
-             int               n,
-             double            *alpha,
-             const double      *A,
-             int               ldA,
-             double            *B,
-             int               ldB,
-             double            *beta,
-             double            *C,
-             int               ldC);
+CBLAS(zhemm)(enum CBLAS_ORDER   order,
+             enum CBLAS_SIDE    side,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             double             *alpha,
+             const double       *A,
+             ULMBLAS_INDEX_TYPE ldA,
+             double             *B,
+             ULMBLAS_INDEX_TYPE ldB,
+             double             *beta,
+             double             *C,
+             ULMBLAS_INDEX_TYPE ldC);
 
 void
 CBLAS(ssyr2k)(enum CBLAS_ORDER      order,
               enum CBLAS_UPLO       upLo,
               enum CBLAS_TRANSPOSE  trans,
-              int                   n,
-              int                   k,
+              ULMBLAS_INDEX_TYPE    n,
+              ULMBLAS_INDEX_TYPE    k,
               float                 alpha,
               const float           *A,
-              int                   ldA,
+              ULMBLAS_INDEX_TYPE    ldA,
               const float           *B,
-              int                   ldB,
+              ULMBLAS_INDEX_TYPE    ldB,
               float                 beta,
               float                 *C,
-              int                   ldC);
+              ULMBLAS_INDEX_TYPE    ldC);
 
 void
 CBLAS(dsyr2k)(enum CBLAS_ORDER      order,
               enum CBLAS_UPLO       upLo,
               enum CBLAS_TRANSPOSE  trans,
-              int                   n,
-              int                   k,
+              ULMBLAS_INDEX_TYPE    n,
+              ULMBLAS_INDEX_TYPE    k,
               double                alpha,
               const double          *A,
-              int                   ldA,
+              ULMBLAS_INDEX_TYPE    ldA,
               const double          *B,
-              int                   ldB,
+              ULMBLAS_INDEX_TYPE    ldB,
               double                beta,
               double                *C,
-              int                   ldC);
+              ULMBLAS_INDEX_TYPE    ldC);
+
+void
+CBLAS(csyr2k)(enum CBLAS_ORDER      order,
+              enum CBLAS_UPLO       upLo,
+              enum CBLAS_TRANSPOSE  trans,
+              ULMBLAS_INDEX_TYPE    n,
+              ULMBLAS_INDEX_TYPE    k,
+              const float           *alpha,
+              const float           *A,
+              ULMBLAS_INDEX_TYPE    ldA,
+              const float           *B,
+              ULMBLAS_INDEX_TYPE    ldB,
+              const float           *beta,
+              float                 *C,
+              ULMBLAS_INDEX_TYPE    ldC);
 
 void
 CBLAS(zsyr2k)(enum CBLAS_ORDER      order,
               enum CBLAS_UPLO       upLo,
               enum CBLAS_TRANSPOSE  trans,
-              int                   n,
-              int                   k,
+              ULMBLAS_INDEX_TYPE    n,
+              ULMBLAS_INDEX_TYPE    k,
               const double          *alpha,
               const double          *A,
-              int                   ldA,
+              ULMBLAS_INDEX_TYPE    ldA,
               const double          *B,
-              int                   ldB,
+              ULMBLAS_INDEX_TYPE    ldB,
               const double          *beta,
               double                *C,
-              int                   ldC);
+              ULMBLAS_INDEX_TYPE    ldC);
 
 void
 CBLAS(cher2k)(enum CBLAS_ORDER      order,
               enum CBLAS_UPLO       upLo,
               enum CBLAS_TRANSPOSE  trans,
-              int                   n,
-              int                   k,
+              ULMBLAS_INDEX_TYPE    n,
+              ULMBLAS_INDEX_TYPE    k,
               float                 *alpha,
               const float           *A,
-              int                   ldA,
+              ULMBLAS_INDEX_TYPE    ldA,
               const float           *B,
-              int                   ldB,
+              ULMBLAS_INDEX_TYPE    ldB,
               float                 beta,
               float                 *C,
-              int                   ldC);
+              ULMBLAS_INDEX_TYPE    ldC);
 
 void
 CBLAS(zher2k)(enum CBLAS_ORDER      order,
               enum CBLAS_UPLO       upLo,
               enum CBLAS_TRANSPOSE  trans,
-              int                   n,
-              int                   k,
+              ULMBLAS_INDEX_TYPE    n,
+              ULMBLAS_INDEX_TYPE    k,
               double                *alpha,
               const double          *A,
-              int                   ldA,
+              ULMBLAS_INDEX_TYPE    ldA,
               const double          *B,
-              int                   ldB,
+              ULMBLAS_INDEX_TYPE    ldB,
               double                beta,
               double                *C,
-              int                   ldC);
+              ULMBLAS_INDEX_TYPE    ldC);
 
 void
 CBLAS(ssyrk)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              float                 alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 beta,
              float                 *C,
-             int                   ldC);
+             ULMBLAS_INDEX_TYPE    ldC);
 
 void
 CBLAS(dsyrk)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              double                alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                beta,
              double                *C,
-             int                   ldC);
+             ULMBLAS_INDEX_TYPE    ldC);
+
+void
+CBLAS(csyrk)(enum CBLAS_ORDER      order,
+             enum CBLAS_UPLO       upLo,
+             enum CBLAS_TRANSPOSE  trans,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
+             const float           *alpha,
+             const float           *A,
+             ULMBLAS_INDEX_TYPE    ldA,
+             const float           *beta,
+             float                 *C,
+             ULMBLAS_INDEX_TYPE    ldC);
 
 void
 CBLAS(zsyrk)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const double          *alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *beta,
              double                *C,
-             int                   ldC);
+             ULMBLAS_INDEX_TYPE    ldC);
 
 void
 CBLAS(cherk)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              float                 alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 beta,
              float                 *C,
-             int                   ldC);
+             ULMBLAS_INDEX_TYPE    ldC);
 
 void
 CBLAS(zherk)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              double                alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                beta,
              double                *C,
-             int                   ldC);
+             ULMBLAS_INDEX_TYPE    ldC);
 
 void
-CBLAS(strmm)(enum CBLAS_ORDER     order,
-             enum CBLAS_SIDE      side,
-             enum CBLAS_UPLO      upLo,
-             enum CBLAS_TRANSPOSE transA,
-             enum CBLAS_DIAG      diag,
-             int                  m,
-             int                  n,
-             float                alpha,
-             const float          *A,
-             int                  ldA,
-             float                *B,
-             const int            ldB);
+CBLAS(strmm)(enum CBLAS_ORDER         order,
+             enum CBLAS_SIDE          side,
+             enum CBLAS_UPLO          upLo,
+             enum CBLAS_TRANSPOSE     transA,
+             enum CBLAS_DIAG          diag,
+             ULMBLAS_INDEX_TYPE       m,
+             ULMBLAS_INDEX_TYPE       n,
+             float                    alpha,
+             const float              *A,
+             ULMBLAS_INDEX_TYPE       ldA,
+             float                    *B,
+             const ULMBLAS_INDEX_TYPE ldB);
 
 void
-CBLAS(dtrmm)(enum CBLAS_ORDER     order,
-             enum CBLAS_SIDE      side,
-             enum CBLAS_UPLO      upLo,
-             enum CBLAS_TRANSPOSE transA,
-             enum CBLAS_DIAG      diag,
-             int                  m,
-             int                  n,
-             double               alpha,
-             const double         *A,
-             int                  ldA,
-             double               *B,
-             const int            ldB);
+CBLAS(dtrmm)(enum CBLAS_ORDER         order,
+             enum CBLAS_SIDE          side,
+             enum CBLAS_UPLO          upLo,
+             enum CBLAS_TRANSPOSE     transA,
+             enum CBLAS_DIAG          diag,
+             ULMBLAS_INDEX_TYPE       m,
+             ULMBLAS_INDEX_TYPE       n,
+             double                   alpha,
+             const double             *A,
+             ULMBLAS_INDEX_TYPE       ldA,
+             double                   *B,
+             const ULMBLAS_INDEX_TYPE ldB);
 
 void
-CBLAS(ctrmm)(enum CBLAS_ORDER     order,
-             enum CBLAS_SIDE      side,
-             enum CBLAS_UPLO      upLo,
-             enum CBLAS_TRANSPOSE transA,
-             enum CBLAS_DIAG      diag,
-             int                  m,
-             int                  n,
-             const float          *alpha,
-             const float          *A,
-             int                  ldA,
-             float                *B,
-             const int            ldB);
+CBLAS(ctrmm)(enum CBLAS_ORDER         order,
+             enum CBLAS_SIDE          side,
+             enum CBLAS_UPLO          upLo,
+             enum CBLAS_TRANSPOSE     transA,
+             enum CBLAS_DIAG          diag,
+             ULMBLAS_INDEX_TYPE       m,
+             ULMBLAS_INDEX_TYPE       n,
+             const float              *alpha,
+             const float              *A,
+             ULMBLAS_INDEX_TYPE       ldA,
+             float                    *B,
+             const ULMBLAS_INDEX_TYPE ldB);
 
 void
-CBLAS(ztrmm)(enum CBLAS_ORDER     order,
-             enum CBLAS_SIDE      side,
-             enum CBLAS_UPLO      upLo,
-             enum CBLAS_TRANSPOSE transA,
-             enum CBLAS_DIAG      diag,
-             int                  m,
-             int                  n,
-             const double         *alpha,
-             const double         *A,
-             int                  ldA,
-             double               *B,
-             const int            ldB);
+CBLAS(ztrmm)(enum CBLAS_ORDER         order,
+             enum CBLAS_SIDE          side,
+             enum CBLAS_UPLO          upLo,
+             enum CBLAS_TRANSPOSE     transA,
+             enum CBLAS_DIAG          diag,
+             ULMBLAS_INDEX_TYPE       m,
+             ULMBLAS_INDEX_TYPE       n,
+             const double             *alpha,
+             const double             *A,
+             ULMBLAS_INDEX_TYPE       ldA,
+             double                   *B,
+             const ULMBLAS_INDEX_TYPE ldB);
 
 void
 CBLAS(strsm)(enum CBLAS_ORDER      order,
@@ -1491,13 +1575,13 @@ CBLAS(strsm)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  transA,
              enum CBLAS_DIAG       diag,
-             int                   m,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
              float                 alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 *B,
-             int                   ldB);
+             ULMBLAS_INDEX_TYPE    ldB);
 
 void
 CBLAS(dtrsm)(enum CBLAS_ORDER      order,
@@ -1505,13 +1589,13 @@ CBLAS(dtrsm)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  transA,
              enum CBLAS_DIAG       diag,
-             int                   m,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
              double                alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                *B,
-             int                   ldB);
+             ULMBLAS_INDEX_TYPE    ldB);
 
 void
 CBLAS(ctrsm)(enum CBLAS_ORDER      order,
@@ -1519,13 +1603,13 @@ CBLAS(ctrsm)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  transA,
              enum CBLAS_DIAG       diag,
-             int                   m,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
              const float           *alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 *B,
-             int                   ldB);
+             ULMBLAS_INDEX_TYPE    ldB);
 
 void
 CBLAS(ztrsm)(enum CBLAS_ORDER      order,
@@ -1533,177 +1617,206 @@ CBLAS(ztrsm)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  transA,
              enum CBLAS_DIAG       diag,
-             int                   m,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
              const double          *alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                *B,
-             int                   ldB);
+             ULMBLAS_INDEX_TYPE    ldB);
 
 //
 //  Level 1
 //
 float
-ULMBLAS(sasum)(int           n,
-               const float   *x,
-               int           incX);
+ULMBLAS(sasum)(ULMBLAS_INDEX_TYPE n,
+               const float        *x,
+               ULMBLAS_INDEX_TYPE incX);
 
 double
-ULMBLAS(dasum)(int           n,
-               const double  *x,
-               int           incX);
+ULMBLAS(dasum)(ULMBLAS_INDEX_TYPE n,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX);
 
 float
-ULMBLAS(scasum)(int           n,
-                const float   *x_,
-                int           incX);
+ULMBLAS(scasum)(ULMBLAS_INDEX_TYPE n,
+                const float        *x_,
+                ULMBLAS_INDEX_TYPE incX);
 
 double
-ULMBLAS(dzasum)(int           n,
-                const double  *x_,
-                int           incX);
+ULMBLAS(dzasum)(ULMBLAS_INDEX_TYPE n,
+                const double       *x_,
+                ULMBLAS_INDEX_TYPE incX);
 
 void
-ULMBLAS(saxpy)(int           n,
-               float         alpha,
-               const float   *x,
-               int           incX,
-               float         *y,
-               int           incY);
+ULMBLAS(saxpy)(ULMBLAS_INDEX_TYPE n,
+               float              alpha,
+               const float        *x,
+               ULMBLAS_INDEX_TYPE incX,
+               float              *y,
+               ULMBLAS_INDEX_TYPE incY);
 
 void
-ULMBLAS(daxpy)(int           n,
-               double        alpha,
-               const double  *x,
-               int           incX,
-               double        *y,
-               int           incY);
+ULMBLAS(daxpy)(ULMBLAS_INDEX_TYPE n,
+               double             alpha,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX,
+               double             *y,
+               ULMBLAS_INDEX_TYPE incY);
 
 void
-ULMBLAS(caxpy)(int           n,
-               const float   *alpha_,
-               const float   *x_,
-               int           incX,
-               float         *y_,
-               int           incY);
+ULMBLAS(caxpy)(ULMBLAS_INDEX_TYPE n,
+               const float        *alpha_,
+               const float        *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               float              *y_,
+               ULMBLAS_INDEX_TYPE incY);
 
 void
-ULMBLAS(zaxpy)(int           n,
-               const double  *alpha_,
-               const double  *x_,
-               int           incX,
-               double        *y_,
-               int           incY);
+ULMBLAS(zaxpy)(ULMBLAS_INDEX_TYPE n,
+               const double       *alpha_,
+               const double       *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               double             *y_,
+               ULMBLAS_INDEX_TYPE incY);
 
 void
-ULMBLAS(scopy)(int          n,
-               const float  *x,
-               int          incX,
-               float        *y,
-               int          incY);
+ULMBLAS(scopy)(ULMBLAS_INDEX_TYPE n,
+               const float        *x,
+               ULMBLAS_INDEX_TYPE incX,
+               float              *y,
+               ULMBLAS_INDEX_TYPE incY);
 
 void
-ULMBLAS(dcopy)(int          n,
-               const double *x,
-               int          incX,
-               double       *y,
-               int          incY);
+ULMBLAS(dcopy)(ULMBLAS_INDEX_TYPE n,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX,
+               double             *y,
+               ULMBLAS_INDEX_TYPE incY);
+
+void
+ULMBLAS(ccopy)(ULMBLAS_INDEX_TYPE n,
+               const float        *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               float              *y_,
+               ULMBLAS_INDEX_TYPE incY);
+
+void
+ULMBLAS(zcopy)(ULMBLAS_INDEX_TYPE n,
+               const double       *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               double             *y_,
+               ULMBLAS_INDEX_TYPE incY);
 
 float
-ULMBLAS(sdot)(int           n,
-              const float   *x,
-              int           incX,
-              const float   *y,
-              int           incY);
+ULMBLAS(sdot)(ULMBLAS_INDEX_TYPE n,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX,
+              const float        *y,
+              ULMBLAS_INDEX_TYPE incY);
 
 double
-ULMBLAS(ddot)(int           n,
-              const double  *x,
-              int           incX,
-              const double  *y,
-              int           incY);
+ULMBLAS(ddot)(ULMBLAS_INDEX_TYPE n,
+              const double       *x,
+              ULMBLAS_INDEX_TYPE incX,
+              const double       *y,
+              ULMBLAS_INDEX_TYPE incY);
 
 void
-ULMBLAS(cdotc_sub)(int           n,
-                   const float   *x_,
-                   int           incX,
-                   const float   *y_,
-                   int           incY,
-                   float         *dotc_);
+ULMBLAS(cdotc_sub)(ULMBLAS_INDEX_TYPE n,
+                   const float        *x_,
+                   ULMBLAS_INDEX_TYPE incX,
+                   const float        *y_,
+                   ULMBLAS_INDEX_TYPE incY,
+                   float              *dotc_);
 
 void
-ULMBLAS(zdotc_sub)(int           n,
-                   const double  *x_,
-                   int           incX,
-                   const double  *y_,
-                   int           incY,
-                   double        *dotc_);
+ULMBLAS(zdotc_sub)(ULMBLAS_INDEX_TYPE n,
+                   const double       *x_,
+                   ULMBLAS_INDEX_TYPE incX,
+                   const double       *y_,
+                   ULMBLAS_INDEX_TYPE incY,
+                   double             *dotc_);
 
 void
-ULMBLAS(cdotu_sub)(int           n,
-                   const float   *x_,
-                   int           incX,
-                   const float   *y_,
-                   int           incY,
-                   float         *dotu_);
+ULMBLAS(cdotu_sub)(ULMBLAS_INDEX_TYPE n,
+                   const float        *x_,
+                   ULMBLAS_INDEX_TYPE incX,
+                   const float        *y_,
+                   ULMBLAS_INDEX_TYPE incY,
+                   float              *dotu_);
 
 void
-ULMBLAS(zdotu_sub)(int           n,
-                   const double  *x_,
-                   int           incX,
-                   const double  *y_,
-                   int           incY,
-                   double        *dotu_);
+ULMBLAS(zdotu_sub)(ULMBLAS_INDEX_TYPE n,
+                   const double       *x_,
+                   ULMBLAS_INDEX_TYPE incX,
+                   const double       *y_,
+                   ULMBLAS_INDEX_TYPE incY,
+                   double             *dotu_);
 
-int
-ULMBLAS(isamax)(int           n,
-                const float   *x,
-                int           incX);
+ULMBLAS_INDEX_TYPE
+ULMBLAS(isamax)(ULMBLAS_INDEX_TYPE n,
+                const float        *x,
+                ULMBLAS_INDEX_TYPE incX);
 
-int
-ULMBLAS(idamax)(int           n,
-                const double  *x,
-                int           incX);
+ULMBLAS_INDEX_TYPE
+ULMBLAS(idamax)(ULMBLAS_INDEX_TYPE n,
+                const double       *x,
+                ULMBLAS_INDEX_TYPE incX);
 
-int
-ULMBLAS(icamax)(int           n,
-                const float   *x_,
-                int           incX);
+ULMBLAS_INDEX_TYPE
+ULMBLAS(icamax)(ULMBLAS_INDEX_TYPE n,
+                const float        *x_,
+                ULMBLAS_INDEX_TYPE incX);
 
-int
-ULMBLAS(izamax)(int           n,
-                const double  *x_,
-                int           incX);
+ULMBLAS_INDEX_TYPE
+ULMBLAS(izamax)(ULMBLAS_INDEX_TYPE n,
+                const double       *x_,
+                ULMBLAS_INDEX_TYPE incX);
 
 float
-ULMBLAS(snrm2)(int           n,
-               const float   *x,
-               int           incX);
+ULMBLAS(snrm2)(ULMBLAS_INDEX_TYPE n,
+               const float        *x,
+               ULMBLAS_INDEX_TYPE incX);
 
 double
-ULMBLAS(dnrm2)(int           n,
-               const double  *x,
-               int           incX);
+ULMBLAS(dnrm2)(ULMBLAS_INDEX_TYPE n,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX);
 
 float
-ULMBLAS(scnrm2)(int           n,
-                const float   *x_,
-                int           incX);
+ULMBLAS(scnrm2)(ULMBLAS_INDEX_TYPE n,
+                const float        *x_,
+                ULMBLAS_INDEX_TYPE incX);
 
 double
-ULMBLAS(dznrm2)(int           n,
-                const double  *x_,
-                int           incX);
+ULMBLAS(dznrm2)(ULMBLAS_INDEX_TYPE n,
+                const double       *x_,
+                ULMBLAS_INDEX_TYPE incX);
 
 void
-ULMBLAS(drot)(int      n,
-              double   *x,
-              int      incX,
-              double   *y,
-              int      incY,
-              double   c,
-              double   s);
+ULMBLAS(srot)(const ULMBLAS_INDEX_TYPE n,
+              float                    *x,
+              const ULMBLAS_INDEX_TYPE incX,
+              float                    *y,
+              const ULMBLAS_INDEX_TYPE incY,
+              const float              c,
+              const float              s);
+
+void
+ULMBLAS(drot)(ULMBLAS_INDEX_TYPE n,
+              double             *x,
+              ULMBLAS_INDEX_TYPE incX,
+              double             *y,
+              ULMBLAS_INDEX_TYPE incY,
+              double             c,
+              double             s);
+
+void
+ULMBLAS(srotg)(float *a,
+               float *b,
+               float *c,
+               float *s);
 
 void
 ULMBLAS(drotg)(double *a,
@@ -1712,68 +1825,149 @@ ULMBLAS(drotg)(double *a,
                double *s);
 
 void
-ULMBLAS(sscal)(const int    n,
-               const float  alpha,
-               float        *x,
-               const int    incX);
+ULMBLAS(crotg)(float *a,
+               float *b,
+               float *c,
+               float *s);
 
 void
-ULMBLAS(dscal)(const int    n,
-               const double alpha,
-               double       *x,
-               const int    incX);
+ULMBLAS(zrotg)(double *a,
+               double *b,
+               double *c,
+               double *s);
 
 void
-ULMBLAS(cscal)(const int    n,
-               const float  *alpha_,
-               float        *x_,
-               const int    incX);
+ULMBLAS(srotm)(const ULMBLAS_INDEX_TYPE n,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE incX,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE incY,
+               const float              *param);
 
 void
-ULMBLAS(zscal)(const int    n,
-               const double *alpha_,
-               double       *x_,
-               const int    incX);
+ULMBLAS(drotm)(const ULMBLAS_INDEX_TYPE n,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE incX,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE incY,
+               const double             *param);
 
 void
-CBLAS(csscal)(const int    n,
-              const float  alpha,
-              float        *x,
-              const int    incX);
+ULMBLAS(srotmg)(float          *d1,
+                float          *d2,
+                float          *x1,
+                const float    y1,
+                float          *param);
 
 void
-CBLAS(zdscal)(const int    n,
-              const double alpha,
-              double       *x,
-              const int    incX);
+ULMBLAS(drotmg)(double         *d1,
+                double         *d2,
+                double         *x1,
+                const double   y1,
+                double         *param);
 
 void
-ULMBLAS(sswap)(const int n,
-               float     *x,
-               const int incX,
-               float     *y,
-               const int incY);
+ULMBLAS(csrot)(const ULMBLAS_INDEX_TYPE n,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE incX,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE incY,
+               const float              c,
+               const float              s);
 
 void
-ULMBLAS(dswap)(const int n,
-               double    *x,
-               const int incX,
-               double    *y,
-               const int incY);
+ULMBLAS(zdrot)(const ULMBLAS_INDEX_TYPE n,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE incX,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE incY,
+               const double             c,
+               const double             s);
+
+float
+ULMBLAS(sdsdot)(ULMBLAS_INDEX_TYPE n,
+                float              alpha,
+                const float        *x,
+                ULMBLAS_INDEX_TYPE incX,
+                const float        *y,
+                ULMBLAS_INDEX_TYPE incY);
+
+double
+ULMBLAS(dsdot)(ULMBLAS_INDEX_TYPE n,
+               const float        *x,
+               ULMBLAS_INDEX_TYPE incX,
+               const float        *y,
+               ULMBLAS_INDEX_TYPE incY);
+
+float
+ULMBLAS(scabs1)(const float *z);
+
+double
+ULMBLAS(dcabs1)(const double *z);
 
 void
-ULMBLAS(cswap)(const int n,
-               float     *x_,
-               const int incX,
-               float     *y_,
-               const int incY);
+ULMBLAS(sscal)(const ULMBLAS_INDEX_TYPE n,
+               const float              alpha,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE incX);
 
 void
-ULMBLAS(zswap)(const int n,
-               double    *x_,
-               const int incX,
-               double    *y_,
-               const int incY);
+ULMBLAS(dscal)(const ULMBLAS_INDEX_TYPE n,
+               const double             alpha,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE incX);
+
+void
+ULMBLAS(cscal)(const ULMBLAS_INDEX_TYPE n,
+               const float              *alpha_,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE incX);
+
+void
+ULMBLAS(zscal)(const ULMBLAS_INDEX_TYPE n,
+               const double             *alpha_,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE incX);
+
+void
+ULMBLAS(csscal)(const ULMBLAS_INDEX_TYPE n,
+                const float              alpha,
+                float                    *x_,
+                const ULMBLAS_INDEX_TYPE incX);
+
+void
+ULMBLAS(zdscal)(const ULMBLAS_INDEX_TYPE n,
+                const double             alpha,
+                double                   *x_,
+                const ULMBLAS_INDEX_TYPE incX);
+
+void
+ULMBLAS(sswap)(const ULMBLAS_INDEX_TYPE n,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE incX,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE incY);
+
+void
+ULMBLAS(dswap)(const ULMBLAS_INDEX_TYPE n,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE incX,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE incY);
+
+void
+ULMBLAS(cswap)(const ULMBLAS_INDEX_TYPE n,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE incX,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE incY);
+
+void
+ULMBLAS(zswap)(const ULMBLAS_INDEX_TYPE n,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE incX,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE incY);
 
 
 //
@@ -1782,741 +1976,746 @@ ULMBLAS(zswap)(const int n,
 
 void
 ULMBLAS(sgbmv)(enum CBLAS_TRANSPOSE  transA,
-               int                   m,
-               int                   n,
-               int                   kl,
-               int                   ku,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    kl,
+               ULMBLAS_INDEX_TYPE    ku,
                float                 alpha,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *x,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                float                 beta,
                float                 *y,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(dgbmv)(enum CBLAS_TRANSPOSE  transA,
-               int                   m,
-               int                   n,
-               int                   kl,
-               int                   ku,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    kl,
+               ULMBLAS_INDEX_TYPE    ku,
                double                alpha,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *x,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                double                beta,
                double                *y,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(cgbmv)(enum CBLAS_TRANSPOSE  transA_,
-               int                   m,
-               int                   n,
-               int                   kl,
-               int                   ku,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    kl,
+               ULMBLAS_INDEX_TYPE    ku,
                const float           *alpha_,
                const float           *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *x_,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                const float           *beta_,
                float                 *y_,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(zgbmv)(enum CBLAS_TRANSPOSE  transA_,
-               int                   m,
-               int                   n,
-               int                   kl,
-               int                   ku,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    kl,
+               ULMBLAS_INDEX_TYPE    ku,
                const double          *alpha_,
                const double          *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *x_,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                const double          *beta_,
                double                *y_,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(sgemv)(enum CBLAS_TRANSPOSE  transA,
-               int                   m,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
                float                 alpha,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *x,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                float                 beta,
                float                 *y,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(dgemv)(enum CBLAS_TRANSPOSE  transA,
-               int                   m,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
                double                alpha,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *x,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                double                beta,
                double                *y,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(cgemv)(enum CBLAS_TRANSPOSE  transA_,
-               int                   m,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *alpha_,
                const float           *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *x_,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                const float           *beta_,
                float                 *y_,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(zgemv)(enum CBLAS_TRANSPOSE  transA_,
-               int                   m,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *alpha_,
                const double          *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *x_,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                const double          *beta_,
                double                *y_,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
-ULMBLAS(sger)(int           m,
-              int           n,
-              float         alpha,
-              const float   *x,
-              int           incX,
-              const float   *y,
-              int           incY,
-              float         *A,
-              int           ldA);
+ULMBLAS(sger)(ULMBLAS_INDEX_TYPE m,
+              ULMBLAS_INDEX_TYPE n,
+              float              alpha,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX,
+              const float        *y,
+              ULMBLAS_INDEX_TYPE incY,
+              float              *A,
+              ULMBLAS_INDEX_TYPE ldA);
 
 void
-ULMBLAS(dger)(int           m,
-              int           n,
-              double        alpha,
-              const double  *x,
-              int           incX,
-              const double  *y,
-              int           incY,
-              double        *A,
-              int           ldA);
+ULMBLAS(dger)(ULMBLAS_INDEX_TYPE m,
+              ULMBLAS_INDEX_TYPE n,
+              double             alpha,
+              const double       *x,
+              ULMBLAS_INDEX_TYPE incX,
+              const double       *y,
+              ULMBLAS_INDEX_TYPE incY,
+              double             *A,
+              ULMBLAS_INDEX_TYPE ldA);
 
 void
-ULMBLAS(cgeru)(int           m,
-               int           n,
-               const float   *alpha_,
-               const float   *x_,
-               int           incX,
-               const float   *y_,
-               int           incY,
-               float         *A_,
-               int           ldA);
+ULMBLAS(dger2)(ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               double             alpha,
+               double             *x,
+               ULMBLAS_INDEX_TYPE incX,
+               double             *y,
+               ULMBLAS_INDEX_TYPE incY,
+               double             beta,
+               double             *w,
+               ULMBLAS_INDEX_TYPE incW,
+               double             *z,
+               ULMBLAS_INDEX_TYPE incZ,
+               double             *A,
+               ULMBLAS_INDEX_TYPE ldA);
 
 void
-ULMBLAS(zgeru)(int           m,
-               int           n,
-               const double  *alpha,
-               const double  *x,
-               int           incX,
-               const double  *y,
-               int           incY,
-               double        *A,
-               int           ldA);
+ULMBLAS(cgeru)(ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               const float        *alpha_,
+               const float        *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               const float        *y_,
+               ULMBLAS_INDEX_TYPE incY,
+               float              *A_,
+               ULMBLAS_INDEX_TYPE ldA);
 
 void
-ULMBLAS(cgerc)(int           m,
-               int           n,
-               const float   *alpha_,
-               const float   *x_,
-               int           incX,
-               const float   *y_,
-               int           incY,
-               float         *A_,
-               int           ldA);
+ULMBLAS(zgeru)(ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               const double       *alpha,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX,
+               const double       *y,
+               ULMBLAS_INDEX_TYPE incY,
+               double             *A,
+               ULMBLAS_INDEX_TYPE ldA);
 
 void
-ULMBLAS(zgerc)(int           m,
-               int           n,
-               const double  *alpha,
-               const double  *x,
-               int           incX,
-               const double  *y,
-               int           incY,
-               double        *A,
-               int           ldA);
-void
-ULMBLAS(ssymm)(enum CBLAS_SIDE  side,
-               enum CBLAS_UPLO  upLo,
-               int              m,
-               int              n,
-               float            alpha,
-               const float      *A,
-               int              ldA,
-               float            *B,
-               int              ldB,
-               float            beta,
-               float            *C,
-               int              ldC);
+ULMBLAS(cgerc)(ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               const float        *alpha_,
+               const float        *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               const float        *y_,
+               ULMBLAS_INDEX_TYPE incY,
+               float              *A_,
+               ULMBLAS_INDEX_TYPE ldA);
 
 void
-ULMBLAS(ssymv)(enum CBLAS_UPLO  upLo,
-               int              n,
-               float            alpha,
-               const float      *A,
-               int              ldA,
-               const float      *x,
-               int              incX,
-               float            beta,
-               float            *y,
-               int              incY);
+ULMBLAS(zgerc)(ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               const double       *alpha,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX,
+               const double       *y,
+               ULMBLAS_INDEX_TYPE incY,
+               double             *A,
+               ULMBLAS_INDEX_TYPE ldA);
+void
+ULMBLAS(ssymm)(enum CBLAS_SIDE    side,
+               enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               float              alpha,
+               const float        *A,
+               ULMBLAS_INDEX_TYPE ldA,
+               float              *B,
+               ULMBLAS_INDEX_TYPE ldB,
+               float              beta,
+               float              *C,
+               ULMBLAS_INDEX_TYPE ldC);
 
 void
-ULMBLAS(dsymv)(enum CBLAS_UPLO  upLo,
-               int              n,
-               double           alpha,
-               const double     *A,
-               int              ldA,
-               const double     *x,
-               int              incX,
-               double           beta,
-               double           *y,
-               int              incY);
+ULMBLAS(ssymv)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               float              alpha,
+               const float        *A,
+               ULMBLAS_INDEX_TYPE ldA,
+               const float        *x,
+               ULMBLAS_INDEX_TYPE incX,
+               float              beta,
+               float              *y,
+               ULMBLAS_INDEX_TYPE incY);
 
 void
-ULMBLAS(chemv)(enum CBLAS_UPLO  upLo,
-               int              n,
-               const float      *alpha_,
-               const float      *A_,
-               int              ldA,
-               const float      *x_,
-               int              incX,
-               const float      *beta,
-               float            *y_,
-               int              incY);
+ULMBLAS(dsymv)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               double             alpha,
+               const double       *A,
+               ULMBLAS_INDEX_TYPE ldA,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX,
+               double             beta,
+               double             *y,
+               ULMBLAS_INDEX_TYPE incY);
 
 void
-ULMBLAS(zhemv)(enum CBLAS_UPLO  upLo,
-               int              n,
-               const double     *alpha_,
-               const double     *A_,
-               int              ldA,
-               const double     *x_,
-               int              incX,
-               const double     *beta,
-               double           *y_,
-               int              incY);
+ULMBLAS(chemv)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               const float        *alpha_,
+               const float        *A_,
+               ULMBLAS_INDEX_TYPE ldA,
+               const float        *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               const float        *beta,
+               float              *y_,
+               ULMBLAS_INDEX_TYPE incY);
+
+void
+ULMBLAS(zhemv)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               const double       *alpha_,
+               const double       *A_,
+               ULMBLAS_INDEX_TYPE ldA,
+               const double       *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               const double       *beta,
+               double             *y_,
+               ULMBLAS_INDEX_TYPE incY);
 
 void
 ULMBLAS(strmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(dtrmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ctrmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA_,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 *x_,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ztrmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA_,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                *x_,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(strsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(dtrsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ctrsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ztrsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
-ULMBLAS(ssyr)(enum CBLAS_UPLO  upLo,
-              int              n,
-              float            alpha,
-              const float      *x,
-              int              incX,
-              float            *A,
-              int              ldA);
+ULMBLAS(ssyr)(enum CBLAS_UPLO    upLo,
+              ULMBLAS_INDEX_TYPE n,
+              float              alpha,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX,
+              float              *A,
+              ULMBLAS_INDEX_TYPE ldA);
 
 void
 ULMBLAS(dsyr)(const enum CBLAS_UPLO   upLo,
-              int                     N,
+              ULMBLAS_INDEX_TYPE      N,
               double                  alpha,
               const double            *X,
-              int                     incX,
+              ULMBLAS_INDEX_TYPE      incX,
               double                  *A,
-              int                     lda);
+              ULMBLAS_INDEX_TYPE      lda);
 
 void
 ULMBLAS(cher)(const enum CBLAS_UPLO   upLo,
-              int                     N,
+              ULMBLAS_INDEX_TYPE      N,
               float                   alpha,
               const float             *X,
-              int                     incX,
+              ULMBLAS_INDEX_TYPE      incX,
               float                   *A,
-              int                     lda);
+              ULMBLAS_INDEX_TYPE      lda);
 
 void
 ULMBLAS(zher)(const enum CBLAS_UPLO   upLo,
-              int                     N,
+              ULMBLAS_INDEX_TYPE      N,
               double                  alpha,
               const double            *X,
-              int                     incX,
+              ULMBLAS_INDEX_TYPE      incX,
               double                  *A,
-              int                     lda);
+              ULMBLAS_INDEX_TYPE      lda);
 
 void
-ULMBLAS(ssyr2)(enum CBLAS_UPLO  upLo,
-               int              n,
-               float            alpha,
-               const float      *x,
-               int              incX,
-               const float      *y,
-               int              incY,
-               float            *A,
-               int              ldA);
+ULMBLAS(ssyr2)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               float              alpha,
+               const float        *x,
+               ULMBLAS_INDEX_TYPE incX,
+               const float        *y,
+               ULMBLAS_INDEX_TYPE incY,
+               float              *A,
+               ULMBLAS_INDEX_TYPE ldA);
 
 void
-ULMBLAS(dsyr2)(enum CBLAS_UPLO  upLo,
-               int              n,
-               double           alpha,
-               const double     *x,
-               int              incX,
-               const double     *y,
-               int              incY,
-               double           *A,
-               int              ldA);
+ULMBLAS(dsyr2)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               double             alpha,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX,
+               const double       *y,
+               ULMBLAS_INDEX_TYPE incY,
+               double             *A,
+               ULMBLAS_INDEX_TYPE ldA);
 
 void
-ULMBLAS(cher2)(enum CBLAS_UPLO  upLo,
-               int              n,
-               const float      *alpha_,
-               const float      *x_,
-               int              incX,
-               const float      *y_,
-               int              incY,
-               float            *A_,
-               int              ldA);
+ULMBLAS(cher2)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               const float        *alpha_,
+               const float        *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               const float        *y_,
+               ULMBLAS_INDEX_TYPE incY,
+               float              *A_,
+               ULMBLAS_INDEX_TYPE ldA);
 
 void
-ULMBLAS(zher2)(enum CBLAS_UPLO  upLo,
-               int              n,
-               const double     *alpha_,
-               const double     *x_,
-               int              incX,
-               const double     *y_,
-               int              incY,
-               double           *A_,
-               int              ldA);
+ULMBLAS(zher2)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               const double       *alpha_,
+               const double       *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               const double       *y_,
+               ULMBLAS_INDEX_TYPE incY,
+               double             *A_,
+               ULMBLAS_INDEX_TYPE ldA);
 
 void
 ULMBLAS(stbmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(dtbmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ctbmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA_,
                enum CBLAS_DIAG       diag,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const float           *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 *x_,
-               int                   incX);
-
-void
-ULMBLAS(ctbmv)(enum CBLAS_UPLO       upLo,
-               enum CBLAS_TRANSPOSE  transA_,
-               enum CBLAS_DIAG       diag,
-               int                   n,
-               int                   k,
-               const float           *A_,
-               int                   ldA,
-               float                 *x_,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ztbmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA_,
                enum CBLAS_DIAG       diag,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const double          *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                *x_,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ssbmv)(enum CBLAS_UPLO       upLo,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                float                 alpha,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *x,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                float                 beta,
                float                 *y,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(dsbmv)(enum CBLAS_UPLO       upLo,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                double                alpha,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *x,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                double                beta,
                double                *y,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(chbmv)(enum CBLAS_UPLO       upLo,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const float           *alpha_,
                const float           *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *x_,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                const float           *beta_,
                float                 *y_,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 void
 ULMBLAS(zhbmv)(enum CBLAS_UPLO       upLo,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const double          *alpha_,
                const double          *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *x_,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                const double          *beta_,
                double                *y_,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(dtbsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ctbsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ztbsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(sspmv)(enum CBLAS_UPLO       upLo,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                float                 alpha,
                const float           *A,
                const float           *x,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                float                 beta,
                float                 *y,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(dspmv)(enum CBLAS_UPLO       upLo,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                double                alpha,
                const double          *A,
                const double          *x,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                double                beta,
                double                *y,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(chpmv)(enum CBLAS_UPLO       upLo,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *alpha_,
                const float           *AP_,
                const float           *x_,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                const float           *beta_,
                float                 *y_,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(zhpmv)(enum CBLAS_UPLO       upLo,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *alpha_,
                const double          *AP_,
                const double          *x_,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                const double          *beta_,
                double                *y_,
-               int                   incY);
+               ULMBLAS_INDEX_TYPE    incY);
 
 void
 ULMBLAS(stbsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA_,
                enum CBLAS_DIAG       diag,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(stpmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *A,
                float                 *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(dtpmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *A,
                double                *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ctpmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA_,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *AP_,
                float                 *x_,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ztpmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA_,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *AP_,
                double                *x_,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(stpsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *A,
                float                 *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(dtpsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *A,
                double                *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ctpsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *A,
                float                 *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
 ULMBLAS(ztpsv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *A,
                double                *x,
-               int                   incX);
+               ULMBLAS_INDEX_TYPE    incX);
 
 void
-ULMBLAS(sspr)(enum CBLAS_UPLO  upLo,
-              int              n,
-              float            alpha,
-              const float      *x,
-              int              incX,
-              float            *A);
+ULMBLAS(sspr)(enum CBLAS_UPLO    upLo,
+              ULMBLAS_INDEX_TYPE n,
+              float              alpha,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX,
+              float              *A);
 
 void
-ULMBLAS(dspr)(enum CBLAS_UPLO  upLo,
-              int              n,
-              double           alpha,
-              const double     *x,
-              int              incX,
-              double           *A);
+ULMBLAS(dspr)(enum CBLAS_UPLO    upLo,
+              ULMBLAS_INDEX_TYPE n,
+              double             alpha,
+              const double       *x,
+              ULMBLAS_INDEX_TYPE incX,
+              double             *A);
 
 void
-ULMBLAS(chpr)(enum CBLAS_UPLO  upLo,
-              int              n,
-              float            alpha,
-              const float      *x_,
-              int              incX,
-              float            *A_);
+ULMBLAS(chpr)(enum CBLAS_UPLO    upLo,
+              ULMBLAS_INDEX_TYPE n,
+              float              alpha,
+              const float        *x_,
+              ULMBLAS_INDEX_TYPE incX,
+              float              *A_);
 
 void
-ULMBLAS(zhpr)(enum CBLAS_UPLO  upLo,
-              int              n,
-              double           alpha,
-              const double     *x_,
-              int              incX,
-              double           *A_);
+ULMBLAS(zhpr)(enum CBLAS_UPLO    upLo,
+              ULMBLAS_INDEX_TYPE n,
+              double             alpha,
+              const double       *x_,
+              ULMBLAS_INDEX_TYPE incX,
+              double             *A_);
 
 void
-ULMBLAS(sspr2)(enum CBLAS_UPLO  upLo,
-               int              n,
-               float            alpha,
-               const float      *x,
-               int              incX,
-               const float      *y,
-               int              incY,
-               float            *A);
+ULMBLAS(sspr2)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               float              alpha,
+               const float        *x,
+               ULMBLAS_INDEX_TYPE incX,
+               const float        *y,
+               ULMBLAS_INDEX_TYPE incY,
+               float              *A);
 
 void
-ULMBLAS(dspr2)(enum CBLAS_UPLO  upLo,
-               int              n,
-               double           alpha,
-               const double     *x,
-               int              incX,
-               const double     *y,
-               int              incY,
-               double           *A);
+ULMBLAS(dspr2)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               double             alpha,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX,
+               const double       *y,
+               ULMBLAS_INDEX_TYPE incY,
+               double             *A);
 
 void
-ULMBLAS(chpr2)(enum CBLAS_UPLO   upLo,
-               int               n,
-               const float       *alpha,
-               const float       *x,
-               int               incX,
-               const float       *y,
-               int               incY,
-               float             *A);
+ULMBLAS(chpr2)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               const float        *alpha,
+               const float        *x,
+               ULMBLAS_INDEX_TYPE incX,
+               const float        *y,
+               ULMBLAS_INDEX_TYPE incY,
+               float              *A);
 
 
 void
-ULMBLAS(zhpr2)(enum CBLAS_UPLO   upLo,
-               int               n,
-               const double      *alpha,
-               const double      *x,
-               int               incX,
-               const double      *y,
-               int               incY,
-               double            *A);
+ULMBLAS(zhpr2)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               const double       *alpha,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX,
+               const double       *y,
+               ULMBLAS_INDEX_TYPE incY,
+               double             *A);
 
 //
 //  Level 3
@@ -2524,366 +2723,392 @@ ULMBLAS(zhpr2)(enum CBLAS_UPLO   upLo,
 void
 ULMBLAS(sgemm)(enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_TRANSPOSE  transB,
-               int                   m,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                float                 alpha,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *B,
-               int                   ldB,
+               ULMBLAS_INDEX_TYPE    ldB,
                float                 beta,
                float                 *C,
-               int                   ldC);
+               ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(dgemm)(enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_TRANSPOSE  transB,
-               int                   m,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                double                alpha,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *B,
-               int                   ldB,
+               ULMBLAS_INDEX_TYPE    ldB,
                double                beta,
                double                *C,
-               int                   ldC);
+               ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(cgemm)(enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_TRANSPOSE  transB,
-               int                   m,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const float           *alpha_,
                const float           *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *B_,
-               int                   ldB,
+               ULMBLAS_INDEX_TYPE    ldB,
                const float           *beta_,
                float                 *C_,
-               int                   ldC);
+               ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(zgemm)(enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_TRANSPOSE  transB,
-               int                   m,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const double          *alpha,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *B,
-               int                   ldB,
+               ULMBLAS_INDEX_TYPE    ldB,
                const double          *beta,
                double                *C,
-               int                   ldC);
+               ULMBLAS_INDEX_TYPE    ldC);
 
 void
-ULMBLAS(dsymm)(enum CBLAS_SIDE  side,
-               enum CBLAS_UPLO  upLo,
-               int              m,
-               int              n,
-               double           alpha,
-               const double     *A,
-               int              ldA,
-               double           *B,
-               int              ldB,
-               double           beta,
-               double           *C,
-               int              ldC);
+ULMBLAS(dsymm)(enum CBLAS_SIDE    side,
+               enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               double             alpha,
+               const double       *A,
+               ULMBLAS_INDEX_TYPE ldA,
+               double             *B,
+               ULMBLAS_INDEX_TYPE ldB,
+               double             beta,
+               double             *C,
+               ULMBLAS_INDEX_TYPE ldC);
 
 void
-ULMBLAS(csymm)(enum CBLAS_SIDE  side,
-               enum CBLAS_UPLO  upLo,
-               int              m,
-               int              n,
-               const float      *alpha_,
-               const float      *A_,
-               int              ldA,
-               float            *B_,
-               int              ldB,
-               const float      *beta_,
-               float            *C_,
-               int              ldC);
+ULMBLAS(csymm)(enum CBLAS_SIDE    side,
+               enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               const float        *alpha_,
+               const float        *A_,
+               ULMBLAS_INDEX_TYPE ldA,
+               float              *B_,
+               ULMBLAS_INDEX_TYPE ldB,
+               const float        *beta_,
+               float              *C_,
+               ULMBLAS_INDEX_TYPE ldC);
 
 void
-ULMBLAS(zsymm)(enum CBLAS_SIDE  side,
-               enum CBLAS_UPLO  upLo,
-               int              m,
-               int              n,
-               const double     *alpha_,
-               const double     *A_,
-               int              ldA,
-               double           *B_,
-               int              ldB,
-               const double     *beta_,
-               double           *C_,
-               int              ldC);
+ULMBLAS(zsymm)(enum CBLAS_SIDE    side,
+               enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               const double       *alpha_,
+               const double       *A_,
+               ULMBLAS_INDEX_TYPE ldA,
+               double             *B_,
+               ULMBLAS_INDEX_TYPE ldB,
+               const double       *beta_,
+               double             *C_,
+               ULMBLAS_INDEX_TYPE ldC);
 
 void
-ULMBLAS(chemm)(enum CBLAS_SIDE  side,
-               enum CBLAS_UPLO  upLo,
-               int              m,
-               int              n,
-               float            *alpha_,
-               const float      *A_,
-               int              ldA,
-               float            *B_,
-               int              ldB,
-               float            *beta_,
-               float            *C_,
-               int              ldC);
+ULMBLAS(chemm)(enum CBLAS_SIDE    side,
+               enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               float              *alpha_,
+               const float        *A_,
+               ULMBLAS_INDEX_TYPE ldA,
+               float              *B_,
+               ULMBLAS_INDEX_TYPE ldB,
+               float              *beta_,
+               float              *C_,
+               ULMBLAS_INDEX_TYPE ldC);
 
 void
-ULMBLAS(zhemm)(enum CBLAS_SIDE  side,
-               enum CBLAS_UPLO  upLo,
-               int              m,
-               int              n,
-               double           *alpha_,
-               const double     *A_,
-               int              ldA,
-               double           *B_,
-               int              ldB,
-               double           *beta_,
-               double           *C_,
-               int              ldC);
+ULMBLAS(zhemm)(enum CBLAS_SIDE    side,
+               enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               double             *alpha_,
+               const double       *A_,
+               ULMBLAS_INDEX_TYPE ldA,
+               double             *B_,
+               ULMBLAS_INDEX_TYPE ldB,
+               double             *beta_,
+               double             *C_,
+               ULMBLAS_INDEX_TYPE ldC);
 
 void
 ULMBLAS(ssyr2k)(enum CBLAS_UPLO       upLo,
                 enum CBLAS_TRANSPOSE  trans,
-                int                   n,
-                int                   k,
+                ULMBLAS_INDEX_TYPE    n,
+                ULMBLAS_INDEX_TYPE    k,
                 float                 alpha,
                 const float           *A,
-                int                   ldA,
+                ULMBLAS_INDEX_TYPE    ldA,
                 const float           *B,
-                int                   ldB,
+                ULMBLAS_INDEX_TYPE    ldB,
                 float                 beta,
                 float                 *C,
-                int                   ldC);
+                ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(dsyr2k)(enum CBLAS_UPLO       upLo,
                 enum CBLAS_TRANSPOSE  trans,
-                int                   n,
-                int                   k,
+                ULMBLAS_INDEX_TYPE    n,
+                ULMBLAS_INDEX_TYPE    k,
                 double                alpha,
                 const double          *A,
-                int                   ldA,
+                ULMBLAS_INDEX_TYPE    ldA,
                 const double          *B,
-                int                   ldB,
+                ULMBLAS_INDEX_TYPE    ldB,
                 double                beta,
                 double                *C,
-                int                   ldC);
+                ULMBLAS_INDEX_TYPE    ldC);
+
+void
+ULMBLAS(csyr2k)(enum CBLAS_UPLO       upLo,
+                enum CBLAS_TRANSPOSE  trans,
+                ULMBLAS_INDEX_TYPE    n,
+                ULMBLAS_INDEX_TYPE    k,
+                const float           *alpha_,
+                const float           *A_,
+                ULMBLAS_INDEX_TYPE    ldA,
+                const float           *B_,
+                ULMBLAS_INDEX_TYPE    ldB,
+                const float           *beta_,
+                float                 *C_,
+                ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(zsyr2k)(enum CBLAS_UPLO       upLo,
                 enum CBLAS_TRANSPOSE  trans,
-                int                   n,
-                int                   k,
+                ULMBLAS_INDEX_TYPE    n,
+                ULMBLAS_INDEX_TYPE    k,
                 const double          *alpha_,
                 const double          *A_,
-                int                   ldA,
+                ULMBLAS_INDEX_TYPE    ldA,
                 const double          *B_,
-                int                   ldB,
+                ULMBLAS_INDEX_TYPE    ldB,
                 const double          *beta_,
                 double                *C_,
-                int                   ldC);
+                ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(cher2k)(enum CBLAS_UPLO       upLo,
                 enum CBLAS_TRANSPOSE  trans,
-                int                   n,
-                int                   k,
+                ULMBLAS_INDEX_TYPE    n,
+                ULMBLAS_INDEX_TYPE    k,
                 float                 *alpha_,
                 const float           *A_,
-                int                   ldA,
+                ULMBLAS_INDEX_TYPE    ldA,
                 const float           *B_,
-                int                   ldB,
+                ULMBLAS_INDEX_TYPE    ldB,
                 float                 beta,
                 float                 *C_,
-                int                   ldC);
+                ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(zher2k)(enum CBLAS_UPLO       upLo,
                 enum CBLAS_TRANSPOSE  trans,
-                int                   n,
-                int                   k,
+                ULMBLAS_INDEX_TYPE    n,
+                ULMBLAS_INDEX_TYPE    k,
                 double                *alpha_,
                 const double          *A_,
-                int                   ldA,
+                ULMBLAS_INDEX_TYPE    ldA,
                 const double          *B_,
-                int                   ldB,
+                ULMBLAS_INDEX_TYPE    ldB,
                 double                beta,
                 double                *C_,
-                int                   ldC);
+                ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(ssyrk)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                float                 alpha,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 beta,
                float                 *C,
-               int                   ldC);
+               ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(dsyrk)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                double                alpha,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                beta,
                double                *C,
-               int                   ldC);
+               ULMBLAS_INDEX_TYPE    ldC);
+
+void
+ULMBLAS(csyrk)(enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  trans,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
+               const float           *alpha_,
+               const float           *A_,
+               ULMBLAS_INDEX_TYPE    ldA,
+               const float           *beta_,
+               float                 *C_,
+               ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(zsyrk)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const double          *alpha_,
                const double          *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *beta_,
                double                *C_,
-               int                   ldC);
+               ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(cherk)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                float                 alpha,
                const float           *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 beta,
                float                 *C_,
-               int                   ldC);
+               ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(zherk)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                double                alpha,
                const double          *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                beta,
                double                *C_,
-               int                   ldC);
+               ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(strmm)(enum CBLAS_SIDE      side,
                enum CBLAS_UPLO      upLo,
                enum CBLAS_TRANSPOSE transA,
                enum CBLAS_DIAG      diag,
-               int                  m,
-               int                  n,
+               ULMBLAS_INDEX_TYPE   m,
+               ULMBLAS_INDEX_TYPE   n,
                float                alpha,
                const float          *A,
-               int                  ldA,
+               ULMBLAS_INDEX_TYPE   ldA,
                float                *B,
-               int                  ldB);
+               ULMBLAS_INDEX_TYPE   ldB);
 
 void
 ULMBLAS(dtrmm)(enum CBLAS_SIDE      side,
                enum CBLAS_UPLO      upLo,
                enum CBLAS_TRANSPOSE transA,
                enum CBLAS_DIAG      diag,
-               int                  m,
-               int                  n,
+               ULMBLAS_INDEX_TYPE   m,
+               ULMBLAS_INDEX_TYPE   n,
                double               alpha,
                const double         *A,
-               int                  ldA,
+               ULMBLAS_INDEX_TYPE   ldA,
                double               *B,
-               int                  ldB);
+               ULMBLAS_INDEX_TYPE   ldB);
 
 void
 ULMBLAS(ctrmm)(enum CBLAS_SIDE      side,
                enum CBLAS_UPLO      upLo,
                enum CBLAS_TRANSPOSE transA,
                enum CBLAS_DIAG      diag,
-               int                  m,
-               int                  n,
+               ULMBLAS_INDEX_TYPE   m,
+               ULMBLAS_INDEX_TYPE   n,
                const float          *alpha_,
                const float          *A_,
-               int                  ldA,
+               ULMBLAS_INDEX_TYPE   ldA,
                float                *B_,
-               int                  ldB);
+               ULMBLAS_INDEX_TYPE   ldB);
 
 void
 ULMBLAS(ztrmm)(enum CBLAS_SIDE      side,
                enum CBLAS_UPLO      upLo,
                enum CBLAS_TRANSPOSE transA,
                enum CBLAS_DIAG      diag,
-               int                  m,
-               int                  n,
+               ULMBLAS_INDEX_TYPE   m,
+               ULMBLAS_INDEX_TYPE   n,
                const double         *alpha_,
                const double         *A_,
-               int                  ldA,
+               ULMBLAS_INDEX_TYPE   ldA,
                double               *B_,
-               int                  ldB);
+               ULMBLAS_INDEX_TYPE   ldB);
 
 void
 ULMBLAS(strsm)(enum CBLAS_SIDE       side,
                enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_DIAG       diag,
-               int                   m,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
                float                 alpha,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 *B,
-               int                   ldB);
+               ULMBLAS_INDEX_TYPE    ldB);
 
 void
 ULMBLAS(dtrsm)(enum CBLAS_SIDE       side,
                enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_DIAG       diag,
-               int                   m,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
                double                alpha,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                *B,
-               int                   ldB);
+               ULMBLAS_INDEX_TYPE    ldB);
 
 void
 ULMBLAS(ctrsm)(enum CBLAS_SIDE       side,
                enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_DIAG       diag,
-               int                   m,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *alpha_,
                const float           *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 *B_,
-               int                   ldB);
+               ULMBLAS_INDEX_TYPE    ldB);
 
 void
 ULMBLAS(ztrsm)(enum CBLAS_SIDE       side,
                enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_DIAG       diag,
-               int                   m,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *alpha_,
                const double          *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                *B_,
-               int                   ldB);
+               ULMBLAS_INDEX_TYPE    ldB);
 
 //
 //  Functions NOT implemented

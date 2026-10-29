@@ -1,0 +1,25 @@
+==PROF== Connected to process 1362818 (/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-s11-ncu/g8/cuda/build/bench_gemm)
+==PROF== Profiling "dgemm": 0%....50%....100% - 3 passes
+# host uc2n902.localdomain, 2026-10-29T11:27:52
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP11_GROUP=8  -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 2 warm-up calls, 1 timed calls, CUDA events
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     4000   4000   4000      6.880      6.880      6.880    18604.0    1.000
+step11     4000   4000   4000    859.551    859.551    859.551      148.9    0.008
+==PROF== Disconnected from process 1362818
+[1362818] bench_gemm@127.0.0.1
+  void unnamed>::dgemm<1>(long, long, long, double, const double *, int, const double *, int, double, double *, long) (63, 125, 1)x(32, 4, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                            Metric Unit Metric Value
+    ---------------------------------------------------------------------- ----------- ------------
+    dram__bytes_read.sum                                                         Gbyte         2.42
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                               %        13.17
+    gpu__time_duration.sum                                                          ms        10.01
+    lts__t_sector_hit_rate.pct                                                       %        88.62
+    sm__cycles_elapsed.avg.per_second                                              Ghz         1.06
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active           %        88.04
+    ---------------------------------------------------------------------- ----------- ------------
+

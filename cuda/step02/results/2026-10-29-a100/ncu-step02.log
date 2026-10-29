@@ -1,0 +1,32 @@
+==PROF== Connected to process 890906 (/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-step02/cuda/build/bench_gemm)
+==PROF== Profiling "dgemm": 0%....50%....100% - 7 passes
+# host uc2n902.localdomain, 2026-10-29T00:59:06
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -L/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lmagma -Xlinker -rpath=/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 2 warm-up calls, 1 timed calls, CUDA events
+# MAGMA 2.10.0 (magma: magma_dgemm, which calls cublasDgemm; magmablas: magmablas_dgemm, MAGMA's own kernel)
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     2048   2048   2048      1.005      1.005      1.005    17102.2    1.000
+step02     2048   2048   2048    999.220    999.220    999.220       17.2    0.001
+==PROF== Disconnected from process 890906
+[890906] bench_gemm@127.0.0.1
+  unnamed>::dgemm(long, long, long, double, const double *, long, const double *, long, double, double *, long) (64, 64, 1)x(32, 8, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------ --------------- ------------
+    Metric Name                                                      Metric Unit Metric Value
+    ------------------------------------------------------------ --------------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                         %         2.70
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                               335,675,392
+    l1tex__t_requests_pipe_lsu_mem_global_op_st.sum                                   131,072
+    l1tex__t_sector_hit_rate.pct                                               %        85.34
+    l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum                        sector  806,354,944
+    l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum                        sector    1,048,576
+    l1tex__throughput.avg.pct_of_peak_sustained_active                         %        82.83
+    launch__registers_per_thread                                 register/thread           48
+    lts__t_sector_hit_rate.pct                                                 %        85.66
+    sm__inst_executed_pipe_lsu.avg.pct_of_peak_sustained_active                %        41.41
+    sm__pipe_fp64_cycles_active.avg.pct_of_peak_sustained_active               %        33.13
+    sm__warps_active.avg.pct_of_peak_sustained_active                          %        59.52
+    ------------------------------------------------------------ --------------- ------------
+

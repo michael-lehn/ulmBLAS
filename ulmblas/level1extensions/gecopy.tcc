@@ -19,7 +19,7 @@ gecopy(IndexType      m,
        IndexType      incRowY,
        IndexType      incColY)
 {
-    const IndexType    UnitStride(1);
+    constexpr IndexType   UnitStride(1);
 
     if (incRowX==UnitStride && incRowY==UnitStride) {
         for (IndexType j=0; j<n; ++j) {

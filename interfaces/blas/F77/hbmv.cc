@@ -8,27 +8,27 @@
 extern "C" {
 
 void
-F77BLAS(chbmv)(const char     *upLo_,
-               const int      *n_,
-               const int      *k_,
-               const float    *alpha_,
-               const float    *A_,
-               const int      *ldA_,
-               const float    *x_,
-               const int      *incX_,
-               const float    *beta_,
-               float          *y_,
-               const int      *incY_)
+F77BLAS(chbmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE *incY_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lowerA  = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    int k        = *k_;
-    int ldA      = *ldA_;
-    int incX     = *incX_;
-    int incY     = *incY_;
+    bool lowerA             = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE k    = *k_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     typedef std::complex<float> fcomplex;
     fcomplex alpha = fcomplex(alpha_[0], alpha_[1]);
@@ -42,7 +42,7 @@ F77BLAS(chbmv)(const char     *upLo_,
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='U' && toupper(*upLo_)!='L') {
         info = 1;
@@ -50,7 +50,7 @@ F77BLAS(chbmv)(const char     *upLo_,
         info = 2;
     } else if (k<0) {
         info = 3;
-    } else if (ldA<std::max(1,k+1)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,k+1)) {
         info = 6;
     } else if (incX==0) {
         info = 8;
@@ -59,7 +59,8 @@ F77BLAS(chbmv)(const char     *upLo_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("CHBMV ", &info);
+        F77BLAS(xerbla)("CHBMV ", &info, 6);
+        return;
     }
 
     if (incX<0) {
@@ -73,34 +74,36 @@ F77BLAS(chbmv)(const char     *upLo_,
 //  Start the operations.
 //
     if (lowerA) {
-        ulmBLAS::hblmv(n, k, alpha, A, ldA, x, incX, beta, y, incY);
+        ulmBLAS::hblmv<std::ptrdiff_t>(n, k, alpha, A, ldA, x, incX,
+                                       beta, y, incY);
     } else {
-        ulmBLAS::hbumv(n, k, alpha, A, ldA, x, incX, beta, y, incY);
+        ulmBLAS::hbumv<std::ptrdiff_t>(n, k, alpha, A, ldA, x, incX,
+                                       beta, y, incY);
     }
 }
 
 void
-F77BLAS(zhbmv)(const char     *upLo_,
-               const int      *n_,
-               const int      *k_,
-               const double   *alpha_,
-               const double   *A_,
-               const int      *ldA_,
-               const double   *x_,
-               const int      *incX_,
-               const double   *beta_,
-               double         *y_,
-               const int      *incY_)
+F77BLAS(zhbmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE *incY_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lowerA  = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    int k        = *k_;
-    int ldA      = *ldA_;
-    int incX     = *incX_;
-    int incY     = *incY_;
+    bool lowerA             = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE k    = *k_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     typedef std::complex<double> dcomplex;
     dcomplex alpha = dcomplex(alpha_[0], alpha_[1]);
@@ -114,7 +117,7 @@ F77BLAS(zhbmv)(const char     *upLo_,
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='U' && toupper(*upLo_)!='L') {
         info = 1;
@@ -122,7 +125,7 @@ F77BLAS(zhbmv)(const char     *upLo_,
         info = 2;
     } else if (k<0) {
         info = 3;
-    } else if (ldA<std::max(1,k+1)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,k+1)) {
         info = 6;
     } else if (incX==0) {
         info = 8;
@@ -131,7 +134,8 @@ F77BLAS(zhbmv)(const char     *upLo_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("ZHBMV ", &info);
+        F77BLAS(xerbla)("ZHBMV ", &info, 6);
+        return;
     }
 
     if (incX<0) {
@@ -145,9 +149,11 @@ F77BLAS(zhbmv)(const char     *upLo_,
 //  Start the operations.
 //
     if (lowerA) {
-        ulmBLAS::hblmv(n, k, alpha, A, ldA, x, incX, beta, y, incY);
+        ulmBLAS::hblmv<std::ptrdiff_t>(n, k, alpha, A, ldA, x, incX,
+                                       beta, y, incY);
     } else {
-        ulmBLAS::hbumv(n, k, alpha, A, ldA, x, incX, beta, y, incY);
+        ulmBLAS::hbumv<std::ptrdiff_t>(n, k, alpha, A, ldA, x, incX,
+                                       beta, y, incY);
     }
 }
 

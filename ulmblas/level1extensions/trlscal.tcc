@@ -17,7 +17,7 @@ trlscal(IndexType    m,
         IndexType    incRowA,
         IndexType    incColA)
 {
-    const IndexType    UnitStride(1);
+    constexpr IndexType   UnitStride(1);
 
     if (alpha==Alpha(1) || m<=0 || n<=0) {
         return;
@@ -40,9 +40,7 @@ trlscal(IndexType    m,
     } else {
         const IndexType k = std::min(m, n);
         for (IndexType j=0; j<k; ++j) {
-            for (IndexType i=j; i<m; ++i) {
-                A[i*incRowA+j*incColA] *= alpha;
-            }
+            scal(m-j, alpha, &A[j*(incRowA+incColA)], incRowA);
         }
     }
 }

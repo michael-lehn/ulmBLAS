@@ -1,0 +1,26 @@
+==PROF== Connected to process 923833 (/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-step03-unroll/8x4-u2/cuda/build/bench_gemm)
+==PROF== Profiling "dgemm": 0%....50%....100% - 5 passes
+# host uc2n902.localdomain, 2026-10-29T05:12:02
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DCULMBLAS_STEP03_THREAD_ROWS=8 -DCULMBLAS_STEP03_THREAD_COLS=4  -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 2 warm-up calls, 1 timed calls, CUDA events
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     2048   2048   2048      1.008      1.008      1.008    17050.0    1.000
+step03     2048   2048   2048    842.205    842.205    842.205       20.4    0.001
+==PROF== Disconnected from process 923833
+[923833] bench_gemm@127.0.0.1
+  unnamed>::dgemm(long, long, long, double, const double *, long, const double *, long, double, double *, long) (8, 64, 1)x(32, 8, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    -------------------------------------------------------------- --------------- ------------
+    Metric Name                                                        Metric Unit Metric Value
+    -------------------------------------------------------------- --------------- ------------
+    l1tex__throughput.avg.pct_of_peak_sustained_active                           %        45.37
+    launch__occupancy_limit_registers                                        block            2
+    launch__registers_per_thread                                   register/thread          126
+    sm__pipe_fp64_cycles_active.avg.pct_of_peak_sustained_active                 %        60.36
+    sm__warps_active.avg.pct_of_peak_sustained_active                            %        22.53
+    smsp__average_warp_latency_issue_stalled_long_scoreboard.ratio       inst/warp   447,305.57
+    smsp__inst_executed.sum                                                   inst  836,239,360
+    -------------------------------------------------------------- --------------- ------------
+

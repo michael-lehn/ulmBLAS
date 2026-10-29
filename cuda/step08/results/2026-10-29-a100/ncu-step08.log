@@ -1,0 +1,41 @@
+==PROF== Connected to process 1204158 (/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-step08-final/cuda/build/bench_gemm)
+==PROF== Profiling "dgemm": 0%....50%....100% - 6 passes
+# host uc2n902.localdomain, 2026-10-29T10:38:15
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -L/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lmagma -Xlinker -rpath=/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 2 warm-up calls, 1 timed calls, CUDA events
+# MAGMA 2.10.0 (magma: magma_dgemm, which calls cublasDgemm; magmablas: magmablas_dgemm, MAGMA's own kernel)
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     2048   2048   2048      1.002      1.002      1.002    17137.1    1.000
+step08     2048   2048   2048   2512.790   2512.790   2512.790        6.8    0.000
+==PROF== Disconnected from process 1204158
+[1204158] bench_gemm@127.0.0.1
+  unnamed>::dgemm(long, long, long, double, const double *, int, const double *, int, double, double *, long) (32, 64, 1)x(32, 4, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- --------------- ------------
+    Metric Name                                                                Metric Unit Metric Value
+    ---------------------------------------------------------------------- --------------- ------------
+    gpu__time_duration.sum                                                              ms         1.58
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                                      6,776
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum                                  1,214,434
+    l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum                                     50,610,958
+    l1tex__data_pipe_lsu_wavefronts_mem_shared_op_st.sum                                     26,642,402
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                                          12,713,984
+    l1tex__throughput.avg.pct_of_peak_sustained_active                                   %        58.50
+    launch__occupancy_limit_registers                                                block            5
+    launch__occupancy_limit_shared_mem                                               block            5
+    launch__registers_per_thread                                           register/thread           96
+    sm__inst_executed_pipe_tensor_op_dmma.sum                                         inst   33,554,432
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active               %        74.93
+    sm__warps_active.avg.pct_of_peak_sustained_active                                    %        28.83
+    smsp__average_warp_latency_issue_stalled_lg_throttle.ratio                   inst/warp     4,534.44
+    smsp__average_warp_latency_issue_stalled_long_scoreboard.ratio               inst/warp   127,008.31
+    smsp__average_warp_latency_issue_stalled_math_pipe_throttle.ratio            inst/warp   106,301.07
+    smsp__average_warp_latency_issue_stalled_membar.ratio                        inst/warp            0
+    smsp__average_warp_latency_issue_stalled_mio_throttle.ratio                  inst/warp     6,803.04
+    smsp__average_warp_latency_issue_stalled_short_scoreboard.ratio              inst/warp     8,753.55
+    smsp__average_warp_latency_issue_stalled_wait.ratio                          inst/warp    70,886.36
+    smsp__inst_executed.sum                                                           inst  221,110,272
+    ---------------------------------------------------------------------- --------------- ------------
+

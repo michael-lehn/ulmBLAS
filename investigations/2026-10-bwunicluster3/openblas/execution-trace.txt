@@ -1,0 +1,68 @@
+== objects of libopenblas.a with dgemm_kernel
+dgemm_beta.o
+dgemm_kernel.o
+dgemm_incopy.o
+dgemm_itcopy.o
+dgemm_oncopy.o
+dgemm_otcopy.o
+dgemm_small_matrix_permit.o
+dgemm_small_kernel_nn.o
+dgemm_small_kernel_nt.o
+dgemm_small_kernel_tn.o
+dgemm_small_kernel_tt.o
+dgemm_small_kernel_b0_nn.o
+dgemm_small_kernel_b0_nt.o
+dgemm_small_kernel_b0_tn.o
+dgemm_small_kernel_b0_tt.o
+dgemm_kernel.o
+== instructions in dgemm_kernel.o
+     21 vbroadcastf128
+     66 vbroadcastf32x4
+      6 vbroadcastf64x4
+     10 vbroadcastsd
+    215 vfmadd213pd
+      1 vfmadd213sd
+    383 vfmadd231pd
+      1 vfmadd231sd
+     87 vmovddup
+    247 vmovupd
+    105 vunpckhpd
+    105 vunpcklpd
+== symbols
+0000000000000000 T dgemm_kernel
+== gdb: break in the kernel during a 2048^3 DGEMM
+/usr/bin/gdb
+Breakpoint 1 at 0x404a30
+Using host libthread_db library "/lib64/libthread_db.so.1".
+
+Breakpoint 1, 0x0000000000404a30 in dgemm_kernel ()
+#0  0x0000000000404a30 in dgemm_kernel ()
+#1  0x00000000004025f9 in dgemm_nn ()
+#2  0x000000000040210d in cblas_dgemm ()
+#3  0x00000000004016dc in run ()
+#4  0x0000000000401290 in main ()
+No symbol table info available.
+$1 = 0x404a30
+
+
+== n = 2048: kernel calls of the first dgemm (count, m, n, k)
+total calls (3 dgemm calls: checked, warm-up, sample): 3258
+   2040 m 192 n 12 k 384
+   1020 m 192 n 12 k 256
+     96 m 192 n 2048 k 384
+     48 m 192 n 2048 k 256
+     24 m 160 n 2048 k 384
+     12 m 192 n 8 k 384
+     12 m 160 n 2048 k 256
+      6 m 192 n 8 k 256
+== n = 4000: kernel calls of the first dgemm (count, m, n, k)
+total calls (3 dgemm calls: checked, warm-up, sample): 11682
+   8991 m 192 n 12 k 384
+   1998 m 192 n 12 k 272
+    486 m 192 n 4000 k 384
+    108 m 192 n 4000 k 272
+     54 m 176 n 4000 k 384
+     27 m 192 n 4 k 384
+     12 m 176 n 4000 k 272
+      6 m 192 n 4 k 272
+

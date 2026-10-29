@@ -36,7 +36,7 @@ dotxaxpyf(IndexType      n,
 {
     typedef decltype(Alpha(0)*VA(0)*MX(0)*VY(0)*VZ(0))  T;
 
-    const IndexType bf = FuseFactor<T>::dotxaxpyf;
+    constexpr IndexType bf = FuseFactor<T>::dotxaxpyf;
 
     for (IndexType l=0; l<bf; ++l) {
         rho[l*incRho] = 0;

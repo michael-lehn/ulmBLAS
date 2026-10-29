@@ -1,0 +1,8 @@
+# host uc2n902.localdomain, 2026-10-29T11:21:32
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP10_SWIZZLE=8  -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 5 warm-up calls, 100 timed calls, CUDA events
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     2000   2000   2000      1.078      0.934      1.125    14838.6    1.000
+step10     2000   2000   2000      1.214      1.197      1.234    13174.5    0.888

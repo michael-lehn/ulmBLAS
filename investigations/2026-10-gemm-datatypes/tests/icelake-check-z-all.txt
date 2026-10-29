@@ -1,0 +1,12 @@
+host uc2n603.localdomain job 8030377 date 2026-10-27T21:30:32+01:00
+tarball fbafaecfbb2e31676155f68299eb1cf9ac2dcd65526953efb6fb154a6c15dac4  /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/zt3.tgz
+model name	: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+avx512 avx512bw avx512cd avx512dq avx512f avx512ifma avx512vbmi avx512vl 
+g++ (GCC) 14.2.0
+CONFIGS=testcase06 z-blis_haswell_3x4 z-blis_haswell_3x4-small z-blis_haswell_4x3 z-blis_haswell_4x3-small z-blis_sandybridge_4x4 z-blis_sandybridge_4x4-small z-blis_aocl_haswell_3x4 z-blis_aocl_haswell_3x4-small z-openblas_haswell_4x2 z-openblas_haswell_4x2-small z-blis_zen4_12x4 z-blis_zen4_12x4-small z-blis_zen4_4x12 z-blis_zen4_4x12-small z-openblas_skylakex_4x2 z-openblas_skylakex_4x2-small
+make check exit 0 2026-10-27T21:51:08+01:00
+Summary (testcase06 z-blis_haswell_3x4 z-blis_haswell_3x4-small z-blis_haswell_4x3 z-blis_haswell_4x3-small z-blis_sandybridge_4x4 z-blis_sandybridge_4x4-small z-blis_aocl_haswell_3x4 z-blis_aocl_haswell_3x4-small z-openblas_haswell_4x2 z-openblas_haswell_4x2-small z-blis_zen4_12x4 z-blis_zen4_12x4-small z-blis_zen4_4x12 z-blis_zen4_4x12-small z-openblas_skylakex_4x2 z-openblas_skylakex_4x2-small):
+  PASS 2930, FAIL 0, XFAIL 0, XPASS 0, DESIGN 34, SKIP 0
+
+Known issues: test/known_issues.md.  All results: test/build/check.log
+make[1]: Leaving directory '/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/icelake/xcheck-z3/src/test'

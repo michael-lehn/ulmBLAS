@@ -36,11 +36,11 @@ gemv(IndexType    m,
 {
     typedef decltype(Alpha(0)*TA(0)*TX(0)+Beta(0)*TY(0))  T;
 
-    const IndexType    UnitStride(1);
-    static const bool  homogeneousTypes = std::is_same<T,Alpha>::value
-                                       && std::is_same<T,TA>::value
-                                       && std::is_same<T,TX>::value
-                                       && std::is_same<T,TY>::value;
+    constexpr IndexType   UnitStride(1);
+    static constexpr bool homogeneousTypes = std::is_same<T,Alpha>::value
+                                          && std::is_same<T,TA>::value
+                                          && std::is_same<T,TX>::value
+                                          && std::is_same<T,TY>::value;
 
     if (m<=0 || n<=0 || (alpha==Alpha(0) && beta==Beta(1))) {
         return;
@@ -58,7 +58,7 @@ gemv(IndexType    m,
 //
     if (homogeneousTypes && incRowA==UnitStride) {
         if (!conjA) {
-            const IndexType bf = FuseFactor<T>::axpyf;
+            constexpr IndexType bf = FuseFactor<T>::axpyf;
             const IndexType nb = (n/bf)*bf;
 
             for (IndexType j=0; j<nb; j+=bf) {
@@ -70,7 +70,7 @@ gemv(IndexType    m,
                 axpy(m, alpha*x[j*incX], &A[j*incColA], UnitStride, y, incY);
             }
         } else {
-            const IndexType bf = FuseFactor<T>::acxpyf;
+            constexpr IndexType bf = FuseFactor<T>::acxpyf;
             const IndexType nb = (n/bf)*bf;
 
             for (IndexType j=0; j<nb; j+=bf) {
@@ -88,7 +88,7 @@ gemv(IndexType    m,
 //
     } else if (homogeneousTypes && incColA==UnitStride) {
         if (!conjA) {
-            const IndexType bf = FuseFactor<T>::dotuxf;
+            constexpr IndexType bf = FuseFactor<T>::dotuxf;
             const IndexType mb = (m/bf)*bf;
 
             TY tmp[bf];
@@ -106,7 +106,7 @@ gemv(IndexType    m,
                 y[i*incY] += alpha*tmp[0];
             }
         } else {
-            const IndexType bf = FuseFactor<T>::dotcxf;
+            constexpr IndexType bf = FuseFactor<T>::dotcxf;
             const IndexType mb = (m/bf)*bf;
 
             TY tmp[bf];
@@ -135,8 +135,8 @@ gemv(IndexType    m,
         const bool packX    = !(incX==UnitStride && std::is_same<T,TX>::value);
         const bool packY    = !(incY==UnitStride && std::is_same<T,TY>::value);
 
-        const IndexType MC  = BlockSize<T>::MC;
-        const IndexType NC  = BlockSize<T>::NC;
+        constexpr IndexType MC  = BlockSize<T>::MC;
+        constexpr IndexType NC  = BlockSize<T>::NC;
 
         const T &alpha_     = alpha;
         T *buffer_A         = packA ? memoryPool.allocate(MC*NC) : 0;

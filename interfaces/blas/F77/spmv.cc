@@ -8,30 +8,30 @@
 extern "C" {
 
 void
-F77BLAS(sspmv)(const char     *upLo_,
-               const int      *n_,
-               const float    *alpha_,
-               const float    *AP,
-               const float    *x,
-               const int      *incX_,
-               const float    *beta_,
-               float          *y,
-               const int      *incY_)
+F77BLAS(sspmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *AP,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE *incY_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lowerA  = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    float alpha  = *alpha_;
-    int incX     = *incX_;
-    float beta   = *beta_;
-    int incY     = *incY_;
+    bool lowerA             = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    float alpha             = *alpha_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    float beta              = *beta_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='U' && toupper(*upLo_)!='L') {
         info = 1;
@@ -44,7 +44,8 @@ F77BLAS(sspmv)(const char     *upLo_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("SSPMV ", &info);
+        F77BLAS(xerbla)("SSPMV ", &info, 6);
+        return;
     }
 
     if (incX<0) {
@@ -58,38 +59,38 @@ F77BLAS(sspmv)(const char     *upLo_,
 //  Start the operations.
 //
     if (lowerA) {
-        ulmBLAS::splmv(n, alpha, AP, x, incX, beta, y, incY);
+        ulmBLAS::splmv<std::ptrdiff_t>(n, alpha, AP, x, incX, beta, y, incY);
     } else {
-        ulmBLAS::spumv(n, alpha, AP, x, incX, beta, y, incY);
+        ulmBLAS::spumv<std::ptrdiff_t>(n, alpha, AP, x, incX, beta, y, incY);
     }
 }
 
 
 void
-F77BLAS(dspmv)(const char     *upLo_,
-               const int      *n_,
-               const double   *alpha_,
-               const double   *AP,
-               const double   *x,
-               const int      *incX_,
-               const double   *beta_,
-               double         *y,
-               const int      *incY_)
+F77BLAS(dspmv)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *AP,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE *incY_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lowerA  = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    double alpha = *alpha_;
-    int incX     = *incX_;
-    double beta  = *beta_;
-    int incY     = *incY_;
+    bool lowerA             = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    double alpha            = *alpha_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    double beta             = *beta_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='U' && toupper(*upLo_)!='L') {
         info = 1;
@@ -102,7 +103,8 @@ F77BLAS(dspmv)(const char     *upLo_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("DSPMV ", &info);
+        F77BLAS(xerbla)("DSPMV ", &info, 6);
+        return;
     }
 
     if (incX<0) {
@@ -116,9 +118,9 @@ F77BLAS(dspmv)(const char     *upLo_,
 //  Start the operations.
 //
     if (lowerA) {
-        ulmBLAS::splmv(n, alpha, AP, x, incX, beta, y, incY);
+        ulmBLAS::splmv<std::ptrdiff_t>(n, alpha, AP, x, incX, beta, y, incY);
     } else {
-        ulmBLAS::spumv(n, alpha, AP, x, incX, beta, y, incY);
+        ulmBLAS::spumv<std::ptrdiff_t>(n, alpha, AP, x, incX, beta, y, incY);
     }
 }
 

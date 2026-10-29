@@ -1,0 +1,5 @@
+# heim (Intel Core i5-12500): ac2d97e with the interleaved packing of B forced on for all types and kernels (test only); make check
+Summary (testcase06 blis-haswell_6x8 blis-haswell_6x8-small):
+  PASS 516, FAIL 0, XFAIL 0, XPASS 0, DESIGN 6, SKIP 0
+
+Known issues: test/known_issues.md.  All results: test/build/check.log

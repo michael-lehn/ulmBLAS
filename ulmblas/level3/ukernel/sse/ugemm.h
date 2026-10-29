@@ -9,10 +9,10 @@ namespace ulmBLAS { namespace sse {
 template <typename T>
 struct BlockSizeUGemm
 {
-    static const int MR = (std::is_same<T,double>::value) ? 4
-                        : ref::BlockSizeUGemm<T>::MR;
-    static const int NR = (std::is_same<T,double>::value) ? 4
-                        : ref::BlockSizeUGemm<T>::NR;
+    static constexpr int MR = (std::is_same<T,double>::value) ? 4
+                            : ref::BlockSizeUGemm<T>::MR;
+    static constexpr int NR = (std::is_same<T,double>::value) ? 4
+                            : ref::BlockSizeUGemm<T>::NR;
 
     static_assert(MR>0 && NR>0, "Invalid block size.");
 };

@@ -1,0 +1,150 @@
+==1479795== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==1479795== Command: ./numeric_tests
+DESIGN T0600 conventions/alpha=0 with NaN in unreferenced operands (#0002): sger ssymv ssyr ssyr2 sspr sspr2; dger dsymv dsyr dsyr2 dspr dspr2; cgeru cgerc chemv; zgeru zgerc zhemv
+DESIGN T0601 conventions/i?amax with NaN and Inf (#0014): s: 3 0 1; d: 3 0 1; c: 3 0 1; z: 3 0 1
+PASS  T0700 errors/cblas_dsyr with n=4, ldA=1
+PASS  T0701 errors/invalid arguments of all checking CBLAS functions
+PASS  T0400 lapack/dgetrf column major
+PASS  T0401 lapack/dgetrf row major, square
+PASS  T0402 lapack/dgetrf singular
+PASS  T0403 lapack/dlaswp
+PASS  T0404 lapack/dgetrf row major, m != n
+PASS  T0405 lapack/dgetrf row major, singular
+PASS  T0406 lapack/dgetrf pivot indices, column major
+PASS  T0407 lapack/dgetrf pivot indices, row major
+PASS  T0100 level1/axpy
+PASS  T0101 level1/copy
+PASS  T0102 level1/swap
+PASS  T0103 level1/scal, csscal, zdscal
+PASS  T0104 level1/dot, dotu, dotc
+PASS  T0105 level1/nrm2
+PASS  T0106 level1/nrm2 without overflow and underflow
+PASS  T0107 level1/asum
+PASS  T0108 level1/iamax
+PASS  T0109 level1/rot
+PASS  T0110 level1/rotg
+PASS  T0111 level1/rotg with |a| == |b|
+PASS  T0112 level1/rotg reference values
+PASS  T0113 level1/srotm, drotm
+PASS  T0114 level1/srotmg, drotmg reference values
+PASS  T0115 level1/srotmg, drotmg: H*(x1,y1) = (x1',0) and H^T*D'*H = D, rescaling
+PASS  T0116 level1/sdsdot, dsdot (double precision accumulation)
+PASS  T0117 level1/crotg, zrotg
+PASS  T0118 level1/csrot, zdrot
+PASS  T0119 level1/scabs1, dcabs1
+PASS  T0120 level1/nrm2 with Inf and NaN
+PASS  T0200 level2/sgemv
+PASS  T0201 level2/dgemv
+PASS  T0202 level2/cgemv
+PASS  T0203 level2/zgemv
+PASS  T0204 level2/sger
+PASS  T0205 level2/dger
+PASS  T0206 level2/cgeru, cgerc
+PASS  T0207 level2/zgeru, zgerc
+PASS  T0208 level2/ssymv
+PASS  T0209 level2/dsymv
+PASS  T0210 level2/chemv
+PASS  T0211 level2/zhemv
+PASS  T0212 level2/ssyr
+PASS  T0213 level2/dsyr
+PASS  T0214 level2/cher
+PASS  T0215 level2/zher
+PASS  T0216 level2/ssyr2
+PASS  T0217 level2/dsyr2
+PASS  T0218 level2/cher2
+PASS  T0219 level2/zher2
+PASS  T0220 level2/strmv
+PASS  T0221 level2/dtrmv
+PASS  T0222 level2/ctrmv
+PASS  T0223 level2/ztrmv
+PASS  T0224 level2/strsv
+PASS  T0225 level2/dtrsv
+PASS  T0226 level2/ctrsv
+PASS  T0227 level2/ztrsv
+PASS  T0228 level2/sgbmv
+PASS  T0229 level2/dgbmv
+PASS  T0230 level2/cgbmv
+PASS  T0231 level2/zgbmv
+PASS  T0232 level2/ssbmv
+PASS  T0233 level2/dsbmv
+PASS  T0234 level2/chbmv
+PASS  T0235 level2/zhbmv
+PASS  T0236 level2/sspmv
+PASS  T0237 level2/dspmv
+PASS  T0238 level2/chpmv
+PASS  T0239 level2/zhpmv
+PASS  T0240 level2/stbmv
+PASS  T0241 level2/dtbmv
+PASS  T0242 level2/ctbmv
+PASS  T0243 level2/ztbmv
+PASS  T0244 level2/stbsv
+PASS  T0245 level2/dtbsv
+PASS  T0246 level2/ctbsv
+PASS  T0247 level2/ztbsv
+PASS  T0248 level2/stpmv
+PASS  T0249 level2/dtpmv
+PASS  T0250 level2/ctpmv
+PASS  T0251 level2/ztpmv
+PASS  T0252 level2/stpsv
+PASS  T0253 level2/dtpsv
+PASS  T0254 level2/ctpsv
+PASS  T0255 level2/ztpsv
+PASS  T0256 level2/sspr
+PASS  T0257 level2/dspr
+PASS  T0258 level2/chpr
+PASS  T0259 level2/zhpr
+PASS  T0260 level2/sspr2
+PASS  T0261 level2/dspr2
+PASS  T0262 level2/chpr2
+PASS  T0263 level2/zhpr2
+PASS  T0300 level3/sgemm
+PASS  T0301 level3/dgemm
+PASS  T0302 level3/cgemm
+PASS  T0303 level3/zgemm
+PASS  T0304 level3/sgemm large
+PASS  T0305 level3/dgemm large
+PASS  T0306 level3/cgemm large
+PASS  T0307 level3/zgemm large
+PASS  T0334 level3/dgemm all k mod 8 with partial panels
+PASS  T0352 level3/dgemm small problems (direct path), all tile remainders, beta=0 with NaN in C
+PASS  T0308 level3/ssymm
+PASS  T0309 level3/dsymm
+PASS  T0310 level3/csymm
+PASS  T0311 level3/zsymm
+PASS  T0312 level3/chemm
+PASS  T0313 level3/zhemm
+PASS  T0314 level3/ssyrk
+PASS  T0315 level3/dsyrk
+PASS  T0316 level3/csyrk
+PASS  T0317 level3/zsyrk
+PASS  T0318 level3/cherk
+PASS  T0319 level3/zherk
+PASS  T0320 level3/ssyr2k
+PASS  T0321 level3/dsyr2k
+PASS  T0322 level3/csyr2k
+PASS  T0323 level3/zsyr2k
+PASS  T0324 level3/cher2k
+PASS  T0325 level3/zher2k
+PASS  T0326 level3/strmm
+PASS  T0327 level3/dtrmm
+PASS  T0328 level3/ctrmm
+PASS  T0329 level3/ztrmm
+PASS  T0330 level3/strsm
+PASS  T0331 level3/dtrsm
+PASS  T0332 level3/ctrsm
+PASS  T0333 level3/ztrsm
+PASS  T0350 auxiliary/MemoryPool: distinct and reused blocks, sizes, pools, more blocks than cached, release(nullptr), release by another thread
+PASS  T0353 auxiliary/MemoryPool: blocks aligned as the micro kernels require (32 bytes with AVX, 16 with SSE)
+PASS  T0351 level3/dgemm from 8 threads at the same time, own matrices, irregular dimensions and leading dimensions
+PASS  T0340 ukernel/ugemm full tiles
+PASS  T0341 ukernel/ugemm partial tiles, unit stride C
+PASS  T0342 ukernel/ugemm partial tiles, general strides of C
+PASS  T0343 ukernel/gescal and ugemm partial tiles, general strides, alpha or beta=0 with NaN and Inf
+PASS  T0344 ukernel/ugemm beta=NaN, full and partial tiles
+PASS  T0345 ukernel/ugemm NaN and Inf in A and B
+PASS  T0346 ukernel/trlscal and truscal, all strides, alpha=0 with NaN and Inf
+PASS  T0347 ukernel/gepack_A and gepack_B, all strides, columns of A near and far apart
+PASS  T0348 ukernel/gepack_A and gepack_B, k = 1 ... 25, all strides
+==1479795== HEAP SUMMARY:
+==1479795== All heap blocks were freed -- no leaks are possible
+==1479795== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

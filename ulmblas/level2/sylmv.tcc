@@ -26,16 +26,16 @@ sylmv(IndexType    n,
 {
     typedef decltype(Alpha(0)*TA(0)*TX(0)+Beta(0)*TY(0))  T;
 
-    const IndexType    UnitStride(1);
-    static const bool  homogeneousTypes = std::is_same<T,Alpha>::value
-                                       && std::is_same<T,TA>::value
-                                       && std::is_same<T,TX>::value
-                                       && std::is_same<T,TY>::value;
+    constexpr IndexType   UnitStride(1);
+    static constexpr bool homogeneousTypes = std::is_same<T,Alpha>::value
+                                          && std::is_same<T,TA>::value
+                                          && std::is_same<T,TX>::value
+                                          && std::is_same<T,TY>::value;
 
     scal(n, beta, y, incY);
 
     if (homogeneousTypes && incRowA==UnitStride) {
-        const IndexType bf = FuseFactor<T>::dotxaxpyf;
+        constexpr IndexType bf = FuseFactor<T>::dotxaxpyf;
         const IndexType nb = (n/bf)*bf;
 
         T rho, rho_[bf];
@@ -47,7 +47,7 @@ sylmv(IndexType    n,
                       &A[(j+bf)*incRowA+j*incColA], incRowA, incColA,
                       &x[(j+bf)*incX], incX,
                       &y[(j+bf)*incY], incY,
-                      rho_, 1);
+                      rho_, UnitStride);
 
             for (IndexType l=0; l<bf; ++l) {
                 dotaxpy(bf-1-l, false, false, false,
@@ -72,7 +72,7 @@ sylmv(IndexType    n,
             y[j*incY] += alpha*(A[j*incRowA+j*incColA]*x[j*incX]+rho);
         }
     } else if (homogeneousTypes && incColA==UnitStride) {
-        const IndexType bf = FuseFactor<T>::dotxaxpyf;
+        constexpr IndexType bf = FuseFactor<T>::dotxaxpyf;
         const IndexType nb = (n/bf)*bf;
 
         T rho, rho_[bf];
@@ -84,7 +84,7 @@ sylmv(IndexType    n,
                       &A[i*incRowA], incColA, incRowA,
                       &x[0*incX], incX,
                       &y[0*incY], incY,
-                      rho_, 1);
+                      rho_, UnitStride);
 
             for (IndexType l=0; l<bf; ++l) {
                 dotaxpy(l, false, false, false,

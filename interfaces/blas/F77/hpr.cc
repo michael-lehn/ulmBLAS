@@ -7,20 +7,20 @@
 extern "C" {
 
 void
-F77BLAS(chpr)(const char        *upLo_,
-              const int         *n_,
-              const float       *alpha_,
-              const float       *x_,
-              const int         *incX_,
-              float             *A_)
+F77BLAS(chpr)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const float              *alpha_,
+              const float              *x_,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              float                    *A_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lower   = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    float alpha  = *alpha_;
-    int incX     = *incX_;
+    bool lower              = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    float alpha             = *alpha_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
 
     typedef std::complex<float> fcomplex;
     const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
@@ -29,7 +29,7 @@ F77BLAS(chpr)(const char        *upLo_,
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
         info = 1;
@@ -40,7 +40,8 @@ F77BLAS(chpr)(const char        *upLo_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("CHPR  ", &info);
+        F77BLAS(xerbla)("CHPR  ", &info, 6);
+        return;
     }
 
 //
@@ -51,28 +52,28 @@ F77BLAS(chpr)(const char        *upLo_,
     }
 
     if (lower) {
-        ulmBLAS::hplr(n, alpha, x, incX, A);
+        ulmBLAS::hplr<std::ptrdiff_t>(n, alpha, x, incX, A);
     } else {
-        ulmBLAS::hpur(n, alpha, x, incX, A);
+        ulmBLAS::hpur<std::ptrdiff_t>(n, alpha, x, incX, A);
     }
 }
 
 
 void
-F77BLAS(zhpr)(const char        *upLo_,
-              const int         *n_,
-              const double      *alpha_,
-              const double      *x_,
-              const int         *incX_,
-              double            *A_)
+F77BLAS(zhpr)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const double             *alpha_,
+              const double             *x_,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              double                   *A_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lower   = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    double alpha = *alpha_;
-    int incX     = *incX_;
+    bool lower              = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    double alpha            = *alpha_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
 
     typedef std::complex<double> dcomplex;
     const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
@@ -81,7 +82,7 @@ F77BLAS(zhpr)(const char        *upLo_,
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
         info = 1;
@@ -92,7 +93,8 @@ F77BLAS(zhpr)(const char        *upLo_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("ZHPR  ", &info);
+        F77BLAS(xerbla)("ZHPR  ", &info, 6);
+        return;
     }
 
 //
@@ -103,9 +105,9 @@ F77BLAS(zhpr)(const char        *upLo_,
     }
 
     if (lower) {
-        ulmBLAS::hplr(n, alpha, x, incX, A);
+        ulmBLAS::hplr<std::ptrdiff_t>(n, alpha, x, incX, A);
     } else {
-        ulmBLAS::hpur(n, alpha, x, incX, A);
+        ulmBLAS::hpur<std::ptrdiff_t>(n, alpha, x, incX, A);
     }
 }
 

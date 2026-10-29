@@ -5,12 +5,12 @@
 extern "C" {
 
 void
-ULMBLAS(saxpy)(int           n,
-               float         alpha,
-               const float   *x,
-               int           incX,
-               float         *y,
-               int           incY)
+ULMBLAS(saxpy)(ULMBLAS_INDEX_TYPE n,
+               float              alpha,
+               const float        *x,
+               ULMBLAS_INDEX_TYPE incX,
+               float              *y,
+               ULMBLAS_INDEX_TYPE incY)
 {
     if (incX<0) {
         x -= incX*(n-1);
@@ -18,17 +18,17 @@ ULMBLAS(saxpy)(int           n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    ulmBLAS::axpy(n, alpha, x, incX, y, incY);
+    ulmBLAS::axpy<std::ptrdiff_t>(n, alpha, x, incX, y, incY);
 }
 
 
 void
-ULMBLAS(daxpy)(int           n,
-               double        alpha,
-               const double  *x,
-               int           incX,
-               double        *y,
-               int           incY)
+ULMBLAS(daxpy)(ULMBLAS_INDEX_TYPE n,
+               double             alpha,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX,
+               double             *y,
+               ULMBLAS_INDEX_TYPE incY)
 {
     if (incX<0) {
         x -= incX*(n-1);
@@ -36,16 +36,16 @@ ULMBLAS(daxpy)(int           n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    ulmBLAS::axpy(n, alpha, x, incX, y, incY);
+    ulmBLAS::axpy<std::ptrdiff_t>(n, alpha, x, incX, y, incY);
 }
 
 void
-ULMBLAS(caxpy)(int           n,
-               const float   *alpha_,
-               const float   *x_,
-               int           incX,
-               float         *y_,
-               int           incY)
+ULMBLAS(caxpy)(ULMBLAS_INDEX_TYPE n,
+               const float        *alpha_,
+               const float        *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               float              *y_,
+               ULMBLAS_INDEX_TYPE incY)
 {
     typedef std::complex<float> fcomplex;
     fcomplex       alpha = fcomplex(alpha_[0], alpha_[1]);
@@ -58,16 +58,16 @@ ULMBLAS(caxpy)(int           n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    ulmBLAS::axpy(n, alpha, x, incX, y, incY);
+    ulmBLAS::axpy<std::ptrdiff_t>(n, alpha, x, incX, y, incY);
 }
 
 void
-ULMBLAS(zaxpy)(int           n,
-               const double  *alpha_,
-               const double  *x_,
-               int           incX,
-               double        *y_,
-               int           incY)
+ULMBLAS(zaxpy)(ULMBLAS_INDEX_TYPE n,
+               const double       *alpha_,
+               const double       *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               double             *y_,
+               ULMBLAS_INDEX_TYPE incY)
 {
     typedef std::complex<double> dcomplex;
     dcomplex       alpha = dcomplex(alpha_[0], alpha_[1]);
@@ -80,49 +80,49 @@ ULMBLAS(zaxpy)(int           n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    ulmBLAS::axpy(n, alpha, x, incX, y, incY);
+    ulmBLAS::axpy<std::ptrdiff_t>(n, alpha, x, incX, y, incY);
 }
 
 void
-CBLAS(saxpy)(int           n,
-             float         alpha,
-             const float   *x,
-             int           incX,
-             float         *y,
-             int           incY)
+CBLAS(saxpy)(ULMBLAS_INDEX_TYPE n,
+             float              alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             float              *y,
+             ULMBLAS_INDEX_TYPE incY)
 {
     ULMBLAS(saxpy)(n, alpha, x, incX, y, incY);
 }
 
 void
-CBLAS(daxpy)(int           n,
-             double        alpha,
-             const double  *x,
-             int           incX,
-             double        *y,
-             int           incY)
+CBLAS(daxpy)(ULMBLAS_INDEX_TYPE n,
+             double             alpha,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             double             *y,
+             ULMBLAS_INDEX_TYPE incY)
 {
     ULMBLAS(daxpy)(n, alpha, x, incX, y, incY);
 }
 
 void
-CBLAS(caxpy)(int           n,
-             const float   *alpha,
-             const float   *x,
-             int           incX,
-             float         *y,
-             int           incY)
+CBLAS(caxpy)(ULMBLAS_INDEX_TYPE n,
+             const float        *alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             float              *y,
+             ULMBLAS_INDEX_TYPE incY)
 {
     ULMBLAS(caxpy)(n, alpha, x, incX, y, incY);
 }
 
 void
-CBLAS(zaxpy)(int           n,
-             const double  *alpha,
-             const double  *x,
-             int           incX,
-             double        *y,
-             int           incY)
+CBLAS(zaxpy)(ULMBLAS_INDEX_TYPE n,
+             const double       *alpha,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             double             *y,
+             ULMBLAS_INDEX_TYPE incY)
 {
     ULMBLAS(zaxpy)(n, alpha, x, incX, y, incY);
 }

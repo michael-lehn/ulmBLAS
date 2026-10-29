@@ -73,7 +73,7 @@ dotaxpy(IndexType      n,
         __m128d alpha11;
         __m128d rho12, rho34;
 
-        double  rho12_[2], rho34_[2];
+        alignas(16) double  rho12_[2], rho34_[2];
 
         alpha11 = _mm_loaddup_pd(&alpha);
         rho12   = _mm_setzero_pd();

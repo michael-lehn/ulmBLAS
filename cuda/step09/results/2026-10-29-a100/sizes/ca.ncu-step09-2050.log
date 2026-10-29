@@ -1,0 +1,28 @@
+==PROF== Connected to process 1247836 (/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-s9-sizes/ca/cuda/build/bench_gemm)
+==PROF== Profiling "dgemm": 0%....50%....100% - 3 passes
+# host uc2n902.localdomain, 2026-10-29T10:53:00
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -DCULMBLAS_STEP09_CA=1  -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 2 warm-up calls, 1 timed calls, CUDA events
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     2050   2050   2050      1.107      1.107      1.107    15565.6    1.000
+step09     2050   2050   2050    784.628    784.628    784.628       22.0    0.001
+==PROF== Disconnected from process 1247836
+[1247836] bench_gemm@127.0.0.1
+  void unnamed>::dgemm<1>(long, long, long, double, const double *, int, const double *, int, double, double *, long) (33, 65, 1)x(32, 4, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                            Metric Unit Metric Value
+    ---------------------------------------------------------------------- ----------- ------------
+    dram__bytes_read.sum                                                         Mbyte       655.63
+    gpu__time_duration.sum                                                          ms         1.73
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                                       6,714,341
+    l1tex__t_requests_pipe_lsu_mem_global_op_ldgsts.sum                                     (!) n/a
+    l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum                              sector  110,446,073
+    l1tex__t_sectors_pipe_lsu_mem_global_op_ldgsts.sum                                      (!) n/a
+    lts__t_sector_hit_rate.pct                                                       %        74.33
+    lts__t_sectors_srcunit_tex_op_read.sum                                      sector  110,431,124
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active           %        72.62
+    ---------------------------------------------------------------------- ----------- ------------
+

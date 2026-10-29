@@ -1,0 +1,96 @@
+ulm-lib-1536-1536-1536 prof-master -m lib 1536 1536 1536
+ulm-inst-1536-1536-1536 prof-master -m inst 1536 1536 1536
+ulm-nopack-1536-1536-1536 prof-master -m nopack 1536 1536 1536
+ulm-pack-1536-1536-1536 prof-master -m pack 1536 1536 1536
+ulm-kern-1536-1536-1536 prof-master -m kern 1536 1536 1536
+ulmblis-inst-1536-1536-1536 prof-master -o blis -m inst 1536 1536 1536
+ulmblis-nopack-1536-1536-1536 prof-master -o blis -m nopack 1536 1536 1536
+blis-1536-1536-1536 prof-blis -m cblas 1536 1536 1536
+openblas-1536-1536-1536 prof-openblas -m cblas 1536 1536 1536
+ulm-lib-2048-2048-2048 prof-master -m lib 2048 2048 2048
+ulm-inst-2048-2048-2048 prof-master -m inst 2048 2048 2048
+ulm-nopack-2048-2048-2048 prof-master -m nopack 2048 2048 2048
+ulm-pack-2048-2048-2048 prof-master -m pack 2048 2048 2048
+ulm-kern-2048-2048-2048 prof-master -m kern 2048 2048 2048
+ulmblis-inst-2048-2048-2048 prof-master -o blis -m inst 2048 2048 2048
+ulmblis-nopack-2048-2048-2048 prof-master -o blis -m nopack 2048 2048 2048
+blis-2048-2048-2048 prof-blis -m cblas 2048 2048 2048
+openblas-2048-2048-2048 prof-openblas -m cblas 2048 2048 2048
+ulm-lib-3072-3072-3072 prof-master -m lib 3072 3072 3072
+ulm-inst-3072-3072-3072 prof-master -m inst 3072 3072 3072
+ulm-nopack-3072-3072-3072 prof-master -m nopack 3072 3072 3072
+ulm-pack-3072-3072-3072 prof-master -m pack 3072 3072 3072
+ulm-kern-3072-3072-3072 prof-master -m kern 3072 3072 3072
+ulmblis-inst-3072-3072-3072 prof-master -o blis -m inst 3072 3072 3072
+ulmblis-nopack-3072-3072-3072 prof-master -o blis -m nopack 3072 3072 3072
+blis-3072-3072-3072 prof-blis -m cblas 3072 3072 3072
+openblas-3072-3072-3072 prof-openblas -m cblas 3072 3072 3072
+ulm-lib-4096-4096-4096 prof-master -m lib 4096 4096 4096
+ulm-inst-4096-4096-4096 prof-master -m inst 4096 4096 4096
+ulm-nopack-4096-4096-4096 prof-master -m nopack 4096 4096 4096
+ulm-pack-4096-4096-4096 prof-master -m pack 4096 4096 4096
+ulm-kern-4096-4096-4096 prof-master -m kern 4096 4096 4096
+ulmblis-inst-4096-4096-4096 prof-master -o blis -m inst 4096 4096 4096
+ulmblis-nopack-4096-4096-4096 prof-master -o blis -m nopack 4096 4096 4096
+blis-4096-4096-4096 prof-blis -m cblas 4096 4096 4096
+openblas-4096-4096-4096 prof-openblas -m cblas 4096 4096 4096
+ulm-2000-2000-32 prof-master -m lib,inst,nopack,pack,kern 2000 2000 32
+ulmblis-2000-2000-32 prof-master -o blis -m inst,nopack 2000 2000 32
+blis-2000-2000-32 prof-blis -m cblas 2000 2000 32
+openblas-2000-2000-32 prof-openblas -m cblas 2000 2000 32
+ulm-2000-2000-128 prof-master -m lib,inst,nopack,pack,kern 2000 2000 128
+ulmblis-2000-2000-128 prof-master -o blis -m inst,nopack 2000 2000 128
+blis-2000-2000-128 prof-blis -m cblas 2000 2000 128
+openblas-2000-2000-128 prof-openblas -m cblas 2000 2000 128
+ulm-4000-4000-64 prof-master -m lib,inst,nopack,pack,kern 4000 4000 64
+ulmblis-4000-4000-64 prof-master -o blis -m inst,nopack 4000 4000 64
+blis-4000-4000-64 prof-blis -m cblas 4000 4000 64
+openblas-4000-4000-64 prof-openblas -m cblas 4000 4000 64
+ulm-64-2048-2048 prof-master -m lib,inst,nopack,pack,kern 64 2048 2048
+ulmblis-64-2048-2048 prof-master -o blis -m inst,nopack 64 2048 2048
+blis-64-2048-2048 prof-blis -m cblas 64 2048 2048
+openblas-64-2048-2048 prof-openblas -m cblas 64 2048 2048
+ulm-2048-64-2048 prof-master -m lib,inst,nopack,pack,kern 2048 64 2048
+ulmblis-2048-64-2048 prof-master -o blis -m inst,nopack 2048 64 2048
+blis-2048-64-2048 prof-blis -m cblas 2048 64 2048
+openblas-2048-64-2048 prof-openblas -m cblas 2048 64 2048
+ulm-199-199-199 prof-master -m lib,inst,nopack,pack,kern 199 199 199
+ulmblis-199-199-199 prof-master -o blis -m inst,nopack 199 199 199
+blis-199-199-199 prof-blis -m cblas 199 199 199
+openblas-199-199-199 prof-openblas -m cblas 199 199 199
+ulm-1000-1000-1000 prof-master -m lib,inst,nopack,pack,kern 1000 1000 1000
+ulmblis-1000-1000-1000 prof-master -o blis -m inst,nopack 1000 1000 1000
+blis-1000-1000-1000 prof-blis -m cblas 1000 1000 1000
+openblas-1000-1000-1000 prof-openblas -m cblas 1000 1000 1000
+ulm-64-64-64 prof-master -m lib,inst,nopack,pack,kern 64 64 64
+ulmblis-64-64-64 prof-master -o blis -m inst,nopack 64 64 64
+blis-64-64-64 prof-blis -m cblas 64 64 64
+openblas-64-64-64 prof-openblas -m cblas 64 64 64
+ulm-128-128-128 prof-master -m lib,inst,nopack,pack,kern 128 128 128
+ulmblis-128-128-128 prof-master -o blis -m inst,nopack 128 128 128
+blis-128-128-128 prof-blis -m cblas 128 128 128
+openblas-128-128-128 prof-openblas -m cblas 128 128 128
+ulm-192-192-192 prof-master -m lib,inst,nopack,pack,kern 192 192 192
+ulmblis-192-192-192 prof-master -o blis -m inst,nopack 192 192 192
+blis-192-192-192 prof-blis -m cblas 192 192 192
+openblas-192-192-192 prof-openblas -m cblas 192 192 192
+ulm-256-256-256 prof-master -m lib,inst,nopack,pack,kern 256 256 256
+ulmblis-256-256-256 prof-master -o blis -m inst,nopack 256 256 256
+blis-256-256-256 prof-blis -m cblas 256 256 256
+openblas-256-256-256 prof-openblas -m cblas 256 256 256
+ulm-384-384-384 prof-master -m lib,inst,nopack,pack,kern 384 384 384
+ulmblis-384-384-384 prof-master -o blis -m inst,nopack 384 384 384
+blis-384-384-384 prof-blis -m cblas 384 384 384
+openblas-384-384-384 prof-openblas -m cblas 384 384 384
+ulm-512-512-512 prof-master -m lib,inst,nopack,pack,kern 512 512 512
+ulmblis-512-512-512 prof-master -o blis -m inst,nopack 512 512 512
+blis-512-512-512 prof-blis -m cblas 512 512 512
+openblas-512-512-512 prof-openblas -m cblas 512 512 512
+ulm-768-768-768 prof-master -m lib,inst,nopack,pack,kern 768 768 768
+ulmblis-768-768-768 prof-master -o blis -m inst,nopack 768 768 768
+blis-768-768-768 prof-blis -m cblas 768 768 768
+openblas-768-768-768 prof-openblas -m cblas 768 768 768
+ulm-1024-1024-1024 prof-master -m lib,inst,nopack,pack,kern 1024 1024 1024
+ulmblis-1024-1024-1024 prof-master -o blis -m inst,nopack 1024 1024 1024
+blis-1024-1024-1024 prof-blis -m cblas 1024 1024 1024
+openblas-1024-1024-1024 prof-openblas -m cblas 1024 1024 1024

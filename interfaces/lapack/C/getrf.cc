@@ -3,18 +3,18 @@
 
 extern "C" {
 
-int
-ULMLAPACK(dgetrf)(enum CBLAS_ORDER  order,
-                  int               m,
-                  int               n,
-                  double            *A,
-                  int               ldA,
-                  int               *piv)
+ULMBLAS_INDEX_TYPE
+ULMLAPACK(dgetrf)(enum CBLAS_ORDER   order,
+                  ULMBLAS_INDEX_TYPE m,
+                  ULMBLAS_INDEX_TYPE n,
+                  double             *A,
+                  ULMBLAS_INDEX_TYPE ldA,
+                  ULMBLAS_INDEX_TYPE *piv)
 {
     if (order==CblasColMajor) {
-        return ulmBLAS::getrf(m, n, A, 1, ldA, piv, 1);
+        return ulmBLAS::getrf<std::ptrdiff_t>(m, n, A, 1, ldA, piv, 1);
     } else {
-        return ulmBLAS::getrf(n, m, A, ldA, 1, piv, 1);
+        return ulmBLAS::getrf<std::ptrdiff_t>(n, m, A, 1, ldA, piv, 1);
     }
 }
 

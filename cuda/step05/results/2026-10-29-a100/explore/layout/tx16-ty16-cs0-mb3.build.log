@@ -1,0 +1,43 @@
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -Xptxas -v -DCULMBLAS_STEP05_THREADS_X=16 -DCULMBLAS_STEP05_THREADS_Y=16 -DCULMBLAS_STEP05_COL_STRIDE=0 -DCULMBLAS_STEP05_MIN_BLOCKS=3 -c -o build/test/test_gemm.o test/test_gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -Xptxas -v -DCULMBLAS_STEP05_THREADS_X=16 -DCULMBLAS_STEP05_THREADS_Y=16 -DCULMBLAS_STEP05_COL_STRIDE=0 -DCULMBLAS_STEP05_MIN_BLOCKS=3 -c -o build/culmblas/gemm.o culmblas/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -Xptxas -v -DCULMBLAS_STEP05_THREADS_X=16 -DCULMBLAS_STEP05_THREADS_Y=16 -DCULMBLAS_STEP05_COL_STRIDE=0 -DCULMBLAS_STEP05_MIN_BLOCKS=3 -c -o build/step01/gemm.o step01/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -Xptxas -v -DCULMBLAS_STEP05_THREADS_X=16 -DCULMBLAS_STEP05_THREADS_Y=16 -DCULMBLAS_STEP05_COL_STRIDE=0 -DCULMBLAS_STEP05_MIN_BLOCKS=3 -c -o build/step02/gemm.o step02/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -Xptxas -v -DCULMBLAS_STEP05_THREADS_X=16 -DCULMBLAS_STEP05_THREADS_Y=16 -DCULMBLAS_STEP05_COL_STRIDE=0 -DCULMBLAS_STEP05_MIN_BLOCKS=3 -c -o build/step03/gemm.o step03/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -Xptxas -v -DCULMBLAS_STEP05_THREADS_X=16 -DCULMBLAS_STEP05_THREADS_Y=16 -DCULMBLAS_STEP05_COL_STRIDE=0 -DCULMBLAS_STEP05_MIN_BLOCKS=3 -c -o build/step04/gemm.o step04/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -Xptxas -v -DCULMBLAS_STEP05_THREADS_X=16 -DCULMBLAS_STEP05_THREADS_Y=16 -DCULMBLAS_STEP05_COL_STRIDE=0 -DCULMBLAS_STEP05_MIN_BLOCKS=3 -c -o build/step05/gemm.o step05/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -Xptxas -v -DCULMBLAS_STEP05_THREADS_X=16 -DCULMBLAS_STEP05_THREADS_Y=16 -DCULMBLAS_STEP05_COL_STRIDE=0 -DCULMBLAS_STEP05_MIN_BLOCKS=3 -DCULMBLAS_BUILD_FLAGS='"/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -Xptxas -v -DCULMBLAS_STEP05_THREADS_X=16 -DCULMBLAS_STEP05_THREADS_Y=16 -DCULMBLAS_STEP05_COL_STRIDE=0 -DCULMBLAS_STEP05_MIN_BLOCKS=3 -L/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lmagma -Xlinker -rpath=/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lcublas"' -c -o build/bench/bench_gemm.o bench/bench_gemm.cu
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0239_GLOBAL__N__c06c390a_7_gemm_cu_1c5cc0895dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0239_GLOBAL__N__c06c390a_7_gemm_cu_1c5cc0895dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 48 registers, used 0 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 14.256 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0139_GLOBAL__N__f9e105cf_7_gemm_cu_463dffe95dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0139_GLOBAL__N__f9e105cf_7_gemm_cu_463dffe95dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 31 registers, used 0 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 6.632 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0339_GLOBAL__N__d7172d49_7_gemm_cu_9cacd7965dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0339_GLOBAL__N__d7172d49_7_gemm_cu_9cacd7965dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 125 registers, used 0 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 42.135 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0439_GLOBAL__N__b3764080_7_gemm_cu_a89ebe495dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0439_GLOBAL__N__b3764080_7_gemm_cu_a89ebe495dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 118 registers, used 0 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 34.572 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0539_GLOBAL__N__a40d54c3_7_gemm_cu_286ea9565dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0539_GLOBAL__N__a40d54c3_7_gemm_cu_286ea9565dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 17024 bytes smem, 440 bytes cmem[0]
+ptxas info    : Compile time = 55.906 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : 0 bytes gmem
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -Xptxas -v -DCULMBLAS_STEP05_THREADS_X=16 -DCULMBLAS_STEP05_THREADS_Y=16 -DCULMBLAS_STEP05_COL_STRIDE=0 -DCULMBLAS_STEP05_MIN_BLOCKS=3 -o build/bench_gemm build/bench/bench_gemm.o build/culmblas/gemm.o build/step01/gemm.o build/step02/gemm.o build/step03/gemm.o build/step04/gemm.o build/step05/gemm.o -L/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lmagma -Xlinker -rpath=/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lcublas
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -Xptxas -v -DCULMBLAS_STEP05_THREADS_X=16 -DCULMBLAS_STEP05_THREADS_Y=16 -DCULMBLAS_STEP05_COL_STRIDE=0 -DCULMBLAS_STEP05_MIN_BLOCKS=3 -o build/test_gemm build/test/test_gemm.o build/culmblas/gemm.o build/step01/gemm.o build/step02/gemm.o build/step03/gemm.o build/step04/gemm.o build/step05/gemm.o -L/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lmagma -Xlinker -rpath=/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lcublas

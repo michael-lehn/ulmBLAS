@@ -1,0 +1,14 @@
+==PROF== Connected to process 1342120 (/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-ncu-n/cuda/build/bench_gemm)
+# host uc2n902.localdomain, 2026-10-29T11:18:34
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 2 warm-up calls, 1 timed calls, CUDA events
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     2048   2048   2048      1.008      1.008      1.008    17050.0    1.000
+step10     2048   2048   2048      1.122      1.122      1.122    15307.7    0.898
+==PROF== Disconnected from process 1342120
+==WARNING== No kernels were profiled.
+Available Kernels:
+1. Kernel2
+2. dgemm

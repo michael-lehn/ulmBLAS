@@ -31,11 +31,11 @@ heumm(IndexType    m,
 {
     typedef decltype(Alpha(0)*TA(0)*TB(0))  T;
 
-    const IndexType MC = BlockSize<T>::MC;
-    const IndexType NC = BlockSize<T>::NC;
+    constexpr IndexType MC = BlockSize<T>::MC;
+    constexpr IndexType NC = BlockSize<T>::NC;
 
-    const IndexType MR = BlockSizeUGemm<T>::MR;
-    const IndexType NR = BlockSizeUGemm<T>::NR;
+    constexpr IndexType MR = BlockSizeUGemm<T>::MR;
+    constexpr IndexType NR = BlockSizeUGemm<T>::NR;
 
     const IndexType mb = (m+MC-1) / MC;
     const IndexType nb = (n+NC-1) / NC;

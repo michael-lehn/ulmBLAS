@@ -7,38 +7,39 @@
 extern "C" {
 
 void
-F77BLAS(sgbmv)(const char     *transA_,
-               const int      *m_,
-               const int      *n_,
-               const int      *kl_,
-               const int      *ku_,
-               const float    *alpha_,
-               const float    *A,
-               const int      *ldA_,
-               const float    *x,
-               const int      *incX_,
-               const float    *beta_,
-               float          *y,
-               const int      *incY_)
+F77BLAS(sgbmv)(const char               *transA_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *kl_,
+               const ULMBLAS_INDEX_TYPE *ku_,
+               const float              *alpha_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE *incY_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool transA  = (toupper(*transA_) == 'T' || toupper(*transA_) == 'C');
-    int m        = *m_;
-    int n        = *n_;
-    int kl       = *kl_;
-    int ku       = *ku_;
-    float alpha  = *alpha_;
-    int ldA      = *ldA_;
-    int incX     = *incX_;
-    float beta   = *beta_;
-    int incY     = *incY_;
+    bool transA             = (toupper(*transA_) == 'T'
+                            || toupper(*transA_) == 'C');
+    ULMBLAS_INDEX_TYPE m    = *m_;
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE kl   = *kl_;
+    ULMBLAS_INDEX_TYPE ku   = *ku_;
+    float alpha             = *alpha_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    float beta              = *beta_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*transA_)!='N' && toupper(*transA_)!='T'
      && toupper(*transA_)!='C' && toupper(*transA_)!='R')
@@ -61,7 +62,8 @@ F77BLAS(sgbmv)(const char     *transA_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("SGBMV ", &info);
+        F77BLAS(xerbla)("SGBMV ", &info, 6);
+        return;
     }
 
     if (!transA) {
@@ -83,46 +85,49 @@ F77BLAS(sgbmv)(const char     *transA_,
 //  Start the operations.
 //
     if (!transA) {
-        ulmBLAS::gbmv(m, n, kl, ku, alpha, A, ldA, x, incX, beta, y, incY);
+        ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
+                                      beta, y, incY);
     } else {
-        ulmBLAS::gbmtv(m, n, kl, ku, alpha, A, ldA, x, incX, beta, y, incY);
+        ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
+                                       beta, y, incY);
     }
 }
 
 
 void
-F77BLAS(dgbmv)(const char     *transA_,
-               const int      *m_,
-               const int      *n_,
-               const int      *kl_,
-               const int      *ku_,
-               const double   *alpha_,
-               const double   *A,
-               const int      *ldA_,
-               const double   *x,
-               const int      *incX_,
-               const double   *beta_,
-               double         *y,
-               const int      *incY_)
+F77BLAS(dgbmv)(const char               *transA_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *kl_,
+               const ULMBLAS_INDEX_TYPE *ku_,
+               const double             *alpha_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE *incY_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool transA  = (toupper(*transA_) == 'T' || toupper(*transA_) == 'C');
-    int m        = *m_;
-    int n        = *n_;
-    int kl       = *kl_;
-    int ku       = *ku_;
-    double alpha = *alpha_;
-    int ldA      = *ldA_;
-    int incX     = *incX_;
-    double beta  = *beta_;
-    int incY     = *incY_;
+    bool transA             = (toupper(*transA_) == 'T'
+                            || toupper(*transA_) == 'C');
+    ULMBLAS_INDEX_TYPE m    = *m_;
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE kl   = *kl_;
+    ULMBLAS_INDEX_TYPE ku   = *ku_;
+    double alpha            = *alpha_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    double beta             = *beta_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*transA_)!='N' && toupper(*transA_)!='T'
      && toupper(*transA_)!='C' && toupper(*transA_)!='R')
@@ -145,7 +150,8 @@ F77BLAS(dgbmv)(const char     *transA_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("DGBMV ", &info);
+        F77BLAS(xerbla)("DGBMV ", &info, 6);
+        return;
     }
 
     if (!transA) {
@@ -168,39 +174,43 @@ F77BLAS(dgbmv)(const char     *transA_,
 //  Start the operations.
 //
     if (!transA) {
-        ulmBLAS::gbmv(m, n, kl, ku, alpha, A, ldA, x, incX, beta, y, incY);
+        ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
+                                      beta, y, incY);
     } else {
-        ulmBLAS::gbmtv(m, n, kl, ku, alpha, A, ldA, x, incX, beta, y, incY);
+        ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
+                                       beta, y, incY);
     }
 }
 
 void
-F77BLAS(cgbmv)(const char     *transA_,
-               const int      *m_,
-               const int      *n_,
-               const int      *kl_,
-               const int      *ku_,
-               const float    *alpha_,
-               const float    *A_,
-               const int      *ldA_,
-               const float    *x_,
-               const int      *incX_,
-               const float    *beta_,
-               float          *y_,
-               const int      *incY_)
+F77BLAS(cgbmv)(const char               *transA_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *kl_,
+               const ULMBLAS_INDEX_TYPE *ku_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const float              *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *beta_,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE *incY_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool transA  = (toupper(*transA_) == 'T' || toupper(*transA_) == 'C');
-    bool conjA   = (toupper(*transA_) == 'R' || toupper(*transA_) == 'C');
-    int m        = *m_;
-    int n        = *n_;
-    int kl       = *kl_;
-    int ku       = *ku_;
-    int ldA      = *ldA_;
-    int incX     = *incX_;
-    int incY     = *incY_;
+    bool transA             = (toupper(*transA_) == 'T'
+                            || toupper(*transA_) == 'C');
+    bool conjA              = (toupper(*transA_) == 'R'
+                            || toupper(*transA_) == 'C');
+    ULMBLAS_INDEX_TYPE m    = *m_;
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE kl   = *kl_;
+    ULMBLAS_INDEX_TYPE ku   = *ku_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     typedef std::complex<float> fcomplex;
     fcomplex alpha = fcomplex(alpha_[0], alpha_[1]);
@@ -213,7 +223,7 @@ F77BLAS(cgbmv)(const char     *transA_,
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*transA_)!='N' && toupper(*transA_)!='T'
      && toupper(*transA_)!='C' && toupper(*transA_)!='R')
@@ -236,7 +246,8 @@ F77BLAS(cgbmv)(const char     *transA_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("CGBMV ", &info);
+        F77BLAS(xerbla)("CGBMV ", &info, 6);
+        return;
     }
 
     if (!transA) {
@@ -259,48 +270,50 @@ F77BLAS(cgbmv)(const char     *transA_,
 //  Start the operations.
 //
     if (!transA) {
-        ulmBLAS::gbmv(m, n, kl, ku, alpha,
-                      conjA, A, ldA,
-                      x, incX,
-                      beta,
-                      y, incY);
+        ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha,
+                                      conjA, A, ldA,
+                                      x, incX,
+                                      beta,
+                                      y, incY);
     } else {
-        ulmBLAS::gbmtv(m, n, kl, ku, alpha,
-                       conjA, A, ldA,
-                       x, incX,
-                       beta,
-                       y, incY);
+        ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha,
+                                       conjA, A, ldA,
+                                       x, incX,
+                                       beta,
+                                       y, incY);
     }
 }
 
 
 void
-F77BLAS(zgbmv)(const char     *transA_,
-               const int      *m_,
-               const int      *n_,
-               const int      *kl_,
-               const int      *ku_,
-               const double   *alpha_,
-               const double   *A_,
-               const int      *ldA_,
-               const double   *x_,
-               const int      *incX_,
-               const double   *beta_,
-               double         *y_,
-               const int      *incY_)
+F77BLAS(zgbmv)(const char               *transA_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *kl_,
+               const ULMBLAS_INDEX_TYPE *ku_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const double             *x_,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *beta_,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE *incY_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool transA  = (toupper(*transA_) == 'T' || toupper(*transA_) == 'C');
-    bool conjA   = (toupper(*transA_) == 'R' || toupper(*transA_) == 'C');
-    int m        = *m_;
-    int n        = *n_;
-    int kl       = *kl_;
-    int ku       = *ku_;
-    int ldA      = *ldA_;
-    int incX     = *incX_;
-    int incY     = *incY_;
+    bool transA             = (toupper(*transA_) == 'T'
+                            || toupper(*transA_) == 'C');
+    bool conjA              = (toupper(*transA_) == 'R'
+                            || toupper(*transA_) == 'C');
+    ULMBLAS_INDEX_TYPE m    = *m_;
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE kl   = *kl_;
+    ULMBLAS_INDEX_TYPE ku   = *ku_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     typedef std::complex<double> dcomplex;
     dcomplex alpha = dcomplex(alpha_[0], alpha_[1]);
@@ -313,7 +326,7 @@ F77BLAS(zgbmv)(const char     *transA_,
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*transA_)!='N' && toupper(*transA_)!='T'
      && toupper(*transA_)!='C' && toupper(*transA_)!='R')
@@ -336,7 +349,8 @@ F77BLAS(zgbmv)(const char     *transA_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("ZGBMV ", &info);
+        F77BLAS(xerbla)("ZGBMV ", &info, 6);
+        return;
     }
 
     if (!transA) {
@@ -359,17 +373,17 @@ F77BLAS(zgbmv)(const char     *transA_,
 //  Start the operations.
 //
     if (!transA) {
-        ulmBLAS::gbmv(m, n, kl, ku, alpha,
-                      conjA, A, ldA,
-                      x, incX,
-                      beta,
-                      y, incY);
+        ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha,
+                                      conjA, A, ldA,
+                                      x, incX,
+                                      beta,
+                                      y, incY);
     } else {
-        ulmBLAS::gbmtv(m, n, kl, ku, alpha,
-                       conjA, A, ldA,
-                       x, incX,
-                       beta,
-                       y, incY);
+        ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha,
+                                       conjA, A, ldA,
+                                       x, incX,
+                                       beta,
+                                       y, incY);
     }
 }
 

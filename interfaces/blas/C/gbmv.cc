@@ -8,18 +8,18 @@ extern "C" {
 
 void
 ULMBLAS(sgbmv)(enum CBLAS_TRANSPOSE  transA,
-               int                   m,
-               int                   n,
-               int                   kl,
-               int                   ku,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    kl,
+               ULMBLAS_INDEX_TYPE    ku,
                float                 alpha,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *x,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                float                 beta,
                float                 *y,
-               int                   incY)
+               ULMBLAS_INDEX_TYPE    incY)
 {
     if (transA==CblasNoTrans || transA==AtlasConj) {
         if (incX<0) {
@@ -41,26 +41,28 @@ ULMBLAS(sgbmv)(enum CBLAS_TRANSPOSE  transA,
 //  Start the operations.
 //
     if (transA==CblasNoTrans || transA==AtlasConj) {
-        ulmBLAS::gbmv(m, n, kl, ku, alpha, A, ldA, x, incX, beta, y, incY);
+        ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
+                                      beta, y, incY);
     } else {
-        ulmBLAS::gbmtv(m, n, kl, ku, alpha, A, ldA, x, incX, beta, y, incY);
+        ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
+                                       beta, y, incY);
     }
 }
 
 void
 ULMBLAS(dgbmv)(enum CBLAS_TRANSPOSE  transA,
-               int                   m,
-               int                   n,
-               int                   kl,
-               int                   ku,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    kl,
+               ULMBLAS_INDEX_TYPE    ku,
                double                alpha,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *x,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                double                beta,
                double                *y,
-               int                   incY)
+               ULMBLAS_INDEX_TYPE    incY)
 {
     if (transA==CblasNoTrans || transA==AtlasConj) {
         if (incX<0) {
@@ -82,26 +84,28 @@ ULMBLAS(dgbmv)(enum CBLAS_TRANSPOSE  transA,
 //  Start the operations.
 //
     if (transA==CblasNoTrans || transA==AtlasConj) {
-        ulmBLAS::gbmv(m, n, kl, ku, alpha, A, ldA, x, incX, beta, y, incY);
+        ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
+                                      beta, y, incY);
     } else {
-        ulmBLAS::gbmtv(m, n, kl, ku, alpha, A, ldA, x, incX, beta, y, incY);
+        ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
+                                       beta, y, incY);
     }
 }
 
 void
 ULMBLAS(cgbmv)(enum CBLAS_TRANSPOSE  transA_,
-               int                   m,
-               int                   n,
-               int                   kl,
-               int                   ku,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    kl,
+               ULMBLAS_INDEX_TYPE    ku,
                const float           *alpha_,
                const float           *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *x_,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                const float           *beta_,
                float                 *y_,
-               int                   incY)
+               ULMBLAS_INDEX_TYPE    incY)
 {
     bool transA = (transA_==CblasTrans || transA_==CblasConjTrans);
     bool conjA  = (transA_==AtlasConj || transA_==CblasConjTrans);
@@ -134,34 +138,34 @@ ULMBLAS(cgbmv)(enum CBLAS_TRANSPOSE  transA_,
 //  Start the operations.
 //
     if (!transA) {
-        ulmBLAS::gbmv(m, n, kl, ku, alpha,
-                      conjA, A, ldA,
-                      x, incX,
-                      beta,
-                      y, incY);
+        ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha,
+                                      conjA, A, ldA,
+                                      x, incX,
+                                      beta,
+                                      y, incY);
     } else {
-        ulmBLAS::gbmtv(m, n, kl, ku, alpha,
-                       conjA, A, ldA,
-                       x, incX,
-                       beta,
-                       y, incY);
+        ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha,
+                                       conjA, A, ldA,
+                                       x, incX,
+                                       beta,
+                                       y, incY);
     }
 }
 
 void
 ULMBLAS(zgbmv)(enum CBLAS_TRANSPOSE  transA_,
-               int                   m,
-               int                   n,
-               int                   kl,
-               int                   ku,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    kl,
+               ULMBLAS_INDEX_TYPE    ku,
                const double          *alpha_,
                const double          *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *x_,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                const double          *beta_,
                double                *y_,
-               int                   incY)
+               ULMBLAS_INDEX_TYPE    incY)
 {
     bool transA = (transA_==CblasTrans || transA_==CblasConjTrans);
     bool conjA  = (transA_==AtlasConj || transA_==CblasConjTrans);
@@ -194,35 +198,35 @@ ULMBLAS(zgbmv)(enum CBLAS_TRANSPOSE  transA_,
 //  Start the operations.
 //
     if (!transA) {
-        ulmBLAS::gbmv(m, n, kl, ku, alpha,
-                      conjA, A, ldA,
-                      x, incX,
-                      beta,
-                      y, incY);
+        ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha,
+                                      conjA, A, ldA,
+                                      x, incX,
+                                      beta,
+                                      y, incY);
     } else {
-        ulmBLAS::gbmtv(m, n, kl, ku, alpha,
-                       conjA, A, ldA,
-                       x, incX,
-                       beta,
-                       y, incY);
+        ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha,
+                                       conjA, A, ldA,
+                                       x, incX,
+                                       beta,
+                                       y, incY);
     }
 }
 
 void
 CBLAS(sgbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
-             int                   m,
-             int                   n,
-             int                   kl,
-             int                   ku,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    kl,
+             ULMBLAS_INDEX_TYPE    ku,
              float                 alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const float           *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              float                 beta,
              float                 *y,
-             int                   incY)
+             ULMBLAS_INDEX_TYPE    incY)
 {
 //
 //  Test the input parameters
@@ -276,23 +280,24 @@ CBLAS(sgbmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_sgbmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
         ULMBLAS(sgbmv)(transA, m, n, kl, ku,
-                       alpha,
-                       A, ldA,
-                       x, incX,
-                       beta,
-                       y, incY);
+                                       alpha,
+                                       A, ldA,
+                                       x, incX,
+                                       beta,
+                                       y, incY);
     } else {
         transA = transpose(transA);
         ULMBLAS(sgbmv)(transA, n, m, ku, kl,
-                       alpha,
-                       A, ldA,
-                       x, incX,
-                       beta,
-                       y, incY);
+                                       alpha,
+                                       A, ldA,
+                                       x, incX,
+                                       beta,
+                                       y, incY);
      }
 }
 
@@ -300,18 +305,18 @@ CBLAS(sgbmv)(enum CBLAS_ORDER      order,
 void
 CBLAS(dgbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
-             int                   m,
-             int                   n,
-             int                   kl,
-             int                   ku,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    kl,
+             ULMBLAS_INDEX_TYPE    ku,
              double                alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              double                beta,
              double                *y,
-             int                   incY)
+             ULMBLAS_INDEX_TYPE    incY)
 {
 //
 //  Test the input parameters
@@ -365,41 +370,42 @@ CBLAS(dgbmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_dgbmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
         ULMBLAS(dgbmv)(transA, m, n, kl, ku,
-                       alpha,
-                       A, ldA,
-                       x, incX,
-                       beta,
-                       y, incY);
+                                       alpha,
+                                       A, ldA,
+                                       x, incX,
+                                       beta,
+                                       y, incY);
     } else {
         transA = transpose(transA);
         ULMBLAS(dgbmv)(transA, n, m, ku, kl,
-                       alpha,
-                       A, ldA,
-                       x, incX,
-                       beta,
-                       y, incY);
+                                       alpha,
+                                       A, ldA,
+                                       x, incX,
+                                       beta,
+                                       y, incY);
      }
 }
 
 void
 CBLAS(cgbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
-             int                   m,
-             int                   n,
-             int                   kl,
-             int                   ku,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    kl,
+             ULMBLAS_INDEX_TYPE    ku,
              const float           *alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const float           *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              const float           *beta,
              float                 *y,
-             int                   incY)
+             ULMBLAS_INDEX_TYPE    incY)
 {
 //
 //  Test the input parameters
@@ -453,40 +459,41 @@ CBLAS(cgbmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_cgbmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
         ULMBLAS(cgbmv)(transA, m, n, kl, ku,
-                       alpha,
-                       A, ldA,
-                       x, incX,
-                       beta,
-                       y, incY);
+                                       alpha,
+                                       A, ldA,
+                                       x, incX,
+                                       beta,
+                                       y, incY);
     } else {
         transA = transpose(transA);
         ULMBLAS(cgbmv)(transA, n, m, ku, kl,
-                       alpha,
-                       A, ldA,
-                       x, incX,
-                       beta,
-                       y, incY);
+                                       alpha,
+                                       A, ldA,
+                                       x, incX,
+                                       beta,
+                                       y, incY);
      }
 }
 void
 CBLAS(zgbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
-             int                   m,
-             int                   n,
-             int                   kl,
-             int                   ku,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    kl,
+             ULMBLAS_INDEX_TYPE    ku,
              const double          *alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              const double          *beta,
              double                *y,
-             int                   incY)
+             ULMBLAS_INDEX_TYPE    incY)
 {
 //
 //  Test the input parameters
@@ -540,23 +547,24 @@ CBLAS(zgbmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_zgbmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
         ULMBLAS(zgbmv)(transA, m, n, kl, ku,
-                       alpha,
-                       A, ldA,
-                       x, incX,
-                       beta,
-                       y, incY);
+                                       alpha,
+                                       A, ldA,
+                                       x, incX,
+                                       beta,
+                                       y, incY);
     } else {
         transA = transpose(transA);
         ULMBLAS(zgbmv)(transA, n, m, ku, kl,
-                       alpha,
-                       A, ldA,
-                       x, incX,
-                       beta,
-                       y, incY);
+                                       alpha,
+                                       A, ldA,
+                                       x, incX,
+                                       beta,
+                                       y, incY);
      }
 }
 

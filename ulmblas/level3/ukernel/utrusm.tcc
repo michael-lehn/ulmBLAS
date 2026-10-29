@@ -10,7 +10,7 @@
 //
 //  Selected optimized micro kernel
 //
-#if defined(USE_SSE)
+#if defined(USE_SSE) && !defined(USE_AVX) && !defined(USE_BLIS_DGEMM)
 #   define  SELECT_UTRUSM_KERNEL    sse
 #   include <ulmblas/level3/ukernel/sse/utrusm.h>
 #else
@@ -34,11 +34,11 @@ utrusm(IndexType    mr,
        IndexType    incRowC,
        IndexType    incColC)
 {
-    const IndexType MR = BlockSizeUGemm<T>::MR;
-    const IndexType NR = BlockSizeUGemm<T>::NR;
+    constexpr IndexType MR = BlockSizeUGemm<T>::MR;
+    constexpr IndexType NR = BlockSizeUGemm<T>::NR;
 
     T   A_[MR*MR];
-    T   B_[MR*NR];
+    alignas(16) T   B_[MR*NR];      //  the SSE kernels load B with movapd
     T   C_[MR*NR];
 
     scal(MR*MR, T(0), A_, IndexType(1));
@@ -63,8 +63,8 @@ utrusm(const T     *A,
        IndexType   incRowC,
        IndexType   incColC)
 {
-    const IndexType MR = BlockSizeUGemm<T>::MR;
-    const IndexType NR = BlockSizeUGemm<T>::NR;
+    constexpr IndexType MR = BlockSizeUGemm<T>::MR;
+    constexpr IndexType NR = BlockSizeUGemm<T>::NR;
 
     utrusm(MR, NR, A, B, C, incRowC, incColC);
 }

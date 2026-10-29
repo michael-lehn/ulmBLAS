@@ -9,17 +9,17 @@ extern "C" {
 void
 ULMBLAS(sgemm)(enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_TRANSPOSE  transB,
-               int                   m,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                float                 alpha,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *B,
-               int                   ldB,
+               ULMBLAS_INDEX_TYPE    ldB,
                float                 beta,
                float                 *C,
-               int                   ldC)
+               ULMBLAS_INDEX_TYPE    ldC)
 {
 //
 //  Start the operations.
@@ -29,44 +29,44 @@ ULMBLAS(sgemm)(enum CBLAS_TRANSPOSE  transA,
 //
 //          Form  C := alpha*A*B + beta*C.
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          false, A, 1, ldA,
-                          false, B, 1, ldB,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          false, A, 1, ldA,
+                                          false, B, 1, ldB,
+                                          beta,
+                                          C, 1, ldC);
         } else {
 //
 //          Form  C := alpha*A**T*B + beta*C
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          false, A, ldA, 1,
-                          false, B, 1, ldB,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          false, A, ldA, 1,
+                                          false, B, 1, ldB,
+                                          beta,
+                                          C, 1, ldC);
         }
     } else {
         if (transA==CblasNoTrans || transA==AtlasConj) {
 //
 //          Form  C := alpha*A*B**T + beta*C
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          false, A, 1, ldA,
-                          false, B, ldB, 1,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          false, A, 1, ldA,
+                                          false, B, ldB, 1,
+                                          beta,
+                                          C, 1, ldC);
         } else {
 //
 //          Form  C := alpha*A**T*B**T + beta*C
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          false, A, ldA, 1,
-                          false, B, ldB, 1,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          false, A, ldA, 1,
+                                          false, B, ldB, 1,
+                                          beta,
+                                          C, 1, ldC);
         }
     }
 }
@@ -75,17 +75,17 @@ ULMBLAS(sgemm)(enum CBLAS_TRANSPOSE  transA,
 void
 ULMBLAS(dgemm)(enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_TRANSPOSE  transB,
-               int                   m,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                double                alpha,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *B,
-               int                   ldB,
+               ULMBLAS_INDEX_TYPE    ldB,
                double                beta,
                double                *C,
-               int                   ldC)
+               ULMBLAS_INDEX_TYPE    ldC)
 {
 //
 //  Start the operations.
@@ -95,44 +95,44 @@ ULMBLAS(dgemm)(enum CBLAS_TRANSPOSE  transA,
 //
 //          Form  C := alpha*A*B + beta*C.
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          false, A, 1, ldA,
-                          false, B, 1, ldB,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          false, A, 1, ldA,
+                                          false, B, 1, ldB,
+                                          beta,
+                                          C, 1, ldC);
         } else {
 //
 //          Form  C := alpha*A**T*B + beta*C
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          false, A, ldA, 1,
-                          false, B, 1, ldB,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          false, A, ldA, 1,
+                                          false, B, 1, ldB,
+                                          beta,
+                                          C, 1, ldC);
         }
     } else {
         if (transA==CblasNoTrans || transA==AtlasConj) {
 //
 //          Form  C := alpha*A*B**T + beta*C
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          false, A, 1, ldA,
-                          false, B, ldB, 1,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          false, A, 1, ldA,
+                                          false, B, ldB, 1,
+                                          beta,
+                                          C, 1, ldC);
         } else {
 //
 //          Form  C := alpha*A**T*B**T + beta*C
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          false, A, ldA, 1,
-                          false, B, ldB, 1,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          false, A, ldA, 1,
+                                          false, B, ldB, 1,
+                                          beta,
+                                          C, 1, ldC);
         }
     }
 }
@@ -140,17 +140,17 @@ ULMBLAS(dgemm)(enum CBLAS_TRANSPOSE  transA,
 void
 ULMBLAS(cgemm)(enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_TRANSPOSE  transB,
-               int                   m,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const float           *alpha_,
                const float           *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *B_,
-               int                   ldB,
+               ULMBLAS_INDEX_TYPE    ldB,
                const float           *beta_,
                float                 *C_,
-               int                   ldC)
+               ULMBLAS_INDEX_TYPE    ldC)
 {
     typedef std::complex<float> fcomplex;
 
@@ -172,44 +172,44 @@ ULMBLAS(cgemm)(enum CBLAS_TRANSPOSE  transA,
 //
 //          Form  C := alpha*A*B + beta*C.
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          conjA, A, 1, ldA,
-                          conjB, B, 1, ldB,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          conjA, A, 1, ldA,
+                                          conjB, B, 1, ldB,
+                                          beta,
+                                          C, 1, ldC);
         } else {
 //
 //          Form  C := alpha*A**T*B + beta*C
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          conjA, A, ldA, 1,
-                          conjB, B, 1, ldB,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          conjA, A, ldA, 1,
+                                          conjB, B, 1, ldB,
+                                          beta,
+                                          C, 1, ldC);
         }
     } else {
         if (transA==CblasNoTrans || transA==AtlasConj) {
 //
 //          Form  C := alpha*A*B**T + beta*C
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          conjA, A, 1, ldA,
-                          conjB, B, ldB, 1,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          conjA, A, 1, ldA,
+                                          conjB, B, ldB, 1,
+                                          beta,
+                                          C, 1, ldC);
         } else {
 //
 //          Form  C := alpha*A**T*B**T + beta*C
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          conjA, A, ldA, 1,
-                          conjB, B, ldB, 1,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          conjA, A, ldA, 1,
+                                          conjB, B, ldB, 1,
+                                          beta,
+                                          C, 1, ldC);
         }
     }
 }
@@ -218,17 +218,17 @@ ULMBLAS(cgemm)(enum CBLAS_TRANSPOSE  transA,
 void
 ULMBLAS(zgemm)(enum CBLAS_TRANSPOSE  transA,
                enum CBLAS_TRANSPOSE  transB,
-               int                   m,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const double          *alpha_,
                const double          *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *B_,
-               int                   ldB,
+               ULMBLAS_INDEX_TYPE    ldB,
                const double          *beta_,
                double                *C_,
-               int                   ldC)
+               ULMBLAS_INDEX_TYPE    ldC)
 {
     typedef std::complex<double> dcomplex;
 
@@ -250,44 +250,44 @@ ULMBLAS(zgemm)(enum CBLAS_TRANSPOSE  transA,
 //
 //          Form  C := alpha*A*B + beta*C.
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          conjA, A, 1, ldA,
-                          conjB, B, 1, ldB,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          conjA, A, 1, ldA,
+                                          conjB, B, 1, ldB,
+                                          beta,
+                                          C, 1, ldC);
         } else {
 //
 //          Form  C := alpha*A**T*B + beta*C
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          conjA, A, ldA, 1,
-                          conjB, B, 1, ldB,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          conjA, A, ldA, 1,
+                                          conjB, B, 1, ldB,
+                                          beta,
+                                          C, 1, ldC);
         }
     } else {
         if (transA==CblasNoTrans || transA==AtlasConj) {
 //
 //          Form  C := alpha*A*B**T + beta*C
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          conjA, A, 1, ldA,
-                          conjB, B, ldB, 1,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          conjA, A, 1, ldA,
+                                          conjB, B, ldB, 1,
+                                          beta,
+                                          C, 1, ldC);
         } else {
 //
 //          Form  C := alpha*A**T*B**T + beta*C
 //
-            ulmBLAS::gemm(m, n, k,
-                          alpha,
-                          conjA, A, ldA, 1,
-                          conjB, B, ldB, 1,
-                          beta,
-                          C, 1, ldC);
+            ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                          alpha,
+                                          conjA, A, ldA, 1,
+                                          conjB, B, ldB, 1,
+                                          beta,
+                                          C, 1, ldC);
         }
     }
 }
@@ -296,23 +296,23 @@ void
 CBLAS(sgemm)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              enum CBLAS_TRANSPOSE  transB,
-             int                   m,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              float                 alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const float           *B,
-             int                   ldB,
+             ULMBLAS_INDEX_TYPE    ldB,
              float                 beta,
              float                 *C,
-             int                   ldC)
+             ULMBLAS_INDEX_TYPE    ldC)
 {
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
-    int numRowsA;
-    int numRowsB;
+    ULMBLAS_INDEX_TYPE numRowsA;
+    ULMBLAS_INDEX_TYPE numRowsB;
 
     if (order==CblasColMajor) {
         numRowsA = (transA==CblasNoTrans || transA==AtlasConj) ? m : k;
@@ -345,11 +345,11 @@ CBLAS(sgemm)(enum CBLAS_ORDER      order,
                 info = 5;
             } else if (k<0) {
                 info = 6;
-            } else if (ldA<std::max(1,numRowsA)) {
+            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
                 info = 9;
-            } else if (ldB<std::max(1,numRowsB)) {
+            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
                 info = 11;
-            } else if (ldC<std::max(1,m)) {
+            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
                 info = 14;
             }
         } else {
@@ -359,11 +359,11 @@ CBLAS(sgemm)(enum CBLAS_ORDER      order,
                 info = 5;
             } else if (k<0) {
                 info = 6;
-            } else if (ldB<std::max(1,numRowsB)) {
+            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
                 info = 9;
-            } else if (ldA<std::max(1,numRowsA)) {
+            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
                 info = 11;
-            } else if (ldC<std::max(1,n)) {
+            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
                 info = 14;
             }
          }
@@ -371,6 +371,7 @@ CBLAS(sgemm)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_sgemm", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -392,23 +393,23 @@ void
 CBLAS(dgemm)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              enum CBLAS_TRANSPOSE  transB,
-             int                   m,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              double                alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *B,
-             int                   ldB,
+             ULMBLAS_INDEX_TYPE    ldB,
              double                beta,
              double                *C,
-             int                   ldC)
+             ULMBLAS_INDEX_TYPE    ldC)
 {
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
-    int numRowsA;
-    int numRowsB;
+    ULMBLAS_INDEX_TYPE numRowsA;
+    ULMBLAS_INDEX_TYPE numRowsB;
 
     if (order==CblasColMajor) {
         numRowsA = (transA==CblasNoTrans || transA==AtlasConj) ? m : k;
@@ -441,11 +442,11 @@ CBLAS(dgemm)(enum CBLAS_ORDER      order,
                 info = 5;
             } else if (k<0) {
                 info = 6;
-            } else if (ldA<std::max(1,numRowsA)) {
+            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
                 info = 9;
-            } else if (ldB<std::max(1,numRowsB)) {
+            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
                 info = 11;
-            } else if (ldC<std::max(1,m)) {
+            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
                 info = 14;
             }
         } else {
@@ -455,11 +456,11 @@ CBLAS(dgemm)(enum CBLAS_ORDER      order,
                 info = 5;
             } else if (k<0) {
                 info = 6;
-            } else if (ldB<std::max(1,numRowsB)) {
+            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
                 info = 9;
-            } else if (ldA<std::max(1,numRowsA)) {
+            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
                 info = 11;
-            } else if (ldC<std::max(1,n)) {
+            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
                 info = 14;
             }
          }
@@ -467,6 +468,7 @@ CBLAS(dgemm)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_dgemm", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -488,23 +490,23 @@ void
 CBLAS(cgemm)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              enum CBLAS_TRANSPOSE  transB,
-             int                   m,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const float           *alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const float           *B,
-             int                   ldB,
+             ULMBLAS_INDEX_TYPE    ldB,
              const float           *beta,
              float                 *C,
-             int                   ldC)
+             ULMBLAS_INDEX_TYPE    ldC)
 {
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
-    int numRowsA;
-    int numRowsB;
+    ULMBLAS_INDEX_TYPE numRowsA;
+    ULMBLAS_INDEX_TYPE numRowsB;
 
     if (order==CblasColMajor) {
         numRowsA = (transA==CblasNoTrans || transA==AtlasConj) ? m : k;
@@ -537,11 +539,11 @@ CBLAS(cgemm)(enum CBLAS_ORDER      order,
                 info = 5;
             } else if (k<0) {
                 info = 6;
-            } else if (ldA<std::max(1,numRowsA)) {
+            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
                 info = 9;
-            } else if (ldB<std::max(1,numRowsB)) {
+            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
                 info = 11;
-            } else if (ldC<std::max(1,m)) {
+            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
                 info = 14;
             }
         } else {
@@ -551,11 +553,11 @@ CBLAS(cgemm)(enum CBLAS_ORDER      order,
                 info = 5;
             } else if (k<0) {
                 info = 6;
-            } else if (ldB<std::max(1,numRowsB)) {
+            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
                 info = 9;
-            } else if (ldA<std::max(1,numRowsA)) {
+            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
                 info = 11;
-            } else if (ldC<std::max(1,n)) {
+            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
                 info = 14;
             }
          }
@@ -563,6 +565,7 @@ CBLAS(cgemm)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_cgemm", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -584,23 +587,23 @@ void
 CBLAS(zgemm)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              enum CBLAS_TRANSPOSE  transB,
-             int                   m,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const double          *alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *B,
-             int                   ldB,
+             ULMBLAS_INDEX_TYPE    ldB,
              const double          *beta,
              double                *C,
-             int                   ldC)
+             ULMBLAS_INDEX_TYPE    ldC)
 {
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
-    int numRowsA;
-    int numRowsB;
+    ULMBLAS_INDEX_TYPE numRowsA;
+    ULMBLAS_INDEX_TYPE numRowsB;
 
     if (order==CblasColMajor) {
         numRowsA = (transA==CblasNoTrans || transA==AtlasConj) ? m : k;
@@ -633,11 +636,11 @@ CBLAS(zgemm)(enum CBLAS_ORDER      order,
                 info = 5;
             } else if (k<0) {
                 info = 6;
-            } else if (ldA<std::max(1,numRowsA)) {
+            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
                 info = 9;
-            } else if (ldB<std::max(1,numRowsB)) {
+            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
                 info = 11;
-            } else if (ldC<std::max(1,m)) {
+            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
                 info = 14;
             }
         } else {
@@ -647,11 +650,11 @@ CBLAS(zgemm)(enum CBLAS_ORDER      order,
                 info = 5;
             } else if (k<0) {
                 info = 6;
-            } else if (ldB<std::max(1,numRowsB)) {
+            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
                 info = 9;
-            } else if (ldA<std::max(1,numRowsA)) {
+            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
                 info = 11;
-            } else if (ldC<std::max(1,n)) {
+            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
                 info = 14;
             }
          }
@@ -659,6 +662,7 @@ CBLAS(zgemm)(enum CBLAS_ORDER      order,
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_zgemm", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {

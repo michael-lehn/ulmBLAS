@@ -5,11 +5,11 @@
 extern "C" {
 
 void
-ULMBLAS(scopy)(int          n,
-           const float  *x,
-           int          incX,
-           float        *y,
-           int          incY)
+ULMBLAS(scopy)(ULMBLAS_INDEX_TYPE n,
+           const float            *x,
+           ULMBLAS_INDEX_TYPE     incX,
+           float                  *y,
+           ULMBLAS_INDEX_TYPE     incY)
 {
     if (incX<0) {
         x -= incX*(n-1);
@@ -17,15 +17,15 @@ ULMBLAS(scopy)(int          n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    return ulmBLAS::copy(n, false, x, incX, y, incY);
+    return ulmBLAS::copy<std::ptrdiff_t>(n, false, x, incX, y, incY);
 }
 
 void
-ULMBLAS(dcopy)(int          n,
-               const double *x,
-               int          incX,
-               double       *y,
-               int          incY)
+ULMBLAS(dcopy)(ULMBLAS_INDEX_TYPE n,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX,
+               double             *y,
+               ULMBLAS_INDEX_TYPE incY)
 {
     if (incX<0) {
         x -= incX*(n-1);
@@ -33,15 +33,15 @@ ULMBLAS(dcopy)(int          n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    return ulmBLAS::copy(n, false, x, incX, y, incY);
+    return ulmBLAS::copy<std::ptrdiff_t>(n, false, x, incX, y, incY);
 }
 
 void
-ULMBLAS(ccopy)(int          n,
-               const float  *x_,
-               int          incX,
-               float        *y_,
-               int          incY)
+ULMBLAS(ccopy)(ULMBLAS_INDEX_TYPE n,
+               const float        *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               float              *y_,
+               ULMBLAS_INDEX_TYPE incY)
 {
     typedef std::complex<float> fcomplex;
     const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
@@ -53,15 +53,15 @@ ULMBLAS(ccopy)(int          n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    return ulmBLAS::copy(n, false, x, incX, y, incY);
+    return ulmBLAS::copy<std::ptrdiff_t>(n, false, x, incX, y, incY);
 }
 
 void
-ULMBLAS(zcopy)(int          n,
-               const double *x_,
-               int          incX,
-               double       *y_,
-               int          incY)
+ULMBLAS(zcopy)(ULMBLAS_INDEX_TYPE n,
+               const double       *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               double             *y_,
+               ULMBLAS_INDEX_TYPE incY)
 {
     typedef std::complex<double> dcomplex;
     const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
@@ -73,45 +73,45 @@ ULMBLAS(zcopy)(int          n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    return ulmBLAS::copy(n, false, x, incX, y, incY);
+    return ulmBLAS::copy<std::ptrdiff_t>(n, false, x, incX, y, incY);
 }
 
 void
-CBLAS(scopy)(int          n,
-             const float  *x,
-             int          incX,
-             float        *y,
-             int          incY)
+CBLAS(scopy)(ULMBLAS_INDEX_TYPE n,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             float              *y,
+             ULMBLAS_INDEX_TYPE incY)
 {
     ULMBLAS(scopy)(n, x, incX, y, incY);
 }
 
 void
-CBLAS(dcopy)(int          n,
-             const double *x,
-             int          incX,
-             double       *y,
-             int          incY)
+CBLAS(dcopy)(ULMBLAS_INDEX_TYPE n,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             double             *y,
+             ULMBLAS_INDEX_TYPE incY)
 {
     ULMBLAS(dcopy)(n, x, incX, y, incY);
 }
 
 void
-CBLAS(ccopy)(int          n,
-             const float  *x,
-             int          incX,
-             float        *y,
-             int          incY)
+CBLAS(ccopy)(ULMBLAS_INDEX_TYPE n,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             float              *y,
+             ULMBLAS_INDEX_TYPE incY)
 {
     ULMBLAS(ccopy)(n, x, incX, y, incY);
 }
 
 void
-CBLAS(zcopy)(int          n,
-             const double *x,
-             int          incX,
-             double       *y,
-             int          incY)
+CBLAS(zcopy)(ULMBLAS_INDEX_TYPE n,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             double             *y,
+             ULMBLAS_INDEX_TYPE incY)
 {
     ULMBLAS(zcopy)(n, x, incX, y, incY);
 }

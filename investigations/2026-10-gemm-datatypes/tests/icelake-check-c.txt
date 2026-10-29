@@ -1,0 +1,13 @@
+host uc2n823.localdomain job 8050723 date 2026-10-28T17:59:38+01:00
+tarball b9a3f32fd1dcac146f4998cb52b02c7d635e25c4a2a9405e41f81b580245a425  /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/ct.tgz
+model name	: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+avx512 avx512bw avx512cd avx512dq avx512f avx512ifma avx512vbmi avx512vl 
+g++ (GCC) 14.2.0
+CONFIGS= c-blis_haswell_3x8 c-blis_haswell_3x8-small c-blis_haswell_8x3 c-blis_haswell_8x3-small c-blis_sandybridge_8x4 c-blis_sandybridge_8x4-small c-blis_aocl_haswell_3x8 c-blis_aocl_haswell_3x8-small c-openblas_haswell_8x2 c-openblas_haswell_8x2-small c-openblas_skylakex_8x2 c-openblas_skylakex_8x2-small
+MAKEARGS=
+make check exit 0 2026-10-28T18:14:07+01:00
+Summary (c-blis_haswell_3x8 c-blis_haswell_3x8-small c-blis_haswell_8x3 c-blis_haswell_8x3-small c-blis_sandybridge_8x4 c-blis_sandybridge_8x4-small c-blis_aocl_haswell_3x8 c-blis_aocl_haswell_3x8-small c-openblas_haswell_8x2 c-openblas_haswell_8x2-small c-openblas_skylakex_8x2 c-openblas_skylakex_8x2-small):
+  PASS 2082, FAIL 0, XFAIL 0, XPASS 0, DESIGN 24, SKIP 0
+
+Known issues: test/known_issues.md.  All results: test/build/check.log
+make[1]: Leaving directory '/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/icelake/xcheck-c1/src/test'

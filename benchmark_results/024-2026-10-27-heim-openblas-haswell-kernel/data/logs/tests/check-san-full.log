@@ -1,0 +1,522 @@
+PASS   T0510 [registry] registry/consistent for the standalone Netlib targets
+PASS   T0511 [registry] registry/rejects a missing test of a selected kind
+PASS   T0512 [registry] registry/tolerates numeric tests if they are not selected
+PASS   T0513 [registry] registry/rejects missing numeric tests if they are selected
+PASS   T0514 [registry] registry/rejects tests without or with unknown kind
+PASS   T0515 [registry] registry/rejects duplicate test IDs
+DESIGN T0600 [openblas-haswell_4x8] numeric/conventions/alpha=0 with NaN in unreferenced operands (#0002): sger ssymv ssyr ssyr2 sspr sspr2; dger dsymv dsyr dsyr2 dspr dspr2; cgeru cgerc chemv; zgeru zgerc zhemv
+DESIGN T0601 [openblas-haswell_4x8] numeric/conventions/i?amax with NaN and Inf (#0014): s: 3 0 1; d: 3 0 1; c: 3 0 1; z: 3 0 1
+PASS   T0700 [openblas-haswell_4x8] numeric/errors/cblas_dsyr with n=4, ldA=1
+PASS   T0701 [openblas-haswell_4x8] numeric/errors/invalid arguments of all checking CBLAS functions
+PASS   T0400 [openblas-haswell_4x8] numeric/lapack/dgetrf column major
+PASS   T0401 [openblas-haswell_4x8] numeric/lapack/dgetrf row major, square
+PASS   T0402 [openblas-haswell_4x8] numeric/lapack/dgetrf singular
+PASS   T0403 [openblas-haswell_4x8] numeric/lapack/dlaswp
+PASS   T0404 [openblas-haswell_4x8] numeric/lapack/dgetrf row major, m != n
+PASS   T0405 [openblas-haswell_4x8] numeric/lapack/dgetrf row major, singular
+PASS   T0406 [openblas-haswell_4x8] numeric/lapack/dgetrf pivot indices, column major
+PASS   T0407 [openblas-haswell_4x8] numeric/lapack/dgetrf pivot indices, row major
+PASS   T0100 [openblas-haswell_4x8] numeric/level1/axpy
+PASS   T0101 [openblas-haswell_4x8] numeric/level1/copy
+PASS   T0102 [openblas-haswell_4x8] numeric/level1/swap
+PASS   T0103 [openblas-haswell_4x8] numeric/level1/scal, csscal, zdscal
+PASS   T0104 [openblas-haswell_4x8] numeric/level1/dot, dotu, dotc
+PASS   T0105 [openblas-haswell_4x8] numeric/level1/nrm2
+PASS   T0106 [openblas-haswell_4x8] numeric/level1/nrm2 without overflow and underflow
+PASS   T0107 [openblas-haswell_4x8] numeric/level1/asum
+PASS   T0108 [openblas-haswell_4x8] numeric/level1/iamax
+PASS   T0109 [openblas-haswell_4x8] numeric/level1/rot
+PASS   T0110 [openblas-haswell_4x8] numeric/level1/rotg
+PASS   T0111 [openblas-haswell_4x8] numeric/level1/rotg with |a| == |b|
+PASS   T0112 [openblas-haswell_4x8] numeric/level1/rotg reference values
+PASS   T0113 [openblas-haswell_4x8] numeric/level1/srotm, drotm
+PASS   T0114 [openblas-haswell_4x8] numeric/level1/srotmg, drotmg reference values
+PASS   T0115 [openblas-haswell_4x8] numeric/level1/srotmg, drotmg: H*(x1,y1) = (x1',0) and H^T*D'*H = D, rescaling
+PASS   T0116 [openblas-haswell_4x8] numeric/level1/sdsdot, dsdot (double precision accumulation)
+PASS   T0117 [openblas-haswell_4x8] numeric/level1/crotg, zrotg
+PASS   T0118 [openblas-haswell_4x8] numeric/level1/csrot, zdrot
+PASS   T0119 [openblas-haswell_4x8] numeric/level1/scabs1, dcabs1
+PASS   T0120 [openblas-haswell_4x8] numeric/level1/nrm2 with Inf and NaN
+PASS   T0200 [openblas-haswell_4x8] numeric/level2/sgemv
+PASS   T0201 [openblas-haswell_4x8] numeric/level2/dgemv
+PASS   T0202 [openblas-haswell_4x8] numeric/level2/cgemv
+PASS   T0203 [openblas-haswell_4x8] numeric/level2/zgemv
+PASS   T0204 [openblas-haswell_4x8] numeric/level2/sger
+PASS   T0205 [openblas-haswell_4x8] numeric/level2/dger
+PASS   T0206 [openblas-haswell_4x8] numeric/level2/cgeru, cgerc
+PASS   T0207 [openblas-haswell_4x8] numeric/level2/zgeru, zgerc
+PASS   T0208 [openblas-haswell_4x8] numeric/level2/ssymv
+PASS   T0209 [openblas-haswell_4x8] numeric/level2/dsymv
+PASS   T0210 [openblas-haswell_4x8] numeric/level2/chemv
+PASS   T0211 [openblas-haswell_4x8] numeric/level2/zhemv
+PASS   T0212 [openblas-haswell_4x8] numeric/level2/ssyr
+PASS   T0213 [openblas-haswell_4x8] numeric/level2/dsyr
+PASS   T0214 [openblas-haswell_4x8] numeric/level2/cher
+PASS   T0215 [openblas-haswell_4x8] numeric/level2/zher
+PASS   T0216 [openblas-haswell_4x8] numeric/level2/ssyr2
+PASS   T0217 [openblas-haswell_4x8] numeric/level2/dsyr2
+PASS   T0218 [openblas-haswell_4x8] numeric/level2/cher2
+PASS   T0219 [openblas-haswell_4x8] numeric/level2/zher2
+PASS   T0220 [openblas-haswell_4x8] numeric/level2/strmv
+PASS   T0221 [openblas-haswell_4x8] numeric/level2/dtrmv
+PASS   T0222 [openblas-haswell_4x8] numeric/level2/ctrmv
+PASS   T0223 [openblas-haswell_4x8] numeric/level2/ztrmv
+PASS   T0224 [openblas-haswell_4x8] numeric/level2/strsv
+PASS   T0225 [openblas-haswell_4x8] numeric/level2/dtrsv
+PASS   T0226 [openblas-haswell_4x8] numeric/level2/ctrsv
+PASS   T0227 [openblas-haswell_4x8] numeric/level2/ztrsv
+PASS   T0228 [openblas-haswell_4x8] numeric/level2/sgbmv
+PASS   T0229 [openblas-haswell_4x8] numeric/level2/dgbmv
+PASS   T0230 [openblas-haswell_4x8] numeric/level2/cgbmv
+PASS   T0231 [openblas-haswell_4x8] numeric/level2/zgbmv
+PASS   T0232 [openblas-haswell_4x8] numeric/level2/ssbmv
+PASS   T0233 [openblas-haswell_4x8] numeric/level2/dsbmv
+PASS   T0234 [openblas-haswell_4x8] numeric/level2/chbmv
+PASS   T0235 [openblas-haswell_4x8] numeric/level2/zhbmv
+PASS   T0236 [openblas-haswell_4x8] numeric/level2/sspmv
+PASS   T0237 [openblas-haswell_4x8] numeric/level2/dspmv
+PASS   T0238 [openblas-haswell_4x8] numeric/level2/chpmv
+PASS   T0239 [openblas-haswell_4x8] numeric/level2/zhpmv
+PASS   T0240 [openblas-haswell_4x8] numeric/level2/stbmv
+PASS   T0241 [openblas-haswell_4x8] numeric/level2/dtbmv
+PASS   T0242 [openblas-haswell_4x8] numeric/level2/ctbmv
+PASS   T0243 [openblas-haswell_4x8] numeric/level2/ztbmv
+PASS   T0244 [openblas-haswell_4x8] numeric/level2/stbsv
+PASS   T0245 [openblas-haswell_4x8] numeric/level2/dtbsv
+PASS   T0246 [openblas-haswell_4x8] numeric/level2/ctbsv
+PASS   T0247 [openblas-haswell_4x8] numeric/level2/ztbsv
+PASS   T0248 [openblas-haswell_4x8] numeric/level2/stpmv
+PASS   T0249 [openblas-haswell_4x8] numeric/level2/dtpmv
+PASS   T0250 [openblas-haswell_4x8] numeric/level2/ctpmv
+PASS   T0251 [openblas-haswell_4x8] numeric/level2/ztpmv
+PASS   T0252 [openblas-haswell_4x8] numeric/level2/stpsv
+PASS   T0253 [openblas-haswell_4x8] numeric/level2/dtpsv
+PASS   T0254 [openblas-haswell_4x8] numeric/level2/ctpsv
+PASS   T0255 [openblas-haswell_4x8] numeric/level2/ztpsv
+PASS   T0256 [openblas-haswell_4x8] numeric/level2/sspr
+PASS   T0257 [openblas-haswell_4x8] numeric/level2/dspr
+PASS   T0258 [openblas-haswell_4x8] numeric/level2/chpr
+PASS   T0259 [openblas-haswell_4x8] numeric/level2/zhpr
+PASS   T0260 [openblas-haswell_4x8] numeric/level2/sspr2
+PASS   T0261 [openblas-haswell_4x8] numeric/level2/dspr2
+PASS   T0262 [openblas-haswell_4x8] numeric/level2/chpr2
+PASS   T0263 [openblas-haswell_4x8] numeric/level2/zhpr2
+PASS   T0300 [openblas-haswell_4x8] numeric/level3/sgemm
+PASS   T0301 [openblas-haswell_4x8] numeric/level3/dgemm
+PASS   T0302 [openblas-haswell_4x8] numeric/level3/cgemm
+PASS   T0303 [openblas-haswell_4x8] numeric/level3/zgemm
+PASS   T0304 [openblas-haswell_4x8] numeric/level3/sgemm large
+PASS   T0305 [openblas-haswell_4x8] numeric/level3/dgemm large
+PASS   T0306 [openblas-haswell_4x8] numeric/level3/cgemm large
+PASS   T0307 [openblas-haswell_4x8] numeric/level3/zgemm large
+PASS   T0334 [openblas-haswell_4x8] numeric/level3/dgemm all k mod 8 with partial panels
+PASS   T0352 [openblas-haswell_4x8] numeric/level3/dgemm small problems (direct path), all tile remainders, beta=0 with NaN in C
+PASS   T0308 [openblas-haswell_4x8] numeric/level3/ssymm
+PASS   T0309 [openblas-haswell_4x8] numeric/level3/dsymm
+PASS   T0310 [openblas-haswell_4x8] numeric/level3/csymm
+PASS   T0311 [openblas-haswell_4x8] numeric/level3/zsymm
+PASS   T0312 [openblas-haswell_4x8] numeric/level3/chemm
+PASS   T0313 [openblas-haswell_4x8] numeric/level3/zhemm
+PASS   T0314 [openblas-haswell_4x8] numeric/level3/ssyrk
+PASS   T0315 [openblas-haswell_4x8] numeric/level3/dsyrk
+PASS   T0316 [openblas-haswell_4x8] numeric/level3/csyrk
+PASS   T0317 [openblas-haswell_4x8] numeric/level3/zsyrk
+PASS   T0318 [openblas-haswell_4x8] numeric/level3/cherk
+PASS   T0319 [openblas-haswell_4x8] numeric/level3/zherk
+PASS   T0320 [openblas-haswell_4x8] numeric/level3/ssyr2k
+PASS   T0321 [openblas-haswell_4x8] numeric/level3/dsyr2k
+PASS   T0322 [openblas-haswell_4x8] numeric/level3/csyr2k
+PASS   T0323 [openblas-haswell_4x8] numeric/level3/zsyr2k
+PASS   T0324 [openblas-haswell_4x8] numeric/level3/cher2k
+PASS   T0325 [openblas-haswell_4x8] numeric/level3/zher2k
+PASS   T0326 [openblas-haswell_4x8] numeric/level3/strmm
+PASS   T0327 [openblas-haswell_4x8] numeric/level3/dtrmm
+PASS   T0328 [openblas-haswell_4x8] numeric/level3/ctrmm
+PASS   T0329 [openblas-haswell_4x8] numeric/level3/ztrmm
+PASS   T0330 [openblas-haswell_4x8] numeric/level3/strsm
+PASS   T0331 [openblas-haswell_4x8] numeric/level3/dtrsm
+PASS   T0332 [openblas-haswell_4x8] numeric/level3/ctrsm
+PASS   T0333 [openblas-haswell_4x8] numeric/level3/ztrsm
+PASS   T0350 [openblas-haswell_4x8] numeric/auxiliary/MemoryPool: distinct and reused blocks, sizes, pools, more blocks than cached, release(nullptr), release by another thread
+PASS   T0353 [openblas-haswell_4x8] numeric/auxiliary/MemoryPool: blocks aligned as the micro kernels require (32 bytes with AVX, 16 with SSE)
+PASS   T0351 [openblas-haswell_4x8] numeric/level3/dgemm from 8 threads at the same time, own matrices, irregular dimensions and leading dimensions
+PASS   T0340 [openblas-haswell_4x8] numeric/ukernel/ugemm full tiles
+PASS   T0341 [openblas-haswell_4x8] numeric/ukernel/ugemm partial tiles, unit stride C
+PASS   T0342 [openblas-haswell_4x8] numeric/ukernel/ugemm partial tiles, general strides of C
+PASS   T0343 [openblas-haswell_4x8] numeric/ukernel/gescal and ugemm partial tiles, general strides, alpha or beta=0 with NaN and Inf
+PASS   T0344 [openblas-haswell_4x8] numeric/ukernel/ugemm beta=NaN, full and partial tiles
+PASS   T0345 [openblas-haswell_4x8] numeric/ukernel/ugemm NaN and Inf in A and B
+PASS   T0346 [openblas-haswell_4x8] numeric/ukernel/trlscal and truscal, all strides, alpha=0 with NaN and Inf
+PASS   T0347 [openblas-haswell_4x8] numeric/ukernel/gepack_A and gepack_B, all strides, columns of A near and far apart
+PASS   T0348 [openblas-haswell_4x8] numeric/ukernel/gepack_A and gepack_B, k = 1 ... 25, all strides
+PASS   T0501 [openblas-haswell_4x8] header/cblas.h
+PASS   T0502 [openblas-haswell_4x8] header/clapack.h
+PASS   T0021 [openblas-haswell_4x8] netlib-C/c_sblat1
+PASS   T0022 [openblas-haswell_4x8] netlib-C/c_dblat1
+PASS   T0023 [openblas-haswell_4x8] netlib-C/c_cblat1
+PASS   T0024 [openblas-haswell_4x8] netlib-C/c_zblat1
+PASS   T0025 [openblas-haswell_4x8] netlib-C/c_sblat2
+PASS   T0026 [openblas-haswell_4x8] netlib-C/c_dblat2
+PASS   T0027 [openblas-haswell_4x8] netlib-C/c_cblat2
+PASS   T0028 [openblas-haswell_4x8] netlib-C/c_zblat2
+PASS   T0029 [openblas-haswell_4x8] netlib-C/c_sblat3
+PASS   T0030 [openblas-haswell_4x8] netlib-C/c_dblat3
+PASS   T0031 [openblas-haswell_4x8] netlib-C/c_cblat3
+PASS   T0032 [openblas-haswell_4x8] netlib-C/c_zblat3
+PASS   T0001 [openblas-haswell_4x8] netlib-F77/sblat1
+PASS   T0002 [openblas-haswell_4x8] netlib-F77/dblat1
+PASS   T0003 [openblas-haswell_4x8] netlib-F77/cblat1
+PASS   T0004 [openblas-haswell_4x8] netlib-F77/zblat1
+PASS   T0005 [openblas-haswell_4x8] netlib-F77/sblat2
+PASS   T0006 [openblas-haswell_4x8] netlib-F77/dblat2
+PASS   T0007 [openblas-haswell_4x8] netlib-F77/cblat2
+PASS   T0008 [openblas-haswell_4x8] netlib-F77/zblat2
+PASS   T0009 [openblas-haswell_4x8] netlib-F77/sblat3
+PASS   T0010 [openblas-haswell_4x8] netlib-F77/dblat3
+PASS   T0011 [openblas-haswell_4x8] netlib-F77/cblat3
+PASS   T0012 [openblas-haswell_4x8] netlib-F77/zblat3
+PASS   T0013 [openblas-haswell_4x8] netlib-F77/ublat1
+DESIGN T0600 [openblas-haswell_4x8-small] numeric/conventions/alpha=0 with NaN in unreferenced operands (#0002): sger ssymv ssyr ssyr2 sspr sspr2; dger dsymv dsyr dsyr2 dspr dspr2; cgeru cgerc chemv; zgeru zgerc zhemv
+DESIGN T0601 [openblas-haswell_4x8-small] numeric/conventions/i?amax with NaN and Inf (#0014): s: 3 0 1; d: 3 0 1; c: 3 0 1; z: 3 0 1
+PASS   T0700 [openblas-haswell_4x8-small] numeric/errors/cblas_dsyr with n=4, ldA=1
+PASS   T0701 [openblas-haswell_4x8-small] numeric/errors/invalid arguments of all checking CBLAS functions
+PASS   T0400 [openblas-haswell_4x8-small] numeric/lapack/dgetrf column major
+PASS   T0401 [openblas-haswell_4x8-small] numeric/lapack/dgetrf row major, square
+PASS   T0402 [openblas-haswell_4x8-small] numeric/lapack/dgetrf singular
+PASS   T0403 [openblas-haswell_4x8-small] numeric/lapack/dlaswp
+PASS   T0404 [openblas-haswell_4x8-small] numeric/lapack/dgetrf row major, m != n
+PASS   T0405 [openblas-haswell_4x8-small] numeric/lapack/dgetrf row major, singular
+PASS   T0406 [openblas-haswell_4x8-small] numeric/lapack/dgetrf pivot indices, column major
+PASS   T0407 [openblas-haswell_4x8-small] numeric/lapack/dgetrf pivot indices, row major
+PASS   T0100 [openblas-haswell_4x8-small] numeric/level1/axpy
+PASS   T0101 [openblas-haswell_4x8-small] numeric/level1/copy
+PASS   T0102 [openblas-haswell_4x8-small] numeric/level1/swap
+PASS   T0103 [openblas-haswell_4x8-small] numeric/level1/scal, csscal, zdscal
+PASS   T0104 [openblas-haswell_4x8-small] numeric/level1/dot, dotu, dotc
+PASS   T0105 [openblas-haswell_4x8-small] numeric/level1/nrm2
+PASS   T0106 [openblas-haswell_4x8-small] numeric/level1/nrm2 without overflow and underflow
+PASS   T0107 [openblas-haswell_4x8-small] numeric/level1/asum
+PASS   T0108 [openblas-haswell_4x8-small] numeric/level1/iamax
+PASS   T0109 [openblas-haswell_4x8-small] numeric/level1/rot
+PASS   T0110 [openblas-haswell_4x8-small] numeric/level1/rotg
+PASS   T0111 [openblas-haswell_4x8-small] numeric/level1/rotg with |a| == |b|
+PASS   T0112 [openblas-haswell_4x8-small] numeric/level1/rotg reference values
+PASS   T0113 [openblas-haswell_4x8-small] numeric/level1/srotm, drotm
+PASS   T0114 [openblas-haswell_4x8-small] numeric/level1/srotmg, drotmg reference values
+PASS   T0115 [openblas-haswell_4x8-small] numeric/level1/srotmg, drotmg: H*(x1,y1) = (x1',0) and H^T*D'*H = D, rescaling
+PASS   T0116 [openblas-haswell_4x8-small] numeric/level1/sdsdot, dsdot (double precision accumulation)
+PASS   T0117 [openblas-haswell_4x8-small] numeric/level1/crotg, zrotg
+PASS   T0118 [openblas-haswell_4x8-small] numeric/level1/csrot, zdrot
+PASS   T0119 [openblas-haswell_4x8-small] numeric/level1/scabs1, dcabs1
+PASS   T0120 [openblas-haswell_4x8-small] numeric/level1/nrm2 with Inf and NaN
+PASS   T0200 [openblas-haswell_4x8-small] numeric/level2/sgemv
+PASS   T0201 [openblas-haswell_4x8-small] numeric/level2/dgemv
+PASS   T0202 [openblas-haswell_4x8-small] numeric/level2/cgemv
+PASS   T0203 [openblas-haswell_4x8-small] numeric/level2/zgemv
+PASS   T0204 [openblas-haswell_4x8-small] numeric/level2/sger
+PASS   T0205 [openblas-haswell_4x8-small] numeric/level2/dger
+PASS   T0206 [openblas-haswell_4x8-small] numeric/level2/cgeru, cgerc
+PASS   T0207 [openblas-haswell_4x8-small] numeric/level2/zgeru, zgerc
+PASS   T0208 [openblas-haswell_4x8-small] numeric/level2/ssymv
+PASS   T0209 [openblas-haswell_4x8-small] numeric/level2/dsymv
+PASS   T0210 [openblas-haswell_4x8-small] numeric/level2/chemv
+PASS   T0211 [openblas-haswell_4x8-small] numeric/level2/zhemv
+PASS   T0212 [openblas-haswell_4x8-small] numeric/level2/ssyr
+PASS   T0213 [openblas-haswell_4x8-small] numeric/level2/dsyr
+PASS   T0214 [openblas-haswell_4x8-small] numeric/level2/cher
+PASS   T0215 [openblas-haswell_4x8-small] numeric/level2/zher
+PASS   T0216 [openblas-haswell_4x8-small] numeric/level2/ssyr2
+PASS   T0217 [openblas-haswell_4x8-small] numeric/level2/dsyr2
+PASS   T0218 [openblas-haswell_4x8-small] numeric/level2/cher2
+PASS   T0219 [openblas-haswell_4x8-small] numeric/level2/zher2
+PASS   T0220 [openblas-haswell_4x8-small] numeric/level2/strmv
+PASS   T0221 [openblas-haswell_4x8-small] numeric/level2/dtrmv
+PASS   T0222 [openblas-haswell_4x8-small] numeric/level2/ctrmv
+PASS   T0223 [openblas-haswell_4x8-small] numeric/level2/ztrmv
+PASS   T0224 [openblas-haswell_4x8-small] numeric/level2/strsv
+PASS   T0225 [openblas-haswell_4x8-small] numeric/level2/dtrsv
+PASS   T0226 [openblas-haswell_4x8-small] numeric/level2/ctrsv
+PASS   T0227 [openblas-haswell_4x8-small] numeric/level2/ztrsv
+PASS   T0228 [openblas-haswell_4x8-small] numeric/level2/sgbmv
+PASS   T0229 [openblas-haswell_4x8-small] numeric/level2/dgbmv
+PASS   T0230 [openblas-haswell_4x8-small] numeric/level2/cgbmv
+PASS   T0231 [openblas-haswell_4x8-small] numeric/level2/zgbmv
+PASS   T0232 [openblas-haswell_4x8-small] numeric/level2/ssbmv
+PASS   T0233 [openblas-haswell_4x8-small] numeric/level2/dsbmv
+PASS   T0234 [openblas-haswell_4x8-small] numeric/level2/chbmv
+PASS   T0235 [openblas-haswell_4x8-small] numeric/level2/zhbmv
+PASS   T0236 [openblas-haswell_4x8-small] numeric/level2/sspmv
+PASS   T0237 [openblas-haswell_4x8-small] numeric/level2/dspmv
+PASS   T0238 [openblas-haswell_4x8-small] numeric/level2/chpmv
+PASS   T0239 [openblas-haswell_4x8-small] numeric/level2/zhpmv
+PASS   T0240 [openblas-haswell_4x8-small] numeric/level2/stbmv
+PASS   T0241 [openblas-haswell_4x8-small] numeric/level2/dtbmv
+PASS   T0242 [openblas-haswell_4x8-small] numeric/level2/ctbmv
+PASS   T0243 [openblas-haswell_4x8-small] numeric/level2/ztbmv
+PASS   T0244 [openblas-haswell_4x8-small] numeric/level2/stbsv
+PASS   T0245 [openblas-haswell_4x8-small] numeric/level2/dtbsv
+PASS   T0246 [openblas-haswell_4x8-small] numeric/level2/ctbsv
+PASS   T0247 [openblas-haswell_4x8-small] numeric/level2/ztbsv
+PASS   T0248 [openblas-haswell_4x8-small] numeric/level2/stpmv
+PASS   T0249 [openblas-haswell_4x8-small] numeric/level2/dtpmv
+PASS   T0250 [openblas-haswell_4x8-small] numeric/level2/ctpmv
+PASS   T0251 [openblas-haswell_4x8-small] numeric/level2/ztpmv
+PASS   T0252 [openblas-haswell_4x8-small] numeric/level2/stpsv
+PASS   T0253 [openblas-haswell_4x8-small] numeric/level2/dtpsv
+PASS   T0254 [openblas-haswell_4x8-small] numeric/level2/ctpsv
+PASS   T0255 [openblas-haswell_4x8-small] numeric/level2/ztpsv
+PASS   T0256 [openblas-haswell_4x8-small] numeric/level2/sspr
+PASS   T0257 [openblas-haswell_4x8-small] numeric/level2/dspr
+PASS   T0258 [openblas-haswell_4x8-small] numeric/level2/chpr
+PASS   T0259 [openblas-haswell_4x8-small] numeric/level2/zhpr
+PASS   T0260 [openblas-haswell_4x8-small] numeric/level2/sspr2
+PASS   T0261 [openblas-haswell_4x8-small] numeric/level2/dspr2
+PASS   T0262 [openblas-haswell_4x8-small] numeric/level2/chpr2
+PASS   T0263 [openblas-haswell_4x8-small] numeric/level2/zhpr2
+PASS   T0300 [openblas-haswell_4x8-small] numeric/level3/sgemm
+PASS   T0301 [openblas-haswell_4x8-small] numeric/level3/dgemm
+PASS   T0302 [openblas-haswell_4x8-small] numeric/level3/cgemm
+PASS   T0303 [openblas-haswell_4x8-small] numeric/level3/zgemm
+PASS   T0304 [openblas-haswell_4x8-small] numeric/level3/sgemm large
+PASS   T0305 [openblas-haswell_4x8-small] numeric/level3/dgemm large
+PASS   T0306 [openblas-haswell_4x8-small] numeric/level3/cgemm large
+PASS   T0307 [openblas-haswell_4x8-small] numeric/level3/zgemm large
+PASS   T0334 [openblas-haswell_4x8-small] numeric/level3/dgemm all k mod 8 with partial panels
+PASS   T0352 [openblas-haswell_4x8-small] numeric/level3/dgemm small problems (direct path), all tile remainders, beta=0 with NaN in C
+PASS   T0308 [openblas-haswell_4x8-small] numeric/level3/ssymm
+PASS   T0309 [openblas-haswell_4x8-small] numeric/level3/dsymm
+PASS   T0310 [openblas-haswell_4x8-small] numeric/level3/csymm
+PASS   T0311 [openblas-haswell_4x8-small] numeric/level3/zsymm
+PASS   T0312 [openblas-haswell_4x8-small] numeric/level3/chemm
+PASS   T0313 [openblas-haswell_4x8-small] numeric/level3/zhemm
+PASS   T0314 [openblas-haswell_4x8-small] numeric/level3/ssyrk
+PASS   T0315 [openblas-haswell_4x8-small] numeric/level3/dsyrk
+PASS   T0316 [openblas-haswell_4x8-small] numeric/level3/csyrk
+PASS   T0317 [openblas-haswell_4x8-small] numeric/level3/zsyrk
+PASS   T0318 [openblas-haswell_4x8-small] numeric/level3/cherk
+PASS   T0319 [openblas-haswell_4x8-small] numeric/level3/zherk
+PASS   T0320 [openblas-haswell_4x8-small] numeric/level3/ssyr2k
+PASS   T0321 [openblas-haswell_4x8-small] numeric/level3/dsyr2k
+PASS   T0322 [openblas-haswell_4x8-small] numeric/level3/csyr2k
+PASS   T0323 [openblas-haswell_4x8-small] numeric/level3/zsyr2k
+PASS   T0324 [openblas-haswell_4x8-small] numeric/level3/cher2k
+PASS   T0325 [openblas-haswell_4x8-small] numeric/level3/zher2k
+PASS   T0326 [openblas-haswell_4x8-small] numeric/level3/strmm
+PASS   T0327 [openblas-haswell_4x8-small] numeric/level3/dtrmm
+PASS   T0328 [openblas-haswell_4x8-small] numeric/level3/ctrmm
+PASS   T0329 [openblas-haswell_4x8-small] numeric/level3/ztrmm
+PASS   T0330 [openblas-haswell_4x8-small] numeric/level3/strsm
+PASS   T0331 [openblas-haswell_4x8-small] numeric/level3/dtrsm
+PASS   T0332 [openblas-haswell_4x8-small] numeric/level3/ctrsm
+PASS   T0333 [openblas-haswell_4x8-small] numeric/level3/ztrsm
+PASS   T0350 [openblas-haswell_4x8-small] numeric/auxiliary/MemoryPool: distinct and reused blocks, sizes, pools, more blocks than cached, release(nullptr), release by another thread
+PASS   T0353 [openblas-haswell_4x8-small] numeric/auxiliary/MemoryPool: blocks aligned as the micro kernels require (32 bytes with AVX, 16 with SSE)
+PASS   T0351 [openblas-haswell_4x8-small] numeric/level3/dgemm from 8 threads at the same time, own matrices, irregular dimensions and leading dimensions
+PASS   T0340 [openblas-haswell_4x8-small] numeric/ukernel/ugemm full tiles
+PASS   T0341 [openblas-haswell_4x8-small] numeric/ukernel/ugemm partial tiles, unit stride C
+PASS   T0342 [openblas-haswell_4x8-small] numeric/ukernel/ugemm partial tiles, general strides of C
+PASS   T0343 [openblas-haswell_4x8-small] numeric/ukernel/gescal and ugemm partial tiles, general strides, alpha or beta=0 with NaN and Inf
+PASS   T0344 [openblas-haswell_4x8-small] numeric/ukernel/ugemm beta=NaN, full and partial tiles
+PASS   T0345 [openblas-haswell_4x8-small] numeric/ukernel/ugemm NaN and Inf in A and B
+PASS   T0346 [openblas-haswell_4x8-small] numeric/ukernel/trlscal and truscal, all strides, alpha=0 with NaN and Inf
+PASS   T0347 [openblas-haswell_4x8-small] numeric/ukernel/gepack_A and gepack_B, all strides, columns of A near and far apart
+PASS   T0348 [openblas-haswell_4x8-small] numeric/ukernel/gepack_A and gepack_B, k = 1 ... 25, all strides
+PASS   T0501 [openblas-haswell_4x8-small] header/cblas.h
+PASS   T0502 [openblas-haswell_4x8-small] header/clapack.h
+PASS   T0021 [openblas-haswell_4x8-small] netlib-C/c_sblat1
+PASS   T0022 [openblas-haswell_4x8-small] netlib-C/c_dblat1
+PASS   T0023 [openblas-haswell_4x8-small] netlib-C/c_cblat1
+PASS   T0024 [openblas-haswell_4x8-small] netlib-C/c_zblat1
+PASS   T0025 [openblas-haswell_4x8-small] netlib-C/c_sblat2
+PASS   T0026 [openblas-haswell_4x8-small] netlib-C/c_dblat2
+PASS   T0027 [openblas-haswell_4x8-small] netlib-C/c_cblat2
+PASS   T0028 [openblas-haswell_4x8-small] netlib-C/c_zblat2
+PASS   T0029 [openblas-haswell_4x8-small] netlib-C/c_sblat3
+PASS   T0030 [openblas-haswell_4x8-small] netlib-C/c_dblat3
+PASS   T0031 [openblas-haswell_4x8-small] netlib-C/c_cblat3
+PASS   T0032 [openblas-haswell_4x8-small] netlib-C/c_zblat3
+PASS   T0001 [openblas-haswell_4x8-small] netlib-F77/sblat1
+PASS   T0002 [openblas-haswell_4x8-small] netlib-F77/dblat1
+PASS   T0003 [openblas-haswell_4x8-small] netlib-F77/cblat1
+PASS   T0004 [openblas-haswell_4x8-small] netlib-F77/zblat1
+PASS   T0005 [openblas-haswell_4x8-small] netlib-F77/sblat2
+PASS   T0006 [openblas-haswell_4x8-small] netlib-F77/dblat2
+PASS   T0007 [openblas-haswell_4x8-small] netlib-F77/cblat2
+PASS   T0008 [openblas-haswell_4x8-small] netlib-F77/zblat2
+PASS   T0009 [openblas-haswell_4x8-small] netlib-F77/sblat3
+PASS   T0010 [openblas-haswell_4x8-small] netlib-F77/dblat3
+PASS   T0011 [openblas-haswell_4x8-small] netlib-F77/cblat3
+PASS   T0012 [openblas-haswell_4x8-small] netlib-F77/zblat3
+PASS   T0013 [openblas-haswell_4x8-small] netlib-F77/ublat1
+DESIGN T0600 [openblas-haswell_4x8-kc600] numeric/conventions/alpha=0 with NaN in unreferenced operands (#0002): sger ssymv ssyr ssyr2 sspr sspr2; dger dsymv dsyr dsyr2 dspr dspr2; cgeru cgerc chemv; zgeru zgerc zhemv
+DESIGN T0601 [openblas-haswell_4x8-kc600] numeric/conventions/i?amax with NaN and Inf (#0014): s: 3 0 1; d: 3 0 1; c: 3 0 1; z: 3 0 1
+PASS   T0700 [openblas-haswell_4x8-kc600] numeric/errors/cblas_dsyr with n=4, ldA=1
+PASS   T0701 [openblas-haswell_4x8-kc600] numeric/errors/invalid arguments of all checking CBLAS functions
+PASS   T0400 [openblas-haswell_4x8-kc600] numeric/lapack/dgetrf column major
+PASS   T0401 [openblas-haswell_4x8-kc600] numeric/lapack/dgetrf row major, square
+PASS   T0402 [openblas-haswell_4x8-kc600] numeric/lapack/dgetrf singular
+PASS   T0403 [openblas-haswell_4x8-kc600] numeric/lapack/dlaswp
+PASS   T0404 [openblas-haswell_4x8-kc600] numeric/lapack/dgetrf row major, m != n
+PASS   T0405 [openblas-haswell_4x8-kc600] numeric/lapack/dgetrf row major, singular
+PASS   T0406 [openblas-haswell_4x8-kc600] numeric/lapack/dgetrf pivot indices, column major
+PASS   T0407 [openblas-haswell_4x8-kc600] numeric/lapack/dgetrf pivot indices, row major
+PASS   T0100 [openblas-haswell_4x8-kc600] numeric/level1/axpy
+PASS   T0101 [openblas-haswell_4x8-kc600] numeric/level1/copy
+PASS   T0102 [openblas-haswell_4x8-kc600] numeric/level1/swap
+PASS   T0103 [openblas-haswell_4x8-kc600] numeric/level1/scal, csscal, zdscal
+PASS   T0104 [openblas-haswell_4x8-kc600] numeric/level1/dot, dotu, dotc
+PASS   T0105 [openblas-haswell_4x8-kc600] numeric/level1/nrm2
+PASS   T0106 [openblas-haswell_4x8-kc600] numeric/level1/nrm2 without overflow and underflow
+PASS   T0107 [openblas-haswell_4x8-kc600] numeric/level1/asum
+PASS   T0108 [openblas-haswell_4x8-kc600] numeric/level1/iamax
+PASS   T0109 [openblas-haswell_4x8-kc600] numeric/level1/rot
+PASS   T0110 [openblas-haswell_4x8-kc600] numeric/level1/rotg
+PASS   T0111 [openblas-haswell_4x8-kc600] numeric/level1/rotg with |a| == |b|
+PASS   T0112 [openblas-haswell_4x8-kc600] numeric/level1/rotg reference values
+PASS   T0113 [openblas-haswell_4x8-kc600] numeric/level1/srotm, drotm
+PASS   T0114 [openblas-haswell_4x8-kc600] numeric/level1/srotmg, drotmg reference values
+PASS   T0115 [openblas-haswell_4x8-kc600] numeric/level1/srotmg, drotmg: H*(x1,y1) = (x1',0) and H^T*D'*H = D, rescaling
+PASS   T0116 [openblas-haswell_4x8-kc600] numeric/level1/sdsdot, dsdot (double precision accumulation)
+PASS   T0117 [openblas-haswell_4x8-kc600] numeric/level1/crotg, zrotg
+PASS   T0118 [openblas-haswell_4x8-kc600] numeric/level1/csrot, zdrot
+PASS   T0119 [openblas-haswell_4x8-kc600] numeric/level1/scabs1, dcabs1
+PASS   T0120 [openblas-haswell_4x8-kc600] numeric/level1/nrm2 with Inf and NaN
+PASS   T0200 [openblas-haswell_4x8-kc600] numeric/level2/sgemv
+PASS   T0201 [openblas-haswell_4x8-kc600] numeric/level2/dgemv
+PASS   T0202 [openblas-haswell_4x8-kc600] numeric/level2/cgemv
+PASS   T0203 [openblas-haswell_4x8-kc600] numeric/level2/zgemv
+PASS   T0204 [openblas-haswell_4x8-kc600] numeric/level2/sger
+PASS   T0205 [openblas-haswell_4x8-kc600] numeric/level2/dger
+PASS   T0206 [openblas-haswell_4x8-kc600] numeric/level2/cgeru, cgerc
+PASS   T0207 [openblas-haswell_4x8-kc600] numeric/level2/zgeru, zgerc
+PASS   T0208 [openblas-haswell_4x8-kc600] numeric/level2/ssymv
+PASS   T0209 [openblas-haswell_4x8-kc600] numeric/level2/dsymv
+PASS   T0210 [openblas-haswell_4x8-kc600] numeric/level2/chemv
+PASS   T0211 [openblas-haswell_4x8-kc600] numeric/level2/zhemv
+PASS   T0212 [openblas-haswell_4x8-kc600] numeric/level2/ssyr
+PASS   T0213 [openblas-haswell_4x8-kc600] numeric/level2/dsyr
+PASS   T0214 [openblas-haswell_4x8-kc600] numeric/level2/cher
+PASS   T0215 [openblas-haswell_4x8-kc600] numeric/level2/zher
+PASS   T0216 [openblas-haswell_4x8-kc600] numeric/level2/ssyr2
+PASS   T0217 [openblas-haswell_4x8-kc600] numeric/level2/dsyr2
+PASS   T0218 [openblas-haswell_4x8-kc600] numeric/level2/cher2
+PASS   T0219 [openblas-haswell_4x8-kc600] numeric/level2/zher2
+PASS   T0220 [openblas-haswell_4x8-kc600] numeric/level2/strmv
+PASS   T0221 [openblas-haswell_4x8-kc600] numeric/level2/dtrmv
+PASS   T0222 [openblas-haswell_4x8-kc600] numeric/level2/ctrmv
+PASS   T0223 [openblas-haswell_4x8-kc600] numeric/level2/ztrmv
+PASS   T0224 [openblas-haswell_4x8-kc600] numeric/level2/strsv
+PASS   T0225 [openblas-haswell_4x8-kc600] numeric/level2/dtrsv
+PASS   T0226 [openblas-haswell_4x8-kc600] numeric/level2/ctrsv
+PASS   T0227 [openblas-haswell_4x8-kc600] numeric/level2/ztrsv
+PASS   T0228 [openblas-haswell_4x8-kc600] numeric/level2/sgbmv
+PASS   T0229 [openblas-haswell_4x8-kc600] numeric/level2/dgbmv
+PASS   T0230 [openblas-haswell_4x8-kc600] numeric/level2/cgbmv
+PASS   T0231 [openblas-haswell_4x8-kc600] numeric/level2/zgbmv
+PASS   T0232 [openblas-haswell_4x8-kc600] numeric/level2/ssbmv
+PASS   T0233 [openblas-haswell_4x8-kc600] numeric/level2/dsbmv
+PASS   T0234 [openblas-haswell_4x8-kc600] numeric/level2/chbmv
+PASS   T0235 [openblas-haswell_4x8-kc600] numeric/level2/zhbmv
+PASS   T0236 [openblas-haswell_4x8-kc600] numeric/level2/sspmv
+PASS   T0237 [openblas-haswell_4x8-kc600] numeric/level2/dspmv
+PASS   T0238 [openblas-haswell_4x8-kc600] numeric/level2/chpmv
+PASS   T0239 [openblas-haswell_4x8-kc600] numeric/level2/zhpmv
+PASS   T0240 [openblas-haswell_4x8-kc600] numeric/level2/stbmv
+PASS   T0241 [openblas-haswell_4x8-kc600] numeric/level2/dtbmv
+PASS   T0242 [openblas-haswell_4x8-kc600] numeric/level2/ctbmv
+PASS   T0243 [openblas-haswell_4x8-kc600] numeric/level2/ztbmv
+PASS   T0244 [openblas-haswell_4x8-kc600] numeric/level2/stbsv
+PASS   T0245 [openblas-haswell_4x8-kc600] numeric/level2/dtbsv
+PASS   T0246 [openblas-haswell_4x8-kc600] numeric/level2/ctbsv
+PASS   T0247 [openblas-haswell_4x8-kc600] numeric/level2/ztbsv
+PASS   T0248 [openblas-haswell_4x8-kc600] numeric/level2/stpmv
+PASS   T0249 [openblas-haswell_4x8-kc600] numeric/level2/dtpmv
+PASS   T0250 [openblas-haswell_4x8-kc600] numeric/level2/ctpmv
+PASS   T0251 [openblas-haswell_4x8-kc600] numeric/level2/ztpmv
+PASS   T0252 [openblas-haswell_4x8-kc600] numeric/level2/stpsv
+PASS   T0253 [openblas-haswell_4x8-kc600] numeric/level2/dtpsv
+PASS   T0254 [openblas-haswell_4x8-kc600] numeric/level2/ctpsv
+PASS   T0255 [openblas-haswell_4x8-kc600] numeric/level2/ztpsv
+PASS   T0256 [openblas-haswell_4x8-kc600] numeric/level2/sspr
+PASS   T0257 [openblas-haswell_4x8-kc600] numeric/level2/dspr
+PASS   T0258 [openblas-haswell_4x8-kc600] numeric/level2/chpr
+PASS   T0259 [openblas-haswell_4x8-kc600] numeric/level2/zhpr
+PASS   T0260 [openblas-haswell_4x8-kc600] numeric/level2/sspr2
+PASS   T0261 [openblas-haswell_4x8-kc600] numeric/level2/dspr2
+PASS   T0262 [openblas-haswell_4x8-kc600] numeric/level2/chpr2
+PASS   T0263 [openblas-haswell_4x8-kc600] numeric/level2/zhpr2
+PASS   T0300 [openblas-haswell_4x8-kc600] numeric/level3/sgemm
+PASS   T0301 [openblas-haswell_4x8-kc600] numeric/level3/dgemm
+PASS   T0302 [openblas-haswell_4x8-kc600] numeric/level3/cgemm
+PASS   T0303 [openblas-haswell_4x8-kc600] numeric/level3/zgemm
+PASS   T0304 [openblas-haswell_4x8-kc600] numeric/level3/sgemm large
+PASS   T0305 [openblas-haswell_4x8-kc600] numeric/level3/dgemm large
+PASS   T0306 [openblas-haswell_4x8-kc600] numeric/level3/cgemm large
+PASS   T0307 [openblas-haswell_4x8-kc600] numeric/level3/zgemm large
+PASS   T0334 [openblas-haswell_4x8-kc600] numeric/level3/dgemm all k mod 8 with partial panels
+PASS   T0352 [openblas-haswell_4x8-kc600] numeric/level3/dgemm small problems (direct path), all tile remainders, beta=0 with NaN in C
+PASS   T0308 [openblas-haswell_4x8-kc600] numeric/level3/ssymm
+PASS   T0309 [openblas-haswell_4x8-kc600] numeric/level3/dsymm
+PASS   T0310 [openblas-haswell_4x8-kc600] numeric/level3/csymm
+PASS   T0311 [openblas-haswell_4x8-kc600] numeric/level3/zsymm
+PASS   T0312 [openblas-haswell_4x8-kc600] numeric/level3/chemm
+PASS   T0313 [openblas-haswell_4x8-kc600] numeric/level3/zhemm
+PASS   T0314 [openblas-haswell_4x8-kc600] numeric/level3/ssyrk
+PASS   T0315 [openblas-haswell_4x8-kc600] numeric/level3/dsyrk
+PASS   T0316 [openblas-haswell_4x8-kc600] numeric/level3/csyrk
+PASS   T0317 [openblas-haswell_4x8-kc600] numeric/level3/zsyrk
+PASS   T0318 [openblas-haswell_4x8-kc600] numeric/level3/cherk
+PASS   T0319 [openblas-haswell_4x8-kc600] numeric/level3/zherk
+PASS   T0320 [openblas-haswell_4x8-kc600] numeric/level3/ssyr2k
+PASS   T0321 [openblas-haswell_4x8-kc600] numeric/level3/dsyr2k
+PASS   T0322 [openblas-haswell_4x8-kc600] numeric/level3/csyr2k
+PASS   T0323 [openblas-haswell_4x8-kc600] numeric/level3/zsyr2k
+PASS   T0324 [openblas-haswell_4x8-kc600] numeric/level3/cher2k
+PASS   T0325 [openblas-haswell_4x8-kc600] numeric/level3/zher2k
+PASS   T0326 [openblas-haswell_4x8-kc600] numeric/level3/strmm
+PASS   T0327 [openblas-haswell_4x8-kc600] numeric/level3/dtrmm
+PASS   T0328 [openblas-haswell_4x8-kc600] numeric/level3/ctrmm
+PASS   T0329 [openblas-haswell_4x8-kc600] numeric/level3/ztrmm
+PASS   T0330 [openblas-haswell_4x8-kc600] numeric/level3/strsm
+PASS   T0331 [openblas-haswell_4x8-kc600] numeric/level3/dtrsm
+PASS   T0332 [openblas-haswell_4x8-kc600] numeric/level3/ctrsm
+PASS   T0333 [openblas-haswell_4x8-kc600] numeric/level3/ztrsm
+PASS   T0350 [openblas-haswell_4x8-kc600] numeric/auxiliary/MemoryPool: distinct and reused blocks, sizes, pools, more blocks than cached, release(nullptr), release by another thread
+PASS   T0353 [openblas-haswell_4x8-kc600] numeric/auxiliary/MemoryPool: blocks aligned as the micro kernels require (32 bytes with AVX, 16 with SSE)
+PASS   T0351 [openblas-haswell_4x8-kc600] numeric/level3/dgemm from 8 threads at the same time, own matrices, irregular dimensions and leading dimensions
+PASS   T0340 [openblas-haswell_4x8-kc600] numeric/ukernel/ugemm full tiles
+PASS   T0341 [openblas-haswell_4x8-kc600] numeric/ukernel/ugemm partial tiles, unit stride C
+PASS   T0342 [openblas-haswell_4x8-kc600] numeric/ukernel/ugemm partial tiles, general strides of C
+PASS   T0343 [openblas-haswell_4x8-kc600] numeric/ukernel/gescal and ugemm partial tiles, general strides, alpha or beta=0 with NaN and Inf
+PASS   T0344 [openblas-haswell_4x8-kc600] numeric/ukernel/ugemm beta=NaN, full and partial tiles
+PASS   T0345 [openblas-haswell_4x8-kc600] numeric/ukernel/ugemm NaN and Inf in A and B
+PASS   T0346 [openblas-haswell_4x8-kc600] numeric/ukernel/trlscal and truscal, all strides, alpha=0 with NaN and Inf
+PASS   T0347 [openblas-haswell_4x8-kc600] numeric/ukernel/gepack_A and gepack_B, all strides, columns of A near and far apart
+PASS   T0348 [openblas-haswell_4x8-kc600] numeric/ukernel/gepack_A and gepack_B, k = 1 ... 25, all strides
+PASS   T0501 [openblas-haswell_4x8-kc600] header/cblas.h
+PASS   T0502 [openblas-haswell_4x8-kc600] header/clapack.h
+PASS   T0021 [openblas-haswell_4x8-kc600] netlib-C/c_sblat1
+PASS   T0022 [openblas-haswell_4x8-kc600] netlib-C/c_dblat1
+PASS   T0023 [openblas-haswell_4x8-kc600] netlib-C/c_cblat1
+PASS   T0024 [openblas-haswell_4x8-kc600] netlib-C/c_zblat1
+PASS   T0025 [openblas-haswell_4x8-kc600] netlib-C/c_sblat2
+PASS   T0026 [openblas-haswell_4x8-kc600] netlib-C/c_dblat2
+PASS   T0027 [openblas-haswell_4x8-kc600] netlib-C/c_cblat2
+PASS   T0028 [openblas-haswell_4x8-kc600] netlib-C/c_zblat2
+PASS   T0029 [openblas-haswell_4x8-kc600] netlib-C/c_sblat3
+PASS   T0030 [openblas-haswell_4x8-kc600] netlib-C/c_dblat3
+PASS   T0031 [openblas-haswell_4x8-kc600] netlib-C/c_cblat3
+PASS   T0032 [openblas-haswell_4x8-kc600] netlib-C/c_zblat3
+PASS   T0001 [openblas-haswell_4x8-kc600] netlib-F77/sblat1
+PASS   T0002 [openblas-haswell_4x8-kc600] netlib-F77/dblat1
+PASS   T0003 [openblas-haswell_4x8-kc600] netlib-F77/cblat1
+PASS   T0004 [openblas-haswell_4x8-kc600] netlib-F77/zblat1
+PASS   T0005 [openblas-haswell_4x8-kc600] netlib-F77/sblat2
+PASS   T0006 [openblas-haswell_4x8-kc600] netlib-F77/dblat2
+PASS   T0007 [openblas-haswell_4x8-kc600] netlib-F77/cblat2
+PASS   T0008 [openblas-haswell_4x8-kc600] netlib-F77/zblat2
+PASS   T0009 [openblas-haswell_4x8-kc600] netlib-F77/sblat3
+PASS   T0010 [openblas-haswell_4x8-kc600] netlib-F77/dblat3
+PASS   T0011 [openblas-haswell_4x8-kc600] netlib-F77/cblat3
+PASS   T0012 [openblas-haswell_4x8-kc600] netlib-F77/zblat3
+PASS   T0013 [openblas-haswell_4x8-kc600] netlib-F77/ublat1

@@ -16,15 +16,15 @@
 extern "C" {
 
 void
-ULMBLAS(sger)(int           m,
-              int           n,
-              float         alpha,
-              const float   *x,
-              int           incX,
-              const float   *y,
-              int           incY,
-              float         *A,
-              int           ldA)
+ULMBLAS(sger)(ULMBLAS_INDEX_TYPE m,
+              ULMBLAS_INDEX_TYPE n,
+              float              alpha,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX,
+              const float        *y,
+              ULMBLAS_INDEX_TYPE incY,
+              float              *A,
+              ULMBLAS_INDEX_TYPE ldA)
 {
     if (incX<0) {
         x -= incX*(m-1);
@@ -36,19 +36,19 @@ ULMBLAS(sger)(int           m,
 //
 //  Start the operations.
 //
-    ulmBLAS::ger(m, n, alpha, x, incX, y, incY, A, 1, ldA);
+    ulmBLAS::ger<std::ptrdiff_t>(m, n, alpha, x, incX, y, incY, A, 1, ldA);
 }
 
 void
-ULMBLAS(dger)(int           m,
-              int           n,
-              double        alpha,
-              const double  *x,
-              int           incX,
-              const double  *y,
-              int           incY,
-              double        *A,
-              int           ldA)
+ULMBLAS(dger)(ULMBLAS_INDEX_TYPE m,
+              ULMBLAS_INDEX_TYPE n,
+              double             alpha,
+              const double       *x,
+              ULMBLAS_INDEX_TYPE incX,
+              const double       *y,
+              ULMBLAS_INDEX_TYPE incY,
+              double             *A,
+              ULMBLAS_INDEX_TYPE ldA)
 {
     if (incX<0) {
         x -= incX*(m-1);
@@ -61,7 +61,7 @@ ULMBLAS(dger)(int           m,
 //
 //  Start the operations.
 //
-    ulmBLAS::ger(m, n, alpha, x, incX, y, incY, A, 1, ldA);
+    ulmBLAS::ger<std::ptrdiff_t>(m, n, alpha, x, incX, y, incY, A, 1, ldA);
 
 #else
 //
@@ -71,21 +71,23 @@ ULMBLAS(dger)(int           m,
     double *y_ = new double[n*incY*SCATTER_INCY];
     double *A_ = new double[ldA*n*SCATTER_INCROWA*SCATTER_INCCOLA];
 
-    ulmBLAS::copy(m, false, x, incX, x_, incX*SCATTER_INCX);
-    ulmBLAS::copy(m, false, y, incY, y_, incY*SCATTER_INCY);
-    ulmBLAS::gecopy(m, n, false,
-                    A, 1, ldA,
-                    A_, SCATTER_INCROWA, ldA*SCATTER_INCCOLA);
+    ulmBLAS::copy<std::ptrdiff_t>(m, false, x, incX, x_, incX*SCATTER_INCX);
+    ulmBLAS::copy<std::ptrdiff_t>(m, false, y, incY, y_, incY*SCATTER_INCY);
+    ulmBLAS::gecopy<std::ptrdiff_t>(m, n, false,
+                                    A, 1, ldA,
+                                    A_, SCATTER_INCROWA, ldA*SCATTER_INCCOLA);
 
 //
 //  Start the operations.
 //
-    ulmBLAS::ger(m, n, alpha,
-                 x_, incX*SCATTER_INCX,
-                 y_, incY*SCATTER_INCY,
-                 A_, SCATTER_INCROWA, ldA*SCATTER_INCCOLA);
+    ulmBLAS::ger<std::ptrdiff_t>(m, n, alpha,
+                                 x_, incX*SCATTER_INCX,
+                                 y_, incY*SCATTER_INCY,
+                                 A_, SCATTER_INCROWA, ldA*SCATTER_INCCOLA);
 
-    ulmBLAS::gecopy(m, n, A_, SCATTER_INCROWA, ldA*SCATTER_INCCOLA, A, 1, ldA);
+    ulmBLAS::gecopy<std::ptrdiff_t>(m, n,
+                                    A_, SCATTER_INCROWA, ldA*SCATTER_INCCOLA,
+                                    A, 1, ldA);
 //
 //  Gather result
 //
@@ -97,15 +99,15 @@ ULMBLAS(dger)(int           m,
 }
 
 void
-ULMBLAS(cgeru)(int           m,
-               int           n,
-               const float   *alpha_,
-               const float   *x_,
-               int           incX,
-               const float   *y_,
-               int           incY,
-               float         *A_,
-               int           ldA)
+ULMBLAS(cgeru)(ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               const float        *alpha_,
+               const float        *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               const float        *y_,
+               ULMBLAS_INDEX_TYPE incY,
+               float              *A_,
+               ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Start the operations.
@@ -124,19 +126,19 @@ ULMBLAS(cgeru)(int           m,
         y -= incY*(n-1);
     }
 
-    ulmBLAS::ger(m, n, alpha, x, incX, y, incY, A, 1, ldA);
+    ulmBLAS::ger<std::ptrdiff_t>(m, n, alpha, x, incX, y, incY, A, 1, ldA);
 }
 
 void
-ULMBLAS(zgeru)(int           m,
-               int           n,
-               const double  *alpha_,
-               const double  *x_,
-               int           incX,
-               const double  *y_,
-               int           incY,
-               double        *A_,
-               int           ldA)
+ULMBLAS(zgeru)(ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               const double       *alpha_,
+               const double       *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               const double       *y_,
+               ULMBLAS_INDEX_TYPE incY,
+               double             *A_,
+               ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Start the operations.
@@ -155,19 +157,19 @@ ULMBLAS(zgeru)(int           m,
         y -= incY*(n-1);
     }
 
-    ulmBLAS::ger(m, n, alpha, x, incX, y, incY, A, 1, ldA);
+    ulmBLAS::ger<std::ptrdiff_t>(m, n, alpha, x, incX, y, incY, A, 1, ldA);
 }
 
 void
-ULMBLAS(cgerc)(int           m,
-               int           n,
-               const float   *alpha_,
-               const float   *x_,
-               int           incX,
-               const float   *y_,
-               int           incY,
-               float         *A_,
-               int           ldA)
+ULMBLAS(cgerc)(ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               const float        *alpha_,
+               const float        *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               const float        *y_,
+               ULMBLAS_INDEX_TYPE incY,
+               float              *A_,
+               ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Start the operations.
@@ -186,19 +188,19 @@ ULMBLAS(cgerc)(int           m,
         y -= incY*(n-1);
     }
 
-    ulmBLAS::gerc(m, n, alpha, x, incX, y, incY, A, 1, ldA);
+    ulmBLAS::gerc<std::ptrdiff_t>(m, n, alpha, x, incX, y, incY, A, 1, ldA);
 }
 
 void
-ULMBLAS(cgerc_)(int           m,
-                int           n,
-                const float   *alpha_,
-                const float   *x_,
-                int           incX,
-                const float   *y_,
-                int           incY,
-                float         *A_,
-                int           ldA)
+ULMBLAS(cgerc_)(ULMBLAS_INDEX_TYPE m,
+                ULMBLAS_INDEX_TYPE n,
+                const float        *alpha_,
+                const float        *x_,
+                ULMBLAS_INDEX_TYPE incX,
+                const float        *y_,
+                ULMBLAS_INDEX_TYPE incY,
+                float              *A_,
+                ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Start the operations.
@@ -217,20 +219,21 @@ ULMBLAS(cgerc_)(int           m,
         y -= incY*(n-1);
     }
 
-    ulmBLAS::gerc(m, n, alpha, true, x, incX, y, incY, A, 1, ldA);
+    ulmBLAS::gerc<std::ptrdiff_t>(m, n, alpha, true, x, incX, y, incY,
+                                  A, 1, ldA);
 }
 
 
 void
-ULMBLAS(zgerc)(int           m,
-               int           n,
-               const double  *alpha_,
-               const double  *x_,
-               int           incX,
-               const double  *y_,
-               int           incY,
-               double        *A_,
-               int           ldA)
+ULMBLAS(zgerc)(ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n,
+               const double       *alpha_,
+               const double       *x_,
+               ULMBLAS_INDEX_TYPE incX,
+               const double       *y_,
+               ULMBLAS_INDEX_TYPE incY,
+               double             *A_,
+               ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Start the operations.
@@ -249,19 +252,19 @@ ULMBLAS(zgerc)(int           m,
         y -= incY*(n-1);
     }
 
-    ulmBLAS::gerc(m, n, alpha, x, incX, y, incY, A, 1, ldA);
+    ulmBLAS::gerc<std::ptrdiff_t>(m, n, alpha, x, incX, y, incY, A, 1, ldA);
 }
 
 void
-ULMBLAS(zgerc_)(int           m,
-                int           n,
-                const double  *alpha_,
-                const double  *x_,
-                int           incX,
-                const double  *y_,
-                int           incY,
-                double        *A_,
-                int           ldA)
+ULMBLAS(zgerc_)(ULMBLAS_INDEX_TYPE m,
+                ULMBLAS_INDEX_TYPE n,
+                const double       *alpha_,
+                const double       *x_,
+                ULMBLAS_INDEX_TYPE incX,
+                const double       *y_,
+                ULMBLAS_INDEX_TYPE incY,
+                double             *A_,
+                ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Start the operations.
@@ -280,25 +283,28 @@ ULMBLAS(zgerc_)(int           m,
         y -= incY*(n-1);
     }
 
-    ulmBLAS::gerc(m, n, alpha, true, x, incX, y, incY, A, 1, ldA);
+    ulmBLAS::gerc<std::ptrdiff_t>(m, n, alpha, true, x, incX, y, incY,
+                                  A, 1, ldA);
 }
 
 void
-CBLAS(sger)(enum CBLAS_ORDER  order,
-            int               m,
-            int               n,
-            float             alpha,
-            const float       *x,
-            int               incX,
-            const float       *y,
-            int               incY,
-            float             *A,
-            int               ldA)
+CBLAS(sger)(enum CBLAS_ORDER   order,
+            ULMBLAS_INDEX_TYPE m,
+            ULMBLAS_INDEX_TYPE n,
+            float              alpha,
+            const float        *x,
+            ULMBLAS_INDEX_TYPE incX,
+            const float        *y,
+            ULMBLAS_INDEX_TYPE incY,
+            float              *A,
+            ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Test the input parameters
 //
-    int ldAmin = (order==CblasColMajor) ? std::max(1,m) : std::max(1,n);
+    ULMBLAS_INDEX_TYPE ldAmin = (order==CblasColMajor)
+                              ? std::max<ULMBLAS_INDEX_TYPE>(1,m)
+                              : std::max<ULMBLAS_INDEX_TYPE>(1,n);
     int info = 0;
     if (order!=CblasColMajor && order!=CblasRowMajor) {
         info = 1;
@@ -343,6 +349,7 @@ CBLAS(sger)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_sger", "... bla bla ...");
+        return;
     }
 
 
@@ -355,21 +362,23 @@ CBLAS(sger)(enum CBLAS_ORDER  order,
 }
 
 void
-CBLAS(dger)(enum CBLAS_ORDER  order,
-            int               m,
-            int               n,
-            double            alpha,
-            const double      *x,
-            int               incX,
-            const double      *y,
-            int               incY,
-            double            *A,
-            int               ldA)
+CBLAS(dger)(enum CBLAS_ORDER   order,
+            ULMBLAS_INDEX_TYPE m,
+            ULMBLAS_INDEX_TYPE n,
+            double             alpha,
+            const double       *x,
+            ULMBLAS_INDEX_TYPE incX,
+            const double       *y,
+            ULMBLAS_INDEX_TYPE incY,
+            double             *A,
+            ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Test the input parameters
 //
-    int ldAmin = (order==CblasColMajor) ? std::max(1,m) : std::max(1,n);
+    ULMBLAS_INDEX_TYPE ldAmin = (order==CblasColMajor)
+                              ? std::max<ULMBLAS_INDEX_TYPE>(1,m)
+                              : std::max<ULMBLAS_INDEX_TYPE>(1,n);
     int info = 0;
     if (order!=CblasColMajor && order!=CblasRowMajor) {
         info = 1;
@@ -414,6 +423,7 @@ CBLAS(dger)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_dger", "... bla bla ...");
+        return;
     }
 
 
@@ -426,21 +436,23 @@ CBLAS(dger)(enum CBLAS_ORDER  order,
 }
 
 void
-CBLAS(cgeru)(enum CBLAS_ORDER  order,
-             int               m,
-             int               n,
-             const float       *alpha,
-             const float       *x,
-             int               incX,
-             const float       *y,
-             int               incY,
-             float             *A,
-             int               ldA)
+CBLAS(cgeru)(enum CBLAS_ORDER   order,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             const float        *alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const float        *y,
+             ULMBLAS_INDEX_TYPE incY,
+             float              *A,
+             ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Test the input parameters
 //
-    int ldAmin = (order==CblasColMajor) ? std::max(1,m) : std::max(1,n);
+    ULMBLAS_INDEX_TYPE ldAmin = (order==CblasColMajor)
+                              ? std::max<ULMBLAS_INDEX_TYPE>(1,m)
+                              : std::max<ULMBLAS_INDEX_TYPE>(1,n);
     int info = 0;
     if (order!=CblasColMajor && order!=CblasRowMajor) {
         info = 1;
@@ -485,6 +497,7 @@ CBLAS(cgeru)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_cgeru", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -496,21 +509,23 @@ CBLAS(cgeru)(enum CBLAS_ORDER  order,
 }
 
 void
-CBLAS(zgeru)(enum CBLAS_ORDER  order,
-             int               m,
-             int               n,
-             const double      *alpha,
-             const double      *x,
-             int               incX,
-             const double      *y,
-             int               incY,
-             double            *A,
-             int               ldA)
+CBLAS(zgeru)(enum CBLAS_ORDER   order,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             const double       *alpha,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const double       *y,
+             ULMBLAS_INDEX_TYPE incY,
+             double             *A,
+             ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Test the input parameters
 //
-    int ldAmin = (order==CblasColMajor) ? std::max(1,m) : std::max(1,n);
+    ULMBLAS_INDEX_TYPE ldAmin = (order==CblasColMajor)
+                              ? std::max<ULMBLAS_INDEX_TYPE>(1,m)
+                              : std::max<ULMBLAS_INDEX_TYPE>(1,n);
     int info = 0;
     if (order!=CblasColMajor && order!=CblasRowMajor) {
         info = 1;
@@ -555,6 +570,7 @@ CBLAS(zgeru)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_zgeru", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -566,21 +582,23 @@ CBLAS(zgeru)(enum CBLAS_ORDER  order,
 }
 
 void
-CBLAS(cgerc)(enum CBLAS_ORDER  order,
-             int               m,
-             int               n,
-             const float       *alpha,
-             const float       *x,
-             int               incX,
-             const float       *y,
-             int               incY,
-             float             *A,
-             int               ldA)
+CBLAS(cgerc)(enum CBLAS_ORDER   order,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             const float        *alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const float        *y,
+             ULMBLAS_INDEX_TYPE incY,
+             float              *A,
+             ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Test the input parameters
 //
-    int ldAmin = (order==CblasColMajor) ? std::max(1,m) : std::max(1,n);
+    ULMBLAS_INDEX_TYPE ldAmin = (order==CblasColMajor)
+                              ? std::max<ULMBLAS_INDEX_TYPE>(1,m)
+                              : std::max<ULMBLAS_INDEX_TYPE>(1,n);
     int info = 0;
     if (order!=CblasColMajor && order!=CblasRowMajor) {
         info = 1;
@@ -625,6 +643,7 @@ CBLAS(cgerc)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_cgerc", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -636,21 +655,23 @@ CBLAS(cgerc)(enum CBLAS_ORDER  order,
 }
 
 void
-CBLAS(zgerc)(enum CBLAS_ORDER  order,
-             int               m,
-             int               n,
-             const double      *alpha,
-             const double      *x,
-             int               incX,
-             const double      *y,
-             int               incY,
-             double            *A,
-             int               ldA)
+CBLAS(zgerc)(enum CBLAS_ORDER   order,
+             ULMBLAS_INDEX_TYPE m,
+             ULMBLAS_INDEX_TYPE n,
+             const double       *alpha,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const double       *y,
+             ULMBLAS_INDEX_TYPE incY,
+             double             *A,
+             ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Test the input parameters
 //
-    int ldAmin = (order==CblasColMajor) ? std::max(1,m) : std::max(1,n);
+    ULMBLAS_INDEX_TYPE ldAmin = (order==CblasColMajor)
+                              ? std::max<ULMBLAS_INDEX_TYPE>(1,m)
+                              : std::max<ULMBLAS_INDEX_TYPE>(1,n);
     int info = 0;
     if (order!=CblasColMajor && order!=CblasRowMajor) {
         info = 1;
@@ -695,6 +716,7 @@ CBLAS(zgerc)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_zgerc", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {

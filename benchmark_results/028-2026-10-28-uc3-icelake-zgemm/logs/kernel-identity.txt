@@ -1,0 +1,577 @@
+openblas corename SKYLAKEX
+openblas config OpenBLAS 0.3.34 NO_LAPACK NO_LAPACKE NO_AFFINITY SKYLAKEX SINGLE_THREADED
+openblas zgemm_p -1 zgemm_q -1 zgemm_r -1
+== blis-auto
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:50:7: error: conflicting types for ‘bli_sgemm_haswell_asm_6x16’; have ‘void(void)’
+   50 |     X(bli_sgemm_haswell_asm_6x16) X(bli_sgemm_haswell_asm_16x6) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+In file included from /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:42:
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_sgemm_haswell_asm_6x16’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:49:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:50:37: error: conflicting types for ‘bli_sgemm_haswell_asm_16x6’; have ‘void(void)’
+   50 |     X(bli_sgemm_haswell_asm_6x16) X(bli_sgemm_haswell_asm_16x6) \
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_sgemm_haswell_asm_16x6’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:55:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:51:7: error: conflicting types for ‘bli_dgemm_haswell_asm_6x8’; have ‘void(void)’
+   51 |     X(bli_dgemm_haswell_asm_6x8) X(bli_dgemm_haswell_asm_8x6) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_dgemm_haswell_asm_6x8’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:50:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:51:36: error: conflicting types for ‘bli_dgemm_haswell_asm_8x6’; have ‘void(void)’
+   51 |     X(bli_dgemm_haswell_asm_6x8) X(bli_dgemm_haswell_asm_8x6) \
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_dgemm_haswell_asm_8x6’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:56:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:52:7: error: conflicting types for ‘bli_cgemm_haswell_asm_3x8’; have ‘void(void)’
+   52 |     X(bli_cgemm_haswell_asm_3x8) X(bli_cgemm_haswell_asm_8x3) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_cgemm_haswell_asm_3x8’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:51:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:52:36: error: conflicting types for ‘bli_cgemm_haswell_asm_8x3’; have ‘void(void)’
+   52 |     X(bli_cgemm_haswell_asm_3x8) X(bli_cgemm_haswell_asm_8x3) \
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_cgemm_haswell_asm_8x3’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:57:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:53:7: error: conflicting types for ‘bli_zgemm_haswell_asm_3x4’; have ‘void(void)’
+   53 |     X(bli_zgemm_haswell_asm_3x4) X(bli_zgemm_haswell_asm_4x3) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_zgemm_haswell_asm_3x4’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:52:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:53:36: error: conflicting types for ‘bli_zgemm_haswell_asm_4x3’; have ‘void(void)’
+   53 |     X(bli_zgemm_haswell_asm_3x4) X(bli_zgemm_haswell_asm_4x3) \
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_zgemm_haswell_asm_4x3’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:58:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:56:7: error: conflicting types for ‘bli_sgemm_skx_asm_32x12_l2’; have ‘void(void)’
+   56 |     X(bli_sgemm_skx_asm_32x12_l2) X(bli_dgemm_skx_asm_16x14) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_sgemm_skx_asm_32x12_l2’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/skx//bli_kernels_skx.h:36:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:56:37: error: conflicting types for ‘bli_dgemm_skx_asm_16x14’; have ‘void(void)’
+   56 |     X(bli_sgemm_skx_asm_32x12_l2) X(bli_dgemm_skx_asm_16x14) \
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_dgemm_skx_asm_16x14’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/skx//bli_kernels_skx.h:40:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+== blis-haswell
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:50:7: error: conflicting types for ‘bli_sgemm_haswell_asm_6x16’; have ‘void(void)’
+   50 |     X(bli_sgemm_haswell_asm_6x16) X(bli_sgemm_haswell_asm_16x6) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+In file included from /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:42:
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_sgemm_haswell_asm_6x16’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:49:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:50:37: error: conflicting types for ‘bli_sgemm_haswell_asm_16x6’; have ‘void(void)’
+   50 |     X(bli_sgemm_haswell_asm_6x16) X(bli_sgemm_haswell_asm_16x6) \
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_sgemm_haswell_asm_16x6’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:55:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:51:7: error: conflicting types for ‘bli_dgemm_haswell_asm_6x8’; have ‘void(void)’
+   51 |     X(bli_dgemm_haswell_asm_6x8) X(bli_dgemm_haswell_asm_8x6) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_dgemm_haswell_asm_6x8’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:50:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:51:36: error: conflicting types for ‘bli_dgemm_haswell_asm_8x6’; have ‘void(void)’
+   51 |     X(bli_dgemm_haswell_asm_6x8) X(bli_dgemm_haswell_asm_8x6) \
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_dgemm_haswell_asm_8x6’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:56:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:52:7: error: conflicting types for ‘bli_cgemm_haswell_asm_3x8’; have ‘void(void)’
+   52 |     X(bli_cgemm_haswell_asm_3x8) X(bli_cgemm_haswell_asm_8x3) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_cgemm_haswell_asm_3x8’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:51:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:52:36: error: conflicting types for ‘bli_cgemm_haswell_asm_8x3’; have ‘void(void)’
+   52 |     X(bli_cgemm_haswell_asm_3x8) X(bli_cgemm_haswell_asm_8x3) \
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_cgemm_haswell_asm_8x3’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:57:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:53:7: error: conflicting types for ‘bli_zgemm_haswell_asm_3x4’; have ‘void(void)’
+   53 |     X(bli_zgemm_haswell_asm_3x4) X(bli_zgemm_haswell_asm_4x3) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_zgemm_haswell_asm_3x4’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:52:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:53:36: error: conflicting types for ‘bli_zgemm_haswell_asm_4x3’; have ‘void(void)’
+   53 |     X(bli_zgemm_haswell_asm_3x4) X(bli_zgemm_haswell_asm_4x3) \
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+./frame/include//bli_macro_defs.h:51:48: note: previous declaration of ‘bli_zgemm_haswell_asm_4x3’ with type ‘void(dim_t,  dim_t,  dim_t,  const void *, const void *, const void *, const void *, void *, inc_t,  inc_t,  const auxinfo_t *, const cntx_t *)’ {aka ‘void(long int,  long int,  long int,  const void *, const void *, const void *, const void *, void *, long int,  long int,  const auxinfo_t *, const struct cntx_s *)’}
+./frame/include//bli_macro_defs.h:58:65: note: in expansion of macro ‘PASTEMAC1_’
+./frame/include//bli_macro_defs.h:59:24: note: in expansion of macro ‘PASTEMAC__’
+./frame/include//bli_macro_defs.h:60:23: note: in expansion of macro ‘PASTEMAC_’
+./frame/3//bli_l3_ukr_prot.h:46:6: note: in expansion of macro ‘PASTEMAC’
+./frame/3//bli_l3_ukr_prot.h:55:45: note: in expansion of macro ‘L3TPROT’
+./kernels/haswell//bli_kernels_haswell.h:58:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+== aocl
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:50:7: error: conflicting types for ‘bli_sgemm_haswell_asm_6x16’; have ‘void(void)’
+   50 |     X(bli_sgemm_haswell_asm_6x16) X(bli_sgemm_haswell_asm_16x6) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+In file included from /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:42:
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2488:36: note: previous declaration of ‘bli_sgemm_haswell_asm_6x16’ with type ‘void(dim_t,  float * restrict,  float * restrict,  float * restrict,  float * restrict,  float * restrict,  inc_t,  inc_t,  auxinfo_t * restrict,  cntx_t * restrict)’ {aka ‘void(long int,  float * restrict,  float * restrict,  float * restrict,  float * restrict,  float * restrict,  long int,  long int,  auxinfo_t * restrict,  struct cntx_s * restrict)’}
+ 2488 | #define PASTEMAC_(ch,op)           bli_ ## ch  ## op
+      |                                    ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2489:36: note: in expansion of macro ‘PASTEMAC_’
+ 2489 | #define PASTEMAC(ch,op)            PASTEMAC_(ch,op)
+      |                                    ^~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21538:6: note: in expansion of macro ‘PASTEMAC’
+21538 | void PASTEMAC(ch,opname) \
+      |      ^~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21534:44: note: in expansion of macro ‘GEMM_UKR_PROT2’
+21534 | #define GEMM_UKR_PROT( ctype, ch, opname ) GEMM_UKR_PROT2(ctype, ctype, ch, opname)
+      |                                            ^~~~~~~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:22129:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+22129 | GEMM_UKR_PROT( float,    s, gemm_haswell_asm_6x16 )
+      | ^~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:50:37: error: conflicting types for ‘bli_sgemm_haswell_asm_16x6’; have ‘void(void)’
+   50 |     X(bli_sgemm_haswell_asm_6x16) X(bli_sgemm_haswell_asm_16x6) \
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2488:36: note: previous declaration of ‘bli_sgemm_haswell_asm_16x6’ with type ‘void(dim_t,  float * restrict,  float * restrict,  float * restrict,  float * restrict,  float * restrict,  inc_t,  inc_t,  auxinfo_t * restrict,  cntx_t * restrict)’ {aka ‘void(long int,  float * restrict,  float * restrict,  float * restrict,  float * restrict,  float * restrict,  long int,  long int,  auxinfo_t * restrict,  struct cntx_s * restrict)’}
+ 2488 | #define PASTEMAC_(ch,op)           bli_ ## ch  ## op
+      |                                    ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2489:36: note: in expansion of macro ‘PASTEMAC_’
+ 2489 | #define PASTEMAC(ch,op)            PASTEMAC_(ch,op)
+      |                                    ^~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21538:6: note: in expansion of macro ‘PASTEMAC’
+21538 | void PASTEMAC(ch,opname) \
+      |      ^~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21534:44: note: in expansion of macro ‘GEMM_UKR_PROT2’
+21534 | #define GEMM_UKR_PROT( ctype, ch, opname ) GEMM_UKR_PROT2(ctype, ctype, ch, opname)
+      |                                            ^~~~~~~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:22135:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+22135 | GEMM_UKR_PROT( float,    s, gemm_haswell_asm_16x6 )
+      | ^~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:51:7: error: conflicting types for ‘bli_dgemm_haswell_asm_6x8’; have ‘void(void)’
+   51 |     X(bli_dgemm_haswell_asm_6x8) X(bli_dgemm_haswell_asm_8x6) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2488:36: note: previous declaration of ‘bli_dgemm_haswell_asm_6x8’ with type ‘void(dim_t,  double * restrict,  double * restrict,  double * restrict,  double * restrict,  double * restrict,  inc_t,  inc_t,  auxinfo_t * restrict,  cntx_t * restrict)’ {aka ‘void(long int,  double * restrict,  double * restrict,  double * restrict,  double * restrict,  double * restrict,  long int,  long int,  auxinfo_t * restrict,  struct cntx_s * restrict)’}
+ 2488 | #define PASTEMAC_(ch,op)           bli_ ## ch  ## op
+      |                                    ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2489:36: note: in expansion of macro ‘PASTEMAC_’
+ 2489 | #define PASTEMAC(ch,op)            PASTEMAC_(ch,op)
+      |                                    ^~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21538:6: note: in expansion of macro ‘PASTEMAC’
+21538 | void PASTEMAC(ch,opname) \
+      |      ^~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21534:44: note: in expansion of macro ‘GEMM_UKR_PROT2’
+21534 | #define GEMM_UKR_PROT( ctype, ch, opname ) GEMM_UKR_PROT2(ctype, ctype, ch, opname)
+      |                                            ^~~~~~~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:22130:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+22130 | GEMM_UKR_PROT( double,   d, gemm_haswell_asm_6x8 )
+      | ^~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:51:36: error: conflicting types for ‘bli_dgemm_haswell_asm_8x6’; have ‘void(void)’
+   51 |     X(bli_dgemm_haswell_asm_6x8) X(bli_dgemm_haswell_asm_8x6) \
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2488:36: note: previous declaration of ‘bli_dgemm_haswell_asm_8x6’ with type ‘void(dim_t,  double * restrict,  double * restrict,  double * restrict,  double * restrict,  double * restrict,  inc_t,  inc_t,  auxinfo_t * restrict,  cntx_t * restrict)’ {aka ‘void(long int,  double * restrict,  double * restrict,  double * restrict,  double * restrict,  double * restrict,  long int,  long int,  auxinfo_t * restrict,  struct cntx_s * restrict)’}
+ 2488 | #define PASTEMAC_(ch,op)           bli_ ## ch  ## op
+      |                                    ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2489:36: note: in expansion of macro ‘PASTEMAC_’
+ 2489 | #define PASTEMAC(ch,op)            PASTEMAC_(ch,op)
+      |                                    ^~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21538:6: note: in expansion of macro ‘PASTEMAC’
+21538 | void PASTEMAC(ch,opname) \
+      |      ^~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21534:44: note: in expansion of macro ‘GEMM_UKR_PROT2’
+21534 | #define GEMM_UKR_PROT( ctype, ch, opname ) GEMM_UKR_PROT2(ctype, ctype, ch, opname)
+      |                                            ^~~~~~~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:22136:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+22136 | GEMM_UKR_PROT( double,   d, gemm_haswell_asm_8x6 )
+      | ^~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:52:7: error: conflicting types for ‘bli_cgemm_haswell_asm_3x8’; have ‘void(void)’
+   52 |     X(bli_cgemm_haswell_asm_3x8) X(bli_cgemm_haswell_asm_8x3) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2488:36: note: previous declaration of ‘bli_cgemm_haswell_asm_3x8’ with type ‘void(dim_t,  scomplex * restrict,  scomplex * restrict,  scomplex * restrict,  scomplex * restrict,  scomplex * restrict,  inc_t,  inc_t,  auxinfo_t * restrict,  cntx_t * restrict)’ {aka ‘void(long int,  scomplex * restrict,  scomplex * restrict,  scomplex * restrict,  scomplex * restrict,  scomplex * restrict,  long int,  long int,  auxinfo_t * restrict,  struct cntx_s * restrict)’}
+ 2488 | #define PASTEMAC_(ch,op)           bli_ ## ch  ## op
+      |                                    ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2489:36: note: in expansion of macro ‘PASTEMAC_’
+ 2489 | #define PASTEMAC(ch,op)            PASTEMAC_(ch,op)
+      |                                    ^~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21538:6: note: in expansion of macro ‘PASTEMAC’
+21538 | void PASTEMAC(ch,opname) \
+      |      ^~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21534:44: note: in expansion of macro ‘GEMM_UKR_PROT2’
+21534 | #define GEMM_UKR_PROT( ctype, ch, opname ) GEMM_UKR_PROT2(ctype, ctype, ch, opname)
+      |                                            ^~~~~~~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:22131:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+22131 | GEMM_UKR_PROT( scomplex, c, gemm_haswell_asm_3x8 )
+      | ^~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:52:36: error: conflicting types for ‘bli_cgemm_haswell_asm_8x3’; have ‘void(void)’
+   52 |     X(bli_cgemm_haswell_asm_3x8) X(bli_cgemm_haswell_asm_8x3) \
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2488:36: note: previous declaration of ‘bli_cgemm_haswell_asm_8x3’ with type ‘void(dim_t,  scomplex * restrict,  scomplex * restrict,  scomplex * restrict,  scomplex * restrict,  scomplex * restrict,  inc_t,  inc_t,  auxinfo_t * restrict,  cntx_t * restrict)’ {aka ‘void(long int,  scomplex * restrict,  scomplex * restrict,  scomplex * restrict,  scomplex * restrict,  scomplex * restrict,  long int,  long int,  auxinfo_t * restrict,  struct cntx_s * restrict)’}
+ 2488 | #define PASTEMAC_(ch,op)           bli_ ## ch  ## op
+      |                                    ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2489:36: note: in expansion of macro ‘PASTEMAC_’
+ 2489 | #define PASTEMAC(ch,op)            PASTEMAC_(ch,op)
+      |                                    ^~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21538:6: note: in expansion of macro ‘PASTEMAC’
+21538 | void PASTEMAC(ch,opname) \
+      |      ^~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21534:44: note: in expansion of macro ‘GEMM_UKR_PROT2’
+21534 | #define GEMM_UKR_PROT( ctype, ch, opname ) GEMM_UKR_PROT2(ctype, ctype, ch, opname)
+      |                                            ^~~~~~~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:22137:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+22137 | GEMM_UKR_PROT( scomplex, c, gemm_haswell_asm_8x3 )
+      | ^~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:53:7: error: conflicting types for ‘bli_zgemm_haswell_asm_3x4’; have ‘void(void)’
+   53 |     X(bli_zgemm_haswell_asm_3x4) X(bli_zgemm_haswell_asm_4x3) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2488:36: note: previous declaration of ‘bli_zgemm_haswell_asm_3x4’ with type ‘void(dim_t,  dcomplex * restrict,  dcomplex * restrict,  dcomplex * restrict,  dcomplex * restrict,  dcomplex * restrict,  inc_t,  inc_t,  auxinfo_t * restrict,  cntx_t * restrict)’ {aka ‘void(long int,  dcomplex * restrict,  dcomplex * restrict,  dcomplex * restrict,  dcomplex * restrict,  dcomplex * restrict,  long int,  long int,  auxinfo_t * restrict,  struct cntx_s * restrict)’}
+ 2488 | #define PASTEMAC_(ch,op)           bli_ ## ch  ## op
+      |                                    ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2489:36: note: in expansion of macro ‘PASTEMAC_’
+ 2489 | #define PASTEMAC(ch,op)            PASTEMAC_(ch,op)
+      |                                    ^~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21538:6: note: in expansion of macro ‘PASTEMAC’
+21538 | void PASTEMAC(ch,opname) \
+      |      ^~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21534:44: note: in expansion of macro ‘GEMM_UKR_PROT2’
+21534 | #define GEMM_UKR_PROT( ctype, ch, opname ) GEMM_UKR_PROT2(ctype, ctype, ch, opname)
+      |                                            ^~~~~~~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:22132:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+22132 | GEMM_UKR_PROT( dcomplex, z, gemm_haswell_asm_3x4 )
+      | ^~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:53:36: error: conflicting types for ‘bli_zgemm_haswell_asm_4x3’; have ‘void(void)’
+   53 |     X(bli_zgemm_haswell_asm_3x4) X(bli_zgemm_haswell_asm_4x3) \
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2488:36: note: previous declaration of ‘bli_zgemm_haswell_asm_4x3’ with type ‘void(dim_t,  dcomplex * restrict,  dcomplex * restrict,  dcomplex * restrict,  dcomplex * restrict,  dcomplex * restrict,  inc_t,  inc_t,  auxinfo_t * restrict,  cntx_t * restrict)’ {aka ‘void(long int,  dcomplex * restrict,  dcomplex * restrict,  dcomplex * restrict,  dcomplex * restrict,  dcomplex * restrict,  long int,  long int,  auxinfo_t * restrict,  struct cntx_s * restrict)’}
+ 2488 | #define PASTEMAC_(ch,op)           bli_ ## ch  ## op
+      |                                    ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2489:36: note: in expansion of macro ‘PASTEMAC_’
+ 2489 | #define PASTEMAC(ch,op)            PASTEMAC_(ch,op)
+      |                                    ^~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21538:6: note: in expansion of macro ‘PASTEMAC’
+21538 | void PASTEMAC(ch,opname) \
+      |      ^~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21534:44: note: in expansion of macro ‘GEMM_UKR_PROT2’
+21534 | #define GEMM_UKR_PROT( ctype, ch, opname ) GEMM_UKR_PROT2(ctype, ctype, ch, opname)
+      |                                            ^~~~~~~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:22138:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+22138 | GEMM_UKR_PROT( dcomplex, z, gemm_haswell_asm_4x3 )
+      | ^~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:56:7: error: conflicting types for ‘bli_sgemm_skx_asm_32x12_l2’; have ‘void(void)’
+   56 |     X(bli_sgemm_skx_asm_32x12_l2) X(bli_dgemm_skx_asm_16x14) \
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2488:36: note: previous declaration of ‘bli_sgemm_skx_asm_32x12_l2’ with type ‘void(dim_t,  float * restrict,  float * restrict,  float * restrict,  float * restrict,  float * restrict,  inc_t,  inc_t,  auxinfo_t * restrict,  cntx_t * restrict)’ {aka ‘void(long int,  float * restrict,  float * restrict,  float * restrict,  float * restrict,  float * restrict,  long int,  long int,  auxinfo_t * restrict,  struct cntx_s * restrict)’}
+ 2488 | #define PASTEMAC_(ch,op)           bli_ ## ch  ## op
+      |                                    ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2489:36: note: in expansion of macro ‘PASTEMAC_’
+ 2489 | #define PASTEMAC(ch,op)            PASTEMAC_(ch,op)
+      |                                    ^~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21538:6: note: in expansion of macro ‘PASTEMAC’
+21538 | void PASTEMAC(ch,opname) \
+      |      ^~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21534:44: note: in expansion of macro ‘GEMM_UKR_PROT2’
+21534 | #define GEMM_UKR_PROT( ctype, ch, opname ) GEMM_UKR_PROT2(ctype, ctype, ch, opname)
+      |                                            ^~~~~~~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:22091:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+22091 | GEMM_UKR_PROT( float ,   s, gemm_skx_asm_32x12_l2 )
+      | ^~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:56:37: error: conflicting types for ‘bli_dgemm_skx_asm_16x14’; have ‘void(void)’
+   56 |     X(bli_sgemm_skx_asm_32x12_l2) X(bli_dgemm_skx_asm_16x14) \
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:59:22: note: in definition of macro ‘DECL’
+   59 | #define DECL(f) void f(void) __attribute__((weak));
+      |                      ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:60:1: note: in expansion of macro ‘KERNELS’
+   60 | KERNELS(DECL)
+      | ^~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2488:36: note: previous declaration of ‘bli_dgemm_skx_asm_16x14’ with type ‘void(dim_t,  double * restrict,  double * restrict,  double * restrict,  double * restrict,  double * restrict,  inc_t,  inc_t,  auxinfo_t * restrict,  cntx_t * restrict)’ {aka ‘void(long int,  double * restrict,  double * restrict,  double * restrict,  double * restrict,  double * restrict,  long int,  long int,  auxinfo_t * restrict,  struct cntx_s * restrict)’}
+ 2488 | #define PASTEMAC_(ch,op)           bli_ ## ch  ## op
+      |                                    ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:2489:36: note: in expansion of macro ‘PASTEMAC_’
+ 2489 | #define PASTEMAC(ch,op)            PASTEMAC_(ch,op)
+      |                                    ^~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21538:6: note: in expansion of macro ‘PASTEMAC’
+21538 | void PASTEMAC(ch,opname) \
+      |      ^~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:21534:44: note: in expansion of macro ‘GEMM_UKR_PROT2’
+21534 | #define GEMM_UKR_PROT( ctype, ch, opname ) GEMM_UKR_PROT2(ctype, ctype, ch, opname)
+      |                                            ^~~~~~~~~~~~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:22095:1: note: in expansion of macro ‘GEMM_UKR_PROT’
+22095 | GEMM_UKR_PROT( double,   d, gemm_skx_asm_16x14 )
+      | ^~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c: In function ‘main’:
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:67:25: error: implicit declaration of function ‘bli_cntx_get_ukr_dt’; did you mean ‘bli_cntx_get_bmult_dt’? [-Wimplicit-function-declaration]
+   67 |     void_fp      ukr  = bli_cntx_get_ukr_dt(dt, BLIS_GEMM_UKR, cntx);
+      |                         ^~~~~~~~~~~~~~~~~~~
+      |                         bli_cntx_get_bmult_dt
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:67:25: error: initialization of ‘void_fp’ {aka ‘void *’} from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:77:57: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   77 |            (long)bli_cntx_get_blksz_def_dt(dt, BLIS_MR, cntx),
+      |                                                         ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:78:57: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   78 |            (long)bli_cntx_get_blksz_def_dt(dt, BLIS_NR, cntx),
+      |                                                         ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:79:57: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   79 |            (long)bli_cntx_get_blksz_def_dt(dt, BLIS_MC, cntx),
+      |                                                         ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:80:57: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   80 |            (long)bli_cntx_get_blksz_def_dt(dt, BLIS_KC, cntx),
+      |                                                         ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/up/xbench/kernel-info.c:81:57: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   81 |            (long)bli_cntx_get_blksz_def_dt(dt, BLIS_NC, cntx));
+      |                                                         ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+== mkl (MKL_VERBOSE=1, n = 1000)
+MKL_VERBOSE oneMKL 2025 Patch 1 Product build 20241031 for Intel(R) 64 architecture Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) with support of Intel(R) Deep Learning Boost (Intel(R) DL Boost), EVEX-encoded AES and Carry-Less Multiplication Quadword instructions, Lnx 2.60GHz lp64 sequential
+MKL_VERBOSE ZGEMM(N,N,1000,1000,1000,0x763060,0x15494babd010,1000,0x15494ab7a010,1000,0x763060,0x154949c37010,1000) 82.04ms CNR:OFF Dyn:1 FastMM:1
+MKL_VERBOSE ZGEMM(N,N,1000,1000,1000,0x763060,0x15494babd010,1000,0x15494ab7a010,1000,0x763060,0x154949c37010,1000) 80.78ms CNR:OFF Dyn:1 FastMM:1

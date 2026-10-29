@@ -8,14 +8,14 @@ extern "C" {
 
 void
 ULMBLAS(sspmv)(enum CBLAS_UPLO       upLo,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                float                 alpha,
                const float           *A,
                const float           *x,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                float                 beta,
                float                 *y,
-               int                   incY)
+               ULMBLAS_INDEX_TYPE    incY)
 {
     if (incX<0) {
         x -= incX*(n-1);
@@ -28,23 +28,23 @@ ULMBLAS(sspmv)(enum CBLAS_UPLO       upLo,
 //  Start the operations.
 //
     if (upLo==CblasLower) {
-        ulmBLAS::splmv(n, alpha, A, x, incX, beta, y, incY);
+        ulmBLAS::splmv<std::ptrdiff_t>(n, alpha, A, x, incX, beta, y, incY);
     } else {
-        ulmBLAS::spumv(n, alpha, A, x, incX, beta, y, incY);
+        ulmBLAS::spumv<std::ptrdiff_t>(n, alpha, A, x, incX, beta, y, incY);
     }
 }
 
 
 void
 ULMBLAS(dspmv)(enum CBLAS_UPLO       upLo,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                double                alpha,
                const double          *A,
                const double          *x,
-               int                   incX,
+               ULMBLAS_INDEX_TYPE    incX,
                double                beta,
                double                *y,
-               int                   incY)
+               ULMBLAS_INDEX_TYPE    incY)
 {
     if (incX<0) {
         x -= incX*(n-1);
@@ -57,23 +57,23 @@ ULMBLAS(dspmv)(enum CBLAS_UPLO       upLo,
 //  Start the operations.
 //
     if (upLo==CblasLower) {
-        ulmBLAS::splmv(n, alpha, A, x, incX, beta, y, incY);
+        ulmBLAS::splmv<std::ptrdiff_t>(n, alpha, A, x, incX, beta, y, incY);
     } else {
-        ulmBLAS::spumv(n, alpha, A, x, incX, beta, y, incY);
+        ulmBLAS::spumv<std::ptrdiff_t>(n, alpha, A, x, incX, beta, y, incY);
     }
 }
 
 void
 CBLAS(sspmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              float                 alpha,
              const float           *A,
              const float           *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              float                 beta,
              float                 *y,
-             int                   incY)
+             ULMBLAS_INDEX_TYPE    incY)
 {
 //
 //  Test the input parameters
@@ -97,6 +97,7 @@ CBLAS(sspmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_sspmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -110,14 +111,14 @@ CBLAS(sspmv)(enum CBLAS_ORDER      order,
 void
 CBLAS(dspmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              double                alpha,
              const double          *A,
              const double          *x,
-             int                   incX,
+             ULMBLAS_INDEX_TYPE    incX,
              double                beta,
              double                *y,
-             int                   incY)
+             ULMBLAS_INDEX_TYPE    incY)
 {
 //
 //  Test the input parameters
@@ -141,6 +142,7 @@ CBLAS(dspmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_dspmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {

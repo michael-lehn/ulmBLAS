@@ -1,0 +1,685 @@
+configure: detected Linux kernel version 6.1.0-54-amd64.
+configure: python interpreter search list is: python python3 python2.
+configure: found 'python3'.
+configure: using 'python3' as python interpreter.
+configure: found python version 3.11.2 (maj: 3, min: 11, rev: 2).
+configure: python 3.11.2 appears to be supported.
+configure: C compiler search list is: gcc clang cc.
+configure: found 'gcc'.
+configure: using 'gcc' as C compiler.
+configure: found gcc version 12.2.0 (maj: 12, min: 2, rev: 0).
+configure: checking for blacklisted configurations due to gcc 12.2.0.
+configure: checking gcc 12.2.0 against known consequential version ranges.
+configure: found assembler ('as') version 2.40 (maj: 2, min: 40, rev: ).
+configure: checking for blacklisted configurations due to as 2.40.
+configure: C++ compiler search list is: g++ clang++ c++.
+configure: found 'g++'.
+configure: using 'g++' as C++ compiler.
+configure: Fortran compiler search list is: gfortran ifort ifx nvfortran.
+configure: found 'gfortran'.
+configure: using 'gfortran' as Fortran compiler.
+configure: library archiver search list is: ar.
+configure: found 'ar'.
+configure: using 'ar' as library archiver.
+configure: archive indexer search list is: ranlib.
+configure: found 'ranlib'.
+configure: using 'ranlib' as archive indexer.
+configure: reading configuration registry...done.
+configure: determining default version string.
+configure: could not find '.git' directory; using unmodified version file.
+configure: starting configuration of BLIS 2.0.
+configure: configuring with official version string.
+configure: found shared library .so version '4.0.0'.
+configure:   .so major version: 4
+configure:   .so minor.build version: 0.0
+configure: manual configuration requested; configuring with 'sandybridge'.
+configure: checking configuration against contents of 'config_registry'.
+configure: configuration 'sandybridge' is registered.
+configure: 'sandybridge' is defined as having the following sub-configurations:
+configure:    sandybridge
+configure: which collectively require the following kernels:
+configure:    sandybridge
+configure: checking sub-configurations:
+configure:   'sandybridge' is registered...and exists.
+configure: checking sub-configurations' requisite kernels:
+configure:   'sandybridge' kernels...exist.
+configure: detected --prefix='/tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge'.
+configure: no install exec_prefix option given; defaulting to PREFIX.
+configure: no install libdir option given; defaulting to EXECPREFIX/lib.
+configure: no install includedir option given; defaulting to PREFIX/include.
+configure: no install sharedir option given; defaulting to PREFIX/share.
+configure: final installation directories:
+configure:   prefix:      /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge
+configure:   exec_prefix: /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge
+configure:   libdir:      /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/lib
+configure:   includedir:  /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/include
+configure:   sharedir:    /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share
+configure: NOTE: the variables above can be overridden when running make.
+configure: no preset CFLAGS detected.
+configure: no preset CXXFLAGS detected.
+configure: no preset LDFLAGS detected.
+configure: disabling verbose make output. (enable with 'make V=1'.)
+configure: disabling ARG_MAX hack.
+configure: debug symbols disabled.
+configure: AddressSanitizer support disabled.
+configure: building BLIS as a static library (shared library disabled).
+configure: enabling operating system support.
+configure: enabling thread-local storage (TLS) support.
+configure: enabling support for single-threading.
+configure: requesting slab work partitioning in jr and/or ir loops.
+configure: internal memory pools for packing blocks are enabled.
+configure: internal memory pools for small blocks are enabled.
+configure: memory tracing output is disabled.
+configure: ScaLAPACK compatibility is disabled.
+configure: libmemkind not found; disabling.
+configure: compiler appears to support #pragma omp simd.
+configure: the BLAS compatibility layer is enabled.
+configure: the CBLAS compatibility layer is enabled.
+configure: sup (skinny/unpacked) matrix handling is enabled.
+configure: trsm diagonal element pre-inversion is enabled.
+configure: the BLIS API integer size is automatically determined.
+configure: the BLAS/CBLAS API integer size is 32-bit.
+configure: AMD-specific framework files will not be considered.
+configure: configuring with no addons.
+configure: configuring for conventional gemm implementation.
+configure: configuring complex return type as "gnu".
+configure: creating ./config.mk from ./build/config.mk.in
+configure: creating ./bli_config.h from ./build/bli_config.h.in
+configure: creating ./bli_addon.h from ./build/bli_addon.h.in
+configure: creating ./obj/sandybridge
+configure: creating ./obj/sandybridge/config/sandybridge
+configure: creating ./obj/sandybridge/kernels/sandybridge
+configure: creating ./obj/sandybridge/ref_kernels/sandybridge
+configure: creating ./obj/sandybridge/frame
+configure: creating ./obj/sandybridge/blastest
+configure: creating ./obj/sandybridge/testsuite
+configure: creating ./lib/sandybridge
+configure: creating ./include/sandybridge
+configure: mirroring ./config/sandybridge to ./obj/sandybridge/config/sandybridge
+configure: mirroring ./kernels/sandybridge to ./obj/sandybridge/kernels/sandybridge
+configure: mirroring ./ref_kernels to ./obj/sandybridge/ref_kernels
+configure: mirroring ./ref_kernels to ./obj/sandybridge/ref_kernels/sandybridge
+configure: mirroring ./frame to ./obj/sandybridge/frame
+configure: creating makefile fragments in ./obj/sandybridge/config/sandybridge
+configure: creating makefile fragments in ./obj/sandybridge/kernels/sandybridge
+configure: creating makefile fragments in ./obj/sandybridge/ref_kernels
+configure: creating makefile fragments in ./obj/sandybridge/frame
+configure: configured to build within top-level directory of source distribution.
+Generating monolithic blis.h.............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+Generated include/sandybridge/blis.h
+Generating monolithic cblas.h........
+Generated include/sandybridge/cblas.h
+Compiling obj/sandybridge/config/sandybridge/bli_cntx_init_sandybridge.o ('sandybridge' CFLAGS for config code)
+Compiling obj/sandybridge/kernels/sandybridge/3/bli_gemm_sandybridge_int_d8x4.o ('sandybridge' CFLAGS for kernels)
+Compiling obj/sandybridge/kernels/sandybridge/3/bli_gemm_sandybridge_asm_d8x4.o ('sandybridge' CFLAGS for kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/bli_cntx_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernel init)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_addv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_axpyv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_axpbyv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_amaxv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_dotv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_copyv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_dotxv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_invertv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_invscalv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_scal2v_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_scalv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_setv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_subv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_swapv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1/bli_xpbyv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1f/bli_axpy2v_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1f/bli_axpyf_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1f/bli_dotaxpyv_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1f/bli_dotxaxpyf_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1f/bli_dotxf_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1m/bli_packm_cxc_diag_1er_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1m/bli_packm_cxc_diag_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1m/bli_packm_cxc_diag_ro_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1m/bli_packm_cxk_1er_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1m/bli_packm_cxk_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1m/bli_packm_cxk_ro_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/1m/bli_unpackm_cxk_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/3/bli_gemm_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/3/bli_gemmsup_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/3/bli_gemmtrsm_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/3/bli_trsm_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/ind/bli_gemm1m_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/ind/bli_gemm_ccr_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/ind/bli_gemm_crr_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/ind/bli_gemm_rcc_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/ref_kernels/sandybridge/ind/bli_gemmtrsm1m_sandybridge_ref.o ('sandybridge' CFLAGS for ref. kernels)
+Compiling obj/sandybridge/frame/0/bli_l0_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/0/bli_l0_fpa.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/0/bli_l0_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/0/bli_l0_tapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/0/copysc/bli_copysc.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1/bli_l1v_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1/bli_l1v_fpa.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1/bli_l1v_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1/bli_l1v_oapi_ba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1/bli_l1v_oapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1/bli_l1v_tapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1/bli_l1v_tapi_ba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1/bli_l1v_tapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1d/bli_l1d_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1d/bli_l1d_fpa.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1d/bli_l1d_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1d/bli_l1d_oapi_ba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1d/bli_l1d_oapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1d/bli_l1d_tapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1d/bli_l1d_tapi_ba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1d/bli_l1d_tapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1f/bli_l1f_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1f/bli_l1f_fpa.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1f/bli_l1f_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1f/bli_l1f_oapi_ba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1f/bli_l1f_oapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1f/bli_l1f_tapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1f/bli_l1f_tapi_ba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1f/bli_l1f_tapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/bli_l1m_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/bli_l1m_fpa.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/bli_l1m_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/bli_l1m_oapi_ba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/bli_l1m_oapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/bli_l1m_tapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/bli_l1m_tapi_ba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/bli_l1m_tapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/bli_l1m_unb_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/packm/bli_packm_alloc.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/packm/bli_packm_blk_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/packm/bli_packm_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/packm/bli_packm_cntl.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/packm/bli_packm_init.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/packm/bli_packm_int.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/packm/bli_packm_scalar.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/packm/bli_packm_struc_cxk.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/unpackm/bli_unpackm_blk_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/unpackm/bli_unpackm_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/unpackm/bli_unpackm_cntl.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/1m/unpackm/bli_unpackm_int.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/bli_l2_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/bli_l2_fpa.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/bli_l2_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/bli_l2_oapi_ba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/bli_l2_oapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/bli_l2_tapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/bli_l2_tapi_ba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/bli_l2_tapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/gemv/bli_gemv_unb_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/gemv/bli_gemv_unb_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/gemv/bli_gemv_unf_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/gemv/bli_gemv_unf_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/gemv/bli_gemv_var_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/ger/bli_ger_unb_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/ger/bli_ger_unb_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/ger/bli_ger_var_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/hemv/bli_hemv_unb_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/hemv/bli_hemv_unb_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/hemv/bli_hemv_unb_var3.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/hemv/bli_hemv_unb_var4.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/hemv/bli_hemv_unf_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/hemv/bli_hemv_unf_var1a.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/hemv/bli_hemv_unf_var3.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/hemv/bli_hemv_unf_var3a.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/hemv/bli_hemv_var_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/her/bli_her_unb_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/her/bli_her_unb_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/her/bli_her_var_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/her2/bli_her2_unb_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/her2/bli_her2_unb_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/her2/bli_her2_unb_var3.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/her2/bli_her2_unb_var4.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/her2/bli_her2_unf_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/her2/bli_her2_unf_var4.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/her2/bli_her2_var_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/trmv/bli_trmv_unb_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/trmv/bli_trmv_unb_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/trmv/bli_trmv_unf_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/trmv/bli_trmv_unf_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/trmv/bli_trmv_var_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/trsv/bli_trsv_unb_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/trsv/bli_trsv_unb_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/trsv/bli_trsv_unf_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/trsv/bli_trsv_unf_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/2/trsv/bli_trsv_var_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_decor.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_ind.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_oapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_packab.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_prune.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_sup.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_sup_decor.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_sup_int.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_sup_packm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_sup_packm_var.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_sup_ref.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_sup_var12.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_sup_var1n2m.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_tapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_tapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_thrinfo.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_ukr_fpa.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_ukr_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_ukr_tapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/bli_l3_util.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/gemm/bli_gemm_blk_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/gemm/bli_gemm_blk_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/gemm/bli_gemm_blk_var3.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/gemm/bli_gemm_cntl.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/gemm/bli_gemm_ker_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/gemmt/bli_gemmt_l_ker_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/gemmt/bli_gemmt_l_ker_var2b.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/gemmt/bli_gemmt_u_ker_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/gemmt/bli_gemmt_u_ker_var2b.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trmm/bli_trmm_ll_ker_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trmm/bli_trmm_ll_ker_var2b.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trmm/bli_trmm_lu_ker_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trmm/bli_trmm_lu_ker_var2b.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trmm/bli_trmm_rl_ker_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trmm/bli_trmm_rl_ker_var2b.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trmm/bli_trmm_ru_ker_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trmm/bli_trmm_ru_ker_var2b.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trsm/bli_trsm_blk_var1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trsm/bli_trsm_blk_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trsm/bli_trsm_blk_var3.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trsm/bli_trsm_cntl.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trsm/bli_trsm_ll_ker_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trsm/bli_trsm_lu_ker_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trsm/bli_trsm_rl_ker_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/3/trsm/bli_trsm_ru_ker_var2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_apool.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_arch.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_array.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_blksz.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_clock.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_cntl.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_cntx.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_const.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_cpuid.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_env.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_error.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_func.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_getopt.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_gks.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_ind.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_info.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_init.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_machval.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_malloc.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_mbool.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_memsys.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_obj.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_obj_scalar.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_pack.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_param_map.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_part.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_part_cntl.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_pba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_pool.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_prune.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_query.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_rntm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_sba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_setgetijm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_setgetijv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_setri.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_string.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_stack.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/bli_winsys.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/cast/bli_castm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/cast/bli_castnzm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/cast/bli_castv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/check/bli_obj_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/check/bli_part_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/noopt/bli_dlamch.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/noopt/bli_lsame.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/noopt/bli_slamch.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/proj/bli_projm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/base/proj/bli_projv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_amax.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_asum.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_axpy.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_copy.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_dot.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_gemm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_gemv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_ger.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_hemm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_hemv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_her.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_her2k.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_her2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_herk.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_nrm2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_scal.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_swap.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_symv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_symm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_syr.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_syr2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_syr2k.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_syrk.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_trmm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_trmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_trsm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/bla_trsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/blis/thread/b77_thread.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/f77_sub/f77_amax_sub.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/f77_sub/f77_asum_sub.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/f77_sub/f77_dot_sub.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/f77_sub/f77_nrm2_sub.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_caxpy.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ccopy.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cdotc_sub.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cdotu_sub.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cgbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cgemm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cgemv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cgerc.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cgeru.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_chbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_chemm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_chemv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cher.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cher2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cher2k.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cherk.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_chpmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_chpr.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_chpr2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cscal.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_csscal.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_cswap.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_csymm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_csyr2k.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_csyrk.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ctbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ctbsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ctpmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ctrmm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ctpsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ctrmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ctrsm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ctrsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dasum.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_daxpy.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dcopy.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ddot.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dgbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dgemm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dgemv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dger.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dnrm2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_drot.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_drotg.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_drotm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_drotmg.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dsbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dscal.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dsdot.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dspmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dspr.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dspr2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dswap.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dsymm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dsymv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dsyr.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dsyr2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dsyr2k.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dsyrk.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dtbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dtbsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dtpmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dtpsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dtrmm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dtrmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dtrsm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dtrsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dzasum.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_dznrm2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_globals.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_icamax.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_isamax.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_idamax.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_izamax.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_sasum.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_saxpy.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_scasum.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_scnrm2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_scopy.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_sdot.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_sdsdot.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_sgbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_sgemm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_sgemv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_sger.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_snrm2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_srot.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_srotg.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_srotm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_srotmg.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ssbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_sscal.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_sspmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_sspr.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_sspr2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_sswap.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ssymm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ssymv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ssyr.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ssyr2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ssyr2k.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ssyrk.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_stbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_stbsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_stpmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_stpsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_strmm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_strmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_strsm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_strsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_xerbla.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zaxpy.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zcopy.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zdotc_sub.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zdotu_sub.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zdscal.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zgbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zgemm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zgemv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zgerc.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zgeru.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zhbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zhemv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zhemm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zher.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zher2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zher2k.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zherk.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zhpmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zhpr.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zhpr2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zscal.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zswap.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zsymm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zsyr2k.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_zsyrk.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ztbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ztbsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ztpmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ztpsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ztrmm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ztrmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ztrsm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/cblas_ztrsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_caxpby.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_cgemm3m.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_cgemm_batch.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_cgemmt.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_daxpby.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_dgemm_batch.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_dgemmt.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_saxpby.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_sgemm_batch.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_sgemmt.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_zaxpby.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_zgemm3m.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_zgemm_batch.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/cblas/src/extra/cblas_zgemmt.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/extra/bla_axpby.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/extra/bla_gemm_batch.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/extra/bla_gemm3m.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/extra/bla_gemmt.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_cabs1.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_gbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_hbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_hpmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_hpr.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_hpr2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_lsame.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_rot.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_rotg.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_rotm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_rotmg.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_sbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_spmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_spr.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_spr2.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_tbmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_tbsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_tpmv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_tpsv.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_xerbla.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/bla_xerbla_array.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_c_abs.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_c_div.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_d_abs.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_d_cnjg.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_d_imag.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_d_sign.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_f__cabs.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_r_abs.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_r_cnjg.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_r_imag.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_r_sign.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_z_abs.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/compat/f2c/util/bla_z_div.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_pthread.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_thrcomm.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_thrcomm_openmp.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_thrcomm_pthreads.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_thrcomm_single.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_thread.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_thread_openmp.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_thread_pthreads.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_thread_range.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_thread_range_slab_rr.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_thread_range_tlb.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_thread_single.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/thread/bli_thrinfo.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/util/bli_util_check.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/util/bli_util_fpa.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/util/bli_util_oapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/util/bli_util_oapi_ba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/util/bli_util_oapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/util/bli_util_tapi.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/util/bli_util_tapi_ba.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/util/bli_util_tapi_ex.o ('sandybridge' CFLAGS for framework code)
+Compiling obj/sandybridge/frame/util/bli_util_unb_var1.o ('sandybridge' CFLAGS for framework code)
+Archiving lib/sandybridge/libblis.a
+Installing libblis.a into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/lib/
+Installing blis.h cblas.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/include/blis/
+Installing blis.h helper header into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/include/
+Installing cblas.h helper header into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/include/
+Installing config.mk common.mk gen-make-frag.sh fragment.mk ignore_list special_list suffix_list flatten-headers.py mirror-tree.sh config_registry avx.s avx512dq.s avx512f.s fma3.s fma4.s into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/
+Installing bli_plugin_init_ref.c bli_plugin_init_zen3.c bli_plugin_register.c my_kernel_1_ref.c my_kernel_2_ref.c my_kernel_1_zen3.c bli_plugin.h.in config.mk.in Makefile into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/plugin/
+Installing ./configure into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/configure-plugin
+Installing config/x86_64/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/x86_64
+Installing config/x86_64/bli_kernel_defs_x86_64.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/x86_64
+install: cannot stat 'config/x86_64/bli_kernel_defs_x86_64.h': No such file or directory
+Installing config/intel64/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/intel64
+Installing config/intel64/bli_kernel_defs_intel64.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/intel64
+install: cannot stat 'config/intel64/bli_kernel_defs_intel64.h': No such file or directory
+Installing config/amd64_legacy/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/amd64_legacy
+Installing config/amd64_legacy/bli_kernel_defs_amd64_legacy.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/amd64_legacy
+install: cannot stat 'config/amd64_legacy/bli_kernel_defs_amd64_legacy.h': No such file or directory
+Installing config/amd64/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/amd64
+Installing config/amd64/bli_kernel_defs_amd64.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/amd64
+install: cannot stat 'config/amd64/bli_kernel_defs_amd64.h': No such file or directory
+Installing config/arm64/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/arm64
+Installing config/arm64/bli_kernel_defs_arm64.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/arm64
+install: cannot stat 'config/arm64/bli_kernel_defs_arm64.h': No such file or directory
+Installing config/arm32/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/arm32
+Installing config/arm32/bli_kernel_defs_arm32.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/arm32
+install: cannot stat 'config/arm32/bli_kernel_defs_arm32.h': No such file or directory
+Installing config/power/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/power
+Installing config/power/bli_kernel_defs_power.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/power
+install: cannot stat 'config/power/bli_kernel_defs_power.h': No such file or directory
+Installing config/skx/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/skx
+Installing config/skx/bli_kernel_defs_skx.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/skx
+Installing config/knl/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/knl
+Installing config/knl/bli_kernel_defs_knl.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/knl
+Installing config/haswell/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/haswell
+Installing config/haswell/bli_kernel_defs_haswell.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/haswell
+Installing config/sandybridge/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/sandybridge
+Installing config/sandybridge/bli_kernel_defs_sandybridge.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/sandybridge
+Installing config/penryn/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/penryn
+Installing config/penryn/bli_kernel_defs_penryn.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/penryn
+Installing config/zen3/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/zen3
+Installing config/zen3/bli_kernel_defs_zen3.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/zen3
+Installing config/zen2/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/zen2
+Installing config/zen2/bli_kernel_defs_zen2.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/zen2
+Installing config/zen/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/zen
+Installing config/zen/bli_kernel_defs_zen.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/zen
+Installing config/excavator/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/excavator
+Installing config/excavator/bli_kernel_defs_excavator.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/excavator
+Installing config/steamroller/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/steamroller
+Installing config/steamroller/bli_kernel_defs_steamroller.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/steamroller
+Installing config/piledriver/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/piledriver
+Installing config/piledriver/bli_kernel_defs_piledriver.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/piledriver
+Installing config/bulldozer/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/bulldozer
+Installing config/bulldozer/bli_kernel_defs_bulldozer.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/bulldozer
+Installing config/armsve/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/armsve
+Installing config/armsve/bli_kernel_defs_armsve.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/armsve
+Installing config/a64fx/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/a64fx
+Installing config/a64fx/bli_kernel_defs_a64fx.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/a64fx
+Installing config/altramax/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/altramax
+Installing config/altramax/bli_kernel_defs_altramax.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/altramax
+Installing config/altra/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/altra
+Installing config/altra/bli_kernel_defs_altra.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/altra
+Installing config/firestorm/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/firestorm
+Installing config/firestorm/bli_kernel_defs_firestorm.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/firestorm
+Installing config/thunderx2/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/thunderx2
+Installing config/thunderx2/bli_kernel_defs_thunderx2.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/thunderx2
+Installing config/cortexa57/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/cortexa57
+Installing config/cortexa57/bli_kernel_defs_cortexa57.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/cortexa57
+Installing config/cortexa53/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/cortexa53
+Installing config/cortexa53/bli_kernel_defs_cortexa53.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/cortexa53
+Installing config/cortexa15/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/cortexa15
+Installing config/cortexa15/bli_kernel_defs_cortexa15.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/cortexa15
+Installing config/cortexa9/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/cortexa9
+Installing config/cortexa9/bli_kernel_defs_cortexa9.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/cortexa9
+Installing config/power10/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/power10
+Installing config/power10/bli_kernel_defs_power10.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/power10
+Installing config/power9/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/power9
+Installing config/power9/bli_kernel_defs_power9.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/power9
+Installing config/bgq/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/bgq
+Installing config/bgq/bli_kernel_defs_bgq.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/bgq
+Installing config/rv32i/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/rv32i
+Installing config/rv32i/bli_kernel_defs_rv32i.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/rv32i
+Installing config/rv64i/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/rv64i
+Installing config/rv64i/bli_kernel_defs_rv64i.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/rv64i
+Installing config/rv32iv/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/rv32iv
+Installing config/rv32iv/bli_kernel_defs_rv32iv.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/rv32iv
+Installing config/rv64iv/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/rv64iv
+Installing config/rv64iv/bli_kernel_defs_rv64iv.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/rv64iv
+Installing config/sifive_x280/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/sifive_x280
+Installing config/sifive_x280/bli_kernel_defs_sifive_x280.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/sifive_x280
+Installing config/generic/make_defs.mk into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/generic
+Installing config/generic/bli_kernel_defs_generic.h into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/blis/config/generic
+Installing blis.pc into /tmp/ulmblas-kbench.rwejrA/w/refs/blis-sandybridge/share/pkgconfig/

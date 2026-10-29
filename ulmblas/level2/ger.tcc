@@ -28,11 +28,11 @@ ger(IndexType    m,
 {
     typedef decltype(Alpha(0)*TX(0)*TY(0)+TA(0))  T;
 
-    const IndexType    UnitStride(1);
-    static const bool  homogeneousTypes = std::is_same<T,Alpha>::value
-                                       && std::is_same<T,TX>::value
-                                       && std::is_same<T,TY>::value
-                                       && std::is_same<T,TA>::value;
+    constexpr IndexType   UnitStride(1);
+    static constexpr bool homogeneousTypes = std::is_same<T,Alpha>::value
+                                          && std::is_same<T,TX>::value
+                                          && std::is_same<T,TY>::value
+                                          && std::is_same<T,TA>::value;
 
 //
 //  If all operands have the same element type and if vectors x and y have unit
@@ -72,8 +72,8 @@ ger(IndexType    m,
     //printf("packing: packX=%d, packY=%d, packA=%d\n", packX, packY, packA);
     //printf("packing: incX=%d, incY=%d\n", incX, incY);
 
-    const IndexType MC  = BlockSize<T>::MC;
-    const IndexType NC  = BlockSize<T>::NC;
+    constexpr IndexType MC  = BlockSize<T>::MC;
+    constexpr IndexType NC  = BlockSize<T>::NC;
 
     const T &alpha_     = alpha;
     T *buffer_x         = packX ? memoryPool.allocate(MC)    : 0;
@@ -145,11 +145,11 @@ gerc(IndexType    m,
 {
     typedef decltype(Alpha(0)*TX(0)*TY(0)+TA(0))  T;
 
-    const IndexType    UnitStride(1);
-    static const bool  homogeneousTypes = std::is_same<T,Alpha>::value
-                                       && std::is_same<T,TX>::value
-                                       && std::is_same<T,TY>::value
-                                       && std::is_same<T,TA>::value;
+    constexpr IndexType   UnitStride(1);
+    static constexpr bool homogeneousTypes = std::is_same<T,Alpha>::value
+                                          && std::is_same<T,TX>::value
+                                          && std::is_same<T,TY>::value
+                                          && std::is_same<T,TA>::value;
 
 //
 //  If all operands have the same element type and if vectors x and y have unit

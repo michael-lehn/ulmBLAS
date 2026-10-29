@@ -1,0 +1,9 @@
+corename HASWELL
+config OpenBLAS 0.3.34 NO_LAPACK NO_LAPACKE NO_AFFINITY HASWELL SINGLE_THREADED
+CORE=HASWELL
+LIBCORE=haswell
+TARGET=HASWELL
+USE_THREAD=0
+b3b73ae31406241b3ff4acba2c7b9d180a28a871b00351cdf2a7844eae430973 28076 bytes .text of dgemm_kernel.o
+b3b73ae31406241b3ff4acba2c7b9d180a28a871b00351cdf2a7844eae430973 28076 bytes .text of haswell_4x8-ulmblas-openblas-haswell_4x8.o
+IDENTICAL: .text of native dgemm_kernel.o and haswell_4x8-ulmblas-openblas-haswell_4x8.o

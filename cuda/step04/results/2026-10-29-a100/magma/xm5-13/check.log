@@ -1,0 +1,12 @@
+# device NVIDIA A100 80GB PCIe (compute capability 8.0), CUDA runtime 12080, driver 13040, cuBLAS 120803
+# seed 2026, quick
+# MAGMA 2.10.0
+# impl       m     n     k   ldA   ldB   ldC  alpha   beta init     err/bound
+  magmablas    45    31    17    45    17    46   0.00   0.00 A,B=NaN   0.00e+00 DIFF: C(0,0) = nan, expected 0
+  magmablas    45    31    17    45    17    46   0.00   1.00 A,B=NaN   0.00e+00 DIFF: C(0,0) = nan, expected 0.515148
+  magmablas    45    31    17    45    17    46   0.00  -0.50 A,B=NaN   0.00e+00 DIFF: C(0,0) = nan, expected 0.329459
+  magmablas    33    34     0    33     1    33   2.00   0.00 A,B=NaN   0.00e+00 DIFF: C(0,0) = -0.332392, expected 0
+  magmablas    33    34     0    33     1    33   2.00   3.00 A,B=NaN   0.00e+00 DIFF: C(0,0) = 0.131565, expected 0.394696
+# external reference magma (MAGMA magma_dgemm (calls cublasDgemm)): 0 of 91 cases differ from BLAS
+# external reference magmablas (MAGMA magmablas_dgemm (MAGMA's own kernel)): 5 of 91 cases differ from BLAS
+# 1748 checks of cULMblas, 0 failed (91 cases each)

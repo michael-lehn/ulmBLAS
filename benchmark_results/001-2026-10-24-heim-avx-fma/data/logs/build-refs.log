@@ -1,0 +1,19 @@
+cd7e129868320cc2d033afa920e31202dfe0b8066a5b66661900ccc0f197dfed  OpenBLAS-0.3.34.tar.gz
+08bbebd77914a6d1a43874ae5ec2f54fe6a77cba745f2532df28361b0f1ad1b3  blis-2.0.tar.gz
+== BLIS 2.0 (configuration haswell: dgemm micro kernel 6x8, no threading)
+BLIS build rc=0: /tmp/ulmblas-avx.tGdSUq/refs/blis/lib/libblis.a
+configure: checking for blacklisted configurations due to gcc 12.2.0.
+configure: checking for blacklisted configurations due to as 2.40.
+configure: reading configuration registry...done.
+== OpenBLAS v0.3.34 (target detected, no threading, no Fortran/LAPACK)
+OpenBLAS build rc=0: /tmp/ulmblas-avx.tGdSUq/refs/openblas/lib/libopenblas.a
+Makefile.conf:ARCH=x86_64
+Makefile.conf:CORE=HASWELL
+Makefile.conf:LIBCORE=haswell
+Makefile.conf_last:ARCH=x86_64
+Makefile.conf_last:CORE=HASWELL
+Makefile.conf_last:LIBCORE=haswell
+Makefile.conf_last:USE_THREAD=0
+ OpenBLAS build complete. (BLAS CBLAS)
+Generating OpenBLASConfigVersion.cmake in /tmp/ulmblas-avx.tGdSUq/refs/openblas/lib/cmake/openblas
+Install OK!

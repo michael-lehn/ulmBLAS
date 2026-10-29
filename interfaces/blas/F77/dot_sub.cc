@@ -5,19 +5,19 @@
 extern "C" {
 
 void
-F77BLAS(sdot_sub)(const int     *n_,
-                  const float   *x,
-                  const int     *incX_,
-                  const float   *y,
-                  const int     *incY_,
-                  float         *result_)
+F77BLAS(sdot_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                  const float              *x,
+                  const ULMBLAS_INDEX_TYPE *incX_,
+                  const float              *y,
+                  const ULMBLAS_INDEX_TYPE *incY_,
+                  float                    *result_)
 {
 //
 //  Dereference scalar parameters
 //
-    int n    = *n_;
-    int incX = *incX_;
-    int incY = *incY_;
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     if (incX<0) {
         x -= incX*(n-1);
@@ -25,23 +25,23 @@ F77BLAS(sdot_sub)(const int     *n_,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    *result_ = ulmBLAS::dotu(n, x, incX, y, incY);
+    *result_ = ulmBLAS::dotu<std::ptrdiff_t>(n, x, incX, y, incY);
 }
 
 void
-F77BLAS(ddot_sub)(const int     *n_,
-                  const double  *x,
-                  const int     *incX_,
-                  const double  *y,
-                  const int     *incY_,
-                  double        *result_)
+F77BLAS(ddot_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                  const double             *x,
+                  const ULMBLAS_INDEX_TYPE *incX_,
+                  const double             *y,
+                  const ULMBLAS_INDEX_TYPE *incY_,
+                  double                   *result_)
 {
 //
 //  Dereference scalar parameters
 //
-    int n    = *n_;
-    int incX = *incX_;
-    int incY = *incY_;
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     if (incX<0) {
         x -= incX*(n-1);
@@ -49,23 +49,23 @@ F77BLAS(ddot_sub)(const int     *n_,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    *result_ = ulmBLAS::dotu(n, x, incX, y, incY);
+    *result_ = ulmBLAS::dotu<std::ptrdiff_t>(n, x, incX, y, incY);
 }
 
 void
-F77BLAS(cdotu_sub)(const int     *n_,
-                   const float   *x_,
-                   const int     *incX_,
-                   const float   *y_,
-                   const int     *incY_,
-                   double        *result_)
+F77BLAS(cdotu_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const float              *x_,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   const float              *y_,
+                   const ULMBLAS_INDEX_TYPE *incY_,
+                   double                   *result_)
 {
 //
 //  Dereference scalar parameters
 //
-    int n    = *n_;
-    int incX = *incX_;
-    int incY = *incY_;
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     typedef std::complex<float> fcomplex;
     const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
@@ -78,23 +78,23 @@ F77BLAS(cdotu_sub)(const int     *n_,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    *result = ulmBLAS::dotu(n, x, incX, y, incY);
+    *result = ulmBLAS::dotu<std::ptrdiff_t>(n, x, incX, y, incY);
 }
 
 void
-F77BLAS(cdotc_sub)(const int     *n_,
-                   const float   *x_,
-                   const int     *incX_,
-                   const float   *y_,
-                   const int     *incY_,
-                   double        *result_)
+F77BLAS(cdotc_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const float              *x_,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   const float              *y_,
+                   const ULMBLAS_INDEX_TYPE *incY_,
+                   double                   *result_)
 {
 //
 //  Dereference scalar parameters
 //
-    int n    = *n_;
-    int incX = *incX_;
-    int incY = *incY_;
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     typedef std::complex<float> fcomplex;
     const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
@@ -107,23 +107,23 @@ F77BLAS(cdotc_sub)(const int     *n_,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    *result = ulmBLAS::dotc(n, x, incX, y, incY);
+    *result = ulmBLAS::dotc<std::ptrdiff_t>(n, x, incX, y, incY);
 }
 
 void
-F77BLAS(zdotu_sub)(const int     *n_,
-                   const double  *x_,
-                   const int     *incX_,
-                   const double  *y_,
-                   const int     *incY_,
-                   double        *result_)
+F77BLAS(zdotu_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const double             *x_,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   const double             *y_,
+                   const ULMBLAS_INDEX_TYPE *incY_,
+                   double                   *result_)
 {
 //
 //  Dereference scalar parameters
 //
-    int n    = *n_;
-    int incX = *incX_;
-    int incY = *incY_;
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     typedef std::complex<double> dcomplex;
     const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
@@ -136,23 +136,23 @@ F77BLAS(zdotu_sub)(const int     *n_,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    *result = ulmBLAS::dotu(n, x, incX, y, incY);
+    *result = ulmBLAS::dotu<std::ptrdiff_t>(n, x, incX, y, incY);
 }
 
 void
-F77BLAS(zdotc_sub)(const int     *n_,
-                   const double  *x_,
-                   const int     *incX_,
-                   const double  *y_,
-                   const int     *incY_,
-                   double        *result_)
+F77BLAS(zdotc_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const double             *x_,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   const double             *y_,
+                   const ULMBLAS_INDEX_TYPE *incY_,
+                   double                   *result_)
 {
 //
 //  Dereference scalar parameters
 //
-    int n    = *n_;
-    int incX = *incX_;
-    int incY = *incY_;
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
 
     typedef std::complex<double> dcomplex;
     const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
@@ -165,7 +165,60 @@ F77BLAS(zdotc_sub)(const int     *n_,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    *result = ulmBLAS::dotc(n, x, incX, y, incY);
+    *result = ulmBLAS::dotc<std::ptrdiff_t>(n, x, incX, y, incY);
+}
+
+void
+F77BLAS(sdsdot_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                    const float              *alpha_,
+                    const float              *x,
+                    const ULMBLAS_INDEX_TYPE *incX_,
+                    const float              *y,
+                    const ULMBLAS_INDEX_TYPE *incY_,
+                    float                    *result_)
+{
+//
+//  Dereference scalar parameters
+//
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
+
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
+    if (incY<0) {
+        y -= incY*(n-1);
+    }
+    double result = *alpha_;
+    ulmBLAS::sdsdot<std::ptrdiff_t>(n, x, incX, y, incY, result);
+    *result_ = float(result);
+}
+
+void
+F77BLAS(dsdot_sub)(const ULMBLAS_INDEX_TYPE *n_,
+                   const float              *x,
+                   const ULMBLAS_INDEX_TYPE *incX_,
+                   const float              *y,
+                   const ULMBLAS_INDEX_TYPE *incY_,
+                   double                   *result_)
+{
+//
+//  Dereference scalar parameters
+//
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
+
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
+    if (incY<0) {
+        y -= incY*(n-1);
+    }
+    double result = 0;
+    ulmBLAS::sdsdot<std::ptrdiff_t>(n, x, incX, y, incY, result);
+    *result_ = result;
 }
 
 } // extern "C"

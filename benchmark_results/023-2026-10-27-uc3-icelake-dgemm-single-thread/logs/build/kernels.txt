@@ -1,0 +1,67 @@
+== info-blis-auto (BLIS_ARCH_DEBUG=1)
+libblis: selecting sub-configuration 'skx'.
+blis_version 2.0
+arch skx
+MR 16 NR 14 MC 240 KC 256 NC 3752
+dgemm_ukr 0x407500 row_pref 0
+threads 1
+dgemm_ukr symbol: bli_dgemm_skx_asm_16x14 
+== info-blis-haswell (BLIS_ARCH_DEBUG=1)
+libblis: selecting sub-configuration 'haswell'.
+blis_version 2.0
+arch haswell
+MR 6 NR 8 MC 72 KC 256 NC 4080
+dgemm_ukr 0x40bf80 row_pref 1
+threads 1
+dgemm_ukr symbol: bli_dgemm_haswell_asm_6x8 
+== info-aocl (BLIS_ARCH_DEBUG=1)
+libblis: Selecting sub-configuration 'zen4', model 'Genoa'.
+blis_version AOCL-BLAS 5.0.0 Build 20241001
+arch zen4
+MR 32 NR 6 MC 128 KC 512 NC 4002
+dgemm_ukr 0x42f780 row_pref 0
+threads -1
+dgemm_ukr symbol: bli_dgemm_zen4_asm_32x6 
+== info-openblas
+corename SKYLAKEX
+config OpenBLAS 0.3.34 NO_LAPACK NO_LAPACKE NO_AFFINITY SKYLAKEX SINGLE_THREADED
+threads 1
+== info-mkl (MKL_VERBOSE=1)
+version Intel(R) oneAPI Math Kernel Library Version 2025.0.1-Product Build 20241031 for Intel(R) 64 architecture applications
+max_threads 1
+MKL_VERBOSE oneMKL 2025 Patch 1 Product build 20241031 for Intel(R) 64 architecture Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) with support of Intel(R) Deep Learning Boost (Intel(R) DL Boost), EVEX-encoded AES and Carry-Less Multiplication Quadword instructions, Lnx 2.60GHz lp64 sequential
+MKL_VERBOSE DGEMM(N,N,64,64,64,0x7ffc4b4ef518,0x7ffc4b4ef680,64,0x7ffc4b4f7680,64,0x7ffc4b4ef510,0x7ffc4b4ff680,64) 98.66us CNR:OFF Dyn:1 FastMM:1
+C[0] 65 (expected 65)
+== info-eigen
+Eigen 5.0.1
+SIMD instruction sets in use: AVX512, FMA, AVX2, AVX, SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2
+EIGEN_VECTORIZE_AVX2 defined
+EIGEN_VECTORIZE_FMA defined
+EIGEN_VECTORIZE_AVX512 defined
+EIGEN_USE_BLAS not defined (Eigen's own product kernels)
+OpenMP not enabled
+Eigen::nbThreads() = 1
+packet size (double) = 8
+EIGEN_GEMM_TO_COEFFBASED_THRESHOLD = 20 (lazy coefficient-based product if m+n+k < threshold)
+EIGEN_STACK_ALLOCATION_LIMIT = 131072 bytes
+cache sizes used for blocking: L1 49152, L2 1310720, L3 50331648 bytes
+blocking for n =    8: kc 8, mc 8, nc 8
+blocking for n =   64: kc 64, mc 48, nc 64
+blocking for n =  256: kc 256, mc 256, nc 128
+blocking for n = 1024: kc 520, mc 1024, nc 176
+blocking for n = 4096: kc 688, mc 4096, nc 136
+== ldd (all programs must be free of shared BLAS libraries)
+bench-aocl: linux-vdso.so.1 libm.so.6 libc.so.6 /lib64/ld-linux-x86-64.so.2 
+bench-blis-auto: linux-vdso.so.1 libm.so.6 libc.so.6 /lib64/ld-linux-x86-64.so.2 
+bench-blis-haswell: linux-vdso.so.1 libm.so.6 libc.so.6 /lib64/ld-linux-x86-64.so.2 
+bench-eigen: linux-vdso.so.1 libstdc++.so.6 libm.so.6 libgcc_s.so.1 libc.so.6 /lib64/ld-linux-x86-64.so.2 
+bench-mkl: linux-vdso.so.1 libm.so.6 libc.so.6 /lib64/ld-linux-x86-64.so.2 
+bench-openblas: linux-vdso.so.1 libm.so.6 libc.so.6 /lib64/ld-linux-x86-64.so.2 
+bench-ulmblas: linux-vdso.so.1 libstdc++.so.6 libm.so.6 libc.so.6 /lib64/ld-linux-x86-64.so.2 libgcc_s.so.1 
+verify-aocl: linux-vdso.so.1 libm.so.6 libc.so.6 /lib64/ld-linux-x86-64.so.2 
+verify-blis-auto: linux-vdso.so.1 libm.so.6 libc.so.6 /lib64/ld-linux-x86-64.so.2 
+verify-blis-haswell: linux-vdso.so.1 libm.so.6 libc.so.6 /lib64/ld-linux-x86-64.so.2 
+verify-eigen: linux-vdso.so.1 libstdc++.so.6 libm.so.6 libgcc_s.so.1 libc.so.6 /lib64/ld-linux-x86-64.so.2 
+verify-mkl: linux-vdso.so.1 libm.so.6 libc.so.6 /lib64/ld-linux-x86-64.so.2 
+verify-openblas: linux-vdso.so.1 libm.so.6 libc.so.6 /lib64/ld-linux-x86-64.so.2 
+verify-ulmblas: linux-vdso.so.1 libstdc++.so.6 libm.so.6 libc.so.6 /lib64/ld-linux-x86-64.so.2 libgcc_s.so.1 

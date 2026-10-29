@@ -1,0 +1,8 @@
+config b320_1024_1024
+ulmBLAS 21197f2ac62af471144bc5b26d6e2d5c302bc7ed
+blocks USE_SME MC 320 KC 1024 NC 1024 MR 32 NR 16
+compile /usr/bin/clang++ -I../../.. -I../../.. -DADD_ -D'BLAS_HEADER=<cblas.h>' -D'CBLAS(x)=cblas_ ## x' -D'ULMBLAS(x)=ulmblas_ ## x' -D'CBLAS_H=ULMBLAS_CBLAS_H' -std=c++11 -mcpu=apple-m4 -O3 -fomit-frame-pointer -Wall -MMD -MP
+compiler Apple clang version 21.0.0 (clang-2100.3.34.2)
+bfd78c973bff202447666eabe453f1a4f58a79c6473f8f019b88f3d6ab520fb1  lib/b320_1024_1024/libcblas.a
+71dc358787d508e777aa344209f673157aaac665d5526a0a5e4e109fd886c721  bench2-b320_1024_1024
+3a0a90ca423dd4483dd1ace53d58590719eb898ec3dc032d95536e70affa7eef  verify-b320_1024_1024

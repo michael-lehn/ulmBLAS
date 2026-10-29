@@ -1,0 +1,17 @@
+host uc2n858.localdomain job 8016696 partition cpu_il date 2026-10-27T06:50:52+01:00
+cpu 3 numa node 0: numactl --physcpubind=3 --membind=0
+model name	: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+microcode	: 0xd000421
+5.14.0-570.149.1.el9_6.x86_64
+governor performance driver intel_pstate
+no_turbo 0 boost  smt on
+thp [always] madvise never
+modules: compiler/gnu/14.2 
+allowed cpus: 0-127
+allocation: 128 CPUs; exclusive: OverSubscribe=NO
+sockets of the allocated CPUs: 0 1 
+measured CPU 3, NUMA node 0
+load 0.14 0.03 0.21 1/1619 1473110; processes of other users: 9
+available: 4 nodes (0-3)
+node 0 cpus: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79
+node 0 size: 64094 MB

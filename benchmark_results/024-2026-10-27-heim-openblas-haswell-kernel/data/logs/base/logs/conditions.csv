@@ -1,0 +1,16 @@
+time,kind,variant,round,load1,package_temp_C,cpu_MHz,sessions
+1793106518,main,ulmblas-avx,1,0.92,35,800.000,1
+1793106607,main,ulmblas-blis-haswell_6x8,1,0.98,38,800.000,1
+1793106696,main,ulmblas-openblas-haswell_4x8,1,1.00,38,800.000,1
+1793106792,main,openblas,1,1.00,38,800.000,1
+1793106879,main,blis,1,1.00,40,800.360,1
+1793106969,main,ulmblas-blis-haswell_6x8,2,0.92,40,800.000,1
+1793107059,main,ulmblas-openblas-haswell_4x8,2,0.98,40,800.279,1
+1793107155,main,openblas,2,0.92,40,800.000,1
+1793107243,main,blis,2,0.98,40,800.290,1
+1793107332,main,ulmblas-avx,2,1.00,40,800.228,1
+1793107421,main,ulmblas-openblas-haswell_4x8,3,1.00,40,800.000,1
+1793107517,main,openblas,3,1.00,40,800.000,1
+1793107605,main,blis,3,0.92,40,800.000,1
+1793107694,main,ulmblas-avx,3,0.90,40,800.000,1
+1793107783,main,ulmblas-blis-haswell_6x8,3,0.98,40,800.000,1

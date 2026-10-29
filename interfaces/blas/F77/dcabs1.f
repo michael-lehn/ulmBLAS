@@ -1,0 +1,12 @@
+      DOUBLE PRECISION FUNCTION DCABS1( Z )
+
+      DOUBLE COMPLEX     Z
+
+      DOUBLE PRECISION   TEMP
+      EXTERNAL           DCABS1_SUB
+
+      CALL DCABS1_SUB( Z, TEMP )
+      DCABS1 = TEMP
+
+      RETURN
+      END

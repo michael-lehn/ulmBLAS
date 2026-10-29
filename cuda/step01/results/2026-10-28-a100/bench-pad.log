@@ -1,0 +1,11 @@
+build/bench_gemm --reps 10 --warmup 2 --pad 7 --shapes '1000,1000,1000 2047,2049,1023'
+# host uc2n902.localdomain, 2026-10-28T23:49:46
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -O3 -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+7, k+7, m+7; 2 warm-up calls, 10 timed calls, CUDA events
+impl          m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     1000   1000   1000      0.144      0.143      0.150    13852.0    1.000
+naive      1000   1000   1000      1.015      1.014      1.018     1969.9    0.142
+cuBLAS     2047   2049   1023      0.503      0.502      0.505    17050.7    1.000
+naive      2047   2049   1023      3.997      3.992      4.024     2146.9    0.126

@@ -1,0 +1,50 @@
+make -C test check-reference-lapack
+make[1]: Entering directory '/tmp/ulmblas-intel2.2yi6R9/chk/test'
+make[2]: Entering directory '/tmp/ulmblas-intel2.2yi6R9/chk/test'
+make[3]: Entering directory '/tmp/ulmblas-intel2.2yi6R9/chk/test'
+make -f Makefile.config CONFIG=testcase06 CONFIG_PATH=/tmp/ulmblas-intel2.2yi6R9/chk/test/ OUTDIR=/tmp/ulmblas-intel2.2yi6R9/chk/test/build/testcase06/lib -C ../interfaces/blas/C BUILD_DIR=/tmp/ulmblas-intel2.2yi6R9/chk/test/build/testcase06/obj-cblas
+make[4]: Entering directory '/tmp/ulmblas-intel2.2yi6R9/chk/interfaces/blas/C'
+make[4]: Leaving directory '/tmp/ulmblas-intel2.2yi6R9/chk/interfaces/blas/C'
+make -f Makefile.config CONFIG=testcase06 CONFIG_PATH=/tmp/ulmblas-intel2.2yi6R9/chk/test/ OUTDIR=/tmp/ulmblas-intel2.2yi6R9/chk/test/build/testcase06/lib -C ../interfaces/lapack/C BUILD_DIR=/tmp/ulmblas-intel2.2yi6R9/chk/test/build/testcase06/obj-clapack
+make[4]: Entering directory '/tmp/ulmblas-intel2.2yi6R9/chk/interfaces/lapack/C'
+make -C ../../blas/C -f Makefile.config \
+        CONFIG=testcase06 CONFIG_PATH=/tmp/ulmblas-intel2.2yi6R9/chk/test/ \
+        OUTDIR=/tmp/ulmblas-intel2.2yi6R9/chk/test/build/testcase06/lib /tmp/ulmblas-intel2.2yi6R9/chk/test/build/testcase06/lib/cblas.h
+make[5]: Entering directory '/tmp/ulmblas-intel2.2yi6R9/chk/interfaces/blas/C'
+make[5]: '/tmp/ulmblas-intel2.2yi6R9/chk/test/build/testcase06/lib/cblas.h' is up to date.
+make[5]: Leaving directory '/tmp/ulmblas-intel2.2yi6R9/chk/interfaces/blas/C'
+make[4]: Leaving directory '/tmp/ulmblas-intel2.2yi6R9/chk/interfaces/lapack/C'
+make[3]: Leaving directory '/tmp/ulmblas-intel2.2yi6R9/chk/test'
+make[3]: Entering directory '/tmp/ulmblas-intel2.2yi6R9/chk/test'
+make -f Makefile.config CONFIG=testcase06 CONFIG_PATH=/tmp/ulmblas-intel2.2yi6R9/chk/test/ OUTDIR=/tmp/ulmblas-intel2.2yi6R9/chk/test/build/testcase06/lib -C ../interfaces/blas/F77 BUILD_DIR=/tmp/ulmblas-intel2.2yi6R9/chk/test/build/testcase06/obj-f77blas
+make[4]: Entering directory '/tmp/ulmblas-intel2.2yi6R9/chk/interfaces/blas/F77'
+make[4]: Leaving directory '/tmp/ulmblas-intel2.2yi6R9/chk/interfaces/blas/F77'
+make[3]: Leaving directory '/tmp/ulmblas-intel2.2yi6R9/chk/test'
+make[2]: Leaving directory '/tmp/ulmblas-intel2.2yi6R9/chk/test'
+PASS  F77 sblat1 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/sblat1.out)
+PASS  F77 sblat2 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/sblat2.out)
+PASS  F77 sblat3 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/sblat3.out)
+PASS  C   c_sblat1 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/c_sblat1.out)
+PASS  C   c_sblat2 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/c_sblat2.out)
+PASS  C   c_sblat3 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/c_sblat3.out)
+PASS  F77 dblat1 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/dblat1.out)
+PASS  F77 dblat2 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/dblat2.out)
+PASS  F77 dblat3 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/dblat3.out)
+PASS  C   c_dblat1 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/c_dblat1.out)
+PASS  C   c_dblat2 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/c_dblat2.out)
+PASS  C   c_dblat3 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/c_dblat3.out)
+REF   F77 cblat1 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/cblat1.out)
+PASS  F77 cblat2 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/cblat2.out)
+PASS  F77 cblat3 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/cblat3.out)
+PASS  C   c_cblat1 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/c_cblat1.out)
+PASS  C   c_cblat2 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/c_cblat2.out)
+PASS  C   c_cblat3 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/c_cblat3.out)
+REF   F77 zblat1 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/zblat1.out)
+PASS  F77 zblat2 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/zblat2.out)
+PASS  F77 zblat3 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/zblat3.out)
+PASS  C   c_zblat1 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/c_zblat1.out)
+PASS  C   c_zblat2 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/c_zblat2.out)
+PASS  C   c_zblat3 (see /tmp/ulmblas-intel2.2yi6R9/chk/test/build/reference-lapack/run/c_zblat3.out)
+
+Reference-LAPACK 3.12.1 BLAS test programs: 22 PASS, 2 REF (failures identical to the reference BLAS), 0 FAIL
+make[1]: Leaving directory '/tmp/ulmblas-intel2.2yi6R9/chk/test'

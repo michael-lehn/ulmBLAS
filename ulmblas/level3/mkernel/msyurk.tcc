@@ -21,19 +21,14 @@ msyurk(IndexType     mc,
        IndexType     incRowC,
        IndexType     incColC)
 {
-    const IndexType MR = BlockSizeUGemm<T>::MR;
-    const IndexType NR = BlockSizeUGemm<T>::NR;
-
-    assert((MR%NR==0) || (NR%MR==0));
+    constexpr IndexType MR = BlockSizeUGemm<T>::MR;
+    constexpr IndexType NR = BlockSizeUGemm<T>::NR;
 
     const IndexType mp = (mc+MR-1) / MR;
     const IndexType np = (nc+NR-1) / NR;
 
     const IndexType mr_ = mc % MR;
     const IndexType nr_ = nc % NR;
-
-    const IndexType ki = (MR<NR) ? NR/MR : 1;  // 2
-    const IndexType kj = (MR>NR) ? MR/NR : 1;  // 1
 
     IndexType mr, nr;
 
@@ -44,11 +39,13 @@ msyurk(IndexType     mc,
         nr    = (j!=np-1 || nr_==0) ? NR : nr_;
         nextB = &B_[j*kc*NR];
 
-        for (IndexType i=0; (i/ki)<=(j/kj); ++i) {
+        //  The diagonal of C runs through (0,0).  Row panels up to the last
+        //  one containing elements on or above it (row j*NR+nr-1).
+        for (IndexType i=0; i<mp && i*MR<=j*NR+nr-1; ++i) {
             mr    = (i!=mp-1 || mr_==0) ? MR : mr_;
             nextA = &A_[(i+1)*kc*MR];
 
-            if (((i/ki)==(j/kj)) && ((i+1)/ki)>(j/kj)) {
+            if (i+1==mp || (i+1)*MR>j*NR+nr-1) {
                 nextA = A_;
                 nextB = &B_[(j+1)*kc*NR];
                 if (j==np-1) {
@@ -56,7 +53,9 @@ msyurk(IndexType     mc,
                 }
             }
 
-            if ((i/ki)==(j/kj)) {
+            //  Unless all elements of the tile are on or above the diagonal
+            //  (last row <= first column) the tile contains the diagonal.
+            if (i*MR+mr-1 > j*NR) {
                 usyurk(mr, nr, kc, i*MR, j*NR,
                        alpha, &A_[i*kc*MR], &B_[j*kc*NR],
                        beta,

@@ -14,7 +14,7 @@ swap(IndexType      n,
      VY             *y,
      IndexType      incY)
 {
-    const IndexType    UnitStride(1);
+    constexpr IndexType   UnitStride(1);
 
     if (incX==UnitStride && incY==UnitStride) {
         for (IndexType i=0; i<n; ++i) {

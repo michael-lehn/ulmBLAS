@@ -52,7 +52,8 @@ dotuxf(IndexType      n,
        Result         *result,
        IndexType      resultInc)
 {
-    const IndexType ff = FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotuxf;
+    constexpr IndexType ff
+        = FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotuxf;
 
     for (IndexType j=0; j<ff; ++j) {
         result[j*resultInc] = Result(0);
@@ -111,7 +112,8 @@ dotcxf(IndexType      n,
        Result         *result,
        IndexType      resultInc)
 {
-    const IndexType ff = FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotcxf;
+    constexpr IndexType ff
+        = FuseFactor<decltype(TX(0)*TY(0)+Result(0))>::dotcxf;
 
     for (IndexType j=0; j<ff; ++j) {
         result[j*resultInc] = Result(0);

@@ -31,10 +31,10 @@ sylr2k(IndexType    n,
 {
     typedef decltype(Alpha(0)*TA(0))  T;
 
-    const IndexType MC = BlockSize<T>::MC;
+    constexpr IndexType MC = BlockSize<T>::MC;
 
-    const IndexType MR = BlockSizeUGemm<T>::MR;
-    const IndexType NR = BlockSizeUGemm<T>::NR;
+    constexpr IndexType MR = BlockSizeUGemm<T>::MR;
+    constexpr IndexType NR = BlockSizeUGemm<T>::NR;
 
     const IndexType mb = (n+MC-1) / MC;
     const IndexType kb = (k+MC-1) / MC;

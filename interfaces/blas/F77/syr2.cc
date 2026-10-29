@@ -7,30 +7,30 @@
 extern "C" {
 
 void
-F77BLAS(ssyr2)(const char        *upLo_,
-               const int         *n_,
-               const float       *alpha_,
-               const float       *x,
-               const int         *incX_,
-               const float       *y,
-               const int         *incY_,
-               float             *A,
-               const int         *ldA_)
+F77BLAS(ssyr2)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const float              *y,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               float                    *A,
+               const ULMBLAS_INDEX_TYPE *ldA_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lower   = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    float alpha  = *alpha_;
-    int incX     = *incX_;
-    int incY     = *incY_;
-    int ldA      = *ldA_;
+    bool lower              = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    float alpha             = *alpha_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
         info = 1;
@@ -40,12 +40,13 @@ F77BLAS(ssyr2)(const char        *upLo_,
         info = 5;
     } else if (incY==0) {
         info = 7;
-    } else if (ldA<std::max(1,n)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 9;
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("SSYR2 ", &info);
+        F77BLAS(xerbla)("SSYR2 ", &info, 6);
+        return;
     }
 
 //
@@ -59,37 +60,37 @@ F77BLAS(ssyr2)(const char        *upLo_,
     }
 
     if (lower) {
-        ulmBLAS::sylr2(n, alpha, x, incX, y, incY, A, 1, ldA);
+        ulmBLAS::sylr2<std::ptrdiff_t>(n, alpha, x, incX, y, incY, A, 1, ldA);
     } else {
-        ulmBLAS::sylr2(n, alpha, x, incX, y, incY, A, ldA, 1);
+        ulmBLAS::sylr2<std::ptrdiff_t>(n, alpha, x, incX, y, incY, A, ldA, 1);
     }
 }
 
 void
-F77BLAS(dsyr2)(const char        *upLo_,
-               const int         *n_,
-               const double      *alpha_,
-               const double      *x,
-               const int         *incX_,
-               const double      *y,
-               const int         *incY_,
-               double            *A,
-               const int         *ldA_)
+F77BLAS(dsyr2)(const char               *upLo_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *x,
+               const ULMBLAS_INDEX_TYPE *incX_,
+               const double             *y,
+               const ULMBLAS_INDEX_TYPE *incY_,
+               double                   *A,
+               const ULMBLAS_INDEX_TYPE *ldA_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lower   = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    double alpha = *alpha_;
-    int incX     = *incX_;
-    int incY     = *incY_;
-    int ldA      = *ldA_;
+    bool lower              = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    double alpha            = *alpha_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
+    ULMBLAS_INDEX_TYPE incY = *incY_;
+    ULMBLAS_INDEX_TYPE ldA  = *ldA_;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
         info = 1;
@@ -99,12 +100,13 @@ F77BLAS(dsyr2)(const char        *upLo_,
         info = 5;
     } else if (incY==0) {
         info = 7;
-    } else if (ldA<std::max(1,n)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 9;
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("DSYR2 ", &info);
+        F77BLAS(xerbla)("DSYR2 ", &info, 6);
+        return;
     }
 
 //
@@ -118,9 +120,9 @@ F77BLAS(dsyr2)(const char        *upLo_,
     }
 
     if (lower) {
-        ulmBLAS::sylr2(n, alpha, x, incX, y, incY, A, 1, ldA);
+        ulmBLAS::sylr2<std::ptrdiff_t>(n, alpha, x, incX, y, incY, A, 1, ldA);
     } else {
-        ulmBLAS::sylr2(n, alpha, x, incX, y, incY, A, ldA, 1);
+        ulmBLAS::sylr2<std::ptrdiff_t>(n, alpha, x, incX, y, incY, A, ldA, 1);
     }
 }
 

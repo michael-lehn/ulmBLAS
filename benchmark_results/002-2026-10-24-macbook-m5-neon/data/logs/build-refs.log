@@ -1,0 +1,13 @@
+08bbebd77914a6d1a43874ae5ec2f54fe6a77cba745f2532df28361b0f1ad1b3  blis-2.0.tar.gz
+cd7e129868320cc2d033afa920e31202dfe0b8066a5b66661900ccc0f197dfed  OpenBLAS-0.3.34.tar.gz
+== BLIS 2.0 (configuration firestorm: dgemm micro kernel armv8a 8x6r, no threading)
+BLIS build rc=0: DIR/refs/blis/lib/libblis.a
+== OpenBLAS v0.3.34 (target detected, no threading, no Fortran/LAPACK)
+OpenBLAS build rc=0: DIR/refs/openblas/lib/libopenblas.a
+Makefile.conf_last:ARCH=arm64
+Makefile.conf_last:CORE=VORTEXM4
+Makefile.conf_last:LIBCORE=vortexm4
+Makefile.conf_last:USE_THREAD=0
+Makefile.conf:ARCH=arm64
+Makefile.conf:CORE=VORTEXM4
+Makefile.conf:LIBCORE=vortexm4

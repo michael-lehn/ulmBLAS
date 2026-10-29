@@ -1,0 +1,21 @@
+diff --git a/ulmblas/level3/gemm.tcc b/ulmblas/level3/gemm.tcc
+index b16bb31..aea993f 100644
+--- a/ulmblas/level3/gemm.tcc
++++ b/ulmblas/level3/gemm.tcc
+@@ -54,8 +54,14 @@ gemm(IndexType    m,
+         return;
+     }
+ 
+-    T  *A_ = memoryPool.allocate(MC*KC+MR);
+-    T  *B_ = memoryPool.allocate(KC*NC+NR);
++    //  Buffers for the largest blocks of this call (not of MC, KC, NC: a
++    //  small problem needs a small buffer, which is cheaper to allocate).
++    const IndexType mcMax = (mb>1) ? MC : (m+MR-1) / MR * MR;
++    const IndexType ncMax = (nb>1) ? NC : (n+NR-1) / NR * NR;
++    const IndexType kcMax = (kb>1) ? KC : k;
++
++    T  *A_ = memoryPool.allocate(mcMax*kcMax+MR);
++    T  *B_ = memoryPool.allocate(kcMax*ncMax+NR);
+ 
+     for (IndexType j=0; j<nb; ++j) {
+         IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;

@@ -51,7 +51,7 @@ dotu(IndexType      n,
         IndexType nl = n % 2;
 
         __m128d x12, y12, result12;
-        double  result12_[2];
+        alignas(16) double  result12_[2];
 
         result12 = _mm_setzero_pd();
         for (IndexType i=0; i<nb; ++i) {

@@ -1,0 +1,131 @@
+==PROF== Connected to process 1112475 (/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-s6-ncu/cuda/build/bench_gemm)
+==PROF== Profiling "Kernel2" - 0 (1/12): 0%....50%....100% - 3 passes
+==PROF== Profiling "Kernel2" - 1 (2/12): 0%....50%....100% - 3 passes
+==PROF== Profiling "Kernel2" - 2 (3/12): 0%....50%....100% - 3 passes
+==PROF== Profiling "dgemm" - 3 (4/12): 0%....50%....100% - 3 passes
+==PROF== Profiling "dgemm" - 4 (5/12): 0%....50%....100% - 3 passes
+==PROF== Profiling "dgemm" - 5 (6/12): 0%....50%....100% - 3 passes
+# host uc2n902.localdomain, 2026-10-29T09:50:12
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 2 warm-up calls, 1 timed calls, CUDA events
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     2048   2048   2048    139.909    139.909    139.909      122.8    1.000
+step06     2048   2048   2048    159.596    159.596    159.596      107.6    0.877
+==PROF== Disconnected from process 1112475
+[1112475] bench_gemm@127.0.0.1
+  void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params) (256, 4, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- --------------- ------------
+    Metric Name                                                                Metric Unit Metric Value
+    ---------------------------------------------------------------------- --------------- ------------
+    gpu__time_duration.sum                                                              ms         1.26
+    launch__block_size                                                                              128
+    launch__grid_size                                                                             1,024
+    launch__registers_per_thread                                           register/thread          128
+    launch__shared_mem_per_block_dynamic                                       Kbyte/block        65.54
+    launch__shared_mem_per_block_static                                         byte/block            0
+    sm__inst_executed_pipe_fp64.sum                                                   inst      266,240
+    sm__inst_executed_pipe_tensor_op_dmma.sum                                         inst   33,554,432
+    sm__pipe_fp64_cycles_active.avg.pct_of_peak_sustained_active                         %         0.19
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active               %        98.13
+    sm__warps_active.avg.pct_of_peak_sustained_active                                    %        12.05
+    smsp__inst_executed.sum                                                           inst  110,284,800
+    ---------------------------------------------------------------------- --------------- ------------
+
+  void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params) (256, 4, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- --------------- ------------
+    Metric Name                                                                Metric Unit Metric Value
+    ---------------------------------------------------------------------- --------------- ------------
+    gpu__time_duration.sum                                                              ms         1.26
+    launch__block_size                                                                              128
+    launch__grid_size                                                                             1,024
+    launch__registers_per_thread                                           register/thread          128
+    launch__shared_mem_per_block_dynamic                                       Kbyte/block        65.54
+    launch__shared_mem_per_block_static                                         byte/block            0
+    sm__inst_executed_pipe_fp64.sum                                                   inst      266,240
+    sm__inst_executed_pipe_tensor_op_dmma.sum                                         inst   33,554,432
+    sm__pipe_fp64_cycles_active.avg.pct_of_peak_sustained_active                         %         0.19
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active               %        98.15
+    sm__warps_active.avg.pct_of_peak_sustained_active                                    %        12.05
+    smsp__inst_executed.sum                                                           inst  110,284,800
+    ---------------------------------------------------------------------- --------------- ------------
+
+  void cutlass::Kernel2<cutlass_80_tensorop_d884gemm_64x64_16x4_nn_align1>(T1::Params) (256, 4, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- --------------- ------------
+    Metric Name                                                                Metric Unit Metric Value
+    ---------------------------------------------------------------------- --------------- ------------
+    gpu__time_duration.sum                                                              ms         1.26
+    launch__block_size                                                                              128
+    launch__grid_size                                                                             1,024
+    launch__registers_per_thread                                           register/thread          128
+    launch__shared_mem_per_block_dynamic                                       Kbyte/block        65.54
+    launch__shared_mem_per_block_static                                         byte/block            0
+    sm__inst_executed_pipe_fp64.sum                                                   inst      266,240
+    sm__inst_executed_pipe_tensor_op_dmma.sum                                         inst   33,554,432
+    sm__pipe_fp64_cycles_active.avg.pct_of_peak_sustained_active                         %         0.19
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active               %        98.15
+    sm__warps_active.avg.pct_of_peak_sustained_active                                    %        12.05
+    smsp__inst_executed.sum                                                           inst  110,284,800
+    ---------------------------------------------------------------------- --------------- ------------
+
+  cULMblas::<unnamed>::dgemm(long, long, long, double, const double *, long, const double *, long, double, double *, long) (64, 128, 1)x(32, 8, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- --------------- -------------
+    Metric Name                                                                Metric Unit  Metric Value
+    ---------------------------------------------------------------------- --------------- -------------
+    gpu__time_duration.sum                                                              ms          7.32
+    launch__block_size                                                                               256
+    launch__grid_size                                                                              8,192
+    launch__registers_per_thread                                           register/thread            64
+    launch__shared_mem_per_block_dynamic                                        byte/block             0
+    launch__shared_mem_per_block_static                                        Kbyte/block          8.19
+    sm__inst_executed_pipe_fp64.sum                                                   inst       393,216
+    sm__inst_executed_pipe_tensor_op_dmma.sum                                         inst    33,554,432
+    sm__pipe_fp64_cycles_active.avg.pct_of_peak_sustained_active                         %          0.05
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active               %         16.02
+    sm__warps_active.avg.pct_of_peak_sustained_active                                    %         49.02
+    smsp__inst_executed.sum                                                           inst 1,088,225,280
+    ---------------------------------------------------------------------- --------------- -------------
+
+  cULMblas::<unnamed>::dgemm(long, long, long, double, const double *, long, const double *, long, double, double *, long) (64, 128, 1)x(32, 8, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- --------------- -------------
+    Metric Name                                                                Metric Unit  Metric Value
+    ---------------------------------------------------------------------- --------------- -------------
+    gpu__time_duration.sum                                                              ms          7.33
+    launch__block_size                                                                               256
+    launch__grid_size                                                                              8,192
+    launch__registers_per_thread                                           register/thread            64
+    launch__shared_mem_per_block_dynamic                                        byte/block             0
+    launch__shared_mem_per_block_static                                        Kbyte/block          8.19
+    sm__inst_executed_pipe_fp64.sum                                                   inst       393,216
+    sm__inst_executed_pipe_tensor_op_dmma.sum                                         inst    33,554,432
+    sm__pipe_fp64_cycles_active.avg.pct_of_peak_sustained_active                         %          0.05
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active               %         16.05
+    sm__warps_active.avg.pct_of_peak_sustained_active                                    %         49.02
+    smsp__inst_executed.sum                                                           inst 1,088,225,280
+    ---------------------------------------------------------------------- --------------- -------------
+
+  cULMblas::<unnamed>::dgemm(long, long, long, double, const double *, long, const double *, long, double, double *, long) (64, 128, 1)x(32, 8, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    ---------------------------------------------------------------------- --------------- -------------
+    Metric Name                                                                Metric Unit  Metric Value
+    ---------------------------------------------------------------------- --------------- -------------
+    gpu__time_duration.sum                                                              ms          7.32
+    launch__block_size                                                                               256
+    launch__grid_size                                                                              8,192
+    launch__registers_per_thread                                           register/thread            64
+    launch__shared_mem_per_block_dynamic                                        byte/block             0
+    launch__shared_mem_per_block_static                                        Kbyte/block          8.19
+    sm__inst_executed_pipe_fp64.sum                                                   inst       393,216
+    sm__inst_executed_pipe_tensor_op_dmma.sum                                         inst    33,554,432
+    sm__pipe_fp64_cycles_active.avg.pct_of_peak_sustained_active                         %          0.05
+    sm__pipe_tensor_op_dmma_cycles_active.avg.pct_of_peak_sustained_active               %         16.03
+    sm__warps_active.avg.pct_of_peak_sustained_active                                    %         49.01
+    smsp__inst_executed.sum                                                           inst 1,088,225,280
+    ---------------------------------------------------------------------- --------------- -------------
+

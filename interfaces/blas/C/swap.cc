@@ -5,11 +5,11 @@
 extern "C" {
 
 void
-ULMBLAS(sswap)(const int n,
-               float     *x,
-               const int incX,
-               float     *y,
-               const int incY)
+ULMBLAS(sswap)(const ULMBLAS_INDEX_TYPE n,
+               float                    *x,
+               const ULMBLAS_INDEX_TYPE incX,
+               float                    *y,
+               const ULMBLAS_INDEX_TYPE incY)
 {
     if (incX<0) {
         x -= incX*(n-1);
@@ -17,15 +17,15 @@ ULMBLAS(sswap)(const int n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    return ulmBLAS::swap(n, x, incX, y, incY);
+    return ulmBLAS::swap<std::ptrdiff_t>(n, x, incX, y, incY);
 }
 
 void
-ULMBLAS(dswap)(const int n,
-               double    *x,
-               const int incX,
-               double    *y,
-               const int incY)
+ULMBLAS(dswap)(const ULMBLAS_INDEX_TYPE n,
+               double                   *x,
+               const ULMBLAS_INDEX_TYPE incX,
+               double                   *y,
+               const ULMBLAS_INDEX_TYPE incY)
 {
     if (incX<0) {
         x -= incX*(n-1);
@@ -33,15 +33,15 @@ ULMBLAS(dswap)(const int n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    return ulmBLAS::swap(n, x, incX, y, incY);
+    return ulmBLAS::swap<std::ptrdiff_t>(n, x, incX, y, incY);
 }
 
 void
-ULMBLAS(cswap)(const int n,
-               float     *x_,
-               const int incX,
-               float     *y_,
-               const int incY)
+ULMBLAS(cswap)(const ULMBLAS_INDEX_TYPE n,
+               float                    *x_,
+               const ULMBLAS_INDEX_TYPE incX,
+               float                    *y_,
+               const ULMBLAS_INDEX_TYPE incY)
 {
     typedef std::complex<float> fcomplex;
     fcomplex *x = reinterpret_cast<fcomplex *>(x_);
@@ -53,15 +53,15 @@ ULMBLAS(cswap)(const int n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    return ulmBLAS::swap(n, x, incX, y, incY);
+    return ulmBLAS::swap<std::ptrdiff_t>(n, x, incX, y, incY);
 }
 
 void
-ULMBLAS(zswap)(const int n,
-               double    *x_,
-               const int incX,
-               double    *y_,
-               const int incY)
+ULMBLAS(zswap)(const ULMBLAS_INDEX_TYPE n,
+               double                   *x_,
+               const ULMBLAS_INDEX_TYPE incX,
+               double                   *y_,
+               const ULMBLAS_INDEX_TYPE incY)
 {
     typedef std::complex<double> dcomplex;
     dcomplex *x = reinterpret_cast<dcomplex *>(x_);
@@ -73,45 +73,45 @@ ULMBLAS(zswap)(const int n,
     if (incY<0) {
         y -= incY*(n-1);
     }
-    return ulmBLAS::swap(n, x, incX, y, incY);
+    return ulmBLAS::swap<std::ptrdiff_t>(n, x, incX, y, incY);
 }
 
 void
-CBLAS(sswap)(const int n,
-             float     *x,
-             const int incX,
-             float     *y,
-             const int incY)
+CBLAS(sswap)(const ULMBLAS_INDEX_TYPE n,
+             float                    *x,
+             const ULMBLAS_INDEX_TYPE incX,
+             float                    *y,
+             const ULMBLAS_INDEX_TYPE incY)
 {
     ULMBLAS(sswap)(n, x, incX, y, incY);
 }
 
 void
-CBLAS(dswap)(const int n,
-             double    *x,
-             const int incX,
-             double    *y,
-             const int incY)
+CBLAS(dswap)(const ULMBLAS_INDEX_TYPE n,
+             double                   *x,
+             const ULMBLAS_INDEX_TYPE incX,
+             double                   *y,
+             const ULMBLAS_INDEX_TYPE incY)
 {
     ULMBLAS(dswap)(n, x, incX, y, incY);
 }
 
 void
-CBLAS(cswap)(const int n,
-             float     *x,
-             const int incX,
-             float     *y,
-             const int incY)
+CBLAS(cswap)(const ULMBLAS_INDEX_TYPE n,
+             float                    *x,
+             const ULMBLAS_INDEX_TYPE incX,
+             float                    *y,
+             const ULMBLAS_INDEX_TYPE incY)
 {
     ULMBLAS(cswap)(n, x, incX, y, incY);
 }
 
 void
-CBLAS(zswap)(const int n,
-             double    *x,
-             const int incX,
-             double    *y,
-             const int incY)
+CBLAS(zswap)(const ULMBLAS_INDEX_TYPE n,
+             double                   *x,
+             const ULMBLAS_INDEX_TYPE incX,
+             double                   *y,
+             const ULMBLAS_INDEX_TYPE incY)
 {
     ULMBLAS(zswap)(n, x, incX, y, incY);
 }

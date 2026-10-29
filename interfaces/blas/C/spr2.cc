@@ -6,14 +6,14 @@
 extern "C" {
 
 void
-ULMBLAS(sspr2)(enum CBLAS_UPLO  upLo,
-               int              n,
-               float            alpha,
-               const float      *x,
-               int              incX,
-               const float      *y,
-               int              incY,
-               float            *A)
+ULMBLAS(sspr2)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               float              alpha,
+               const float        *x,
+               ULMBLAS_INDEX_TYPE incX,
+               const float        *y,
+               ULMBLAS_INDEX_TYPE incY,
+               float              *A)
 {
     if (incX<0) {
         x -= incX*(n-1);
@@ -25,21 +25,21 @@ ULMBLAS(sspr2)(enum CBLAS_UPLO  upLo,
 //  Start the operations.
 //
     if (upLo==CblasLower) {
-        ulmBLAS::splr2(n, alpha, x, incX, y, incY, A);
+        ulmBLAS::splr2<std::ptrdiff_t>(n, alpha, x, incX, y, incY, A);
     } else {
-        ulmBLAS::spur2(n, alpha, x, incX, y, incY, A);
+        ulmBLAS::spur2<std::ptrdiff_t>(n, alpha, x, incX, y, incY, A);
     }
 }
 
 void
-ULMBLAS(dspr2)(enum CBLAS_UPLO  upLo,
-               int              n,
-               double           alpha,
-               const double     *x,
-               int              incX,
-               const double     *y,
-               int              incY,
-               double           *A)
+ULMBLAS(dspr2)(enum CBLAS_UPLO    upLo,
+               ULMBLAS_INDEX_TYPE n,
+               double             alpha,
+               const double       *x,
+               ULMBLAS_INDEX_TYPE incX,
+               const double       *y,
+               ULMBLAS_INDEX_TYPE incY,
+               double             *A)
 {
     if (incX<0) {
         x -= incX*(n-1);
@@ -51,22 +51,22 @@ ULMBLAS(dspr2)(enum CBLAS_UPLO  upLo,
 //  Start the operations.
 //
     if (upLo==CblasLower) {
-        ulmBLAS::splr2(n, alpha, x, incX, y, incY, A);
+        ulmBLAS::splr2<std::ptrdiff_t>(n, alpha, x, incX, y, incY, A);
     } else {
-        ulmBLAS::spur2(n, alpha, x, incX, y, incY, A);
+        ulmBLAS::spur2<std::ptrdiff_t>(n, alpha, x, incX, y, incY, A);
     }
 }
 
 void
-CBLAS(sspr2)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             float             alpha,
-             const float       *x,
-             int               incX,
-             const float       *y,
-             int               incY,
-             float             *A)
+CBLAS(sspr2)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             float              alpha,
+             const float        *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const float        *y,
+             ULMBLAS_INDEX_TYPE incY,
+             float              *A)
 {
 //
 //  Test the input parameters
@@ -90,6 +90,7 @@ CBLAS(sspr2)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_sspr2", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -102,15 +103,15 @@ CBLAS(sspr2)(enum CBLAS_ORDER  order,
 }
 
 void
-CBLAS(dspr2)(enum CBLAS_ORDER  order,
-             enum CBLAS_UPLO   upLo,
-             int               n,
-             double            alpha,
-             const double      *x,
-             int               incX,
-             const double      *y,
-             int               incY,
-             double            *A)
+CBLAS(dspr2)(enum CBLAS_ORDER   order,
+             enum CBLAS_UPLO    upLo,
+             ULMBLAS_INDEX_TYPE n,
+             double             alpha,
+             const double       *x,
+             ULMBLAS_INDEX_TYPE incX,
+             const double       *y,
+             ULMBLAS_INDEX_TYPE incY,
+             double             *A)
 {
 //
 //  Test the input parameters
@@ -134,6 +135,7 @@ CBLAS(dspr2)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_dspr2", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {

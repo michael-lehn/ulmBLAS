@@ -1,0 +1,28 @@
+# faults.c (minor page faults from getrusage and time per cblas_dgemm call,
+# after 100 warm-up calls; short runs without bench2's warm-up time, so the
+# times are not comparable with the campaign, only the fault counts are).
+# Libraries of 2a-allocation: packfix = master d7ca66a (shared pool),
+# +malloc = MemoryPool as plain new/delete, +exact = and gemm with buffers of
+# the problem size, +tcache = per-thread cache (first draft).
+== packfix
+n    8: 0.00 page faults per call, 0.531 us per call
+n   16: 0.00 page faults per call, 0.520 us per call
+n   64: 0.00 page faults per call, 2.784 us per call
+n  256: 0.00 page faults per call, 82.221 us per call
+== packfix+malloc
+n    8: 0.00 page faults per call, 0.558 us per call
+n   16: 0.00 page faults per call, 0.808 us per call
+n   64: 0.00 page faults per call, 3.274 us per call
+n  256: 0.00 page faults per call, 88.870 us per call
+== packfix+malloc+exact
+n    8: 0.00 page faults per call, 0.708 us per call
+n   16: 0.00 page faults per call, 0.551 us per call
+n   64: 0.00 page faults per call, 3.938 us per call
+n  256: 0.00 page faults per call, 88.967 us per call
+== packfix+tcache
+n    8: 0.00 page faults per call, 0.568 us per call
+n   16: 0.00 page faults per call, 0.562 us per call
+n   64: 0.00 page faults per call, 2.785 us per call
+n  256: 0.00 page faults per call, 80.593 us per call
+# addr.cc: addresses of new double[] in 8 consecutive "calls": identical in
+# every call for the fixed sizes (3 MiB + 8 MiB) and the exact sizes.

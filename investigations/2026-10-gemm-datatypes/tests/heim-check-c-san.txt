@@ -1,0 +1,10 @@
+2026-10-28T17:58:08+01:00
+model name	: 12th Gen Intel(R) Core(TM) i5-12500
+g++ (Debian 12.2.0-14+deb12u1) 12.2.0
+b9a3f32fd1dcac146f4998cb52b02c7d635e25c4a2a9405e41f81b580245a425  /tmp/ct.tgz
+OPTFLAGS=-O2 -g -fno-omit-frame-pointer -fsanitize=address,undefined -fno-sanitize-recover=undefined --param asan-stack=0
+Summary (c-blis_haswell_3x8 c-blis_haswell_3x8-small c-blis_haswell_8x3 c-blis_haswell_8x3-small c-blis_sandybridge_8x4 c-blis_sandybridge_8x4-small c-blis_aocl_haswell_3x8 c-blis_aocl_haswell_3x8-small c-openblas_haswell_8x2 c-openblas_haswell_8x2-small c-openblas_skylakex_8x2 c-openblas_skylakex_8x2-small):
+  PASS 1736, FAIL 0, XFAIL 0, XPASS 0, DESIGN 20, SKIP 350
+
+san exit 0
+san reports: 0

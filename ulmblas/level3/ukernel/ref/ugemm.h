@@ -8,8 +8,8 @@ namespace ulmBLAS { namespace ref {
 template <typename T>
 struct BlockSizeUGemm
 {
-    static const int MR = BlockSize<T>::MR;
-    static const int NR = BlockSize<T>::NR;
+    static constexpr int MR = BlockSize<T>::MR;
+    static constexpr int NR = BlockSize<T>::NR;
 
     static_assert(MR>0 && NR>0, "Invalid block size.");
 };

@@ -17,7 +17,7 @@ truscal(IndexType    m,
         IndexType    incRowA,
         IndexType    incColA)
 {
-    const IndexType    UnitStride(1);
+    constexpr IndexType   UnitStride(1);
 
     if (alpha==Alpha(1) || m<=0 || n<=0) {
         return;
@@ -40,9 +40,7 @@ truscal(IndexType    m,
     } else {
         const IndexType k = std::min(m, n);
         for (IndexType i=0; i<k; ++i) {
-            for (IndexType j=i; j<n; ++j) {
-                A[i*incRowA+j*incColA] *= alpha;
-            }
+            scal(n-i, alpha, &A[i*(incRowA+incColA)], incColA);
         }
     }
 }

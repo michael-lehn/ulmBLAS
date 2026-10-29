@@ -20,7 +20,7 @@ truaxpy(IndexType    m,
         IndexType    incRowY,
         IndexType    incColY)
 {
-    const IndexType    UnitStride(1);
+    constexpr IndexType   UnitStride(1);
 
     if (m<=0 || n<=0 || alpha==Alpha(0)) {
         return;

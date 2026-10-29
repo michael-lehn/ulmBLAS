@@ -15,7 +15,7 @@ gescal(IndexType    m,
        IndexType    incRowA,
        IndexType    incColA)
 {
-    const IndexType    UnitStride(1);
+    constexpr IndexType   UnitStride(1);
 
     if (alpha==Alpha(1) || m<=0 || n<=0) {
         return;
@@ -31,9 +31,7 @@ gescal(IndexType    m,
         }
     } else {
         for (IndexType j=0; j<n; ++j) {
-            for (IndexType i=0; i<m; ++i) {
-                A[i*incRowA+j*incColA] *= alpha;
-            }
+            scal(m, alpha, &A[j*incColA], incRowA);
         }
     }
 }

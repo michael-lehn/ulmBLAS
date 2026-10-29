@@ -1,0 +1,205 @@
+//
+//  Step 08 (experimental knobs): Tensor Cores with panels of A and B in
+//  shared memory for the whole block.
+//
+#include <culmblas/check.h>
+#include <culmblas/gemm.h>
+#include <step08/gemm.h>
+
+#include <mma.h>
+
+#include <limits>
+#include <stdexcept>
+
+#ifndef CULMBLAS_STEP08_PAD_A           // extra doubles per column of sA (even)
+#define CULMBLAS_STEP08_PAD_A 0
+#endif
+#ifndef CULMBLAS_STEP08_PAD_B           // extra doubles per column of sB (even)
+#define CULMBLAS_STEP08_PAD_B 0
+#endif
+#ifndef CULMBLAS_STEP08_UNROLL          // steps of 4 per pass of the inner loop
+#define CULMBLAS_STEP08_UNROLL (CULMBLAS_STEP08_PANEL/4)
+#endif
+#ifndef CULMBLAS_STEP08_MIN_BLOCKS
+#define CULMBLAS_STEP08_MIN_BLOCKS 0
+#endif
+
+namespace cULMblas { namespace step08 {
+
+namespace {
+
+constexpr int NumWarps   = WarpsM*WarpsN;
+constexpr int UnrollS    = CULMBLAS_STEP08_UNROLL;
+constexpr int NumThreads = 32*NumWarps;
+constexpr int LdA        = BlockRows + CULMBLAS_STEP08_PAD_A;   // of sA
+constexpr int LdB        = Panel + CULMBLAS_STEP08_PAD_B;       // of sB
+constexpr int SizeA      = LdA*Panel;
+constexpr int SizeB      = LdB*BlockCols;
+constexpr int SizeC      = NumWarps*WarpRows*WarpCols;
+constexpr int SizeBuf    = SizeA + SizeB > SizeC ? SizeA + SizeB : SizeC;
+
+static_assert(LdA % 2 == 0 && LdB % 2 == 0, "load_matrix_sync: ld");
+static_assert(SizeA % 4 == 0, "alignment of sB");
+static_assert(BlockRows*Panel % NumThreads == 0, "panel of A");
+static_assert(Panel*BlockCols % NumThreads == 0, "panel of B");
+static_assert(Panel % TileK == 0, "panel");
+
+std::ptrdiff_t
+ceildiv(std::ptrdiff_t a, std::ptrdiff_t b)
+{
+    return a/b + (a%b != 0);
+}
+
+#if CULMBLAS_STEP08_MIN_BLOCKS
+__global__ void __launch_bounds__(NumThreads, CULMBLAS_STEP08_MIN_BLOCKS)
+#else
+__global__ void __launch_bounds__(NumThreads)
+#endif
+dgemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
+      double alpha,
+      const double *A, int ldA,
+      const double *B, int ldB,
+      double beta,
+      double *C, std::ptrdiff_t ldC)
+{
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 800
+    using namespace nvcuda;
+
+    __shared__ __align__(32) double buf[SizeBuf];
+    double *sA = buf, *sB = buf + SizeA;    // sA(i,l) = sA[i + l*LdA], sB(l,j) = sB[l + j*LdB]
+
+    const int lane = threadIdx.x, warp = threadIdx.y;
+    const int tid = warp*32 + lane;
+    const int wi = (warp % WarpsM)*WarpRows, wj = (warp / WarpsM)*WarpCols;
+
+    const std::ptrdiff_t i0 = std::ptrdiff_t(blockIdx.x)*BlockRows;
+    const std::ptrdiff_t j0 = std::ptrdiff_t(blockIdx.y)*BlockCols;
+    const int mb = m - i0 < BlockRows ? int(m - i0) : BlockRows;
+    const int nb = n - j0 < BlockCols ? int(n - j0) : BlockCols;
+
+    A += i0;
+    B += j0*ldB;
+
+    wmma::fragment<wmma::accumulator, TileM, TileN, TileK, double>
+        ab[TilesM][TilesN];
+    for (int r = 0; r < TilesM; ++r) {
+        for (int c = 0; c < TilesN; ++c) {
+            wmma::fill_fragment(ab[r][c], 0.0);
+        }
+    }
+
+    if (alpha != 0) {
+        for (std::ptrdiff_t l0 = 0; l0 < k; l0 += Panel) {
+            const int kb = k - l0 < Panel ? int(k - l0) : Panel;
+            for (int q = 0; q < BlockRows*Panel/NumThreads; ++q) {
+                int e = tid + q*NumThreads, i = e % BlockRows, l = e / BlockRows;
+                sA[i + l*LdA] = (i < mb && l < kb) ? A[i + l*ldA] : 0;
+            }
+            for (int q = 0; q < Panel*BlockCols/NumThreads; ++q) {
+                int e = tid + q*NumThreads, l = e % Panel, j = e / Panel;
+                sB[l + j*LdB] = (j < nb && l < kb) ? B[l + j*ldB] : 0;
+            }
+            __syncthreads();
+
+            #pragma unroll UnrollS
+            for (int s = 0; s < Panel/TileK; ++s) {
+                wmma::fragment<wmma::matrix_a, TileM, TileN, TileK, double,
+                               wmma::col_major> a[TilesM];
+                wmma::fragment<wmma::matrix_b, TileM, TileN, TileK, double,
+                               wmma::col_major> b[TilesN];
+                for (int r = 0; r < TilesM; ++r) {
+                    wmma::load_matrix_sync(a[r],
+                        sA + wi + r*TileM + s*TileK*LdA, LdA);
+                }
+                for (int c = 0; c < TilesN; ++c) {
+                    wmma::load_matrix_sync(b[c],
+                        sB + s*TileK + (wj + c*TileN)*LdB, LdB);
+                }
+                for (int r = 0; r < TilesM; ++r) {
+                    for (int c = 0; c < TilesN; ++c) {
+                        wmma::mma_sync(ab[r][c], a[r], b[c], ab[r][c]);
+                    }
+                }
+            }
+            __syncthreads();
+
+            A += std::ptrdiff_t(Panel)*ldA;
+            B += Panel;
+        }
+    }
+
+    //  C: every warp stores its blocks into its part of buf
+    double *sC = buf + warp*WarpRows*WarpCols;
+    for (int r = 0; r < TilesM; ++r) {
+        for (int c = 0; c < TilesN; ++c) {
+            wmma::store_matrix_sync(sC + r*TileM + c*TileN*WarpRows,
+                                    ab[r][c], WarpRows, wmma::mem_col_major);
+        }
+    }
+    __syncwarp();
+    for (int e = lane; e < WarpRows*WarpCols; e += 32) {
+        int i = wi + e % WarpRows, j = wj + e / WarpRows;
+        if (i < mb && j < nb) {
+            double &cij = C[i0 + i + (j0 + j)*ldC];
+            cij = (beta == 0) ? alpha*sC[e] : beta*cij + alpha*sC[e];
+        }
+    }
+#endif
+}
+
+bool
+haveFP64TensorCores()
+{
+    int device, major;
+    CULMBLAS_CHECK_CUDA(cudaGetDevice(&device));
+    CULMBLAS_CHECK_CUDA(cudaDeviceGetAttribute(
+        &major, cudaDevAttrComputeCapabilityMajor, device));
+    return major >= 8;
+}
+
+} // namespace
+
+void
+gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
+     double alpha,
+     const double *A, std::ptrdiff_t ldA,
+     const double *B, std::ptrdiff_t ldB,
+     double beta,
+     double *C, std::ptrdiff_t ldC,
+     cudaStream_t stream)
+{
+    checkGemmArguments(m, n, k, A, ldA, B, ldB, C, ldC);
+
+    if (m == 0 || n == 0 || ((alpha == 0 || k == 0) && beta == 1)) {
+        return;
+    }
+    static const bool tensorCores = haveFP64TensorCores();
+    if (!tensorCores) {
+        throw std::runtime_error("cULMblas::step08::gemm: needs a GPU with "
+                                 "FP64 Tensor Cores (compute capability "
+                                 ">= 8.0)");
+    }
+
+    std::ptrdiff_t numBlocksM = ceildiv(m, BlockRows);
+    std::ptrdiff_t numBlocksN = ceildiv(n, BlockCols);
+
+    if (numBlocksM > std::numeric_limits<int>::max() || numBlocksN > 65535) {
+        throw std::invalid_argument("cULMblas::step08::gemm: m or n too "
+                                    "large for the grid of this kernel");
+    }
+    constexpr std::ptrdiff_t intMax = std::numeric_limits<int>::max();
+    if (ldA > intMax/Panel || ldB > intMax/BlockCols) {
+        throw std::invalid_argument("cULMblas::step08::gemm: ldA or ldB too "
+                                    "large for this kernel");
+    }
+
+    dim3 block(32, NumWarps);
+    dim3 grid(static_cast<unsigned>(numBlocksM),
+              static_cast<unsigned>(numBlocksN));
+
+    dgemm<<<grid, block, 0, stream>>>(m, n, k, alpha, A, int(ldA), B,
+                                      int(ldB), beta, C, ldC);
+    CULMBLAS_CHECK_CUDA(cudaGetLastError());
+}
+
+} } // namespace step08, cULMblas

@@ -12,22 +12,22 @@ VERBOSE(#ifdef) __cplusplus
 extern "C" {
 VERBOSE(#endif)
 
-int
-ULMLAPACK(dgetrf)(enum CBLAS_ORDER  order,
-                int         m,
-                int         n,
-                double      *A,
-                int         ldA,
-                int         *piv);
+ULMBLAS_INDEX_TYPE
+ULMLAPACK(dgetrf)(enum CBLAS_ORDER   order,
+                  ULMBLAS_INDEX_TYPE m,
+                  ULMBLAS_INDEX_TYPE n,
+                  double             *A,
+                  ULMBLAS_INDEX_TYPE ldA,
+                  ULMBLAS_INDEX_TYPE *piv);
 
 void
-ULMLAPACK(dlaswp)(int     n,
-                  double  *A,
-                  int     ldA,
-                  int     k1,
-                  int     k2,
-                  int     *piv,
-                  int     incPiv);
+ULMLAPACK(dlaswp)(ULMBLAS_INDEX_TYPE n,
+                  double             *A,
+                  ULMBLAS_INDEX_TYPE ldA,
+                  ULMBLAS_INDEX_TYPE k1,
+                  ULMBLAS_INDEX_TYPE k2,
+                  ULMBLAS_INDEX_TYPE *piv,
+                  ULMBLAS_INDEX_TYPE incPiv);
 
 VERBOSE(#ifdef) __cplusplus
 } // extern "C"

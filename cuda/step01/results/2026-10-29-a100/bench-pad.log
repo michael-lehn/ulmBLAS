@@ -1,0 +1,15 @@
+# host uc2n902.localdomain, 2026-10-29T00:50:19
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -L/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lmagma -Xlinker -rpath=/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+7, k+7, m+7; 2 warm-up calls, 10 timed calls, CUDA events
+# MAGMA 2.10.0 (magma: magma_dgemm, which calls cublasDgemm; magmablas: magmablas_dgemm, MAGMA's own kernel)
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     1000   1000   1000      0.144      0.143      0.145    13852.0    1.000
+step01     1000   1000   1000      1.013      1.011      1.014     1974.8    0.143
+magma      1000   1000   1000      0.144      0.143      0.144    13852.0    1.000
+magmablas   1000   1000   1000      0.400      0.399      0.401     4995.2    0.361
+cuBLAS     2047   2049   1023      0.504      0.503      0.506    17033.4    1.000
+step01     2047   2049   1023      3.997      3.993      4.076     2147.2    0.126
+magma      2047   2049   1023      0.509      0.508      0.510    16862.0    0.990
+magmablas   2047   2049   1023      1.219      1.210      1.235     7039.4    0.413

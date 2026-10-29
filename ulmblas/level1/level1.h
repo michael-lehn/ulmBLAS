@@ -9,6 +9,7 @@
 #include <ulmblas/level1/nrm2.h>
 #include <ulmblas/level1/rot.h>
 #include <ulmblas/level1/scal.h>
+#include <ulmblas/level1/sdsdot.h>
 #include <ulmblas/level1/swap.h>
 
 #endif // ULMBLAS_LEVEL1_LEVEL1_H

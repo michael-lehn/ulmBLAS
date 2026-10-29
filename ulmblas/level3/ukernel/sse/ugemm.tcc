@@ -24,6 +24,10 @@ ugemm(IndexType      kc,
     long incRowC = incRowC_;
     long incColC = incColC_;
 
+    //  Only numeric local labels (1: ... with 1b, 1f): they are local to the
+    //  assembler for all object formats.  Named labels become symbols on
+    //  Mach-O (macOS), which the linker may separate from the code before
+    //  them (see issue #0007 in test/known_issues.md).
     __asm__ volatile
     (
     "movq      %0,      %%rsi    \n\t"  // kb (32 bit) stored in %rsi
@@ -55,9 +59,9 @@ ugemm(IndexType      kc,
     "                            \n\t"
     "                            \n\t"
     "testq     %%rsi,   %%rsi    \n\t"  // if kb==0 handle remaining kl
-    "je        .DCONSIDERLEFT%=  \n\t"  // update iterations
+    "je        2f                \n\t"  // update iterations
     "                            \n\t"
-    ".DLOOP%=:                   \n\t"  // for l = kb,..,1 do
+    "1:                          \n\t"  // for l = kb,..,1 do
     "                            \n\t"
     "prefetcht0 (4*39+1)*8(%%rax)\n\t"
     "                            \n\t"
@@ -219,14 +223,14 @@ ugemm(IndexType      kc,
     "prefetcht2       64(%%r10)  \n\t"  // prefetch nextB[8]
     "                            \n\t"
     "decq      %%rsi             \n\t"  // --l
-    "jne       .DLOOP%=          \n\t"  // if l>= 1 go back
+    "jne       1b                \n\t"  // if l>= 1 go back
     "                            \n\t"
     "                            \n\t"
-    ".DCONSIDERLEFT%=:           \n\t"
+    "2:                          \n\t"  // remaining kl iterations
     "testq     %%rdi,   %%rdi    \n\t"  // if kl==0 writeback to AB
-    "je        .DPOSTACCUMULATE%=\n\t"
+    "je        4f                \n\t"  // if kl == 0 skip loop
     "                            \n\t"
-    ".DLOOPLEFT%=:               \n\t"  // for l = kl,..,1 do
+    "3:                          \n\t"  // for l = kl,..,1 do
     "                            \n\t"
     "addpd     %%xmm3,  %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
     "movapd  16(%%rbx), %%xmm3   \n\t"  // tmp3     = _mm_load_pd(B+2)
@@ -268,9 +272,9 @@ ugemm(IndexType      kc,
     "addq      $32,     %%rbx    \n\t"  // B += 4;
     "                            \n\t"
     "decq      %%rdi             \n\t"  // --l
-    "jne       .DLOOPLEFT%=      \n\t"  // if l>= 1 go back
+    "jne       3b                \n\t"  // if l>= 1 go back
     "                            \n\t"
-    ".DPOSTACCUMULATE%=:         \n\t"  // Update remaining ab_*_* registers
+    "4:                          \n\t"  // Update remaining ab_*_* registers
     "                            \n\t"
     "addpd    %%xmm3,   %%xmm12  \n\t"  // ab_02_13 = _mm_add_pd(ab_02_13, tmp3)
     "addpd    %%xmm6,   %%xmm13  \n\t"  // ab_22_33 = _mm_add_pd(ab_22_33, tmp6)
@@ -299,6 +303,50 @@ ugemm(IndexType      kc,
     "unpcklpd %%xmm1,            %%xmm1 \n\t"  // duplicate beta
     "                                   \n\t"
     "                                   \n\t"
+    "xorpd  %%xmm2,              %%xmm2 \n\t"  // zero
+    "ucomisd %%xmm2,             %%xmm1 \n\t"  // beta == 0 ?
+    "jne    5f                          \n\t"  // beta != 0
+    "jp     5f                          \n\t"  // beta is NaN
+    "                                   \n\t"
+//
+//  beta == 0: C is not read (it may contain NaN or Inf), C <- alpha*AB
+//
+    "mulpd  %%xmm0,              %%xmm8 \n\t"  // scale ab_00_11 by alpha
+    "movlpd %%xmm8,         (%%rcx)     \n\t"  // write (C00,
+    "movhpd %%xmm8,         (%%r10,%%r8)\n\t"  //        C11)
+    "mulpd  %%xmm0,              %%xmm9 \n\t"  // scale ab_20_31 by alpha
+    "movlpd %%xmm9,         (%%rdx)     \n\t"  // write (C20,
+    "movhpd %%xmm9,         (%%r11,%%r8)\n\t"  //        C31)
+    "mulpd  %%xmm0,              %%xmm10\n\t"  // scale ab_01_10 by alpha
+    "movlpd %%xmm10,        (%%r10)     \n\t"  // write (C01,
+    "movhpd %%xmm10,        (%%rcx,%%r8)\n\t"  //        C10)
+    "mulpd  %%xmm0,              %%xmm11\n\t"  // scale ab_21_30 by alpha
+    "movlpd %%xmm11,        (%%r11)     \n\t"  // write (C21,
+    "movhpd %%xmm11,        (%%rdx,%%r8)\n\t"  //        C30)
+    "                                   \n\t"
+    "leaq   (%%rcx,%%r9,2),      %%rcx  \n\t"  // Store addr of C02 in %rcx
+    "leaq   (%%r10,%%r9,2),      %%r10  \n\t"  // Store addr of C03 in %r10
+    "leaq   (%%rdx,%%r9,2),      %%rdx  \n\t"  // Store addr of C22 in %rdx
+    "leaq   (%%r11,%%r9,2),      %%r11  \n\t"  // Store addr of C23 in %r11
+    "                                   \n\t"
+    "mulpd  %%xmm0,              %%xmm12\n\t"  // scale ab_02_13 by alpha
+    "movlpd %%xmm12,        (%%rcx)     \n\t"  // write (C02,
+    "movhpd %%xmm12,        (%%r10,%%r8)\n\t"  //        C13)
+    "mulpd  %%xmm0,              %%xmm13\n\t"  // scale ab_22_33 by alpha
+    "movlpd %%xmm13,        (%%rdx)     \n\t"  // write (C22,
+    "movhpd %%xmm13,        (%%r11,%%r8)\n\t"  //        C33)
+    "mulpd  %%xmm0,              %%xmm14\n\t"  // scale ab_03_12 by alpha
+    "movlpd %%xmm14,        (%%r10)     \n\t"  // write (C03,
+    "movhpd %%xmm14,        (%%rcx,%%r8)\n\t"  //        C12)
+    "mulpd  %%xmm0,              %%xmm15\n\t"  // scale ab_23_32 by alpha
+    "movlpd %%xmm15,        (%%r11)     \n\t"  // write (C23,
+    "movhpd %%xmm15,        (%%rdx,%%r8)\n\t"  //        C32)
+    "jmp    6f                          \n\t"  // done
+    "                                   \n\t"
+//
+//  beta != 0: C <- beta*C + alpha*AB
+//
+    "5:                                 \n\t"  // beta != 0
     "movlpd (%%rcx),             %%xmm3 \n\t"  // load (C00,
     "movhpd (%%r10,%%r8),        %%xmm3 \n\t"  //       C11)
     "mulpd  %%xmm0,              %%xmm8 \n\t"  // scale ab_00_11 by alpha
@@ -372,6 +420,8 @@ ugemm(IndexType      kc,
     "addpd  %%xmm15,             %%xmm4 \n\t"  // add results
     "movlpd %%xmm4,        (%%r11)      \n\t"  // write back (C23,
     "movhpd %%xmm4,        (%%rdx,%%r8) \n\t"  //             C32)
+    "                                   \n\t"
+    "6:                                 \n\t"  // done
     : // output
     : // input
         "m" (kb),       // 0
@@ -386,6 +436,7 @@ ugemm(IndexType      kc,
         "m" (nextA),    // 9
         "m" (nextB)     // 10
     : // register clobber list
+        "memory",       // C is written through a pointer operand
         "rax", "rbx", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11",
         "xmm0", "xmm1", "xmm2", "xmm3",
         "xmm4", "xmm5", "xmm6", "xmm7",

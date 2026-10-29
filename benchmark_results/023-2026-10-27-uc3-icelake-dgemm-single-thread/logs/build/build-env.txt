@@ -1,0 +1,18 @@
+build host uc2n601.localdomain job 8001178 date 2026-10-26T21:17:05+01:00
+model name	: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+gcc (GCC) 14.2.0
+gcc -march=native:  -march= icelake-server
+08bbebd77914a6d1a43874ae5ec2f54fe6a77cba745f2532df28361b0f1ad1b3  /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/blis-2.0.tar.gz
+e9c326dc8c05cd1e044c71f30f1b2e34a6161a3b6ecf445d56b53ff1669e3dec  /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/eigen-5.0.1.tar.gz
+cd7e129868320cc2d033afa920e31202dfe0b8066a5b66661900ccc0f197dfed  /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/OpenBLAS-0.3.34.tar.gz
+ulmBLAS 21197f2ac62af471144bc5b26d6e2d5c302bc7ed
+CONFIG_NAME       := skx
+CONFIG_LIST         := skx
+CONFIG_NAME       := haswell
+CONFIG_LIST         := haswell
+ARCH=x86_64
+CORE=SKYLAKEX
+LIBCORE=skylakex
+HAVE_AVX2=1
+HAVE_AVX512VL=1
+build done 2026-10-26T21:23:04+01:00, failures: 0

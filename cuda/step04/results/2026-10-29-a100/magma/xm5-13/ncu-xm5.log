@@ -1,0 +1,34 @@
+==PROF== Connected to process 998586 (/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-xmagma2/cuda/build/bench_gemm)
+==PROF== Profiling "dgemm": 0%....50%....100% - 6 passes
+# host uc2n902.localdomain, 2026-10-29T08:54:44
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I. -DCULMBLAS_WITH_MAGMA -I/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/include -O3 -Xptxas -v -L/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lmagma -Xlinker -rpath=/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/magma/2.10.0-sm80/lib -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 2 warm-up calls, 1 timed calls, CUDA events
+# MAGMA 2.10.0 (magma: magma_dgemm, which calls cublasDgemm; magmablas: magmablas_dgemm, MAGMA's own kernel)
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     1000   1000   1000      0.184      0.184      0.184    10850.7    1.000
+xm5        1000   1000   1000    871.798    871.798    871.798        2.3    0.000
+==PROF== Disconnected from process 998586
+[998586] bench_gemm@127.0.0.1
+  void unnamed>::dgemm<16, 16, 64, 64, 16, 1, 16, 1, int>(T9, T9, T9, double, const double *, T9, const double *, T9, double, double *, T9) (16, 16, 1)x(16, 16, 1), Context 1, Stream 7, Device 0, CC 8.0
+    Section: Command line profiler metrics
+    --------------------------------------------------------------- --------------- ------------
+    Metric Name                                                         Metric Unit Metric Value
+    --------------------------------------------------------------- --------------- ------------
+    gpu__time_duration.sum                                                       us       530.75
+    l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum                              24,773,077
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                                    1,047,500
+    l1tex__throughput.avg.pct_of_peak_sustained_active                            %        62.48
+    launch__occupancy_limit_registers                                         block            2
+    launch__occupancy_limit_shared_mem                                        block            5
+    launch__registers_per_thread                                    register/thread          118
+    sm__pipe_fp64_cycles_active.avg.pct_of_peak_sustained_active                  %        70.12
+    sm__warps_active.avg.pct_of_peak_sustained_active                             %        20.91
+    smsp__average_warp_latency_issue_stalled_barrier.ratio                inst/warp    16,406.99
+    smsp__average_warp_latency_issue_stalled_long_scoreboard.ratio        inst/warp    50,845.50
+    smsp__average_warp_latency_issue_stalled_mio_throttle.ratio           inst/warp    24,281.53
+    smsp__average_warp_latency_issue_stalled_short_scoreboard.ratio       inst/warp       674.99
+    smsp__inst_executed.sum                                                    inst   60,255,416
+    --------------------------------------------------------------- --------------- ------------
+

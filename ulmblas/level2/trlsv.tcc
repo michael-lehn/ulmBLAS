@@ -43,10 +43,10 @@ trlsv(IndexType    n,
 {
     typedef decltype(TA(0)*TX(0))  T;
 
-    const IndexType    UnitStride(1);
+    constexpr IndexType   UnitStride(1);
 
     if (incRowA==UnitStride) {
-        const IndexType bf = FuseFactor<T>::axpyf;
+        constexpr IndexType bf = FuseFactor<T>::axpyf;
         const IndexType nb = (n/bf)*bf;
         const IndexType nl = n % bf;
 
@@ -68,7 +68,7 @@ trlsv(IndexType    n,
                     &x[nb*incX], incX);
 
     } else if (incColA==UnitStride) {
-        const IndexType bf = FuseFactor<T>::dotuxf;
+        constexpr IndexType bf = FuseFactor<T>::dotuxf;
         const IndexType nb = (n/bf)*bf;
         const IndexType nl = n % bf;
 

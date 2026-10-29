@@ -1,0 +1,9 @@
+host uc2n817.localdomain job 8005499 date 2026-10-26T23:24:39+01:00 ulmBLAS 43d6e1f5e20e506ba1de2342bf7dd06c4bb6c7cb
+model name	: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+CONFIGS=testcase06 blis-haswell_6x8 blis-haswell_6x8-small blis-haswell_8x6 blis-haswell_8x6-small blis-sandybridge_8x4 blis-sandybridge_8x4-small blis-penryn_4x4 blis-penryn_4x4-small blis-skx_16x14 blis-skx_16x14-small blis-skx_16x12_l2 blis-skx_16x12_l2-small blis-zen4_32x6 blis-zen4_32x6-small blis-zen4_8x24 blis-zen4_8x24-small blis-zen5_8x24 blis-zen5_8x24-small
+make check exit 0 2026-10-26T23:48:00+01:00
+Summary (testcase06 blis-haswell_6x8 blis-haswell_6x8-small blis-haswell_8x6 blis-haswell_8x6-small blis-sandybridge_8x4 blis-sandybridge_8x4-small blis-penryn_4x4 blis-penryn_4x4-small blis-skx_16x14 blis-skx_16x14-small blis-skx_16x12_l2 blis-skx_16x12_l2-small blis-zen4_32x6 blis-zen4_32x6-small blis-zen4_8x24 blis-zen4_8x24-small blis-zen5_8x24 blis-zen5_8x24-small):
+  PASS 3236, FAIL 0, XFAIL 0, XPASS 0, DESIGN 38, SKIP 0
+
+Known issues: test/known_issues.md.  All results: test/build/check.log
+make[1]: Leaving directory '/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/icelake/check-43d6e1f/src/test'

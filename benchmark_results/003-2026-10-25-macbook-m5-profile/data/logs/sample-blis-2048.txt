@@ -1,0 +1,106 @@
+Analysis of sampling prof-blis (pid 97479) every 1 millisecond
+Process:         prof-blis [97479]
+Path:            /private/tmp/*/prof-blis
+Load Address:    0x102c58000
+Identifier:      prof-blis
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  launchd [1]
+Target Type:     live task
+
+Date/Time:       2026-10-25 05:35:55.756 +0100
+Launch Time:     2026-10-25 05:35:54.196 +0100
+OS Version:      macOS 26.6 (25G72)
+Report Version:  7
+Analysis Tool:   /usr/bin/sample
+
+Physical footprint:         156.8M
+Physical footprint (peak):  156.8M
+Idle exit:                  untracked
+----
+
+Call graph:
+    4253 Thread_73735077   DispatchQueue_1: com.apple.main-thread  (serial)
+      4253 main  (in prof-blis) + 4408  [0x102c598e8]
+        4253 cblas_dgemm  (in prof-blis) + 200  [0x102d2594c]
+          4253 dgemm_  (in prof-blis) + 1272  [0x102d24e74]
+            4253 bli_gemm_ex  (in prof-blis) + 936  [0x102d0af70]
+              4253 bli_l3_thread_decorator  (in prof-blis) + 220  [0x102d0a404]
+                4253 bli_l3_thread_decorator_entry  (in prof-blis) + 92  [0x102d0a544]
+                  4253 bli_gemm_blk_var2  (in prof-blis) + 392  [0x102d11198]
+                    4253 bli_gemm_blk_var3  (in prof-blis) + 548  [0x102d113e8]
+                      4208 bli_l3_packb  (in prof-blis) + 380  [0x102d0d0fc]
+                      + 4208 bli_gemm_blk_var1  (in prof-blis) + 392  [0x102d10fe4]
+                      +   4186 bli_l3_packa  (in prof-blis) + 268  [0x102d0cf68]
+                      +   ! 4181 bli_gemm_ker_var2  (in prof-blis) + 972  [0x102d1288c]
+                      +   ! : 4180 bli_dgemm_armv8a_asm_8x6r  (in prof-blis) + 60  [0x102c67560]
+                      +   ! : | 4179 bli_dgemm_armv8a_asm_8x6r  (in prof-blis) + 784,1024,...  [0x102c67834,0x102c67924,...]
+                      +   ! : | 1 ___chkstk_darwin  (in libsystem_pthread.dylib) + 20  [0x18d90ac34]
+                      +   ! : 1 bli_dgemm_armv8a_asm_8x6r  (in prof-blis) + 5160  [0x102c6894c]
+                      +   ! 5 bli_gemm_ker_var2  (in prof-blis) + 1016,932,...  [0x102d128b8,0x102d12864,...]
+                      +   22 bli_l3_packa  (in prof-blis) + 236  [0x102d0cf48]
+                      +     22 bli_packm_int  (in prof-blis) + 80  [0x102cf21a4]
+                      +       22 bli_packm_blk_var1  (in prof-blis) + 1396  [0x102cf1e64]
+                      +         22 bli_ddpackm_struc_cxk  (in prof-blis) + 1008  [0x102cf2fe0]
+                      +           22 bli_dpackm_armv8a_int_6x8  (in prof-blis) + 1888,2012,...  [0x102c64888,0x102c64904,...]
+                      45 bli_l3_packb  (in prof-blis) + 240  [0x102d0d070]
+                        45 bli_packm_int  (in prof-blis) + 80  [0x102cf21a4]
+                          45 bli_packm_blk_var1  (in prof-blis) + 1396  [0x102cf1e64]
+                            45 bli_ddpackm_struc_cxk  (in prof-blis) + 1008  [0x102cf2fe0]
+                              45 bli_dpackm_armv8a_int_6x8  (in prof-blis) + 1548,1532,...  [0x102c64734,0x102c64724,...]
+
+Total number in stack (recursive counted multiple, when >=5):
+
+Sort by top of stack, same collapsed (when >= 5):
+        bli_dgemm_armv8a_asm_8x6r  (in prof-blis)        4180
+        bli_dpackm_armv8a_int_6x8  (in prof-blis)        67
+        bli_gemm_ker_var2  (in prof-blis)        5
+
+Binary Images:
+       0x102c58000 -        0x102d3c5cf +prof-blis (0) <FA65E726-10A9-3AC1-A2C2-A64AD0E865C2> /tmp/*/prof-blis
+       0x18d49c000 -        0x18d4eeb4b  libobjc.A.dylib (951.7) <40277974-D20C-3EC8-B25C-43AE30D8CC60> /usr/lib/libobjc.A.dylib
+       0x18d4ef000 -        0x18d523d58  libdyld.dylib (1387) <634959D0-592E-349C-B549-B91F2FF09858> /usr/lib/system/libdyld.dylib
+       0x18d524000 -        0x18d5d74ff  dyld (1.0.0 - 1387) <DF42DD9D-AD11-33A7-8849-9AD5DF30A274> /usr/lib/dyld
+       0x18d5d8000 -        0x18d5db228  libsystem_blocks.dylib (96) <A712B95E-BCEE-3F12-9F9B-58E6C2060E53> /usr/lib/system/libsystem_blocks.dylib
+       0x18d5dc000 -        0x18d63055f  libxpc.dylib (3102.160.5) <40BBE226-77D4-332E-9DA8-F0B5BACFB86D> /usr/lib/system/libxpc.dylib
+       0x18d631000 -        0x18d6519ff  libsystem_trace.dylib (1861.160.4) <E043667E-AD01-3228-837F-A381F32F2B30> /usr/lib/system/libsystem_trace.dylib
+       0x18d652000 -        0x18d7005f7  libcorecrypto.dylib (1922.160.10) <D54389FC-4078-370D-A863-9FEF16E00DFD> /usr/lib/system/libcorecrypto.dylib
+       0x18d701000 -        0x18d751257  libsystem_malloc.dylib (812.160.5) <971CDCFE-4D20-300E-A1D6-EC8672FDD258> /usr/lib/system/libsystem_malloc.dylib
+       0x18d752000 -        0x18d79923f  libdispatch.dylib (1542.160.2) <243E06A0-7BFF-3C3F-8A9B-D7732729B361> /usr/lib/system/libdispatch.dylib
+       0x18d79a000 -        0x18d79cffb  libsystem_featureflags.dylib (103) <5E7CDBD5-44AB-34C0-A0F5-FC72F6116CDC> /usr/lib/system/libsystem_featureflags.dylib
+       0x18d79d000 -        0x18d81e1e7  libsystem_c.dylib (1752.160.4) <FDC4E366-5C14-3A1E-BC35-D933D28CDCF3> /usr/lib/system/libsystem_c.dylib
+       0x18d81f000 -        0x18d8afae7  libc++.1.dylib (2100.43) <C6DC2145-7B94-3E01-ADE5-96A6C2D078BC> /usr/lib/libc++.1.dylib
+       0x18d8b0000 -        0x18d8ca75f  libc++abi.dylib (2100.43) <DDE77B06-5E25-380B-85B7-BA1A27D09021> /usr/lib/libc++abi.dylib
+       0x18d8cb000 -        0x18d9082e7  libsystem_kernel.dylib (12377.161.13) <7CFB3A10-ADB2-32C4-99B5-922A111B3224> /usr/lib/system/libsystem_kernel.dylib
+       0x18d909000 -        0x18d915b3b  libsystem_pthread.dylib (539.100.4) <12342372-0084-37A5-9EA6-2E4DC940C685> /usr/lib/system/libsystem_pthread.dylib
+       0x18d916000 -        0x18d91e963  libsystem_platform.dylib (375.120.2) <4C6BD0FE-25F2-38D8-BE5C-24DAC1DEDCFB> /usr/lib/system/libsystem_platform.dylib
+       0x18d91f000 -        0x18d94e6eb  libsystem_info.dylib (600) <7402662E-F235-3F48-BB65-F64C8CF0F2BB> /usr/lib/system/libsystem_info.dylib
+       0x1918ec000 -        0x1918f5e5f  libsystem_darwin.dylib (1752.160.4) <A095E4FE-0EE1-34DF-B00A-7D349FBC55E0> /usr/lib/system/libsystem_darwin.dylib
+       0x191d57000 -        0x191d691b6  libsystem_notify.dylib (348.160.3) <F9B1BAFF-4D09-3A1F-839B-189C21EB5FBB> /usr/lib/system/libsystem_notify.dylib
+       0x194028000 -        0x194042f7b  libsystem_networkextension.dylib (2226.160.6) <01D14A9E-16DC-372C-8AA8-CC7AD39E797F> /usr/lib/system/libsystem_networkextension.dylib
+       0x1940c5000 -        0x1940dcfdf  libsystem_asl.dylib (406) <FF57F6FA-F3A1-343D-815D-57B769D31445> /usr/lib/system/libsystem_asl.dylib
+       0x195c7e000 -        0x195c86387  libsystem_symptoms.dylib (2169.160.3) <CE07A0DF-31B6-3528-B7CE-91CAD89AA519> /usr/lib/system/libsystem_symptoms.dylib
+       0x199f23000 -        0x199f5b5b7  libsystem_containermanager.dylib (725.160.3) <2E14025A-52C2-361D-8A8F-5DD45825A2C9> /usr/lib/system/libsystem_containermanager.dylib
+       0x19b335000 -        0x19b3395d7  libsystem_configuration.dylib (1405.160.3) <A14ED142-2F56-33A6-A23C-EEB8417DC90E> /usr/lib/system/libsystem_configuration.dylib
+       0x19b33a000 -        0x19b34099f  libsystem_sandbox.dylib (2680.160.6) <6592D3CE-38C6-3C08-9EA5-75D64F37993F> /usr/lib/system/libsystem_sandbox.dylib
+       0x19c995000 -        0x19c9981fb  libquarantine.dylib (196.160.2) <78C5B827-8152-358D-90E9-B02F02A68B17> /usr/lib/system/libquarantine.dylib
+       0x19d134000 -        0x19d13ad03  libsystem_coreservices.dylib (191.5.1) <F335DA14-69E8-336E-85A3-11EE239255F0> /usr/lib/system/libsystem_coreservices.dylib
+       0x19d6c3000 -        0x19d700a77  libsystem_m.dylib (3312.100.1) <3739A40F-2C17-3503-92D6-098141E56E89> /usr/lib/system/libsystem_m.dylib
+       0x19d702000 -        0x19d705527  libmacho.dylib (1387) <3E43AF47-AD89-3BB4-82B9-A9533F4334DF> /usr/lib/system/libmacho.dylib
+       0x19d71f000 -        0x19d72c3a7  libcommonCrypto.dylib (600035) <72D94140-1281-3886-971B-37C810403C03> /usr/lib/system/libcommonCrypto.dylib
+       0x19d72d000 -        0x19d736ca3  libunwind.dylib (2100.2) <B21A1015-83D4-31D8-BA41-88688962D9A6> /usr/lib/system/libunwind.dylib
+       0x19d73f000 -        0x19d749bef  libcopyfile.dylib (240.160.2.0.1) <58F425CF-7D4F-34FD-9620-706A2A7F8BDC> /usr/lib/system/libcopyfile.dylib
+       0x19d74a000 -        0x19d74d987  libcompiler_rt.dylib (103.3) <D60A9B54-A909-3FD5-93B9-3F38BE0A2BE8> /usr/lib/system/libcompiler_rt.dylib
+       0x19d74e000 -        0x19d75278b  libsystem_collections.dylib (1752.160.4) <BDA28F78-F479-3C22-B9C7-4ABCB6801592> /usr/lib/system/libsystem_collections.dylib
+       0x19d753000 -        0x19d7564cf  libsystem_secinit.dylib (168.100.7) <C85AF062-AA9B-35BB-904C-C055B2C21602> /usr/lib/system/libsystem_secinit.dylib
+       0x19d757000 -        0x19d759bf7  libremovefile.dylib (85.100.6) <DA9C2B48-7A9C-32EA-888D-6C7AEB5250E6> /usr/lib/system/libremovefile.dylib
+       0x19d75a000 -        0x19d75af27  libkeymgr.dylib (31) <18EFA1CE-C535-3EAC-BC2C-7955593B7382> /usr/lib/system/libkeymgr.dylib
+       0x19d75b000 -        0x19d763e37  libsystem_dnssd.dylib (2881.160.4) <2C4C3043-008E-3BD8-BC29-AB9AD235DBA9> /usr/lib/system/libsystem_dnssd.dylib
+       0x19d764000 -        0x19d76909b  libcache.dylib (95) <EA7C2E0B-52BF-3D45-9A33-38F54A535452> /usr/lib/system/libcache.dylib
+       0x19d76a000 -        0x19d76bce3  libSystem.B.dylib (1356) <4CC4CAD6-45A6-361E-9343-DE636A0B5C02> /usr/lib/libSystem.B.dylib
+       0x291713000 -        0x29171a349  libRosetta.dylib (367.9) <F41D814B-FE1F-311A-A778-5F0699628188> /usr/lib/libRosetta.dylib
+       0x293326000 -        0x293329a4b  libsystem_darwindirectory.dylib (122) <6C03D78B-BFAB-3C7A-B713-50881791EE08> /usr/lib/system/libsystem_darwindirectory.dylib
+       0x29332a000 -        0x29333439b  libsystem_eligibility.dylib (319.160.17) <A279E124-8499-3FFC-A788-655070028F97> /usr/lib/system/libsystem_eligibility.dylib
+       0x293335000 -        0x29333c88b  libsystem_sanitizers.dylib (26.1) <C92FAEE5-DAED-3340-96B3-0C42B005ADF9> /usr/lib/system/libsystem_sanitizers.dylib
+       0x29333d000 -        0x29333dbb7  libsystem_trial.dylib (474.2.18.2) <2FF186A6-F448-38CD-9A30-8B5B1AEFCA10> /usr/lib/system/libsystem_trial.dylib

@@ -10,11 +10,11 @@ void
 ULMBLAS(strmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 *x,
-               int                   incX)
+               ULMBLAS_INDEX_TYPE    incX)
 {
     if (incX<0) {
         x -= incX*(n-1);
@@ -27,15 +27,15 @@ ULMBLAS(strmv)(enum CBLAS_UPLO       upLo,
 //
     if (upLo==CblasLower) {
         if (trans==CblasNoTrans || trans==AtlasConj) {
-            ulmBLAS::trlmv(n, unitDiag, A, 1, ldA, x, incX);
+            ulmBLAS::trlmv<std::ptrdiff_t>(n, unitDiag, A, 1, ldA, x, incX);
         } else {
-            ulmBLAS::trumv(n, unitDiag, A, ldA, 1, x, incX);
+            ulmBLAS::trumv<std::ptrdiff_t>(n, unitDiag, A, ldA, 1, x, incX);
         }
     } else {
         if (trans==CblasNoTrans || trans==AtlasConj) {
-            ulmBLAS::trumv(n, unitDiag, A, 1, ldA, x, incX);
+            ulmBLAS::trumv<std::ptrdiff_t>(n, unitDiag, A, 1, ldA, x, incX);
         } else {
-            ulmBLAS::trlmv(n, unitDiag, A, ldA, 1, x, incX);
+            ulmBLAS::trlmv<std::ptrdiff_t>(n, unitDiag, A, ldA, 1, x, incX);
         }
     }
 }
@@ -45,11 +45,11 @@ void
 ULMBLAS(dtrmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                *x,
-               int                   incX)
+               ULMBLAS_INDEX_TYPE    incX)
 {
     if (incX<0) {
         x -= incX*(n-1);
@@ -62,15 +62,15 @@ ULMBLAS(dtrmv)(enum CBLAS_UPLO       upLo,
 //
     if (upLo==CblasLower) {
         if (trans==CblasNoTrans || trans==AtlasConj) {
-            ulmBLAS::trlmv(n, unitDiag, A, 1, ldA, x, incX);
+            ulmBLAS::trlmv<std::ptrdiff_t>(n, unitDiag, A, 1, ldA, x, incX);
         } else {
-            ulmBLAS::trumv(n, unitDiag, A, ldA, 1, x, incX);
+            ulmBLAS::trumv<std::ptrdiff_t>(n, unitDiag, A, ldA, 1, x, incX);
         }
     } else {
         if (trans==CblasNoTrans || trans==AtlasConj) {
-            ulmBLAS::trumv(n, unitDiag, A, 1, ldA, x, incX);
+            ulmBLAS::trumv<std::ptrdiff_t>(n, unitDiag, A, 1, ldA, x, incX);
         } else {
-            ulmBLAS::trlmv(n, unitDiag, A, ldA, 1, x, incX);
+            ulmBLAS::trlmv<std::ptrdiff_t>(n, unitDiag, A, ldA, 1, x, incX);
         }
     }
 }
@@ -79,11 +79,11 @@ void
 ULMBLAS(ctrmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA_,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const float           *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 *x_,
-               int                   incX)
+               ULMBLAS_INDEX_TYPE    incX)
 {
     bool lower  = (upLo==CblasLower);
     bool transA = (transA_==CblasTrans || transA_==CblasConjTrans);
@@ -104,15 +104,19 @@ ULMBLAS(ctrmv)(enum CBLAS_UPLO       upLo,
 //
     if (lower) {
         if (!transA) {
-            ulmBLAS::trlmv(n, unitDiag, conjA, A, 1, ldA, x, incX);
+            ulmBLAS::trlmv<std::ptrdiff_t>(n, unitDiag, conjA, A, 1, ldA,
+                                           x, incX);
         } else {
-            ulmBLAS::trumv(n, unitDiag, conjA, A, ldA, 1, x, incX);
+            ulmBLAS::trumv<std::ptrdiff_t>(n, unitDiag, conjA, A, ldA, 1,
+                                           x, incX);
         }
     } else {
         if (!transA) {
-            ulmBLAS::trumv(n, unitDiag, conjA, A, 1, ldA, x, incX);
+            ulmBLAS::trumv<std::ptrdiff_t>(n, unitDiag, conjA, A, 1, ldA,
+                                           x, incX);
         } else {
-            ulmBLAS::trlmv(n, unitDiag, conjA, A, ldA, 1, x, incX);
+            ulmBLAS::trlmv<std::ptrdiff_t>(n, unitDiag, conjA, A, ldA, 1,
+                                           x, incX);
         }
     }
 }
@@ -121,11 +125,11 @@ void
 ULMBLAS(ztrmv)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  transA_,
                enum CBLAS_DIAG       diag,
-               int                   n,
+               ULMBLAS_INDEX_TYPE    n,
                const double          *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                *x_,
-               int                   incX)
+               ULMBLAS_INDEX_TYPE    incX)
 {
     bool lower  = (upLo==CblasLower);
     bool transA = (transA_==CblasTrans || transA_==CblasConjTrans);
@@ -146,15 +150,19 @@ ULMBLAS(ztrmv)(enum CBLAS_UPLO       upLo,
 //
     if (lower) {
         if (!transA) {
-            ulmBLAS::trlmv(n, unitDiag, conjA, A, 1, ldA, x, incX);
+            ulmBLAS::trlmv<std::ptrdiff_t>(n, unitDiag, conjA, A, 1, ldA,
+                                           x, incX);
         } else {
-            ulmBLAS::trumv(n, unitDiag, conjA, A, ldA, 1, x, incX);
+            ulmBLAS::trumv<std::ptrdiff_t>(n, unitDiag, conjA, A, ldA, 1,
+                                           x, incX);
         }
     } else {
         if (!transA) {
-            ulmBLAS::trumv(n, unitDiag, conjA, A, 1, ldA, x, incX);
+            ulmBLAS::trumv<std::ptrdiff_t>(n, unitDiag, conjA, A, 1, ldA,
+                                           x, incX);
         } else {
-            ulmBLAS::trlmv(n, unitDiag, conjA, A, ldA, 1, x, incX);
+            ulmBLAS::trlmv<std::ptrdiff_t>(n, unitDiag, conjA, A, ldA, 1,
+                                           x, incX);
         }
     }
 }
@@ -164,11 +172,11 @@ CBLAS(strmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 *x,
-             int                   incX)
+             ULMBLAS_INDEX_TYPE    incX)
 {
 //
 //  Test the input parameters
@@ -186,7 +194,7 @@ CBLAS(strmv)(enum CBLAS_ORDER      order,
         info = 4;
     } else if (n<0) {
         info = 5;
-    } else if (ldA<std::max(1,n)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 7;
     } else if (incX==0) {
         info = 9;
@@ -197,6 +205,7 @@ CBLAS(strmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_strmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -213,11 +222,11 @@ CBLAS(dtrmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                *x,
-             int                   incX)
+             ULMBLAS_INDEX_TYPE    incX)
 {
 //
 //  Test the input parameters
@@ -235,7 +244,7 @@ CBLAS(dtrmv)(enum CBLAS_ORDER      order,
         info = 4;
     } else if (n<0) {
         info = 5;
-    } else if (ldA<std::max(1,n)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 7;
     } else if (incX==0) {
         info = 9;
@@ -246,6 +255,7 @@ CBLAS(dtrmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_dtrmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -262,11 +272,11 @@ CBLAS(ctrmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 *x,
-             int                   incX)
+             ULMBLAS_INDEX_TYPE    incX)
 {
 //
 //  Test the input parameters
@@ -284,7 +294,7 @@ CBLAS(ctrmv)(enum CBLAS_ORDER      order,
         info = 4;
     } else if (n<0) {
         info = 5;
-    } else if (ldA<std::max(1,n)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 7;
     } else if (incX==0) {
         info = 9;
@@ -295,6 +305,7 @@ CBLAS(ctrmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_ctrmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -311,11 +322,11 @@ CBLAS(ztrmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
-             int                   n,
+             ULMBLAS_INDEX_TYPE    n,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                *x,
-             int                   incX)
+             ULMBLAS_INDEX_TYPE    incX)
 {
 //
 //  Test the input parameters
@@ -333,7 +344,7 @@ CBLAS(ztrmv)(enum CBLAS_ORDER      order,
         info = 4;
     } else if (n<0) {
         info = 5;
-    } else if (ldA<std::max(1,n)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 7;
     } else if (incX==0) {
         info = 9;
@@ -344,6 +355,7 @@ CBLAS(ztrmv)(enum CBLAS_ORDER      order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_ztrmv", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {

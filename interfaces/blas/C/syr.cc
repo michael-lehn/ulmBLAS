@@ -6,13 +6,13 @@
 extern "C" {
 
 void
-ULMBLAS(ssyr)(enum CBLAS_UPLO  upLo,
-              int              n,
-              float            alpha,
-              const float      *x,
-              int              incX,
-              float            *A,
-              int              ldA)
+ULMBLAS(ssyr)(enum CBLAS_UPLO    upLo,
+              ULMBLAS_INDEX_TYPE n,
+              float              alpha,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX,
+              float              *A,
+              ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Start the operations.
@@ -21,20 +21,20 @@ ULMBLAS(ssyr)(enum CBLAS_UPLO  upLo,
         x -= incX*(n-1);
     }
     if (upLo==CblasLower) {
-        ulmBLAS::sylr(n, alpha, x, incX, A, 1, ldA);
+        ulmBLAS::sylr<std::ptrdiff_t>(n, alpha, x, incX, A, 1, ldA);
     } else {
-        ulmBLAS::sylr(n, alpha, x, incX, A, ldA, 1);
+        ulmBLAS::sylr<std::ptrdiff_t>(n, alpha, x, incX, A, ldA, 1);
     }
 }
 
 void
-ULMBLAS(dsyr)(enum CBLAS_UPLO  upLo,
-              int              n,
-              double           alpha,
-              const double     *x,
-              int              incX,
-              double           *A,
-              int              ldA)
+ULMBLAS(dsyr)(enum CBLAS_UPLO    upLo,
+              ULMBLAS_INDEX_TYPE n,
+              double             alpha,
+              const double       *x,
+              ULMBLAS_INDEX_TYPE incX,
+              double             *A,
+              ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Start the operations.
@@ -43,21 +43,21 @@ ULMBLAS(dsyr)(enum CBLAS_UPLO  upLo,
         x -= incX*(n-1);
     }
     if (upLo==CblasLower) {
-        ulmBLAS::sylr(n, alpha, x, incX, A, 1, ldA);
+        ulmBLAS::sylr<std::ptrdiff_t>(n, alpha, x, incX, A, 1, ldA);
     } else {
-        ulmBLAS::sylr(n, alpha, x, incX, A, ldA, 1);
+        ulmBLAS::sylr<std::ptrdiff_t>(n, alpha, x, incX, A, ldA, 1);
     }
 }
 
 void
-CBLAS(ssyr)(enum CBLAS_ORDER  order,
-            enum CBLAS_UPLO   upLo,
-            int               n,
-            float             alpha,
-            const float       *x,
-            int               incX,
-            float             *A,
-            int               ldA)
+CBLAS(ssyr)(enum CBLAS_ORDER   order,
+            enum CBLAS_UPLO    upLo,
+            ULMBLAS_INDEX_TYPE n,
+            float              alpha,
+            const float        *x,
+            ULMBLAS_INDEX_TYPE incX,
+            float              *A,
+            ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Test the input parameters
@@ -81,6 +81,7 @@ CBLAS(ssyr)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_ssyr", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -93,14 +94,14 @@ CBLAS(ssyr)(enum CBLAS_ORDER  order,
 }
 
 void
-CBLAS(dsyr)(enum CBLAS_ORDER  order,
-            enum CBLAS_UPLO   upLo,
-            int               n,
-            double            alpha,
-            const double      *x,
-            int               incX,
-            double            *A,
-            int               ldA)
+CBLAS(dsyr)(enum CBLAS_ORDER   order,
+            enum CBLAS_UPLO    upLo,
+            ULMBLAS_INDEX_TYPE n,
+            double             alpha,
+            const double       *x,
+            ULMBLAS_INDEX_TYPE incX,
+            double             *A,
+            ULMBLAS_INDEX_TYPE ldA)
 {
 //
 //  Test the input parameters
@@ -124,6 +125,7 @@ CBLAS(dsyr)(enum CBLAS_ORDER  order,
 
         RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_dsyr", "... bla bla ...");
+        return;
     }
 
     if (order==CblasColMajor) {

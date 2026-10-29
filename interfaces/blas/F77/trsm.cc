@@ -8,40 +8,41 @@
 extern "C" {
 
 void
-F77BLAS(strsm)(const char     *side_,
-               const char     *upLo_,
-               const char     *transA_,
-               const char     *diag_,
-               const int      *m_,
-               const int      *n_,
-               const float    *alpha_,
-               const float    *A,
-               const int      *ldA_,
-               float          *B,
-               const int      *ldB_)
+F77BLAS(strsm)(const char               *side_,
+               const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *B,
+               const ULMBLAS_INDEX_TYPE *ldB_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool left     = (toupper(*side_) == 'L');
-    bool lower    = (toupper(*upLo_) == 'L');
-    bool transA   = (toupper(*transA_) == 'T' || toupper(*transA_) == 'C');
-    bool unitDiag = (toupper(*diag_) == 'U');
-    int m         = *m_;
-    int n         = *n_;
-    double alpha  = *alpha_;
-    int ldA       = *ldA_;
-    int ldB       = *ldB_;
+    bool left              = (toupper(*side_) == 'L');
+    bool lower             = (toupper(*upLo_) == 'L');
+    bool transA            = (toupper(*transA_) == 'T'
+                           || toupper(*transA_) == 'C');
+    bool unitDiag          = (toupper(*diag_) == 'U');
+    ULMBLAS_INDEX_TYPE m   = *m_;
+    ULMBLAS_INDEX_TYPE n   = *n_;
+    double alpha           = *alpha_;
+    ULMBLAS_INDEX_TYPE ldA = *ldA_;
+    ULMBLAS_INDEX_TYPE ldB = *ldB_;
 
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
-    int numRowsA = (left) ? m : n;
+    ULMBLAS_INDEX_TYPE numRowsA = (left) ? m : n;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*side_)!='L' && toupper(*side_)!='R') {
         info = 1;
@@ -57,14 +58,15 @@ F77BLAS(strsm)(const char     *side_,
         info = 5;
     } else if (n<0) {
         info = 6;
-    } else if (ldA<std::max(1,numRowsA)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
         info = 9;
-    } else if (ldB<std::max(1,m)) {
+    } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
         info = 11;
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("STRSM ", &info);
+        F77BLAS(xerbla)("STRSM ", &info, 6);
+        return;
     }
 
 //
@@ -73,85 +75,86 @@ F77BLAS(strsm)(const char     *side_,
     if (left) {
         if (lower) {
             if (!transA) {
-                ulmBLAS::trlsm(m, n, alpha,
-                               false, unitDiag, A, 1, ldA,
-                               B, 1, ldB);
+                ulmBLAS::trlsm<std::ptrdiff_t>(m, n, alpha,
+                                               false, unitDiag, A, 1, ldA,
+                                               B, 1, ldB);
             } else {
-                ulmBLAS::trusm(m, n, alpha,
-                               false, unitDiag, A, ldA, 1,
-                               B, 1, ldB);
+                ulmBLAS::trusm<std::ptrdiff_t>(m, n, alpha,
+                                               false, unitDiag, A, ldA, 1,
+                                               B, 1, ldB);
             }
         } else {
             if (!transA) {
-                ulmBLAS::trusm(m, n, alpha,
-                               false, unitDiag, A, 1, ldA,
-                               B, 1, ldB);
+                ulmBLAS::trusm<std::ptrdiff_t>(m, n, alpha,
+                                               false, unitDiag, A, 1, ldA,
+                                               B, 1, ldB);
             } else {
-                ulmBLAS::trlsm(m, n, alpha,
-                               false, unitDiag, A, ldA, 1,
-                               B, 1, ldB);
+                ulmBLAS::trlsm<std::ptrdiff_t>(m, n, alpha,
+                                               false, unitDiag, A, ldA, 1,
+                                               B, 1, ldB);
             }
         }
     } else {
         if (lower) {
             if (!transA) {
-                ulmBLAS::trusm(n, m, alpha,
-                               false, unitDiag, A, ldA, 1,
-                               B, ldB, 1);
+                ulmBLAS::trusm<std::ptrdiff_t>(n, m, alpha,
+                                               false, unitDiag, A, ldA, 1,
+                                               B, ldB, 1);
             } else {
-                ulmBLAS::trlsm(n, m, alpha,
-                               false, unitDiag, A, 1, ldA,
-                               B, ldB, 1);
+                ulmBLAS::trlsm<std::ptrdiff_t>(n, m, alpha,
+                                               false, unitDiag, A, 1, ldA,
+                                               B, ldB, 1);
             }
         } else {
             if (!transA) {
-                ulmBLAS::trlsm(n, m, alpha,
-                               false, unitDiag, A, ldA, 1,
-                               B, ldB, 1);
+                ulmBLAS::trlsm<std::ptrdiff_t>(n, m, alpha,
+                                               false, unitDiag, A, ldA, 1,
+                                               B, ldB, 1);
             } else {
-                ulmBLAS::trusm(n, m, alpha,
-                               false, unitDiag, A, 1, ldA,
-                               B, ldB, 1);
+                ulmBLAS::trusm<std::ptrdiff_t>(n, m, alpha,
+                                               false, unitDiag, A, 1, ldA,
+                                               B, ldB, 1);
             }
         }
     }
 }
 
 void
-F77BLAS(dtrsm)(const char     *side_,
-               const char     *upLo_,
-               const char     *transA_,
-               const char     *diag_,
-               const int      *m_,
-               const int      *n_,
-               const double   *alpha_,
-               const double   *A,
-               const int      *ldA_,
-               double         *B,
-               const int      *ldB_)
+F77BLAS(dtrsm)(const char               *side_,
+               const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *B,
+               const ULMBLAS_INDEX_TYPE *ldB_)
 {
 //
 //  Dereference scalar parameters
 //
-    bool left     = (toupper(*side_) == 'L');
-    bool lower    = (toupper(*upLo_) == 'L');
-    bool transA   = (toupper(*transA_) == 'T' || toupper(*transA_) == 'C');
-    bool unitDiag = (toupper(*diag_) == 'U');
-    int m         = *m_;
-    int n         = *n_;
-    double alpha  = *alpha_;
-    int ldA       = *ldA_;
-    int ldB       = *ldB_;
+    bool left              = (toupper(*side_) == 'L');
+    bool lower             = (toupper(*upLo_) == 'L');
+    bool transA            = (toupper(*transA_) == 'T'
+                           || toupper(*transA_) == 'C');
+    bool unitDiag          = (toupper(*diag_) == 'U');
+    ULMBLAS_INDEX_TYPE m   = *m_;
+    ULMBLAS_INDEX_TYPE n   = *n_;
+    double alpha           = *alpha_;
+    ULMBLAS_INDEX_TYPE ldA = *ldA_;
+    ULMBLAS_INDEX_TYPE ldB = *ldB_;
 
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
-    int numRowsA = (left) ? m : n;
+    ULMBLAS_INDEX_TYPE numRowsA = (left) ? m : n;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*side_)!='L' && toupper(*side_)!='R') {
         info = 1;
@@ -167,14 +170,15 @@ F77BLAS(dtrsm)(const char     *side_,
         info = 5;
     } else if (n<0) {
         info = 6;
-    } else if (ldA<std::max(1,numRowsA)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
         info = 9;
-    } else if (ldB<std::max(1,m)) {
+    } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
         info = 11;
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("DTRSM ", &info);
+        F77BLAS(xerbla)("DTRSM ", &info, 6);
+        return;
     }
 
 //
@@ -183,77 +187,79 @@ F77BLAS(dtrsm)(const char     *side_,
     if (left) {
         if (lower) {
             if (!transA) {
-                ulmBLAS::trlsm(m, n, alpha,
-                               false, unitDiag, A, 1, ldA,
-                               B, 1, ldB);
+                ulmBLAS::trlsm<std::ptrdiff_t>(m, n, alpha,
+                                               false, unitDiag, A, 1, ldA,
+                                               B, 1, ldB);
             } else {
-                ulmBLAS::trusm(m, n, alpha,
-                               false, unitDiag, A, ldA, 1,
-                               B, 1, ldB);
+                ulmBLAS::trusm<std::ptrdiff_t>(m, n, alpha,
+                                               false, unitDiag, A, ldA, 1,
+                                               B, 1, ldB);
             }
         } else {
             if (!transA) {
-                ulmBLAS::trusm(m, n, alpha,
-                               false, unitDiag, A, 1, ldA,
-                               B, 1, ldB);
+                ulmBLAS::trusm<std::ptrdiff_t>(m, n, alpha,
+                                               false, unitDiag, A, 1, ldA,
+                                               B, 1, ldB);
             } else {
-                ulmBLAS::trlsm(m, n, alpha,
-                               false, unitDiag, A, ldA, 1,
-                               B, 1, ldB);
+                ulmBLAS::trlsm<std::ptrdiff_t>(m, n, alpha,
+                                               false, unitDiag, A, ldA, 1,
+                                               B, 1, ldB);
             }
         }
     } else {
         if (lower) {
             if (!transA) {
-                ulmBLAS::trusm(n, m, alpha,
-                               false, unitDiag, A, ldA, 1,
-                               B, ldB, 1);
+                ulmBLAS::trusm<std::ptrdiff_t>(n, m, alpha,
+                                               false, unitDiag, A, ldA, 1,
+                                               B, ldB, 1);
             } else {
-                ulmBLAS::trlsm(n, m, alpha,
-                               false, unitDiag, A, 1, ldA,
-                               B, ldB, 1);
+                ulmBLAS::trlsm<std::ptrdiff_t>(n, m, alpha,
+                                               false, unitDiag, A, 1, ldA,
+                                               B, ldB, 1);
             }
         } else {
             if (!transA) {
-                ulmBLAS::trlsm(n, m, alpha,
-                               false, unitDiag, A, ldA, 1,
-                               B, ldB, 1);
+                ulmBLAS::trlsm<std::ptrdiff_t>(n, m, alpha,
+                                               false, unitDiag, A, ldA, 1,
+                                               B, ldB, 1);
             } else {
-                ulmBLAS::trusm(n, m, alpha,
-                               false, unitDiag, A, 1, ldA,
-                               B, ldB, 1);
+                ulmBLAS::trusm<std::ptrdiff_t>(n, m, alpha,
+                                               false, unitDiag, A, 1, ldA,
+                                               B, ldB, 1);
             }
         }
     }
 }
 
 void
-F77BLAS(ctrsm)(const char     *side_,
-               const char     *upLo_,
-               const char     *transA_,
-               const char     *diag_,
-               const int      *m_,
-               const int      *n_,
-               const float    *alpha_,
-               const float    *A_,
-               const int      *ldA_,
-               float          *B_,
-               const int      *ldB_)
+F77BLAS(ctrsm)(const char               *side_,
+               const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const float              *alpha_,
+               const float              *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               float                    *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_)
 {
     typedef std::complex<float> fcomplex;
 
 //
 //  Dereference scalar parameters
 //
-    bool left     = (toupper(*side_) == 'L');
-    bool lower    = (toupper(*upLo_) == 'L');
-    bool transA   = (toupper(*transA_) == 'T' || toupper(*transA_) == 'C');
-    bool conjA    = (toupper(*transA_) == 'R' || toupper(*transA_) == 'C');
-    bool unitDiag = (toupper(*diag_) == 'U');
-    int m         = *m_;
-    int n         = *n_;
-    int ldA       = *ldA_;
-    int ldB       = *ldB_;
+    bool left              = (toupper(*side_) == 'L');
+    bool lower             = (toupper(*upLo_) == 'L');
+    bool transA            = (toupper(*transA_) == 'T'
+                           || toupper(*transA_) == 'C');
+    bool conjA             = (toupper(*transA_) == 'R'
+                           || toupper(*transA_) == 'C');
+    bool unitDiag          = (toupper(*diag_) == 'U');
+    ULMBLAS_INDEX_TYPE m   = *m_;
+    ULMBLAS_INDEX_TYPE n   = *n_;
+    ULMBLAS_INDEX_TYPE ldA = *ldA_;
+    ULMBLAS_INDEX_TYPE ldB = *ldB_;
 
     fcomplex alpha(alpha_[0], alpha_[1]);
 
@@ -263,12 +269,12 @@ F77BLAS(ctrsm)(const char     *side_,
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
-    int numRowsA = (left) ? m : n;
+    ULMBLAS_INDEX_TYPE numRowsA = (left) ? m : n;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*side_)!='L' && toupper(*side_)!='R') {
         info = 1;
@@ -284,14 +290,15 @@ F77BLAS(ctrsm)(const char     *side_,
         info = 5;
     } else if (n<0) {
         info = 6;
-    } else if (ldA<std::max(1,numRowsA)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
         info = 9;
-    } else if (ldB<std::max(1,m)) {
+    } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
         info = 11;
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("CTRSM ", &info);
+        F77BLAS(xerbla)("CTRSM ", &info, 6);
+        return;
     }
 
 //
@@ -300,45 +307,45 @@ F77BLAS(ctrsm)(const char     *side_,
     if (left) {
         if (lower) {
             if (!transA) {
-                ulmBLAS::trlsm(m, n, alpha,
-                               conjA, unitDiag, A, 1, ldA,
-                               B, 1, ldB);
+                ulmBLAS::trlsm<std::ptrdiff_t>(m, n, alpha,
+                                               conjA, unitDiag, A, 1, ldA,
+                                               B, 1, ldB);
             } else {
-                ulmBLAS::trusm(m, n, alpha,
-                               conjA, unitDiag, A, ldA, 1,
-                               B, 1, ldB);
+                ulmBLAS::trusm<std::ptrdiff_t>(m, n, alpha,
+                                               conjA, unitDiag, A, ldA, 1,
+                                               B, 1, ldB);
             }
         } else {
             if (!transA) {
-                ulmBLAS::trusm(m, n, alpha,
-                               conjA, unitDiag, A, 1, ldA,
-                               B, 1, ldB);
+                ulmBLAS::trusm<std::ptrdiff_t>(m, n, alpha,
+                                               conjA, unitDiag, A, 1, ldA,
+                                               B, 1, ldB);
             } else {
-                ulmBLAS::trlsm(m, n, alpha,
-                               conjA, unitDiag, A, ldA, 1,
-                               B, 1, ldB);
+                ulmBLAS::trlsm<std::ptrdiff_t>(m, n, alpha,
+                                               conjA, unitDiag, A, ldA, 1,
+                                               B, 1, ldB);
             }
         }
     } else {
         if (lower) {
             if (!transA) {
-                ulmBLAS::trusm(n, m, alpha,
-                               conjA, unitDiag, A, ldA, 1,
-                               B, ldB, 1);
+                ulmBLAS::trusm<std::ptrdiff_t>(n, m, alpha,
+                                               conjA, unitDiag, A, ldA, 1,
+                                               B, ldB, 1);
             } else {
-                ulmBLAS::trlsm(n, m, alpha,
-                               conjA, unitDiag, A, 1, ldA,
-                               B, ldB, 1);
+                ulmBLAS::trlsm<std::ptrdiff_t>(n, m, alpha,
+                                               conjA, unitDiag, A, 1, ldA,
+                                               B, ldB, 1);
             }
         } else {
             if (!transA) {
-                ulmBLAS::trlsm(n, m, alpha,
-                               conjA, unitDiag, A, ldA, 1,
-                               B, ldB, 1);
+                ulmBLAS::trlsm<std::ptrdiff_t>(n, m, alpha,
+                                               conjA, unitDiag, A, ldA, 1,
+                                               B, ldB, 1);
             } else {
-                ulmBLAS::trusm(n, m, alpha,
-                               conjA, unitDiag, A, 1, ldA,
-                               B, ldB, 1);
+                ulmBLAS::trusm<std::ptrdiff_t>(n, m, alpha,
+                                               conjA, unitDiag, A, 1, ldA,
+                                               B, ldB, 1);
             }
         }
     }
@@ -346,32 +353,34 @@ F77BLAS(ctrsm)(const char     *side_,
 
 
 void
-F77BLAS(ztrsm)(const char     *side_,
-               const char     *upLo_,
-               const char     *transA_,
-               const char     *diag_,
-               const int      *m_,
-               const int      *n_,
-               const double   *alpha_,
-               const double   *A_,
-               const int      *ldA_,
-               double         *B_,
-               const int      *ldB_)
+F77BLAS(ztrsm)(const char               *side_,
+               const char               *upLo_,
+               const char               *transA_,
+               const char               *diag_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const double             *alpha_,
+               const double             *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               double                   *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_)
 {
     typedef std::complex<double> dcomplex;
 
 //
 //  Dereference scalar parameters
 //
-    bool left     = (toupper(*side_) == 'L');
-    bool lower    = (toupper(*upLo_) == 'L');
-    bool transA   = (toupper(*transA_) == 'T' || toupper(*transA_) == 'C');
-    bool conjA    = (toupper(*transA_) == 'R' || toupper(*transA_) == 'C');
-    bool unitDiag = (toupper(*diag_) == 'U');
-    int m         = *m_;
-    int n         = *n_;
-    int ldA       = *ldA_;
-    int ldB       = *ldB_;
+    bool left              = (toupper(*side_) == 'L');
+    bool lower             = (toupper(*upLo_) == 'L');
+    bool transA            = (toupper(*transA_) == 'T'
+                           || toupper(*transA_) == 'C');
+    bool conjA             = (toupper(*transA_) == 'R'
+                           || toupper(*transA_) == 'C');
+    bool unitDiag          = (toupper(*diag_) == 'U');
+    ULMBLAS_INDEX_TYPE m   = *m_;
+    ULMBLAS_INDEX_TYPE n   = *n_;
+    ULMBLAS_INDEX_TYPE ldA = *ldA_;
+    ULMBLAS_INDEX_TYPE ldB = *ldB_;
 
     dcomplex alpha(alpha_[0], alpha_[1]);
 
@@ -381,12 +390,12 @@ F77BLAS(ztrsm)(const char     *side_,
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
-    int numRowsA = (left) ? m : n;
+    ULMBLAS_INDEX_TYPE numRowsA = (left) ? m : n;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*side_)!='L' && toupper(*side_)!='R') {
         info = 1;
@@ -402,14 +411,15 @@ F77BLAS(ztrsm)(const char     *side_,
         info = 5;
     } else if (n<0) {
         info = 6;
-    } else if (ldA<std::max(1,numRowsA)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
         info = 9;
-    } else if (ldB<std::max(1,m)) {
+    } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
         info = 11;
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("ZTRSM ", &info);
+        F77BLAS(xerbla)("ZTRSM ", &info, 6);
+        return;
     }
 
 //
@@ -418,45 +428,45 @@ F77BLAS(ztrsm)(const char     *side_,
     if (left) {
         if (lower) {
             if (!transA) {
-                ulmBLAS::trlsm(m, n, alpha,
-                               conjA, unitDiag, A, 1, ldA,
-                               B, 1, ldB);
+                ulmBLAS::trlsm<std::ptrdiff_t>(m, n, alpha,
+                                               conjA, unitDiag, A, 1, ldA,
+                                               B, 1, ldB);
             } else {
-                ulmBLAS::trusm(m, n, alpha,
-                               conjA, unitDiag, A, ldA, 1,
-                               B, 1, ldB);
+                ulmBLAS::trusm<std::ptrdiff_t>(m, n, alpha,
+                                               conjA, unitDiag, A, ldA, 1,
+                                               B, 1, ldB);
             }
         } else {
             if (!transA) {
-                ulmBLAS::trusm(m, n, alpha,
-                               conjA, unitDiag, A, 1, ldA,
-                               B, 1, ldB);
+                ulmBLAS::trusm<std::ptrdiff_t>(m, n, alpha,
+                                               conjA, unitDiag, A, 1, ldA,
+                                               B, 1, ldB);
             } else {
-                ulmBLAS::trlsm(m, n, alpha,
-                               conjA, unitDiag, A, ldA, 1,
-                               B, 1, ldB);
+                ulmBLAS::trlsm<std::ptrdiff_t>(m, n, alpha,
+                                               conjA, unitDiag, A, ldA, 1,
+                                               B, 1, ldB);
             }
         }
     } else {
         if (lower) {
             if (!transA) {
-                ulmBLAS::trusm(n, m, alpha,
-                               conjA, unitDiag, A, ldA, 1,
-                               B, ldB, 1);
+                ulmBLAS::trusm<std::ptrdiff_t>(n, m, alpha,
+                                               conjA, unitDiag, A, ldA, 1,
+                                               B, ldB, 1);
             } else {
-                ulmBLAS::trlsm(n, m, alpha,
-                               conjA, unitDiag, A, 1, ldA,
-                               B, ldB, 1);
+                ulmBLAS::trlsm<std::ptrdiff_t>(n, m, alpha,
+                                               conjA, unitDiag, A, 1, ldA,
+                                               B, ldB, 1);
             }
         } else {
             if (!transA) {
-                ulmBLAS::trlsm(n, m, alpha,
-                               conjA, unitDiag, A, ldA, 1,
-                               B, ldB, 1);
+                ulmBLAS::trlsm<std::ptrdiff_t>(n, m, alpha,
+                                               conjA, unitDiag, A, ldA, 1,
+                                               B, ldB, 1);
             } else {
-                ulmBLAS::trusm(n, m, alpha,
-                               conjA, unitDiag, A, 1, ldA,
-                               B, ldB, 1);
+                ulmBLAS::trusm<std::ptrdiff_t>(n, m, alpha,
+                                               conjA, unitDiag, A, 1, ldA,
+                                               B, ldB, 1);
             }
         }
     }

@@ -11,29 +11,33 @@ extern "C" {
 void
 ULMBLAS(ssyrk)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                float                 alpha,
                const float           *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                float                 beta,
                float                 *C,
-               int                   ldC)
+               ULMBLAS_INDEX_TYPE    ldC)
 {
 //
 //  Start the operations.
 //
     if (trans==CblasNoTrans || trans==AtlasConj) {
         if (upLo==CblasLower) {
-            ulmBLAS::sylrk(n, k, alpha, A, 1, ldA, beta, C, 1, ldC);
+            ulmBLAS::sylrk<std::ptrdiff_t>(n, k, alpha, A, 1, ldA,
+                                           beta, C, 1, ldC);
         } else {
-            ulmBLAS::syurk(n, k, alpha, A, 1, ldA, beta, C, 1, ldC);
+            ulmBLAS::syurk<std::ptrdiff_t>(n, k, alpha, A, 1, ldA,
+                                           beta, C, 1, ldC);
         }
     } else {
         if (upLo==CblasLower) {
-            ulmBLAS::syurk(n, k, alpha, A, ldA, 1, beta, C, ldC, 1);
+            ulmBLAS::syurk<std::ptrdiff_t>(n, k, alpha, A, ldA, 1,
+                                           beta, C, ldC, 1);
         } else {
-            ulmBLAS::sylrk(n, k, alpha, A, ldA, 1, beta, C, ldC, 1);
+            ulmBLAS::sylrk<std::ptrdiff_t>(n, k, alpha, A, ldA, 1,
+                                           beta, C, ldC, 1);
         }
     }
 }
@@ -41,29 +45,33 @@ ULMBLAS(ssyrk)(enum CBLAS_UPLO       upLo,
 void
 ULMBLAS(dsyrk)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                double                alpha,
                const double          *A,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                double                beta,
                double                *C,
-               int                   ldC)
+               ULMBLAS_INDEX_TYPE    ldC)
 {
 //
 //  Start the operations.
 //
     if (trans==CblasNoTrans || trans==AtlasConj) {
         if (upLo==CblasLower) {
-            ulmBLAS::sylrk(n, k, alpha, A, 1, ldA, beta, C, 1, ldC);
+            ulmBLAS::sylrk<std::ptrdiff_t>(n, k, alpha, A, 1, ldA,
+                                           beta, C, 1, ldC);
         } else {
-            ulmBLAS::syurk(n, k, alpha, A, 1, ldA, beta, C, 1, ldC);
+            ulmBLAS::syurk<std::ptrdiff_t>(n, k, alpha, A, 1, ldA,
+                                           beta, C, 1, ldC);
         }
     } else {
         if (upLo==CblasLower) {
-            ulmBLAS::syurk(n, k, alpha, A, ldA, 1, beta, C, ldC, 1);
+            ulmBLAS::syurk<std::ptrdiff_t>(n, k, alpha, A, ldA, 1,
+                                           beta, C, ldC, 1);
         } else {
-            ulmBLAS::sylrk(n, k, alpha, A, ldA, 1, beta, C, ldC, 1);
+            ulmBLAS::sylrk<std::ptrdiff_t>(n, k, alpha, A, ldA, 1,
+                                           beta, C, ldC, 1);
         }
     }
 }
@@ -71,14 +79,14 @@ ULMBLAS(dsyrk)(enum CBLAS_UPLO       upLo,
 void
 ULMBLAS(csyrk)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const float           *alpha_,
                const float           *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const float           *beta_,
                float                 *C_,
-               int                   ldC)
+               ULMBLAS_INDEX_TYPE    ldC)
 {
     typedef std::complex<float> fcomplex;
 
@@ -92,15 +100,19 @@ ULMBLAS(csyrk)(enum CBLAS_UPLO       upLo,
 //
     if (trans==CblasNoTrans) {
         if (upLo==CblasLower) {
-            ulmBLAS::sylrk(n, k, alpha, A, 1, ldA, beta, C, 1, ldC);
+            ulmBLAS::sylrk<std::ptrdiff_t>(n, k, alpha, A, 1, ldA,
+                                           beta, C, 1, ldC);
         } else {
-            ulmBLAS::syurk(n, k, alpha, A, 1, ldA, beta, C, 1, ldC);
+            ulmBLAS::syurk<std::ptrdiff_t>(n, k, alpha, A, 1, ldA,
+                                           beta, C, 1, ldC);
         }
     } else {
         if (upLo==CblasLower) {
-            ulmBLAS::syurk(n, k, alpha, A, ldA, 1, beta, C, ldC, 1);
+            ulmBLAS::syurk<std::ptrdiff_t>(n, k, alpha, A, ldA, 1,
+                                           beta, C, ldC, 1);
         } else {
-            ulmBLAS::sylrk(n, k, alpha, A, ldA, 1, beta, C, ldC, 1);
+            ulmBLAS::sylrk<std::ptrdiff_t>(n, k, alpha, A, ldA, 1,
+                                           beta, C, ldC, 1);
         }
     }
 }
@@ -108,14 +120,14 @@ ULMBLAS(csyrk)(enum CBLAS_UPLO       upLo,
 void
 ULMBLAS(zsyrk)(enum CBLAS_UPLO       upLo,
                enum CBLAS_TRANSPOSE  trans,
-               int                   n,
-               int                   k,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
                const double          *alpha_,
                const double          *A_,
-               int                   ldA,
+               ULMBLAS_INDEX_TYPE    ldA,
                const double          *beta_,
                double                *C_,
-               int                   ldC)
+               ULMBLAS_INDEX_TYPE    ldC)
 {
     typedef std::complex<double> dcomplex;
 
@@ -129,15 +141,19 @@ ULMBLAS(zsyrk)(enum CBLAS_UPLO       upLo,
 //
     if (trans==CblasNoTrans) {
         if (upLo==CblasLower) {
-            ulmBLAS::sylrk(n, k, alpha, A, 1, ldA, beta, C, 1, ldC);
+            ulmBLAS::sylrk<std::ptrdiff_t>(n, k, alpha, A, 1, ldA,
+                                           beta, C, 1, ldC);
         } else {
-            ulmBLAS::syurk(n, k, alpha, A, 1, ldA, beta, C, 1, ldC);
+            ulmBLAS::syurk<std::ptrdiff_t>(n, k, alpha, A, 1, ldA,
+                                           beta, C, 1, ldC);
         }
     } else {
         if (upLo==CblasLower) {
-            ulmBLAS::syurk(n, k, alpha, A, ldA, 1, beta, C, ldC, 1);
+            ulmBLAS::syurk<std::ptrdiff_t>(n, k, alpha, A, ldA, 1,
+                                           beta, C, ldC, 1);
         } else {
-            ulmBLAS::sylrk(n, k, alpha, A, ldA, 1, beta, C, ldC, 1);
+            ulmBLAS::sylrk<std::ptrdiff_t>(n, k, alpha, A, ldA, 1,
+                                           beta, C, ldC, 1);
         }
     }
 }
@@ -146,19 +162,19 @@ void
 CBLAS(ssyrk)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              float                 alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              float                 beta,
              float                 *C,
-             int                   ldC)
+             ULMBLAS_INDEX_TYPE    ldC)
 {
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
-    int numRowsA;
+    ULMBLAS_INDEX_TYPE numRowsA;
 
     if (order==CblasColMajor) {
         numRowsA = (trans==CblasNoTrans || trans==AtlasConj) ? n : k;
@@ -183,14 +199,15 @@ CBLAS(ssyrk)(enum CBLAS_ORDER      order,
         info = 4;
     } else if (k<0) {
         info = 5;
-    } else if (ldA<std::max(1,numRowsA)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
         info = 8;
-    } else if (ldC<std::max(1,n)) {
+    } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 11;
     }
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_ssyrk", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -206,19 +223,19 @@ void
 CBLAS(dsyrk)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              double                alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              double                beta,
              double                *C,
-             int                   ldC)
+             ULMBLAS_INDEX_TYPE    ldC)
 {
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
-    int numRowsA;
+    ULMBLAS_INDEX_TYPE numRowsA;
 
     if (order==CblasColMajor) {
         numRowsA = (trans==CblasNoTrans || trans==AtlasConj) ? n : k;
@@ -243,14 +260,15 @@ CBLAS(dsyrk)(enum CBLAS_ORDER      order,
         info = 4;
     } else if (k<0) {
         info = 5;
-    } else if (ldA<std::max(1,numRowsA)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
         info = 8;
-    } else if (ldC<std::max(1,n)) {
+    } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 11;
     }
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_dsyrk", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -266,21 +284,19 @@ void
 CBLAS(csyrk)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const float           *alpha,
              const float           *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const float           *beta,
              float                 *C,
-             int                   ldC)
+             ULMBLAS_INDEX_TYPE    ldC)
 {
-    typedef std::complex<float> fcomplex;
-
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
-    int numRowsA;
+    ULMBLAS_INDEX_TYPE numRowsA;
 
     if (order==CblasColMajor) {
         numRowsA = (trans==CblasNoTrans) ? n : k;
@@ -303,14 +319,15 @@ CBLAS(csyrk)(enum CBLAS_ORDER      order,
         info = 4;
     } else if (k<0) {
         info = 5;
-    } else if (ldA<std::max(1,numRowsA)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
         info = 8;
-    } else if (ldC<std::max(1,n)) {
+    } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 11;
     }
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_csyrk", "");
+        return;
     }
 
     if (order==CblasColMajor) {
@@ -327,21 +344,19 @@ void
 CBLAS(zsyrk)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              enum CBLAS_TRANSPOSE  trans,
-             int                   n,
-             int                   k,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
              const double          *alpha,
              const double          *A,
-             int                   ldA,
+             ULMBLAS_INDEX_TYPE    ldA,
              const double          *beta,
              double                *C,
-             int                   ldC)
+             ULMBLAS_INDEX_TYPE    ldC)
 {
-    typedef std::complex<double> dcomplex;
-
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
-    int numRowsA;
+    ULMBLAS_INDEX_TYPE numRowsA;
 
     if (order==CblasColMajor) {
         numRowsA = (trans==CblasNoTrans) ? n : k;
@@ -364,14 +379,15 @@ CBLAS(zsyrk)(enum CBLAS_ORDER      order,
         info = 4;
     } else if (k<0) {
         info = 5;
-    } else if (ldA<std::max(1,numRowsA)) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
         info = 8;
-    } else if (ldC<std::max(1,n)) {
+    } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 11;
     }
 
     if (info!=0) {
         CBLAS(xerbla)(info, "cblas_zsyrk", "");
+        return;
     }
 
     if (order==CblasColMajor) {

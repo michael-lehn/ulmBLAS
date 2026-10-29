@@ -31,6 +31,11 @@ nrm2(IndexType                n,
     return result;
 }
 
+//
+//  The scaled sum of squares of the Reference BLAS (before LAPACK 3.10).  A
+//  component equal to the current scale adds exactly one, so that two
+//  infinite components give Inf instead of Inf/Inf = NaN; NaN propagates.
+//
 template <typename IndexType, typename VX, typename Result>
 void
 nrm2(IndexType  n,
@@ -54,6 +59,8 @@ nrm2(IndexType  n,
                 if (scale<absXi) {
                     ssq = One + ssq * std::pow(scale/absXi, 2);
                     scale = absXi;
+                } else if (absXi==scale) {
+                    ssq += One;
                 } else {
                     ssq += std::pow(absXi/scale, 2);
                 }
@@ -74,8 +81,6 @@ nrm2(IndexType                n,
 
     if (n<1) {
         result = Zero;
-    } else if (n==1) {
-        result = std::abs(*x);
     } else {
         Result scale = 0;
         Result ssq = 1;
@@ -86,6 +91,8 @@ nrm2(IndexType                n,
                 if (scale<absXi) {
                     ssq = One + ssq * std::pow(scale/absXi, 2);
                     scale = absXi;
+                } else if (absXi==scale) {
+                    ssq += One;
                 } else {
                     ssq += std::pow(absXi/scale, 2);
                 }
@@ -95,6 +102,8 @@ nrm2(IndexType                n,
                 if (scale<absXi) {
                     ssq = One + ssq * std::pow(scale/absXi, 2);
                     scale = absXi;
+                } else if (absXi==scale) {
+                    ssq += One;
                 } else {
                     ssq += std::pow(absXi/scale, 2);
                 }

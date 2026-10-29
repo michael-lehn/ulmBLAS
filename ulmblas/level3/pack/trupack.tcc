@@ -17,7 +17,7 @@ trupack_MRxk(IndexType   k,
              IndexType   incColU,
              Buffer      *buffer)
 {
-    const IndexType MR  = BlockSizeUGemm<Buffer>::MR;
+    constexpr IndexType MR  = BlockSizeUGemm<Buffer>::MR;
 
     if (!conj) {
         for (IndexType j=0; j<MR; ++j) {
@@ -63,7 +63,7 @@ trupack(IndexType   mc,
         IndexType   incColU,
         Buffer      *buffer)
 {
-    const IndexType MR  = BlockSizeUGemm<Buffer>::MR;
+    constexpr IndexType MR  = BlockSizeUGemm<Buffer>::MR;
     const IndexType mp  = mc / MR;
     const IndexType mr_ = mc % MR;
 

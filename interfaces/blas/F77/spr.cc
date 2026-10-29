@@ -7,25 +7,25 @@
 extern "C" {
 
 void
-F77BLAS(sspr)(const char        *upLo_,
-              const int         *n_,
-              const float       *alpha_,
-              const float       *x,
-              const int         *incX_,
-              float             *A)
+F77BLAS(sspr)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const float              *alpha_,
+              const float              *x,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              float                    *A)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lower   = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    float alpha  = *alpha_;
-    int incX     = *incX_;
+    bool lower              = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    float alpha             = *alpha_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
         info = 1;
@@ -36,7 +36,8 @@ F77BLAS(sspr)(const char        *upLo_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("SSPR  ", &info);
+        F77BLAS(xerbla)("SSPR  ", &info, 6);
+        return;
     }
 
 //
@@ -47,32 +48,32 @@ F77BLAS(sspr)(const char        *upLo_,
     }
 
     if (lower) {
-        ulmBLAS::splr(n, alpha, x, incX, A);
+        ulmBLAS::splr<std::ptrdiff_t>(n, alpha, x, incX, A);
     } else {
-        ulmBLAS::spur(n, alpha, x, incX, A);
+        ulmBLAS::spur<std::ptrdiff_t>(n, alpha, x, incX, A);
     }
 }
 
 void
-F77BLAS(dspr)(const char        *upLo_,
-              const int         *n_,
-              const double      *alpha_,
-              const double      *x,
-              const int         *incX_,
-              double            *A)
+F77BLAS(dspr)(const char               *upLo_,
+              const ULMBLAS_INDEX_TYPE *n_,
+              const double             *alpha_,
+              const double             *x,
+              const ULMBLAS_INDEX_TYPE *incX_,
+              double                   *A)
 {
 //
 //  Dereference scalar parameters
 //
-    bool lower   = (toupper(*upLo_) == 'L');
-    int n        = *n_;
-    double alpha = *alpha_;
-    int incX     = *incX_;
+    bool lower              = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n    = *n_;
+    double alpha            = *alpha_;
+    ULMBLAS_INDEX_TYPE incX = *incX_;
 
 //
 //  Test the input parameters
 //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
         info = 1;
@@ -83,7 +84,8 @@ F77BLAS(dspr)(const char        *upLo_,
     }
 
     if (info!=0) {
-        F77BLAS(xerbla)("DSPR  ", &info);
+        F77BLAS(xerbla)("DSPR  ", &info, 6);
+        return;
     }
 
 //
@@ -94,9 +96,9 @@ F77BLAS(dspr)(const char        *upLo_,
     }
 
     if (lower) {
-        ulmBLAS::splr(n, alpha, x, incX, A);
+        ulmBLAS::splr<std::ptrdiff_t>(n, alpha, x, incX, A);
     } else {
-        ulmBLAS::spur(n, alpha, x, incX, A);
+        ulmBLAS::spur<std::ptrdiff_t>(n, alpha, x, incX, A);
     }
 }
 

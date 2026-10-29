@@ -3,7 +3,7 @@
 
 namespace ulmBLAS {
 
-template <typename IndexType, typename T>
+template <typename IndexType, typename T, typename PivIndex>
     void
     laswp(IndexType    n,
           T            *A,
@@ -11,7 +11,7 @@ template <typename IndexType, typename T>
           IndexType    incColA,
           IndexType    k1,
           IndexType    k2,
-          IndexType    *piv,
+          PivIndex     *piv,
           IndexType    incPiv);
 
 } // namespace ulmBLAS

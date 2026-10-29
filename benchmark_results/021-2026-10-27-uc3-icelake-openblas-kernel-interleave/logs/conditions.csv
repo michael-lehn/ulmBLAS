@@ -1,0 +1,16 @@
+time,kind,variant,round,load1,temp_C,cpu_MHz
+1793082040,main,ulmblas-openblas-skylakex_16x12-k6,1,0.34,39,3400
+1793082111,main,ulmblas-openblas-skylakex_16x12-k5,1,0.80,44,2925
+1793082182,main,ulmblas-zen4_32x6-k2,1,0.94,44,3400
+1793082253,main,openblas,1,0.98,45,3336
+1793082323,main,mkl,1,1.00,46,3397
+1793082394,main,ulmblas-openblas-skylakex_16x12-k5,2,1.00,44,3366
+1793082464,main,ulmblas-zen4_32x6-k2,2,1.00,46,3397
+1793082536,main,openblas,2,1.00,45,3321
+1793082605,main,mkl,2,1.00,46,1588
+1793082676,main,ulmblas-openblas-skylakex_16x12-k6,2,1.00,39,3368
+1793082747,main,ulmblas-zen4_32x6-k2,3,1.00,44,1423
+1793082818,main,openblas,3,1.00,46,3121
+1793082888,main,mkl,3,1.00,46,1528
+1793082959,main,ulmblas-openblas-skylakex_16x12-k6,3,1.00,45,1416
+1793083029,main,ulmblas-openblas-skylakex_16x12-k5,3,1.00,45,792

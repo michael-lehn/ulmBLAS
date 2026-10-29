@@ -1,0 +1,79 @@
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c: In function ‘main’:
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:20:66: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   20 |            (long)bli_cntx_get_blksz_def_dt(BLIS_DOUBLE, BLIS_MR, cntx),
+      |                                                                  ^~~~
+In file included from /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:9:
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:21:66: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   21 |            (long)bli_cntx_get_blksz_def_dt(BLIS_DOUBLE, BLIS_NR, cntx),
+      |                                                                  ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:22:66: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   22 |            (long)bli_cntx_get_blksz_def_dt(BLIS_DOUBLE, BLIS_MC, cntx),
+      |                                                                  ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:23:66: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   23 |            (long)bli_cntx_get_blksz_def_dt(BLIS_DOUBLE, BLIS_KC, cntx),
+      |                                                                  ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:24:66: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   24 |            (long)bli_cntx_get_blksz_def_dt(BLIS_DOUBLE, BLIS_NC, cntx));
+      |                                                                  ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:27:20: error: implicit declaration of function ‘bli_cntx_get_ukr_dt’; did you mean ‘bli_cntx_get_bmult_dt’? [-Wimplicit-function-declaration]
+   27 |            (void *)bli_cntx_get_ukr_dt(BLIS_DOUBLE, BLIS_GEMM_UKR, cntx),
+      |                    ^~~~~~~~~~~~~~~~~~~
+      |                    bli_cntx_get_bmult_dt
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:27:12: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+   27 |            (void *)bli_cntx_get_ukr_dt(BLIS_DOUBLE, BLIS_GEMM_UKR, cntx),
+      |            ^
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:28:17: error: implicit declaration of function ‘bli_cntx_get_ukr_prefs_dt’; did you mean ‘bli_cntx_get_l1v_ker_dt’? [-Wimplicit-function-declaration]
+   28 |            (int)bli_cntx_get_ukr_prefs_dt(BLIS_DOUBLE, BLIS_GEMM_UKR_ROW_PREF,
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                 bli_cntx_get_l1v_ker_dt
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:28:56: error: ‘BLIS_GEMM_UKR_ROW_PREF’ undeclared (first use in this function)
+   28 |            (int)bli_cntx_get_ukr_prefs_dt(BLIS_DOUBLE, BLIS_GEMM_UKR_ROW_PREF,
+      |                                                        ^~~~~~~~~~~~~~~~~~~~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:28:56: note: each undeclared identifier is reported only once for each function it appears in
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c: In function ‘main’:
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:20:66: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   20 |            (long)bli_cntx_get_blksz_def_dt(BLIS_DOUBLE, BLIS_MR, cntx),
+      |                                                                  ^~~~
+In file included from /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:9:
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:21:66: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   21 |            (long)bli_cntx_get_blksz_def_dt(BLIS_DOUBLE, BLIS_NR, cntx),
+      |                                                                  ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:22:66: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   22 |            (long)bli_cntx_get_blksz_def_dt(BLIS_DOUBLE, BLIS_MC, cntx),
+      |                                                                  ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:23:66: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   23 |            (long)bli_cntx_get_blksz_def_dt(BLIS_DOUBLE, BLIS_KC, cntx),
+      |                                                                  ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~
+/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/src/bench/blis-info.c:24:66: warning: passing argument 3 of ‘bli_cntx_get_blksz_def_dt’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   24 |            (long)bli_cntx_get_blksz_def_dt(BLIS_DOUBLE, BLIS_NC, cntx));
+      |                                                                  ^~~~
+/software/bwhpc/common/lib/aocl/5.0.0/aocc/include/blis.h:24328:79: note: expected ‘cntx_t *’ {aka ‘struct cntx_s *’} but argument is of type ‘const cntx_t *’ {aka ‘const struct cntx_s *’}
+24328 | BLIS_INLINE dim_t bli_cntx_get_blksz_def_dt( num_t dt, bszid_t bs_id, cntx_t* cntx )
+      |                                                                       ~~~~~~~~^~~~

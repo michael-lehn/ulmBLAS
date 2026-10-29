@@ -1,0 +1,8 @@
+/opt/bwhpc/common/devel/cuda/12.8/bin/compute-sanitizer --tool memcheck --error-exitcode 1 \
+    build/test_gemm --quick --quiet 
+========= COMPUTE-SANITIZER
+# device NVIDIA A100 80GB PCIe (compute capability 8.0), CUDA runtime 12080, driver 13040, cuBLAS 120803
+# seed 2026, quick
+# impl       m     n     k   ldA   ldB   ldC  alpha   beta init     err/bound
+# 184 checks, 0 failed (2 implementations, 91 cases each)
+========= ERROR SUMMARY: 0 errors

@@ -4,74 +4,74 @@
 
 extern "C" {
 
-int
-ULMBLAS(isamax)(int           n,
-                const float   *x,
-                int           incX)
+ULMBLAS_INDEX_TYPE
+ULMBLAS(isamax)(ULMBLAS_INDEX_TYPE n,
+                const float        *x,
+                ULMBLAS_INDEX_TYPE incX)
 {
-    return ulmBLAS::iamax(n, x, incX);
+    return ulmBLAS::iamax<std::ptrdiff_t>(n, x, incX);
 }
 
 
-int
-ULMBLAS(idamax)(int           n,
-                const double  *x,
-                int           incX)
+ULMBLAS_INDEX_TYPE
+ULMBLAS(idamax)(ULMBLAS_INDEX_TYPE n,
+                const double       *x,
+                ULMBLAS_INDEX_TYPE incX)
 {
-    return ulmBLAS::iamax(n, x, incX);
+    return ulmBLAS::iamax<std::ptrdiff_t>(n, x, incX);
 }
 
-int
-ULMBLAS(icamax)(int           n,
-                const float   *x_,
-                int           incX)
+ULMBLAS_INDEX_TYPE
+ULMBLAS(icamax)(ULMBLAS_INDEX_TYPE n,
+                const float        *x_,
+                ULMBLAS_INDEX_TYPE incX)
 {
     typedef std::complex<float> fcomplex;
     const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
 
-    return ulmBLAS::iamax(n, x, incX);
+    return ulmBLAS::iamax<std::ptrdiff_t>(n, x, incX);
 }
 
-int
-ULMBLAS(izamax)(int           n,
-                const double  *x_,
-                int           incX)
+ULMBLAS_INDEX_TYPE
+ULMBLAS(izamax)(ULMBLAS_INDEX_TYPE n,
+                const double       *x_,
+                ULMBLAS_INDEX_TYPE incX)
 {
     typedef std::complex<double> dcomplex;
     const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
 
-    return ulmBLAS::iamax(n, x, incX);
+    return ulmBLAS::iamax<std::ptrdiff_t>(n, x, incX);
 }
 
 
-int
-CBLAS(isamax)(int           n,
-              const float   *x,
-              int           incX)
+ULMBLAS_INDEX_TYPE
+CBLAS(isamax)(ULMBLAS_INDEX_TYPE n,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX)
 {
     return ULMBLAS(isamax)(n, x, incX);
 }
 
-int
-CBLAS(idamax)(int           n,
-              const double  *x,
-              int           incX)
+ULMBLAS_INDEX_TYPE
+CBLAS(idamax)(ULMBLAS_INDEX_TYPE n,
+              const double       *x,
+              ULMBLAS_INDEX_TYPE incX)
 {
     return ULMBLAS(idamax)(n, x, incX);
 }
 
-int
-CBLAS(icamax)(int           n,
-              const float   *x,
-              int           incX)
+ULMBLAS_INDEX_TYPE
+CBLAS(icamax)(ULMBLAS_INDEX_TYPE n,
+              const float        *x,
+              ULMBLAS_INDEX_TYPE incX)
 {
     return ULMBLAS(icamax)(n, x, incX);
 }
 
-int
-CBLAS(izamax)(int           n,
-              const double  *x,
-              int           incX)
+ULMBLAS_INDEX_TYPE
+CBLAS(izamax)(ULMBLAS_INDEX_TYPE n,
+              const double       *x,
+              ULMBLAS_INDEX_TYPE incX)
 {
     return ULMBLAS(izamax)(n, x, incX);
 }

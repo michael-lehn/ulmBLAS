@@ -1,0 +1,2 @@
+ulmblas-openblas-haswell_4x8-iter1: c++ -I../../.. -I../../.. -DADD_ -D'BLAS_HEADER=<cblas.h>' -D'CBLAS(x)=cblas_ ## x' -D'ULMBLAS(x)=ulmblas_ ## x' -D'CBLAS_H=ULMBLAS_CBLAS_H' -std=c++11 -mavx -mavx2 -mfma -DULMBLAS_DGEMM_UKERNEL_openblas_haswell_4x8 -O3 -fomit-frame-pointer -Wall -MMD -MP
+ulmblas-openblas-haswell_4x8-iter1: libcblas.a contains haswell_4x8.o
