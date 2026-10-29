@@ -14,23 +14,14 @@ namespace ulmBLAS {
 //
 template <typename IndexType, typename T, typename Beta, typename TC>
 void
-ugemm(IndexType    mr,
-      IndexType    nr,
-      IndexType    kc,
-      const T      &alpha,
-      const T      *A,
-      const T      *B,
-      const Beta   &beta,
-      TC           *C,
-      IndexType    incRowC,
-      IndexType    incColC,
-      const T      *nextA,
-      const T      *nextB)
+ugemm(IndexType mr, IndexType nr, IndexType kc, const T &alpha, const T *A,
+      const T *B, const Beta &beta, TC *C, IndexType incRowC, IndexType incColC,
+      const T *nextA, const T *nextB)
 {
     constexpr IndexType MR = BlockSizeUGemm<T>::MR;
     constexpr IndexType NR = BlockSizeUGemm<T>::NR;
 
-    T   C_[MR*NR];
+    T C_[MR * NR];
 
     ugemm(kc, alpha, A, B, T(0), C_, IndexType(1), MR, nextA, nextB);
     gescal(mr, nr, beta, C, incRowC, incColC);
@@ -38,21 +29,14 @@ ugemm(IndexType    mr,
 }
 
 //
-//  Buffered variant.  Used if the result alpha*A*B needs to be upcasted for
+//  Buffered variant. Used if the result alpha*A*B needs to be upcasted for
 //  computing C <- beta*C + (alpha*A*B)
 //
 template <typename IndexType, typename T, typename Beta, typename TC>
 void
-ugemm(IndexType   kc,
-      const T     &alpha,
-      const T     *A,
-      const T     *B,
-      const Beta  &beta,
-      TC          *C,
-      IndexType   incRowC,
-      IndexType   incColC,
-      const T     *nextA,
-      const T     *nextB)
+ugemm(IndexType kc, const T &alpha, const T *A, const T *B, const Beta &beta,
+      TC *C, IndexType incRowC, IndexType incColC, const T *nextA,
+      const T *nextB)
 {
     constexpr IndexType MR = BlockSizeUGemm<T>::MR;
     constexpr IndexType NR = BlockSizeUGemm<T>::NR;
@@ -65,16 +49,8 @@ ugemm(IndexType   kc,
 //
 template <typename IndexType, typename T>
 void
-ugemm(IndexType   kc,
-      const T     &alpha,
-      const T     *A,
-      const T     *B,
-      const T     &beta,
-      T           *C,
-      IndexType   incRowC,
-      IndexType   incColC,
-      const T     *nextA,
-      const T     *nextB)
+ugemm(IndexType kc, const T &alpha, const T *A, const T *B, const T &beta, T *C,
+      IndexType incRowC, IndexType incColC, const T *nextA, const T *nextB)
 {
     SELECT_UGEMM_KERNEL::ugemm(kc, alpha, A, B, beta, C, incRowC, incColC,
                                nextA, nextB);
