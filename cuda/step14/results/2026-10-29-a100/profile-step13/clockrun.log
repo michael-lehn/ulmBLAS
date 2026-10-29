@@ -1,0 +1,12 @@
+step13   n  1024 reps  15000 first 2026/10/29 19:43:57.020 last 2026/10/29 19:43:59.630 median_ms 0.1741 GFLOP/s 12336.2 first10%_ms 0.1731 last10%_ms 0.1741
+cuBLAS   n  1024 reps  15000 first 2026/10/29 19:44:10.075 last 2026/10/29 19:44:12.371 median_ms 0.1526 GFLOP/s 14074.8 first10%_ms 0.1516 last10%_ms 0.1526
+cuBLAS   n  1024 reps  15000 first 2026/10/29 19:44:22.805 last 2026/10/29 19:44:25.102 median_ms 0.1526 GFLOP/s 14074.8 first10%_ms 0.1526 last10%_ms 0.1536
+step13   n  1024 reps  15000 first 2026/10/29 19:44:35.528 last 2026/10/29 19:44:38.137 median_ms 0.1741 GFLOP/s 12336.2 first10%_ms 0.1731 last10%_ms 0.1741
+step13   n  2048 reps   2500 first 2026/10/29 19:44:48.634 last 2026/10/29 19:44:51.706 median_ms 1.2237 GFLOP/s 14039.5 first10%_ms 1.2206 last10%_ms 1.2380
+cuBLAS   n  2048 reps   2500 first 2026/10/29 19:45:02.231 last 2026/10/29 19:45:04.998 median_ms 1.0967 GFLOP/s 15665.0 first10%_ms 1.0957 last10%_ms 1.1090
+cuBLAS   n  2048 reps   2500 first 2026/10/29 19:45:15.523 last 2026/10/29 19:45:18.291 median_ms 1.0977 GFLOP/s 15650.4 first10%_ms 1.0957 last10%_ms 1.1100
+step13   n  2048 reps   2500 first 2026/10/29 19:45:28.790 last 2026/10/29 19:45:31.870 median_ms 1.2308 GFLOP/s 13957.8 first10%_ms 1.2216 last10%_ms 1.2401
+step13   n  4000 reps    330 first 2026/10/29 19:45:42.764 last 2026/10/29 19:45:45.698 median_ms 8.8832 GFLOP/s 14409.2 first10%_ms 8.7900 last10%_ms 8.9119
+cuBLAS   n  4000 reps    330 first 2026/10/29 19:45:56.608 last 2026/10/29 19:45:59.257 median_ms 7.9749 GFLOP/s 16050.3 first10%_ms 7.9667 last10%_ms 7.9749
+cuBLAS   n  4000 reps    330 first 2026/10/29 19:46:10.173 last 2026/10/29 19:46:12.825 median_ms 7.9759 GFLOP/s 16048.3 first10%_ms 7.9780 last10%_ms 7.9770
+step13   n  4000 reps    330 first 2026/10/29 19:46:23.795 last 2026/10/29 19:46:26.727 median_ms 8.8668 GFLOP/s 14435.8 first10%_ms 8.7910 last10%_ms 8.8781

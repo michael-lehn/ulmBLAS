@@ -1,0 +1,203 @@
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/test/test_gemm.o test/test_gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/culmblas/gemm.o culmblas/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step01/gemm.o step01/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step02/gemm.o step02/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step03/gemm.o step03/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step04/gemm.o step04/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step05/gemm.o step05/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step06/gemm.o step06/gemm.cu
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0139_GLOBAL__N__f8559857_7_gemm_cu_463dffe95dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0139_GLOBAL__N__f8559857_7_gemm_cu_463dffe95dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 31 registers, used 0 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 9.550 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0439_GLOBAL__N__b2c2dd18_7_gemm_cu_a89ebe495dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0439_GLOBAL__N__b2c2dd18_7_gemm_cu_a89ebe495dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 118 registers, used 0 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 52.580 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0239_GLOBAL__N__c1d8a492_7_gemm_cu_1c5cc0895dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0239_GLOBAL__N__c1d8a492_7_gemm_cu_1c5cc0895dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 48 registers, used 0 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 22.886 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0339_GLOBAL__N__d6a3b0d1_7_gemm_cu_9cacd7965dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0339_GLOBAL__N__d6a3b0d1_7_gemm_cu_9cacd7965dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 125 registers, used 0 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 39.974 ms
+ptxas info    : 0 bytes gmem
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step07/gemm.o step07/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step08/gemm.o step08/gemm.cu
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0539_GLOBAL__N__a5b9c95b_7_gemm_cu_286ea9565dgemmEllldPKdiS3_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0539_GLOBAL__N__a5b9c95b_7_gemm_cu_286ea9565dgemmEllldPKdiS3_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 122 registers, used 1 barriers, 12288 bytes smem, 440 bytes cmem[0]
+ptxas info    : Compile time = 65.257 ms
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step09/gemm.o step09/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step10/gemm.o step10/gemm.cu
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0639_GLOBAL__N__9c34f59e_7_gemm_cu_720f96365dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0639_GLOBAL__N__9c34f59e_7_gemm_cu_720f96365dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 48 registers, used 0 barriers, 4096 bytes smem, 440 bytes cmem[0]
+ptxas info    : Compile time = 37.649 ms
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step11/gemm.o step11/gemm.cu
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step12/gemm.o step12/gemm.cu
+ptxas info    : 0 bytes gmem
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step13/gemm.o step13/gemm.cu
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1039_GLOBAL__N__00ece72a_7_gemm_cu_4b4515145dgemmILb1EEEvllldPKdiS4_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1039_GLOBAL__N__00ece72a_7_gemm_cu_4b4515145dgemmILb1EEEvllldPKdiS4_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 1 barriers, 440 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 52.552 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1039_GLOBAL__N__00ece72a_7_gemm_cu_4b4515145dgemmILb0EEEvllldPKdiS4_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1039_GLOBAL__N__00ece72a_7_gemm_cu_4b4515145dgemmILb0EEEvllldPKdiS4_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 130 registers, used 1 barriers, 440 bytes cmem[0], 16 bytes cmem[2]
+ptxas info    : Compile time = 58.194 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1139_GLOBAL__N__1797f369_7_gemm_cu_cbb5020b5dgemmILb1EEEvllldPKdiS4_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1139_GLOBAL__N__1797f369_7_gemm_cu_cbb5020b5dgemmILb1EEEvllldPKdiS4_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 94 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 32.948 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1139_GLOBAL__N__1797f369_7_gemm_cu_cbb5020b5dgemmILb0EEEvllldPKdiS4_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1139_GLOBAL__N__1797f369_7_gemm_cu_cbb5020b5dgemmILb0EEEvllldPKdiS4_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 126 registers, used 1 barriers, 440 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 56.099 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0839_GLOBAL__N__54f62e0c_7_gemm_cu_1a6b45885dgemmEllldPKdiS3_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0839_GLOBAL__N__54f62e0c_7_gemm_cu_1a6b45885dgemmEllldPKdiS3_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 1 barriers, 16384 bytes smem, 440 bytes cmem[0]
+ptxas info    : Compile time = 53.113 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0739_GLOBAL__N__8b4fe1dd_7_gemm_cu_f2ff81295dgemmEllldPKdlS3_ldPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0739_GLOBAL__N__8b4fe1dd_7_gemm_cu_f2ff81295dgemmEllldPKdlS3_ldPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 149 registers, used 0 barriers, 32768 bytes smem, 440 bytes cmem[0]
+ptxas info    : Compile time = 53.226 ms
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -c -o build/step14/gemm.o step14/gemm.cu
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0939_GLOBAL__N__438d3a4f_7_gemm_cu_9a9b52975dgemmILb1EEEvllldPKdiS4_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0939_GLOBAL__N__438d3a4f_7_gemm_cu_9a9b52975dgemmILb1EEEvllldPKdiS4_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 1 barriers, 440 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 69.682 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step0939_GLOBAL__N__438d3a4f_7_gemm_cu_9a9b52975dgemmILb0EEEvllldPKdiS4_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step0939_GLOBAL__N__438d3a4f_7_gemm_cu_9a9b52975dgemmILb0EEEvllldPKdiS4_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 126 registers, used 1 barriers, 440 bytes cmem[0], 16 bytes cmem[2]
+ptxas info    : Compile time = 73.208 ms
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -DCULMBLAS_BUILD_FLAGS='"/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32  -lcublas"' -c -o build/bench/bench_gemm.o bench/bench_gemm.cu
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1239_GLOBAL__N__2e1acfac_7_gemm_cu_91d43d6b5dgemmINS1_5ShapeILi4ELi4ELi8EEELb1EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1239_GLOBAL__N__2e1acfac_7_gemm_cu_91d43d6b5dgemmINS1_5ShapeILi4ELi4ELi8EEELb1EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 125 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 76.625 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1239_GLOBAL__N__2e1acfac_7_gemm_cu_91d43d6b5dgemmINS1_5ShapeILi4ELi4ELi8EEELb0EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1239_GLOBAL__N__2e1acfac_7_gemm_cu_91d43d6b5dgemmINS1_5ShapeILi4ELi4ELi8EEELb0EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 133 registers, used 1 barriers, 440 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 54.061 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1239_GLOBAL__N__2e1acfac_7_gemm_cu_91d43d6b5dgemmINS1_5ShapeILi4ELi2ELi16EEELb1EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1239_GLOBAL__N__2e1acfac_7_gemm_cu_91d43d6b5dgemmINS1_5ShapeILi4ELi2ELi16EEELb1EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 94 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 31.216 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1239_GLOBAL__N__2e1acfac_7_gemm_cu_91d43d6b5dgemmINS1_5ShapeILi4ELi2ELi16EEELb0EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1239_GLOBAL__N__2e1acfac_7_gemm_cu_91d43d6b5dgemmINS1_5ShapeILi4ELi2ELi16EEELb0EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 126 registers, used 1 barriers, 440 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 33.324 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1239_GLOBAL__N__2e1acfac_7_gemm_cu_91d43d6b5dgemmINS1_5ShapeILi2ELi2ELi16EEELb1EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1239_GLOBAL__N__2e1acfac_7_gemm_cu_91d43d6b5dgemmINS1_5ShapeILi2ELi2ELi16EEELb1EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 66 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 21.626 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1239_GLOBAL__N__2e1acfac_7_gemm_cu_91d43d6b5dgemmINS1_5ShapeILi2ELi2ELi16EEELb0EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1239_GLOBAL__N__2e1acfac_7_gemm_cu_91d43d6b5dgemmINS1_5ShapeILi2ELi2ELi16EEELb0EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 440 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 23.200 ms
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1339_GLOBAL__N__3961dbef_7_gemm_cu_11242a745dgemmINS1_5ShapeILi4ELi4ELi8EEELb1EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1339_GLOBAL__N__3961dbef_7_gemm_cu_11242a745dgemmINS1_5ShapeILi4ELi4ELi8EEELb1EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 57.126 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1339_GLOBAL__N__3961dbef_7_gemm_cu_11242a745dgemmINS1_5ShapeILi4ELi4ELi8EEELb0EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1339_GLOBAL__N__3961dbef_7_gemm_cu_11242a745dgemmINS1_5ShapeILi4ELi4ELi8EEELb0EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 133 registers, used 1 barriers, 440 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 53.111 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1339_GLOBAL__N__3961dbef_7_gemm_cu_11242a745dgemmINS1_5ShapeILi4ELi2ELi16EEELb1EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1339_GLOBAL__N__3961dbef_7_gemm_cu_11242a745dgemmINS1_5ShapeILi4ELi2ELi16EEELb1EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 98 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 34.963 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1339_GLOBAL__N__3961dbef_7_gemm_cu_11242a745dgemmINS1_5ShapeILi4ELi2ELi16EEELb0EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1339_GLOBAL__N__3961dbef_7_gemm_cu_11242a745dgemmINS1_5ShapeILi4ELi2ELi16EEELb0EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 126 registers, used 1 barriers, 440 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 32.864 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1339_GLOBAL__N__3961dbef_7_gemm_cu_11242a745dgemmINS1_5ShapeILi2ELi2ELi16EEELb1EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1339_GLOBAL__N__3961dbef_7_gemm_cu_11242a745dgemmINS1_5ShapeILi2ELi2ELi16EEELb1EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 66 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 24.574 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1339_GLOBAL__N__3961dbef_7_gemm_cu_11242a745dgemmINS1_5ShapeILi2ELi2ELi16EEELb0EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1339_GLOBAL__N__3961dbef_7_gemm_cu_11242a745dgemmINS1_5ShapeILi2ELi2ELi16EEELb0EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 440 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : Compile time = 22.800 ms
+step14/gemm.cu(153): warning #177-D: variable "S" was declared but never referenced
+      constexpr int NumThreads = P::NumThreads, S = P::S;
+                                                ^
+          detected during instantiation of "void cULMblas::step14::<unnamed>::launch<P>(std::ptrdiff_t, std::ptrdiff_t, std::ptrdiff_t, double, const double *, std::ptrdiff_t, const double *, std::ptrdiff_t, double, double *, std::ptrdiff_t, cudaStream_t) [with P=cULMblas::step14::<unnamed>::ShapeSmall]" at line 471
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1439_GLOBAL__N__5d00b626_7_gemm_cu_251643ab5dgemmINS1_5ShapeILi4ELi4ELi8ELi2EEELb1EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1439_GLOBAL__N__5d00b626_7_gemm_cu_251643ab5dgemmINS1_5ShapeILi4ELi4ELi8ELi2EEELb1EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 148 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 51.343 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1439_GLOBAL__N__5d00b626_7_gemm_cu_251643ab5dgemmINS1_5ShapeILi4ELi4ELi8ELi2EEELb0EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1439_GLOBAL__N__5d00b626_7_gemm_cu_251643ab5dgemmINS1_5ShapeILi4ELi4ELi8ELi2EEELb0EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 147 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 48.296 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1439_GLOBAL__N__5d00b626_7_gemm_cu_251643ab5dgemmINS1_5ShapeILi4ELi2ELi32ELi2EEELb1EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1439_GLOBAL__N__5d00b626_7_gemm_cu_251643ab5dgemmINS1_5ShapeILi4ELi2ELi32ELi2EEELb1EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 158 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 49.415 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1439_GLOBAL__N__5d00b626_7_gemm_cu_251643ab5dgemmINS1_5ShapeILi4ELi2ELi32ELi2EEELb0EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1439_GLOBAL__N__5d00b626_7_gemm_cu_251643ab5dgemmINS1_5ShapeILi4ELi2ELi32ELi2EEELb0EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 118 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 41.365 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1439_GLOBAL__N__5d00b626_7_gemm_cu_251643ab5dgemmINS1_5ShapeILi2ELi2ELi16ELi2EEELb1EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1439_GLOBAL__N__5d00b626_7_gemm_cu_251643ab5dgemmINS1_5ShapeILi2ELi2ELi16ELi2EEELb1EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 94 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 22.946 ms
+ptxas info    : Compiling entry function '_ZN8cULMblas6step1439_GLOBAL__N__5d00b626_7_gemm_cu_251643ab5dgemmINS1_5ShapeILi2ELi2ELi16ELi2EEELb0EEEvllldPKdiS6_idPdl' for 'sm_80'
+ptxas info    : Function properties for _ZN8cULMblas6step1439_GLOBAL__N__5d00b626_7_gemm_cu_251643ab5dgemmINS1_5ShapeILi2ELi2ELi16ELi2EEELb0EEEvllldPKdiS6_idPdl
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 100 registers, used 1 barriers, 440 bytes cmem[0]
+ptxas info    : Compile time = 22.005 ms
+ptxas info    : 0 bytes gmem
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -o build/test_gemm build/test/test_gemm.o build/culmblas/gemm.o build/step01/gemm.o build/step02/gemm.o build/step03/gemm.o build/step04/gemm.o build/step05/gemm.o build/step06/gemm.o build/step07/gemm.o build/step08/gemm.o build/step09/gemm.o build/step10/gemm.o build/step11/gemm.o build/step12/gemm.o build/step13/gemm.o build/step14/gemm.o  -lcublas
+/opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3 -Xptxas -v -DKN_SUB=1 -DKN_MP=32 -o build/bench_gemm build/bench/bench_gemm.o build/culmblas/gemm.o build/step01/gemm.o build/step02/gemm.o build/step03/gemm.o build/step04/gemm.o build/step05/gemm.o build/step06/gemm.o build/step07/gemm.o build/step08/gemm.o build/step09/gemm.o build/step10/gemm.o build/step11/gemm.o build/step12/gemm.o build/step13/gemm.o build/step14/gemm.o  -lcublas

@@ -55,7 +55,7 @@ ALL_FLAGS  = -std=c++17 -arch=$(CUDA_ARCH) $(if $(CCBIN),-ccbin $(CCBIN)) \
 LIBS       = $(MAGMA_LIBS) -lcublas
 
 #  the steps of the tutorial
-STEPS       = step01 step02 step03 step04 step05 step06 step07 step08 step09 step10 step11 step12 step13
+STEPS       = step01 step02 step03 step04 step05 step06 step07 step08 step09 step10 step11 step12 step13 step14
 
 LIB_SOURCES = culmblas/gemm.cu $(addsuffix /gemm.cu,$(STEPS))
 LIB_OBJECTS = $(patsubst %.cu,$(BUILD)/%.o,$(LIB_SOURCES))

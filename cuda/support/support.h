@@ -22,6 +22,7 @@
 #include <step11/gemm.h>
 #include <step12/gemm.h>
 #include <step13/gemm.h>
+#include <step14/gemm.h>
 
 #include <cublas_v2.h>
 #include <cuda_runtime.h>
@@ -217,6 +218,8 @@ variants()
           &cULMblas::step12::gemm, false },
         { "step13", "step 13: step 12, panels copied without checks",
           &cULMblas::step13::gemm, false },
+        { "step14", "step 14: step 13, more panel buffers",
+          &cULMblas::step14::gemm, false },
 #if defined(CULMBLAS_WITH_MAGMA)
         { "magma", "MAGMA magma_dgemm (calls cublasDgemm)", &magmaGemm,
           true },

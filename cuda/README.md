@@ -97,9 +97,17 @@
   - 1.03 times step 12 for n >= 3000, 0.96 for n <= 500
   - 84% of cuBLAS (median over all sizes), up to 15.3 TFLOP/s
   - `cULMblas::gemm` uses step 13
+- **[Step 14: more Tensor Core work between two barriers?](step14/README.md)**
+  - profile of step 13 against cuBLAS: Tensor Cores idle 7 to 22% (cuBLAS
+    1 to 8%); the warps wait for the next panel and at the barrier; not
+    the last wave, not the clock, not shared memory
+  - experiments: 3 or 4 panel buffers; longer panels with the operands
+    loaded in groups of 8 values of l (so fewer registers)
+  - none reproducibly faster: one wait shrinks, the other grows, or the
+    blocks per SM go down; with the defaults as fast as step 13
+  - `cULMblas::gemm` stays at step 13
 - **Further steps**: in the works.  Candidates:
-  - Tensor Cores busy 86 to 93% (cuBLAS 98%): waiting at the barrier and
-    for the copies
+  - choosing the kernel by more than m*n (k, shape of C)
 
 ## Build, test, benchmark
 

@@ -1,0 +1,17 @@
+==PROF== Connected to process 2813847 (/pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-s14-prof/cuda/build/bench_gemm)
+==PROF== Profiling "Kernel2" - 0 (1/6): 0%....50%....100% - 49 passes
+==PROF== Profiling "Kernel2" - 1 (2/6): 0%....50%....100% - 49 passes
+==PROF== Profiling "Kernel2" - 2 (3/6): 0%....50%....100% - 49 passes
+==PROF== Profiling "dgemm" - 3 (4/6): 0%....50%....100% - 50 passes
+==PROF== Profiling "dgemm" - 4 (5/6): 0%....50%....100% - 50 passes
+==PROF== Profiling "dgemm" - 5 (6/6): 0%....50%....100% - 50 passes
+# host uc2n902.localdomain, 2026-10-29T19:43:15
+# device NVIDIA A100 80GB PCIe, compute capability 8.0, 108 SMs, 1410 MHz (max), memory 79.3 GiB at 1512 MHz
+# CUDA runtime 12080, driver 13040, cuBLAS 120803, nvcc 12.8
+# build: /opt/bwhpc/common/devel/cuda/12.8/bin/nvcc -std=c++17 -arch=sm_80  -I.  -O3  -lcublas
+# DGEMM, column major, alpha 1, beta 1, ld = m+0, k+0, m+0; 2 warm-up calls, 1 timed calls, CUDA events
+# impl        m      n      k  median_ms     min_ms     max_ms    GFLOP/s  /cuBLAS
+cuBLAS     4000   4000   4000   4052.509   4052.509   4052.509       31.6    1.000
+step13     4000   4000   4000   4027.248   4027.248   4027.248       31.8    1.006
+==PROF== Disconnected from process 2813847
+==PROF== Report: /pfs/work9/workspace/scratch/ul_mlehn-ulmblas-bench/cuda/a100-s14-prof/cuda/rep-4000.ncu-rep
