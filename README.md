@@ -139,6 +139,11 @@ it, the better the hardware is used.  For large matrices ulmBLAS reaches
 up to 490 GFLOP/s and is 1.06 to 1.15 times as fast as Apple Accelerate
 (n ≥ 1050).  For medium sizes (n = 36 … 850) Accelerate is still faster.
 
+In the [cULMblas tutorial](cuda/README.md) (work in progress) you will
+find a whole bunch of benchmarks for GEMM with CUDA, where we start with a
+simple implementation, try to make progress step by step, and sometimes
+hit a wall and have to reconsider.
+
 ## Supported Platforms
 
 Every routine has a generic C++ implementation that needs only a C++11
