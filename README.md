@@ -142,7 +142,9 @@ up to 490 GFLOP/s and is 1.06 to 1.15 times as fast as Apple Accelerate
 In the [cULMblas tutorial](cuda/README.md) (work in progress) you will
 find a whole bunch of benchmarks for GEMM with CUDA, where we start with a
 simple implementation, try to make progress step by step, and sometimes
-hit a wall and have to reconsider.
+hit a wall and have to reconsider:
+
+![DGEMM on an NVIDIA A100: the steps of the cULMblas tutorial, cuBLAS and MAGMA](cuda/step14/bench.svg)
 
 ## Supported Platforms
 
