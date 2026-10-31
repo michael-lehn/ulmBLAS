@@ -29,9 +29,9 @@ F77BLAS(ssymm)(const char               *side_,
     bool lower             = (toupper(*upLo_) == 'L');
     ULMBLAS_INDEX_TYPE m   = *m_;
     ULMBLAS_INDEX_TYPE n   = *n_;
-    double alpha           = *alpha_;
+    float  alpha           = *alpha_;
     ULMBLAS_INDEX_TYPE ldA = *ldA_;
-    double beta            = *beta_;
+    float  beta            = *beta_;
     ULMBLAS_INDEX_TYPE ldB = *ldB_;
     ULMBLAS_INDEX_TYPE ldC = *ldC_;
 

@@ -32,10 +32,10 @@ F77BLAS(sgemm)(const char               *transA_,
     ULMBLAS_INDEX_TYPE m   = *m_;
     ULMBLAS_INDEX_TYPE n   = *n_;
     ULMBLAS_INDEX_TYPE k   = *k_;
-    double alpha           = *alpha_;
+    float  alpha           = *alpha_;
     ULMBLAS_INDEX_TYPE ldA = *ldA_;
     ULMBLAS_INDEX_TYPE ldB = *ldB_;
-    double beta            = *beta_;
+    float  beta            = *beta_;
     ULMBLAS_INDEX_TYPE ldC = *ldC_;
 
 //

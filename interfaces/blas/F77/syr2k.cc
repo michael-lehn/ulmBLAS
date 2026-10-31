@@ -30,10 +30,10 @@ F77BLAS(ssyr2k)(const char               *upLo_,
     bool lower             = (toupper(*upLo_) == 'L');
     ULMBLAS_INDEX_TYPE n   = *n_;
     ULMBLAS_INDEX_TYPE k   = *k_;
-    double alpha           = *alpha_;
+    float  alpha           = *alpha_;
     ULMBLAS_INDEX_TYPE ldA = *ldA_;
     ULMBLAS_INDEX_TYPE ldB = *ldB_;
-    double beta            = *beta_;
+    float  beta            = *beta_;
     ULMBLAS_INDEX_TYPE ldC = *ldC_;
 
 //

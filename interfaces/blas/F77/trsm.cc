@@ -30,7 +30,7 @@ F77BLAS(strsm)(const char               *side_,
     bool unitDiag          = (toupper(*diag_) == 'U');
     ULMBLAS_INDEX_TYPE m   = *m_;
     ULMBLAS_INDEX_TYPE n   = *n_;
-    double alpha           = *alpha_;
+    float  alpha           = *alpha_;
     ULMBLAS_INDEX_TYPE ldA = *ldA_;
     ULMBLAS_INDEX_TYPE ldB = *ldB_;
 
