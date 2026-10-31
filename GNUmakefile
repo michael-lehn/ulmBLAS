@@ -10,7 +10,7 @@ TOPDIR = .
 
 include $(TOPDIR)/make.inc
 
-.PHONY : all cblas atlblas clapack atllapack f77blas refblas \
+.PHONY : all cblas atlblas clapack atllapack f77blas refblas lbt \
          check check-numeric check-netlib check-reference-lapack \
          check_cblas check_f77blas \
          bench bench-gemm benchmark-suite add_benchmark_result \
@@ -40,6 +40,9 @@ f77blas : tool-ar tool-fc
 
 refblas : tool-ar tool-fc
 	$(MAKE) -C refblas
+
+lbt : tool-ar
+	$(MAKE) -C interfaces/blas/lbt
 
 #
 #  Tests (see test/Makefile)
@@ -105,6 +108,7 @@ clean :
 	$(MAKE) -C interfaces/blas/F77 clean
 	$(MAKE) -C interfaces/lapack/C clean
 	$(MAKE) -C refblas clean
+	$(MAKE) -C interfaces/blas/lbt clean
 	$(MAKE) -C test clean
 	$(MAKE) -C bench clean
 
@@ -117,6 +121,8 @@ help :
 	@echo '  atllapack        ATLAS compatible LAPACK: libatllapack.a, atllapack.h'
 	@echo '  f77blas          Fortran 77 interface: libf77blas.a, f77blas.h (needs FC)'
 	@echo '  refblas          Netlib reference BLAS: librefblas.a (needs FC)'
+	@echo '  lbt              shared library for Julia (libblastrampoline): ILP64'
+	@echo '                   Fortran 77 interface, libulmblas_lbt.so / .dylib'
 	@echo '  check            build and run all tests'
 	@echo '  check-numeric    only the C++ tests (no Fortran compiler needed)'
 	@echo '  check-netlib     only the Netlib BLAS test suites (needs FC and CC)'
