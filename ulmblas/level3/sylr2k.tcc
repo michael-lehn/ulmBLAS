@@ -67,7 +67,7 @@ sylr2k(IndexType    n,
             beta_ = (l==0) ? beta : Beta(1);
 
             gepack_B(kc, nc, false,
-                     &B[l*MC*incColA+j*MC*incRowA], incColA, incRowA,
+                     &B[l*MC*incColB+j*MC*incRowB], incColB, incRowB,
                      B_);
 
             for (IndexType i=j; i<mb; ++i) {
@@ -106,7 +106,7 @@ sylr2k(IndexType    n,
                 IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
 
                 gepack_A(mc, kc, false,
-                         &B[i*MC*incRowA+l*MC*incColA], incRowA, incColA,
+                         &B[i*MC*incRowB+l*MC*incColB], incRowB, incColB,
                          A_);
 
                 if (i==j) {

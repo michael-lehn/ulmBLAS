@@ -244,6 +244,18 @@ three columns).  The interfaces now call the templates with
 `ULMBLAS_INDEX_TYPE` (default `int`, see INSTALL.md); the test configurations
 `testcase10` and `testcase11` use 64-bit index types.
 
+Issue #0016: ?syr2k and ?her2k read B with the leading dimension of A
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0320, T0321, T0322, T0323, T0324, T0325 (numeric, regression test)
+
+`sylr2k`, `syur2k`, `helr2k` and `heur2k` in `ulmblas/level3` packed B
+with the row and column strides of A.  For ldB != ldA the results were
+wrong, and for ldA > ldB elements outside B were read (all types, all
+interfaces).  Neither the tests of ulmBLAS nor the Netlib test programs
+noticed it: both use ldB = ldA.  Fixed; the level 3 tests now use
+different leading dimensions for A, B and C.
+
 ## Design questions
 
 Issue #0002: alpha = 0 with NaN or Inf in operands that reference BLAS does not reference
@@ -293,3 +305,4 @@ types the result is the first NaN, otherwise the first maximum.  For
 complex types it is the first element with NaN in the real or imaginary
 part; otherwise the first element with Inf; otherwise the first maximum of
 |re| + |im|, compared as |re|/4 + |im|/4 once the sum overflows.
+

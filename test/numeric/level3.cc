@@ -75,8 +75,8 @@ gemmCase(Context &ctx, Random &random, bool rowMajor, CBLAS_TRANSPOSE transA,
 {
     bool       tA = transA!=CblasNoTrans, tB = transB!=CblasNoTrans;
     Matrix<T>  A(tA ? k : m, tA ? m : k, rowMajor);
-    Matrix<T>  B(tB ? n : k, tB ? k : n, rowMajor);
-    Matrix<T>  C(m, n, rowMajor);
+    Matrix<T>  B(tB ? n : k, tB ? k : n, rowMajor, 5);
+    Matrix<T>  C(m, n, rowMajor, 4);
 
     A.randomize(random);
     B.randomize(random);
@@ -248,7 +248,7 @@ symmCase(Context &ctx, Random &random, bool hermitian, bool rowMajor,
          CBLAS_SIDE side, CBLAS_UPLO upLo, int m, int n, T alpha, T beta)
 {
     int        na = (side==CblasLeft) ? m : n;
-    Matrix<T>  A(na, na, rowMajor), B(m, n, rowMajor), C(m, n, rowMajor);
+    Matrix<T>  A(na, na, rowMajor), B(m, n, rowMajor, 5), C(m, n, rowMajor, 4);
 
     A.randomize(random);
     B.randomize(random);
@@ -338,8 +338,8 @@ rankkCase(Context &ctx, Random &random, bool hermitian, bool rank2,
           T alpha, T beta)
 {
     bool       t = trans!=CblasNoTrans;
-    Matrix<T>  A(t ? k : n, t ? n : k, rowMajor), B(A.m, A.n, rowMajor);
-    Matrix<T>  C(n, n, rowMajor);
+    Matrix<T>  A(t ? k : n, t ? n : k, rowMajor), B(A.m, A.n, rowMajor, 5);
+    Matrix<T>  C(n, n, rowMajor, 4);
 
     A.randomize(random);
     B.randomize(random);
@@ -519,7 +519,7 @@ trmmCase(Context &ctx, Random &random, bool solve, bool rowMajor,
          CBLAS_DIAG diag, int m, int n, T alpha)
 {
     int        na = (side==CblasLeft) ? m : n;
-    Matrix<T>  A(na, na, rowMajor), B(m, n, rowMajor);
+    Matrix<T>  A(na, na, rowMajor), B(m, n, rowMajor, 5);
 
     triangular(A, random, upLo, diag, solve);
     B.randomize(random);
