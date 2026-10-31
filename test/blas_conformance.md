@@ -89,7 +89,10 @@ Decisions on the design questions (see the registry for details):
 | #0029 | no argument checks in the `ulmblas_` functions; preconditions documented in cblas.h |
 
 Open: #0023 (trmm: 0*Inf from the zeros of packed diagonal blocks; XFAIL
-test); the alternatives are described in the registry.
+test).  The registry compares ulmBLAS with the reference BLAS, oneMKL,
+AOCL-BLAS, Accelerate, BLIS and OpenBLAS (`conformance/trmm_inf.c`): only
+the reference and oneMKL avoid the NaN; the question whether LAPACK may
+rely on it is open.  The alternatives for a fix are listed there as well.
 
 Differences that are accepted as implementation-specific (not registered):
 

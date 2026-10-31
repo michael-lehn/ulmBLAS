@@ -346,16 +346,38 @@ gives (NaN, Inf) instead of (1, Inf).  The reference BLAS multiplies only
 by elements of the triangle.  trsm is not affected.  A fix changes the
 packing or the micro kernel calls of the diagonal blocks.
 
-Comparison (run on the Apple M5, all side/uplo/trans/diag combinations,
-Inf or NaN in each row or column of B, sizes 1 to 300): BLIS 0.9, BLIS
-master (a8037cf, var2 and var2b) and OpenBLAS 0.3.34 (VORTEXM4, 1 and 8
-threads) give the same spurious NaN as ulmBLAS, exactly in the other
-triangle of each diagonal block (BLIS: zeros written by the packing of
-the diagonal block, `bli_packm_cxc_diag_ref.c`; OpenBLAS: `trmm_*copy`
-writes zeros into the diagonal block, the TRMM kernels shorten k with
-OFFSET only to whole micro tiles).  Both shorten k for blocks off the
-diagonal as ulmBLAS does; neither avoids 0*Inf inside the diagonal block.
-The reference BLAS does.
+Comparison with other BLAS libraries (October 2026, all by running
+`test/conformance/trmm_inf.c` through `cblas_dtrmm`): the reproducer
+above, and a matrix of storage order (column, row) x side x uplo x trans x
+diag x Inf/NaN, sizes 1 to 300 (other dimension 3), one Inf or NaN at
+every position of the triangular dimension of B (36224 calls), compared
+with a loop over the referenced triangle only; the unreferenced triangle
+of A holds NaN.
+
+| Library | Architecture | Reproducer | Calls with spurious NaN |
+|---|---|---|---|
+| Reference BLAS, LAPACK 3.12.1 | Apple M5 | (1, Inf) | 0 |
+| oneMKL 2025.0.1 (sequential and 8 threads) | Xeon Platinum 8358 (Ice Lake), EPYC 9454 (Zen 4) | (1, Inf) | 0 |
+| AOCL-BLAS 5.0.0 | Xeon Platinum 8358, EPYC 9454 | (NaN, Inf) | 32032 |
+| Apple Accelerate, macOS 26.6 | Apple M5 | (1, Inf) | 24896 |
+| BLIS 0.9 and master a8037cf | Apple M5 | (NaN, Inf) | spurious NaN in all diagonal blocks |
+| OpenBLAS 0.3.34 (VORTEXM4, 1 and 8 threads) | Apple M5 | (NaN, Inf) | spurious NaN in all diagonal blocks |
+| ulmBLAS | Apple M5 | (NaN, Inf) | 29760 |
+
+No library reads the unreferenced triangle and all other results agree
+with the reference.  oneMKL matches the reference BLAS in all tested
+cases; BLIS, OpenBLAS, AOCL-BLAS, Accelerate and ulmBLAS give NaN in rows
+(columns) that do not depend on the Inf or NaN.  For BLIS and OpenBLAS the
+cause was confirmed in their sources: the diagonal blocks are packed with
+zeros in the other triangle (BLIS: `bli_packm_cxc_diag_ref.c`; OpenBLAS:
+`trmm_*copy`) and multiplied by the gemm micro kernel, which shortens k
+only to whole micro tiles; ulmBLAS uses the same scheme.  oneMKL, AOCL-BLAS
+and Accelerate were only tested.  Not tested: oneMKL 2026.
+
+Open question (to be asked on the LAPACK forum): may LAPACK rely on the
+behavior of the reference BLAS here, or are both behaviors acceptable?
+Depending on the answer the issue stays a bug, becomes a documented
+difference or is fixed.
 
 Alternatives (none implemented):
 
