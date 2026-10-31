@@ -152,6 +152,33 @@ error handler `cblas_xerbla` keeps its `int` argument (a parameter number).
   reported as SKIP there, the Fortran 77 test programs run with 64-bit
   `INTEGER`.
 
+## Shared library for Julia
+
+```sh
+make lbt                          # libulmblas_lbt.so (macOS: .dylib)
+make lbt ARCHFLAGS=-mcpu=apple-m4 # with the micro kernels of your choice
+```
+
+- For [libblastrampoline](https://github.com/JuliaLinearAlgebra/libblastrampoline),
+  through which Julia calls BLAS: the Fortran 77 interface with 64-bit
+  integers (ILP64) and the symbol suffix `_64_` (`dgemm_64_`), as in
+  OpenBLAS's ILP64 build.
+- No Fortran compiler needed: the Fortran functions (`ddot`, ...) are C
+  code in this library ([interfaces/blas/lbt/](interfaces/blas/lbt/)).
+- On Linux the C++ runtime is linked statically, so the library does not
+  depend on the `libstdc++` of the compiler (Julia brings its own).
+- `OUTDIR` and `BUILD_DIR` keep several builds apart, e.g. one per
+  instruction set.
+
+In Julia (LAPACK and all routines ulmBLAS does not have stay with the
+library Julia uses by default, usually OpenBLAS):
+
+```julia
+using LinearAlgebra
+BLAS.lbt_forward("/path/to/libulmblas_lbt.so"; clear=false)
+BLAS.get_config()                 # lists libulmblas_lbt
+```
+
 ## Test
 
 Test the libraries (`make` rebuilds them for every test configuration
@@ -217,8 +244,9 @@ C++ compiler) or the header-only C++ interface; examples:
 ## Install
 
 There is no `make install`: ulmBLAS consists of static
-libraries and headers, which can be used from the source directory (as
-above) or copied to a directory of your choice.  Choose one that does not
+libraries and headers (and the shared library for Julia, see above), which
+can be used from the source directory (as above) or copied to a directory
+of your choice.  Choose one that does not
 contain another BLAS: `cblas.h` and `libcblas.a` are also the names other
 BLAS libraries use.
 
