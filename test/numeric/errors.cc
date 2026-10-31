@@ -220,3 +220,19 @@ ULMBLAS_TEST(T0701, "errors/invalid arguments of all checking CBLAS functions")
     ERRCASE(double, "cblas_ztrmm", 10, cblas_ztrmm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 4, b.al, b.A, 1, b.B, 4));
     ERRCASE(double, "cblas_ztrsm", 10, cblas_ztrsm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 4, b.al, b.A, 1, b.B, 4));
 }
+
+//
+//  Issue #0019: cblas_?syr, ?syr2, ?her, ?her2 accepted ldA = 0 for n = 0
+//  (reference: ldA < max(1,n) is an error).
+//
+ULMBLAS_TEST(T0702, "errors/cblas_?syr, ?syr2, ?her, ?her2 with n=0, ldA=0")
+{
+    ERRCASE(float, "cblas_ssyr", 8, cblas_ssyr(CblasColMajor, CblasUpper, 0, b.ral, b.X, 1, b.A, 0));
+    ERRCASE(double, "cblas_dsyr", 8, cblas_dsyr(CblasRowMajor, CblasLower, 0, b.ral, b.X, 1, b.A, 0));
+    ERRCASE(float, "cblas_ssyr2", 10, cblas_ssyr2(CblasColMajor, CblasUpper, 0, b.ral, b.X, 1, b.Y, 1, b.A, 0));
+    ERRCASE(double, "cblas_dsyr2", 10, cblas_dsyr2(CblasRowMajor, CblasLower, 0, b.ral, b.X, 1, b.Y, 1, b.A, 0));
+    ERRCASE(float, "cblas_cher", 8, cblas_cher(CblasColMajor, CblasUpper, 0, b.ral, b.X, 1, b.A, 0));
+    ERRCASE(double, "cblas_zher", 8, cblas_zher(CblasRowMajor, CblasLower, 0, b.ral, b.X, 1, b.A, 0));
+    ERRCASE(float, "cblas_cher2", 10, cblas_cher2(CblasColMajor, CblasUpper, 0, b.al, b.X, 1, b.Y, 1, b.A, 0));
+    ERRCASE(double, "cblas_zher2", 10, cblas_zher2(CblasRowMajor, CblasLower, 0, b.al, b.X, 1, b.Y, 1, b.A, 0));
+}

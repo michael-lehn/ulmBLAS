@@ -72,7 +72,7 @@ CBLAS(ssyr)(enum CBLAS_ORDER   order,
         info = 3;
     } else if (incX==0) {
         info = 6;
-    } else if (ldA<n) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 8;
     }
 
@@ -116,7 +116,7 @@ CBLAS(dsyr)(enum CBLAS_ORDER   order,
         info = 3;
     } else if (incX==0) {
         info = 6;
-    } else if (ldA<n) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 8;
     }
 

@@ -168,7 +168,7 @@ CBLAS(cher2)(enum CBLAS_ORDER   order,
         info = (order==CblasColMajor) ? 6 : 8;
     } else if (incY==0) {
         info = (order==CblasColMajor) ? 8 : 6;
-    } else if (ldA<n) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 10;
     }
 
@@ -215,7 +215,7 @@ CBLAS(zher2)(enum CBLAS_ORDER   order,
         info = (order==CblasColMajor) ? 6 : 8;
     } else if (incY==0) {
         info = (order==CblasColMajor) ? 8 : 6;
-    } else if (ldA<n) {
+    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
         info = 10;
     }
 

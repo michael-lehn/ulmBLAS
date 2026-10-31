@@ -291,6 +291,14 @@ from fused multiply-adds (gfortran contracts by default) and, for infinite
 complex operands, NaN that gfortran produces in the division of a complex
 by a real number.
 
+Issue #0019: cblas_?syr, ?syr2, ?her, ?her2 accepted ldA = 0 for n = 0
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0702 (numeric, regression test)
+
+The wrappers checked `ldA < n` instead of `ldA < max(1,n)` (reference:
+error 8, or 10 for ?syr2 and ?her2).  Fixed.
+
 ## Design questions
 
 Issue #0002: alpha = 0 with NaN or Inf in operands that reference BLAS does not reference
