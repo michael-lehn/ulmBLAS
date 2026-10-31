@@ -13,7 +13,7 @@ ULMBLAS(cher2k)(enum CBLAS_UPLO       upLo,
                 enum CBLAS_TRANSPOSE  trans,
                 ULMBLAS_INDEX_TYPE    n,
                 ULMBLAS_INDEX_TYPE    k,
-                float                 *alpha_,
+                const float           *alpha_,
                 const float           *A_,
                 ULMBLAS_INDEX_TYPE    ldA,
                 const float           *B_,
@@ -58,7 +58,7 @@ ULMBLAS(zher2k)(enum CBLAS_UPLO       upLo,
                 enum CBLAS_TRANSPOSE  trans,
                 ULMBLAS_INDEX_TYPE    n,
                 ULMBLAS_INDEX_TYPE    k,
-                double                *alpha_,
+                const double          *alpha_,
                 const double          *A_,
                 ULMBLAS_INDEX_TYPE    ldA,
                 const double          *B_,
@@ -105,7 +105,7 @@ CBLAS(cher2k)(enum CBLAS_ORDER      order,
               enum CBLAS_TRANSPOSE  trans,
               ULMBLAS_INDEX_TYPE    n,
               ULMBLAS_INDEX_TYPE    k,
-              float                 *alpha,
+              const float           *alpha,
               const float           *A,
               ULMBLAS_INDEX_TYPE    ldA,
               const float           *B,
@@ -164,9 +164,8 @@ CBLAS(cher2k)(enum CBLAS_ORDER      order,
     } else {
         upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
         trans = (trans==CblasConjTrans) ? CblasNoTrans : CblasConjTrans;
-        alpha[1] = -alpha[1];
-        ULMBLAS(cher2k)(upLo, trans, n, k, alpha, A, ldA, B, ldB, beta, C, ldC);
-        alpha[1] = -alpha[1];
+        float alpha_[2] = { alpha[0], -alpha[1] };
+        ULMBLAS(cher2k)(upLo, trans, n, k, alpha_, A, ldA, B, ldB, beta, C, ldC);
     }
 }
 
@@ -176,7 +175,7 @@ CBLAS(zher2k)(enum CBLAS_ORDER      order,
               enum CBLAS_TRANSPOSE  trans,
               ULMBLAS_INDEX_TYPE    n,
               ULMBLAS_INDEX_TYPE    k,
-              double                *alpha,
+              const double          *alpha,
               const double          *A,
               ULMBLAS_INDEX_TYPE    ldA,
               const double          *B,
@@ -235,9 +234,8 @@ CBLAS(zher2k)(enum CBLAS_ORDER      order,
     } else {
         upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
         trans = (trans==CblasConjTrans) ? CblasNoTrans : CblasConjTrans;
-        alpha[1] = -alpha[1];
-        ULMBLAS(zher2k)(upLo, trans, n, k, alpha, A, ldA, B, ldB, beta, C, ldC);
-        alpha[1] = -alpha[1];
+        double alpha_[2] = { alpha[0], -alpha[1] };
+        ULMBLAS(zher2k)(upLo, trans, n, k, alpha_, A, ldA, B, ldB, beta, C, ldC);
     }
 }
 

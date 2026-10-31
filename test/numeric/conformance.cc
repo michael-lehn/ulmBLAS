@@ -1,22 +1,28 @@
 //
 //  Conformance of the C interface with the reference CBLAS of LAPACK 3.12.1
-//  (BLAS/CBLAS conformance audit, see test/known_issues.md #0017, #0018):
+//  (BLAS/CBLAS conformance audit, see test/known_issues.md #0017, #0018,
+//  #0021, #0022):
 //
 //  - level 1 functions with increments <= 0: cblas_?asum and cblas_i?amax
 //    return 0, cblas_?scal does nothing, cblas_?nrm2 supports negative
 //    increments; the ulmblas_ functions use the general strides of ulmBLAS
 //    (BLAS storage order for negative increments, x[0] repeated for zero);
+//  - cblas_?her2k with row major storage does not write to alpha;
 //  - ?rotg as in LAPACK 3.12.1 (no overflow for large a, b; Inf; signs).
 //
 //  The vectors lie in the middle of buffers whose other elements are guard
 //  values; the complete buffers are compared bitwise after each call, and
 //  results that read a guard value would be wrong.
 //
+#include <csetjmp>
+#include <csignal>
 #include <cmath>
 #include <initializer_list>
 #include <limits>
 #include <type_traits>
 #include <vector>
+#include <sys/mman.h>
+#include <unistd.h>
 #include <test/numeric/blas.h>
 #include <test/numeric/reference.h>
 #include <test/numeric/testing.h>
@@ -234,6 +240,69 @@ testLevel1Ulmblas(Context &ctx)
 }
 
 //
+//  cblas_?her2k, row major: alpha in read-only memory (reference CBLAS
+//  conjugates a copy).  A write is caught as SIGSEGV or SIGBUS.
+//
+sigjmp_buf  writeFault;
+
+extern "C" void
+onWriteFault(int)
+{
+    siglongjmp(writeFault, 1);
+}
+
+template <typename T>
+bool
+her2kReadOnlyAlpha()
+{
+    typedef typename Real<T>::type R;
+
+    const long  page  = sysconf(_SC_PAGESIZE);
+    void        *p    = mmap(0, page, PROT_READ | PROT_WRITE,
+                             MAP_PRIVATE | MAP_ANON, -1, 0);
+    if (p==MAP_FAILED) {
+        return false;
+    }
+    R *alpha = static_cast<R *>(p);
+    alpha[0] = 1;
+    alpha[1] = 2;
+    mprotect(p, page, PROT_READ);
+
+    std::vector<T> A(4, T(1)), B(4, T(2)), C(4, T(0));
+    struct sigaction sa, oldSegv, oldBus;
+    sa.sa_handler = onWriteFault;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGSEGV, &sa, &oldSegv);
+    sigaction(SIGBUS, &sa, &oldBus);
+
+    bool ok = false;
+    if (sigsetjmp(writeFault, 1)==0) {
+        if (std::is_same<T, cfloat>::value) {
+            cblas_cher2k(CblasRowMajor, CblasUpper, CblasNoTrans, 2, 2,
+                         reinterpret_cast<const float *>(alpha),
+                         reinterpret_cast<const float *>(&A[0]), 2,
+                         reinterpret_cast<const float *>(&B[0]), 2, 1.0f,
+                         reinterpret_cast<float *>(&C[0]), 2);
+        } else {
+            cblas_zher2k(CblasRowMajor, CblasUpper, CblasNoTrans, 2, 2,
+                         reinterpret_cast<const double *>(alpha),
+                         reinterpret_cast<const double *>(&A[0]), 2,
+                         reinterpret_cast<const double *>(&B[0]), 2, 1.0,
+                         reinterpret_cast<double *>(&C[0]), 2);
+        }
+        // C = alpha A B^H + conj(alpha) B A^H: alpha = (1,2), A = 1,
+        // B = 2: (1+2i)*4 + (1-2i)*4 = 8 in the upper triangle (row
+        // major: C[0], C[1], C[3]); the lower triangle C[2] is not touched
+        ok = C[0]==T(8) && C[1]==T(8) && C[3]==T(8) && C[2]==T(0);
+    }
+    sigaction(SIGSEGV, &oldSegv, 0);
+    sigaction(SIGBUS, &oldBus, 0);
+    munmap(p, page);
+    return ok;
+}
+
+//
 //  ?rotg as in LAPACK 3.12.1 (values of the reference BLAS)
 //
 template <typename R>
@@ -329,6 +398,14 @@ ULMBLAS_TEST(T0901, "conformance/ulmblas level 1 with general increments")
 {
     testLevel1Ulmblas<float>(ctx); testLevel1Ulmblas<double>(ctx);
     testLevel1Ulmblas<cfloat>(ctx); testLevel1Ulmblas<cdouble>(ctx);
+}
+
+ULMBLAS_TEST(T0902, "conformance/cblas_?her2k row major, read-only alpha")
+{
+    ctx.check(her2kReadOnlyAlpha<cfloat>(), "cblas_cher2k wrote to alpha "
+              "or computed a wrong result");
+    ctx.check(her2kReadOnlyAlpha<cdouble>(), "cblas_zher2k wrote to alpha "
+              "or computed a wrong result");
 }
 
 ULMBLAS_TEST(T0903, "conformance/?rotg as in LAPACK 3.12.1")

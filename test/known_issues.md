@@ -313,6 +313,26 @@ default cblas_xerbla of ulmBLAS did not translate at all.  Fixed: all
 wrappers set RowMajorStrg before calling cblas_xerbla, the default
 handler translates as the reference.
 
+Issue #0021: cblas_cher2k and cblas_zher2k wrote to alpha for row major storage
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0902 (numeric, regression test)
+
+The row major branch conjugated alpha in the caller's memory and restored
+it afterwards, which crashes for an alpha in read-only memory and is a
+data race if threads share alpha.  Fixed: a local copy is conjugated, as
+in the reference CBLAS.
+
+Issue #0022: cblas.h declared input arguments of ?symm, ?hemm and ?her2k as non-const
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0902 (numeric, regression test: compiles only with const declarations)
+
+B of `cblas_?symm`, alpha, beta and B of `cblas_?hemm` and alpha of
+`cblas_?her2k` (and of the `ulmblas_` functions) were declared without
+const (CBLAS: `const void *`), so C and C++ callers could not pass
+pointers to const.  Fixed; the ABI is unchanged.
+
 ## Design questions
 
 Issue #0002: alpha = 0 with NaN or Inf in operands that reference BLAS does not reference
