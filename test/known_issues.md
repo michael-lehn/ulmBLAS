@@ -462,8 +462,8 @@ products as in Fortran); the internal `scal`, used for beta = 0 in level
 
 Issue #0027: trsm with side = Left multiplies by the reciprocals of the diagonal
 Type: DESIGN
-Status: OPEN
-Covered by tests: T0606 (numeric, DESIGN)
+Status: RESOLVED
+Covered by tests: T0606 (numeric, regression test)
 
 The packing of the triangular blocks stores 1/a(j,j); the reference
 divides by a(j,j) for side = Left (for side = Right it also uses
@@ -482,6 +482,10 @@ std::complex division 44 to 49% slower for n <= 32, 7% for n = 1024.  The
 x86 SSE kernel (mulpd with the stored reciprocal) was not measured.
 Recommendation: divide for real types, keep the (std::complex, scaled)
 reciprocal for complex types.
+
+Answer: the reciprocal is kept for real and complex types (small accuracy
+gain, measurable cost).  To be reconsidered with measurements of the x86
+kernels (the SSE kernel multiplies with the stored reciprocal as well).
 
 Issue #0028: types of cblas.h differ from the CBLAS of LAPACK 3.12
 Type: DESIGN

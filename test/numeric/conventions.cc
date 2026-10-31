@@ -420,16 +420,15 @@ ULMBLAS_TEST(T0605, "conventions/scal with alpha=0 and NaN, Inf")
 
 //
 //  Issue #0027: trsm with side = Left multiplies by the reciprocals of the
-//  diagonal elements; reference BLAS divides.  1e-300/1e-310: ref 1e+10.
+//  diagonal elements (kept, see the registry); 1/1e-310 overflows, so
+//  1e-300/1e-310 gives Inf (reference BLAS: 1e+10).
 //
-ULMBLAS_TEST_DESIGN(T0606, "conventions/trsm divides or multiplies by the "
-                    "reciprocal", 27, "inf")
+ULMBLAS_TEST(T0606, "conventions/trsm multiplies by the reciprocal")
 {
     double A[1] = { 1e-310 }, B[1] = { 1e-300 };
     cblas_dtrsm(CblasColMajor, CblasLeft, CblasLower, CblasNoTrans,
                 CblasNonUnit, 1, 1, 1, A, 1, B, 1);
-    ctx.observed = format("%g", B[0]);
-    ctx.pass();
+    ctx.check(std::isinf(B[0]), "dtrsm: %g, expected inf", B[0]);
 }
 
 //
