@@ -165,6 +165,11 @@ make lbt ARCHFLAGS=-mcpu=apple-m4 # with the micro kernels of your choice
   OpenBLAS's ILP64 build.
 - No Fortran compiler needed: the Fortran functions (`ddot`, ...) are C
   code in this library ([interfaces/blas/lbt/](interfaces/blas/lbt/)).
+- The library also contains the GEMM with arbitrary strides
+  (`ulmblas_?gemm_strided`,
+  [ulmblas_strided.h](interfaces/blas/C/ulmblas_strided.h)), for calls
+  with `ccall`; libblastrampoline does not know these names and ignores
+  them.
 - On Linux the C++ runtime is linked statically, so the library does not
   depend on the `libstdc++` of the compiler (Julia brings its own).
 - `OUTDIR` and `BUILD_DIR` keep several builds apart, e.g. one per

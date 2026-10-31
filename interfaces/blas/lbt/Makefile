@@ -8,8 +8,11 @@
 #
 #  The objects of ../F77 are built with config/make.lbt.inc and -fPIC; the
 #  Fortran functions (DDOT, ...) come from functions.c, so no Fortran
-#  compiler is needed.  On Linux the C++ runtime is linked statically, so
-#  the library does not depend on the libstdc++ of the compiler (Julia
+#  compiler is needed.  The library also contains GEMM with arbitrary
+#  strides (ulmblas_?gemm_strided, ../C/ulmblas_strided.h);
+#  libblastrampoline does not know these names and ignores them.  On Linux
+#  the C++ runtime is linked statically, so the library does not depend on
+#  the libstdc++ of the compiler (Julia
 #  brings its own, possibly older one).  ARCHFLAGS select the micro kernels
 #  as for the other libraries; OUTDIR and BUILD_DIR allow several builds
 #  side by side (e.g. one per instruction set).  In Julia:
@@ -39,6 +42,7 @@ LBT_LINK     = -shared -Wl,-soname,libulmblas_lbt.so \
 endif
 
 LBT_DEFS = -D'BLAS_HEADER=<lbtblas.h>' -D'F77BLAS(x)=x\#\#$(LBT_SUFFIX)'
+STRIDED_DEFS = -D'ULMBLAS(x)=ulmblas_\#\#x'
 
 .DELETE_ON_ERROR :
 .PHONY : all clean FORCE
@@ -57,9 +61,17 @@ $(BUILD_DIR)/functions.o : functions.c $(BUILD_DIR)/liblbtblas.a
 	$(CC) $(ULMBLAS_CFLAGS) $(CFLAGS) -fPIC -I$(BUILD_DIR) $(LBT_DEFS) \
 	      -c -o $@ $<
 
-$(LBT_LIB) : $(BUILD_DIR)/liblbtblas.a $(BUILD_DIR)/functions.o
+#  GEMM with arbitrary strides, from the C interface
+$(BUILD_DIR)/gemm_strided.o : ../C/gemm_strided.cc ../C/ulmblas_strided.h \
+                              $(BUILD_DIR)/liblbtblas.a
+	$(CXX) -I$(TOPDIR) $(STRIDED_DEFS) $(ULMBLAS_CXXFLAGS) $(CPPFLAGS) \
+	       $(CXXFLAGS) -fPIC -c -o $@ $<
+
+LBT_OBJECTS = $(BUILD_DIR)/functions.o $(BUILD_DIR)/gemm_strided.o
+
+$(LBT_LIB) : $(BUILD_DIR)/liblbtblas.a $(LBT_OBJECTS)
 	@mkdir -p $(OUTDIR)
-	$(CXX) $(ARCHFLAGS) $(LDFLAGS) -o $@ $(BUILD_DIR)/functions.o $(LBT_LINK) -lm
+	$(CXX) $(ARCHFLAGS) $(LDFLAGS) -o $@ $(LBT_OBJECTS) $(LBT_LINK) -lm
 
 clean :
 	$(RM) -r $(BUILD_DIR) $(LBT_LIB)

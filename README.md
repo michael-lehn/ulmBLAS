@@ -267,6 +267,27 @@ c++ -std=c++11 -O3 -I. examples/gemm.cc -o gemm   # add ARCHFLAGS for the
 ./gemm                                            # optimized micro kernels
 ```
 
+The same GEMM with arbitrary strides is available from C for the four
+BLAS types ([ulmblas_strided.h](interfaces/blas/C/ulmblas_strided.h), in
+`libcblas.a`): no transposition argument, transposed operands are passed
+with swapped strides, and strides may be negative or zero.
+
+```c
+#include <ulmblas_strided.h>
+
+/* C = A^T B with A stored column major (3 x 2), C row major */
+double A[] = { 1, 2, 3,  4, 5, 6 };
+double B[] = { 1, 0, 2,  0, 1, 1 };               /* 3 x 2, column major */
+double C[4];
+
+ulmblas_dgemm_strided(2, 2, 3,                    /* m, n, k */
+                      1.0,
+                      A, 3, 1,                    /* A^T: incRow 3, incCol 1 */
+                      B, 1, 3,
+                      0.0,
+                      C, 2, 1);                   /* C = [ 7 5 ; 16 11 ] */
+```
+
 For element types other than the four BLAS types you declare block sizes
 with a specialization of `ulmBLAS::BlockSize`; the example does this for
 `long double`.

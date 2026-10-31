@@ -222,9 +222,11 @@ the BLIS code.
 | Library | Header | Contents |
 |---|---|---|
 | `libcblas.a` | `cblas.h` | CBLAS (`cblas_dgemm`, ...): levels 1, 2 and 3 for float, double, complex float and complex double |
+| `libcblas.a` | `ulmblas_strided.h` | GEMM with a row and a column stride for every matrix (`ulmblas_dgemm_strided`, ...): any strides, also negative or zero, no transposition argument |
 | `libclapack.a` | `clapack.h` | `ulmblas_dgetrf` (LU factorization with partial pivoting) and `ulmblas_dlaswp` |
 | `libf77blas.a` | `f77blas.h` | Fortran 77 BLAS interface (`make f77blas`) |
 | `libatlblas.a`, `libatllapack.a` | `atlblas.h`, `atllapack.h` | ATLAS names, used by the benchmarks |
+| `libulmblas_lbt.so` (`.dylib`) | – | Fortran 77 interface with 64-bit integers and suffix `_64_`, and the strided GEMM, for Julia (`make lbt`) |
 
 Both BLAS interfaces implement the 148 routines of the reference BLAS
 (BLAS/SRC of LAPACK 3.3.1, except the auxiliary routines `lsame` and
@@ -243,7 +245,8 @@ Not provided: `lsame` and `xerbla_array` (auxiliary routines that LAPACK
 contains itself), `?gemmtr` (LAPACK 3.12), the routines of the
 Reference-LAPACK development version (`?axpby`, skew-symmetric routines).
 The index type of all interfaces is `ULMBLAS_INDEX_TYPE` (default `int`,
-64-bit types on request, see [INSTALL.md](INSTALL.md#index-type)); the
+64-bit types on request, see [INSTALL.md](INSTALL.md#index-type)), except
+the strided GEMM, which always takes `int64_t`; the
 interfaces call the templates with `std::ptrdiff_t`.  The error handlers `cblas_xerbla` and
 `xerbla_` print a message and return; the function then returns without
 computing (reference BLAS stops the program).  The C++ templates in
