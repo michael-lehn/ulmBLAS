@@ -235,8 +235,9 @@ LAPACK 3.12, e.g. `cblas_crotg`).  Level 1 routines without optimized
 kernels (e.g. `rotm`, `rotmg`, `sdsdot`, `dsdot`) are portable reference
 implementations.  Behavior follows the
 reference BLAS of LAPACK 3.12.1, with the correction of the rescaling in
-`?rotmg` of its development version; `i?amax` with NaN follows 3.12.1
-(open question, see [`test/known_issues.md`](test/known_issues.md)).
+`?rotmg` of its development version and `i?amax` with NaN as in its
+development version (the index of the first NaN, see
+[`test/known_issues.md`](test/known_issues.md)).
 
 Not provided: `lsame` and `xerbla_array` (auxiliary routines that LAPACK
 contains itself), `?gemmtr` (LAPACK 3.12), the routines of the
