@@ -6,10 +6,10 @@
 //  complex numbers as re,im or (re,im)).  Numbers are equal if both are
 //  NaN, both are the same infinity, or if they agree up to a relative
 //  tolerance (2e-5 for s and c routines, 1e-12 for d and z; rounding of
-//  solves); everything else, in particular guard values, must agree.  EXPECTED lists differences that belong to open issues of
-//  test/known_issues.md, one per line: "#NNNN regular-expression" for the
-//  descriptions of calls that may differ.  Exit status 0 if all other calls
-//  agree.
+//  solves); everything else, in particular guard values, must agree.
+//  EXPECTED lists differences that are documented in test/known_issues.md,
+//  one per line: "#NNNN regular-expression" for the descriptions of calls
+//  that may differ.  Exit status 0 if all other calls agree.
 //
 #include <cmath>
 #include <cstdio>

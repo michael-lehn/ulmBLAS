@@ -252,10 +252,16 @@ and the CBLAS names follow the contracts of the reference BLAS and CBLAS,
 also for increments <= 0 (e.g. `?asum` returns 0, `?scal` does nothing) and
 for row major calls (positions in error messages as the reference CBLAS);
 the `ulmblas_` names of the C interface are ulmBLAS's own column major API:
-they check no arguments and keep the general increments of the templates
-(negative: BLAS storage order, zero: the first element repeated).  The audit
-of all entry points against the reference, the conventions and the open
-questions: [`test/blas_conformance.md`](test/blas_conformance.md).
+they check no arguments (the preconditions are listed in `cblas.h`) and
+keep the general increments of the templates (negative: BLAS storage
+order, zero: the first element repeated).  Extensions of both interfaces:
+the transposition `AtlasConj` (C) or 'R' (Fortran 77), conjugation without
+transposition, for gemv, gbmv, gemm, trmv, tbmv, tpmv, trsv, tbsv, tpsv,
+trmm, trsm and the real ?syrk, ?syr2k.  Where the reference skips zero
+elements data-dependently (e.g. `IF (X(J).NE.ZERO)` in DTRMV), ulmBLAS
+computes the products, so NaN and Inf propagate as in IEEE arithmetic.  The
+audit of all entry points against the reference, the conventions and the
+open questions: [`test/blas_conformance.md`](test/blas_conformance.md).
 
 Not provided: `lsame` and `xerbla_array` (auxiliary routines that LAPACK
 contains itself), `?gemmtr` (LAPACK 3.12), the routines of the

@@ -17,7 +17,7 @@
 #  programs (the same directory as for reference-lapack.sh, so the tarball
 #  is downloaded only once).  Environment: CC, FC, CXX, CFLAGS, FFLAGS,
 #  LDFLAGS, LDLIBS, FLIBS, LAPACK_TARBALL as for reference-lapack.sh.
-#  expected.txt lists the differences that belong to open issues.
+#  expected.txt lists the documented differences (test/known_issues.md).
 #
 #  Exit status 0 if all calls agree (apart from the expected differences).
 #

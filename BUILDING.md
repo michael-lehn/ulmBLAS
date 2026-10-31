@@ -178,8 +178,8 @@ part of the default set and are run with `CONFIGS=...` (see the
   interfaces with many sizes, increments (also zero and negative), leading
   dimensions, flags, both storage orders and special values of alpha and
   beta, with guard cells around all operands, and print all buffers, which
-  `compare.cc` compares (up to rounding).  Differences that belong to open
-  issues are listed in `expected.txt`.  The index type must be `int`.  See
+  `compare.cc` compares (up to rounding).  Documented differences (test/known_issues.md) are
+  listed in `expected.txt`.  The index type must be `int`.  See
   [`test/blas_conformance.md`](test/blas_conformance.md).
 - **Header tests**: the generated headers can be used from C.
 

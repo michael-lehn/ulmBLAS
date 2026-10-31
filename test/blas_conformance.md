@@ -45,7 +45,7 @@ was checked for every routine.
 
 | | Fortran 77 | CBLAS names | `ulmblas_` names |
 |---|---|---|---|
-| contract | reference BLAS | reference CBLAS | ulmBLAS (column major, no argument checks, #0029) |
+| contract | reference BLAS | reference CBLAS | ulmBLAS (column major, no argument checks, preconditions in cblas.h, #0029) |
 | incx < 0, level 1 | start index 1-(n-1)*incx; `?asum`, `?scal`, `i?amax`: return 0 / nothing | as Fortran 77 | BLAS storage order for all functions |
 | incx = 0, level 1 | `?asum`, `i?amax`: 0; `?scal`: nothing; others: x(1) repeated | as Fortran 77 | x[0] repeated |
 | incx = 0, level 2 | error | error | not checked |
@@ -72,14 +72,18 @@ without the fix):
 | #0021 | cblas_?her2k | row major: wrote to alpha |
 | #0022 | cblas.h | non-const input arguments of ?symm, ?hemm, ?her2k |
 
-Open defect: #0023 (trmm: 0*Inf from the zeros of packed diagonal blocks;
-XFAIL test).
+Decisions on the design questions (see the registry for details):
 
-Open design questions (DESIGN tests record the current behavior): #0024
-(products with zero elements that the reference skips; NaN propagation),
-#0025 (ATLAS extensions 'R' and `AtlasConj`), #0026 (`?scal` with alpha =
-0), #0027 (trsm multiplies by reciprocals), #0028 (types of cblas.h),
-#0029 (unchecked `ulmblas_` functions).
+| Issue | Decision |
+|---|---|
+| #0024 | reference semantics routine by routine; documented quick returns kept, no data-dependent skipping of zero elements: the skips that only ulmBLAS made (gemv, gbmv, hemv, ger, spr, hpr, tbsv, tpsv, row major hpr2) are removed; where the reference skips (e.g. DTRMV, DSYR, DSYRK, DTRMM), ulmBLAS computes (IEEE propagation of NaN and Inf) |
+| #0025 | `AtlasConj` and 'R' are documented extensions; all other invalid codes are rejected |
+| #0026 | `?scal` multiplies also for alpha = 0, as the reference |
+| #0029 | no argument checks in the `ulmblas_` functions; preconditions documented in cblas.h |
+
+Open: #0023 (trmm: 0*Inf from the zeros of packed diagonal blocks; XFAIL
+test), #0027 (trsm with reciprocals of the diagonal) and #0028 (types of
+cblas.h); for these the investigations are reported first.
 
 Differences that are accepted as implementation-specific (not registered):
 
