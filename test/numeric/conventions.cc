@@ -229,91 +229,120 @@ ULMBLAS_TEST(T0601, "conventions/i?amax with NaN and Inf")
 }
 
 //
-//  Results of calls for which the reference BLAS skips a zero element of x,
-//  y, A or B (Fortran: IF (X(J).NE.ZERO) ...), so that NaN or Inf in the
-//  corresponding column of A is not propagated, or multiplies by a
-//  structural zero.  ulmBLAS computes these products (issue #0024).  Each
-//  entry is name=result; the reference BLAS gives the value in brackets.
+//  Issue #0024: products with zero elements.  The level 1 kernels of
+//  ulmBLAS skipped an axpy with a zero scalar, so routines that the
+//  reference BLAS computes without such a test dropped NaN and Inf (gemv,
+//  gbmv, hemv; ger tested alpha*x(i) or alpha*y(j); spr, hpr tested
+//  alpha*x(j); tbsv, tpsv the quotient; row major hpr2 each term).  Now
+//  only the documented quick return of ?axpy (alpha = 0) remains.  The
+//  expected values are those of the reference BLAS of LAPACK 3.12.1.
 //
 namespace {
 
-using namespace test;
-
-std::string
-num(double x)
-{
-    return std::isnan(x) ? std::string("nan") : format("%g", x);
-}
-
-std::string
-zeroSkips()
+void
+testZeroProducts(Context &ctx)
 {
     const double nan = std::numeric_limits<double>::quiet_NaN();
     const double inf = std::numeric_limits<double>::infinity();
-    std::string  r;
+    const double one[2] = { 1, 0 }, zero[2] = { 0, 0 };
 
-    {   // dgemv N: A = [NaN], x = [0], beta = 0 (ref: NaN)
+    {   // dgemv: A = [NaN], x = [0]
         double A[1] = { nan }, x[1] = { 0 }, y[1] = { 7 };
         cblas_dgemv(CblasColMajor, CblasNoTrans, 1, 1, 1, A, 1, x, 1, 0, y, 1);
-        r += "gemv=" + num(y[0]);
+        ctx.check(std::isnan(y[0]), "dgemv: y = %g, expected NaN", y[0]);
     }
-    {   // dger: x = [NaN], y = [0], A = [1] (ref: 1)
-        double A[1] = { 1 }, x[1] = { nan }, y[1] = { 0 };
+    {   // dgemv, n = 5 (fused and remaining columns)
+        double A[5] = { 1, 1, 1, 1, nan }, x[5] = { 1, 1, 1, 1, 0 }, y[1];
+        cblas_dgemv(CblasColMajor, CblasNoTrans, 1, 5, 1, A, 1, x, 1, 0, y, 1);
+        ctx.check(std::isnan(y[0]), "dgemv n=5: y = %g, expected NaN", y[0]);
+    }
+    {   // dgbmv
+        double A[1] = { nan }, x[1] = { 0 }, y[1] = { 7 };
+        cblas_dgbmv(CblasColMajor, CblasNoTrans, 1, 1, 0, 0, 1, A, 1, x, 1, 0,
+                    y, 1);
+        ctx.check(std::isnan(y[0]), "dgbmv: y = %g, expected NaN", y[0]);
+    }
+    {   // zgemv
+        double A[2] = { nan, 0 }, x[2] = { 0, 0 }, y[2] = { 7, 7 };
+        cblas_zgemv(CblasColMajor, CblasNoTrans, 1, 1, one, A, 1, x, 1, zero,
+                    y, 1);
+        ctx.check(std::isnan(y[0]), "zgemv: y = (%g,%g), expected NaN", y[0],
+                  y[1]);
+    }
+    {   // zhemv lower: A21 = NaN, x = (0, 1): y2 = NaN
+        double A[8] = { 1, 0, nan, 0, -1, -1, 1, 0 }, x[4] = { 0, 0, 1, 0 };
+        double y[4] = { 7, 7, 7, 7 };
+        cblas_zhemv(CblasColMajor, CblasLower, 2, one, A, 2, x, 1, zero, y, 1);
+        ctx.check(std::isnan(y[2]), "zhemv: y2 = (%g,%g), expected NaN",
+                  y[2], y[3]);
+    }
+    {   // dger with ldA = 1: x = 0, y = NaN
+        double A[1] = { 1 }, x[1] = { 0 }, y[1] = { nan };
         cblas_dger(CblasColMajor, 1, 1, 1, x, 1, y, 1, A, 1);
-        r += " ger=" + num(A[0]);
+        ctx.check(std::isnan(A[0]), "dger ldA=1: A = %g, expected NaN", A[0]);
     }
-    {   // dsyr L: x = (0, NaN), A21 = 2 (ref: 2)
-        double A[4] = { 1, 2, -1, 3 }, x[2] = { 0, nan };
-        cblas_dsyr(CblasColMajor, CblasLower, 2, 1, x, 1, A, 2);
-        r += " syr=" + num(A[1]);
+    {   // dger: alpha*y(j) underflows, x = Inf
+        double A[2] = { 0, 0 }, x[1] = { inf }, y[1] = { 1e-300 };
+        cblas_dger(CblasColMajor, 1, 1, 1e-300, x, 1, y, 1, A, 2);
+        ctx.check(std::isnan(A[0]), "dger: A = %g, expected NaN", A[0]);
     }
-    {   // dspr L: alpha = Inf, x = (0, 1), AP = (1, 2, 3) (ref: AP(1) = 1)
-        double AP[3] = { 1, 2, 3 }, x[2] = { 0, 1 };
-        cblas_dspr(CblasColMajor, CblasLower, 2, inf, x, 1, AP);
-        r += " spr=" + num(AP[0]);
+    {   // zgerc with ldA = 1
+        double A[2] = { 1, 0 }, x[2] = { 0, 0 }, y[2] = { nan, 0 };
+        cblas_zgerc(CblasColMajor, 1, 1, one, x, 1, y, 1, A, 1);
+        ctx.check(std::isnan(A[0]), "zgerc: A = (%g,%g), expected NaN", A[0],
+                  A[1]);
     }
-    {   // dtrmv U N: A = [1 NaN; 0 1], x = (1, 0) (ref: x1 = 1)
-        double A[4] = { 1, 0, nan, 1 }, x[2] = { 1, 0 };
-        cblas_dtrmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 2,
-                    A, 2, x, 1);
-        r += " trmv=" + num(x[0]);
+    {   // dspr lower: alpha*x(1) underflows, x(2) = Inf
+        double AP[3] = { 1, 2, 3 }, x[2] = { 1e-300, inf };
+        cblas_dspr(CblasColMajor, CblasLower, 2, 1e-300, x, 1, AP);
+        ctx.check(AP[0]==1 && std::isnan(AP[1]) && AP[2]==inf,
+                  "dspr: AP = (%g, %g, %g), expected (1, NaN, Inf)", AP[0],
+                  AP[1], AP[2]);
     }
-    {   // dtrsv U N: A = [0], x = [0] (ref: 0)
-        double A[1] = { 0 }, x[1] = { 0 };
-        cblas_dtrsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 1,
-                    A, 1, x, 1);
-        r += " trsv=" + num(x[0]);
+    {   // zhpr lower, as dspr
+        double AP[6] = { 1, 0, 2, 0, 3, 0 }, x[4] = { 1e-300, 0, inf, 0 };
+        cblas_zhpr(CblasColMajor, CblasLower, 2, 1e-300, x, 1, AP);
+        ctx.check(std::isnan(AP[2]), "zhpr: AP(2) = (%g,%g), expected NaN",
+                  AP[2], AP[3]);
     }
-    {   // dsyrk L N: n = 2, k = 1, A = (0, NaN), beta = 1, C21 = 5 (ref: 5)
-        double A[2] = { 0, nan }, C[4] = { 1, 5, -1, 1 };
-        cblas_dsyrk(CblasColMajor, CblasLower, CblasNoTrans, 2, 1, 1, A, 2,
-                    1, C, 2);
-        r += " syrk=" + num(C[1]);
+    {   // dtbsv lower: A11 = Inf, A21 = NaN, x = (1, 1): x = (0, NaN)
+        double A[4] = { inf, nan, 1, 7 }, x[2] = { 1, 1 };
+        cblas_dtbsv(CblasColMajor, CblasLower, CblasNoTrans, CblasNonUnit, 2,
+                    1, A, 2, x, 1);
+        ctx.check(x[0]==0 && std::isnan(x[1]),
+                  "dtbsv: x = (%g, %g), expected (0, NaN)", x[0], x[1]);
     }
-    {   // dtrmm L L N N: A = [1 *; NaN 1], B = (0, 1) (ref: B2 = 1)
-        double A[4] = { 1, nan, -1, 1 }, B[2] = { 0, 1 };
-        cblas_dtrmm(CblasColMajor, CblasLeft, CblasLower, CblasNoTrans,
-                    CblasNonUnit, 2, 1, 1, A, 2, B, 2);
-        r += " trmm=" + num(B[1]);
+    {   // dtpsv lower, as dtbsv
+        double AP[3] = { inf, nan, 1 }, x[2] = { 1, 1 };
+        cblas_dtpsv(CblasColMajor, CblasLower, CblasNoTrans, CblasNonUnit, 2,
+                    AP, x, 1);
+        ctx.check(x[0]==0 && std::isnan(x[1]),
+                  "dtpsv: x = (%g, %g), expected (0, NaN)", x[0], x[1]);
     }
-    {   // dgemm T N with k = 0, alpha = NaN, beta = 0 (ref: NaN)
-        double A[1] = { 1 }, B[1] = { 1 }, C[1] = { 7 };
-        cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, 1, 1, 0, nan, A,
-                    1, B, 1, 0, C, 1);
-        r += " gemm(k=0)=" + num(C[0]);
+    {   // zhpr2 row major upper: x = (1, NaN), y = (0, 1)
+        double AP[6] = { 7, 0, 7, 0, 7, 0 }, x[4] = { 1, 0, nan, 0 };
+        double y[4] = { 0, 0, 1, 0 };
+        cblas_zhpr2(CblasRowMajor, CblasUpper, 2, one, x, 1, y, 1, AP);
+        ctx.check(AP[0]==7 && std::isnan(AP[2]) && std::isnan(AP[4]),
+                  "zhpr2: AP = (%g,%g) (%g,%g) (%g,%g), expected AP(1) = 7, "
+                  "NaN otherwise", AP[0], AP[1], AP[2], AP[3], AP[4], AP[5]);
     }
-    return r;
+    {   // ?axpy keeps the documented quick return for alpha = 0
+        double x[1] = { nan }, y[1] = { 3 };
+        cblas_daxpy(1, 0, x, 1, y, 1);
+        double zx[2] = { nan, nan }, zy[2] = { 3, 4 };
+        cblas_zaxpy(1, zero, zx, 1, zy, 1);
+        ctx.check(y[0]==3 && zy[0]==3 && zy[1]==4,
+                  "?axpy with alpha = 0 modified y");
+    }
 }
 
 } // namespace
 
-ULMBLAS_TEST_DESIGN(T0602, "conventions/products with zero elements that "
-                    "reference BLAS skips", 24,
-                    "gemv=0 ger=nan syr=nan spr=nan trmv=nan trsv=nan "
-                    "syrk=nan trmm=nan gemm(k=0)=0")
+ULMBLAS_TEST(T0602, "conventions/products with zero elements as the "
+             "reference BLAS")
 {
-    ctx.observed = zeroSkips();
-    ctx.pass();
+    testZeroProducts(ctx);
 }
 
 //

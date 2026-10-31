@@ -398,26 +398,31 @@ part; otherwise the first element with Inf; otherwise the first maximum of
 
 Issue #0024: products with zero elements that the reference BLAS skips
 Type: DESIGN
-Status: OPEN
-Covered by tests: T0602 (numeric, DESIGN)
+Status: RESOLVED
+Covered by tests: T0602 (numeric, regression test)
 
 Several reference routines skip an operation if an element of x, y, A or
 B is zero (e.g. `IF (X(J).NE.ZERO)` in DTRMV, DTRSV, DSYR, DGER, DSYRK,
 DTRMM, DTRSM), so NaN or Inf in the corresponding column of the other
-operand does not reach the result; other routines (DGEMV, DGBMV) never
-skip.  ulmBLAS skips where its level 1 kernels return early (axpy with a
-zero scalar) and computes the products elsewhere, so NaN propagation
-differs in both directions: gemv/gbmv/hemv drop NaN of A for alpha*x(j) =
-0; ger with ldA = 1 tests x instead of y; syr, syr2, spr2, her, her2,
-hpr2, trmv, trsv (full storage), tbmv/tpmv (diagonal), syrk, herk,
-syr2k, her2k, trmm, trsm (side = Left) propagate NaN where the reference
-skips; spr/hpr test alpha*x(j); tbsv/tpsv test the quotient; transposed
-tr/tb/tp multiplies give +0 where the reference keeps -0; alpha = NaN or
-Inf with k = 0 gives beta*C (the reference: NaN in its transposed
-branches, beta*C otherwise).  Only results with NaN or Inf in operands or
-signed zeros are affected.  Open: follow the reference (branches in the
-kernels or in the interfaces), or document the IEEE propagation of
-ulmBLAS?  The test records the results of one call per class.
+operand does not reach the result; others (DGEMV, DGBMV, DHEMV) never
+skip.  The level 1 kernels of ulmBLAS returned from axpy for a zero
+scalar, so gemv, gbmv and hemv dropped NaN and Inf of A for
+alpha*x(j) = 0, ger tested alpha*x(i) (ldA = 1) or alpha*y(j) instead of
+y(j), spr and hpr alpha*x(j) instead of x(j), tbsv and tpsv the quotient,
+and row major hpr2 each of its two terms.  Answer: the reference
+semantics routine by routine, but no data-dependent skipping of zero
+elements.  Documented quick returns (alpha = 0, k = 0 with beta = 1,
+n = 0, ...) are kept, also the one of ?axpy (alpha = 0), which is now
+tested in the interfaces instead of the kernels; ulmBLAS no longer skips
+where the reference computes.  Where the reference skips data-dependently
+(DTRMV, DTRSV, DTBMV, DTPMV, DTBSV, DTPSV with x(j) = 0; DGER with
+y(j) = 0; DSYR, DSYR2, DSPR, DSPR2, DHER, DHER2, DHPR, DHPR2; DSYRK,
+DHERK, DSYR2K, DHER2K, DTRMM, DTRSM), ulmBLAS computes the products and
+propagates NaN and Inf as IEEE arithmetic does (also -0 becomes +0 in the
+transposed tr/tb/tp multiplies); `make check-conformance` lists these
+differences as known.  For k = 0 and alpha = NaN or Inf, gemm, syrk, herk,
+syr2k, her2k return beta*C (the reference gives NaN in its transposed
+branches only).
 
 Issue #0025: ATLAS extensions of the transposition argument
 Type: DESIGN

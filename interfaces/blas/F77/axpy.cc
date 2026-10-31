@@ -20,6 +20,9 @@ F77BLAS(saxpy)(const ULMBLAS_INDEX_TYPE *n_,
     ULMBLAS_INDEX_TYPE     incX  = *incX_;
     ULMBLAS_INDEX_TYPE     incY  = *incY_;
 
+    if (alpha==0) {
+        return;
+    }
     if (incX<0) {
         x -= incX*(n-1);
     }
@@ -45,6 +48,9 @@ F77BLAS(daxpy)(const ULMBLAS_INDEX_TYPE *n_,
     ULMBLAS_INDEX_TYPE     incX  = *incX_;
     ULMBLAS_INDEX_TYPE     incY  = *incY_;
 
+    if (alpha==0) {
+        return;
+    }
     if (incX<0) {
         x -= incX*(n-1);
     }
@@ -76,6 +82,9 @@ F77BLAS(caxpy)(const ULMBLAS_INDEX_TYPE *n_,
     const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
     dcomplex       *y = reinterpret_cast<dcomplex *>(y_);
 
+    if (alpha==dcomplex(0)) {
+        return;
+    }
     if (incX<0) {
         x -= incX*(n-1);
     }
@@ -107,6 +116,9 @@ F77BLAS(zaxpy)(const ULMBLAS_INDEX_TYPE *n_,
     const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
     dcomplex       *y = reinterpret_cast<dcomplex *>(y_);
 
+    if (alpha==dcomplex(0)) {
+        return;
+    }
     if (incX<0) {
         x -= incX*(n-1);
     }

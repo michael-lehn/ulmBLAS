@@ -1,6 +1,7 @@
-Differences that belong to open issues of test/known_issues.md (read by
-compare.cc): one line per class, "#NNNN regular expression" matching the
-descriptions of the calls that may differ from the reference.
-Issue 0024: full storage trmv, trsv skip no column with x(j) = 0:
-#0024 ^[sdcz]tFmv .* zx=1$
-#0024 ^[sdcz]tFsv .* zx=1$
+Documented differences to the reference (see test/known_issues.md), read by
+compare.cc: one line per class, "#NNNN regular expression" matching the
+descriptions of the calls that may differ.
+Issue 0024: the reference skips column j of A for x(j) = 0 in tr/tb/tp mv
+and sv (NaN in that column is not propagated); ulmBLAS computes:
+#0024 ^[sdcz]t[FBP]mv .* zx=1$
+#0024 ^[sdcz]t[FBP]sv .* zx=1$

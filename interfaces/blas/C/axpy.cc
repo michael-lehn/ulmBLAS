@@ -12,6 +12,9 @@ ULMBLAS(saxpy)(ULMBLAS_INDEX_TYPE n,
                float              *y,
                ULMBLAS_INDEX_TYPE incY)
 {
+    if (alpha==0) {
+        return;
+    }
     if (incX<0) {
         x -= incX*(n-1);
     }
@@ -30,6 +33,9 @@ ULMBLAS(daxpy)(ULMBLAS_INDEX_TYPE n,
                double             *y,
                ULMBLAS_INDEX_TYPE incY)
 {
+    if (alpha==0) {
+        return;
+    }
     if (incX<0) {
         x -= incX*(n-1);
     }
@@ -52,6 +58,9 @@ ULMBLAS(caxpy)(ULMBLAS_INDEX_TYPE n,
     const fcomplex *x    = reinterpret_cast<const fcomplex *>(x_);
     fcomplex       *y    = reinterpret_cast<fcomplex *>(y_);
 
+    if (alpha==fcomplex(0)) {
+        return;
+    }
     if (incX<0) {
         x -= incX*(n-1);
     }
@@ -74,6 +83,9 @@ ULMBLAS(zaxpy)(ULMBLAS_INDEX_TYPE n,
     const dcomplex *x    = reinterpret_cast<const dcomplex *>(x_);
     dcomplex       *y    = reinterpret_cast<dcomplex *>(y_);
 
+    if (alpha==dcomplex(0)) {
+        return;
+    }
     if (incX<0) {
         x -= incX*(n-1);
     }

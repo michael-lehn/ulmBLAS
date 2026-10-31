@@ -15,7 +15,7 @@ axpy(IndexType      n,
      VY             *y,
      IndexType      incY)
 {
-    if (n<=0 || alpha==Alpha(0)) {
+    if (n<=0) {
         return;
     }
 
@@ -33,7 +33,7 @@ acxpy(IndexType      n,
       VY             *y,
       IndexType      incY)
 {
-    if (n<=0 || alpha==Alpha(0)) {
+    if (n<=0) {
         return;
     }
 
