@@ -17,6 +17,9 @@ F77BLAS(sscal)(const ULMBLAS_INDEX_TYPE *n_,
     float alpha = *alpha_;
     ULMBLAS_INDEX_TYPE incX     = *incX_;
 
+    if (incX<=0) {
+        return;
+    }
     ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
@@ -33,6 +36,9 @@ F77BLAS(dscal)(const ULMBLAS_INDEX_TYPE *n_,
     double alpha            = *alpha_;
     ULMBLAS_INDEX_TYPE incX = *incX_;
 
+    if (incX<=0) {
+        return;
+    }
     ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
@@ -52,6 +58,9 @@ F77BLAS(cscal)(const ULMBLAS_INDEX_TYPE *n_,
     fcomplex alpha = fcomplex(alpha_[0], alpha_[1]);
     fcomplex *x    = reinterpret_cast<fcomplex *>(x_);
 
+    if (incX<=0) {
+        return;
+    }
     ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
@@ -71,6 +80,9 @@ F77BLAS(zscal)(const ULMBLAS_INDEX_TYPE *n_,
     dcomplex alpha = dcomplex(alpha_[0], alpha_[1]);
     dcomplex *x    = reinterpret_cast<dcomplex *>(x_);
 
+    if (incX<=0) {
+        return;
+    }
     ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
@@ -90,6 +102,9 @@ F77BLAS(csscal)(const ULMBLAS_INDEX_TYPE *n_,
     typedef std::complex<float> fcomplex;
     fcomplex *x    = reinterpret_cast<fcomplex *>(x_);
 
+    if (incX<=0) {
+        return;
+    }
     ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
@@ -109,6 +124,9 @@ F77BLAS(zdscal)(const ULMBLAS_INDEX_TYPE *n_,
     typedef std::complex<double> dcomplex;
     dcomplex *x    = reinterpret_cast<dcomplex *>(x_);
 
+    if (incX<=0) {
+        return;
+    }
     ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 

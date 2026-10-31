@@ -9,6 +9,9 @@ ULMBLAS(isamax)(ULMBLAS_INDEX_TYPE n,
                 const float        *x,
                 ULMBLAS_INDEX_TYPE incX)
 {
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
     return ulmBLAS::iamax<std::ptrdiff_t>(n, x, incX);
 }
 
@@ -18,6 +21,9 @@ ULMBLAS(idamax)(ULMBLAS_INDEX_TYPE n,
                 const double       *x,
                 ULMBLAS_INDEX_TYPE incX)
 {
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
     return ulmBLAS::iamax<std::ptrdiff_t>(n, x, incX);
 }
 
@@ -29,6 +35,9 @@ ULMBLAS(icamax)(ULMBLAS_INDEX_TYPE n,
     typedef std::complex<float> fcomplex;
     const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
 
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
     return ulmBLAS::iamax<std::ptrdiff_t>(n, x, incX);
 }
 
@@ -40,6 +49,9 @@ ULMBLAS(izamax)(ULMBLAS_INDEX_TYPE n,
     typedef std::complex<double> dcomplex;
     const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
 
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
     return ulmBLAS::iamax<std::ptrdiff_t>(n, x, incX);
 }
 
@@ -49,6 +61,9 @@ CBLAS(isamax)(ULMBLAS_INDEX_TYPE n,
               const float        *x,
               ULMBLAS_INDEX_TYPE incX)
 {
+    if (n<=0 || incX<=0) {
+        return 0;
+    }
     return ULMBLAS(isamax)(n, x, incX);
 }
 
@@ -57,6 +72,9 @@ CBLAS(idamax)(ULMBLAS_INDEX_TYPE n,
               const double       *x,
               ULMBLAS_INDEX_TYPE incX)
 {
+    if (n<=0 || incX<=0) {
+        return 0;
+    }
     return ULMBLAS(idamax)(n, x, incX);
 }
 
@@ -65,6 +83,9 @@ CBLAS(icamax)(ULMBLAS_INDEX_TYPE n,
               const float        *x,
               ULMBLAS_INDEX_TYPE incX)
 {
+    if (n<=0 || incX<=0) {
+        return 0;
+    }
     return ULMBLAS(icamax)(n, x, incX);
 }
 
@@ -73,6 +94,9 @@ CBLAS(izamax)(ULMBLAS_INDEX_TYPE n,
               const double       *x,
               ULMBLAS_INDEX_TYPE incX)
 {
+    if (n<=0 || incX<=0) {
+        return 0;
+    }
     return ULMBLAS(izamax)(n, x, incX);
 }
 

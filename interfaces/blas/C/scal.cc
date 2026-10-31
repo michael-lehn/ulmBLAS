@@ -10,6 +10,9 @@ ULMBLAS(sscal)(const ULMBLAS_INDEX_TYPE n,
                float                    *x,
                const ULMBLAS_INDEX_TYPE incX)
 {
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
     ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
@@ -19,6 +22,9 @@ ULMBLAS(dscal)(const ULMBLAS_INDEX_TYPE n,
                double                   *x,
                const ULMBLAS_INDEX_TYPE incX)
 {
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
     ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
@@ -31,6 +37,9 @@ ULMBLAS(csscal)(const ULMBLAS_INDEX_TYPE n,
     typedef std::complex<float> fcomplex;
     fcomplex *x = reinterpret_cast<fcomplex *>(x_);
 
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
     ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
@@ -44,6 +53,9 @@ ULMBLAS(zdscal)(const ULMBLAS_INDEX_TYPE n,
     typedef std::complex<double> dcomplex;
     dcomplex *x = reinterpret_cast<dcomplex *>(x_);
 
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
     ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
@@ -57,6 +69,9 @@ ULMBLAS(cscal)(const ULMBLAS_INDEX_TYPE n,
     fcomplex alpha = fcomplex(alpha_[0], alpha_[1]);
     fcomplex *x    = reinterpret_cast<fcomplex *>(x_);
 
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
     ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
@@ -71,6 +86,9 @@ ULMBLAS(zscal)(const ULMBLAS_INDEX_TYPE n,
     dcomplex alpha = dcomplex(alpha_[0], alpha_[1]);
     dcomplex *x    = reinterpret_cast<dcomplex *>(x_);
 
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
     ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
@@ -80,6 +98,9 @@ CBLAS(sscal)(const ULMBLAS_INDEX_TYPE n,
              float                    *x,
              const ULMBLAS_INDEX_TYPE incX)
 {
+    if (incX<=0) {
+        return;
+    }
     ULMBLAS(sscal)(n, alpha, x, incX);
 }
 
@@ -89,6 +110,9 @@ CBLAS(dscal)(const ULMBLAS_INDEX_TYPE n,
              double                   *x,
              const ULMBLAS_INDEX_TYPE incX)
 {
+    if (incX<=0) {
+        return;
+    }
     ULMBLAS(dscal)(n, alpha, x, incX);
 }
 
@@ -98,6 +122,9 @@ CBLAS(csscal)(const ULMBLAS_INDEX_TYPE n,
               float                    *x,
               const ULMBLAS_INDEX_TYPE incX)
 {
+    if (incX<=0) {
+        return;
+    }
     ULMBLAS(csscal)(n, alpha, x, incX);
 }
 
@@ -107,6 +134,9 @@ CBLAS(zdscal)(const ULMBLAS_INDEX_TYPE n,
               double                   *x,
               const ULMBLAS_INDEX_TYPE incX)
 {
+    if (incX<=0) {
+        return;
+    }
     ULMBLAS(zdscal)(n, alpha, x, incX);
 }
 
@@ -116,6 +146,9 @@ CBLAS(cscal)(const ULMBLAS_INDEX_TYPE n,
              float                    *x,
              const ULMBLAS_INDEX_TYPE incX)
 {
+    if (incX<=0) {
+        return;
+    }
     ULMBLAS(cscal)(n, alpha, x, incX);
 }
 
@@ -125,6 +158,9 @@ CBLAS(zscal)(const ULMBLAS_INDEX_TYPE n,
              double                   *x,
              const ULMBLAS_INDEX_TYPE incX)
 {
+    if (incX<=0) {
+        return;
+    }
     ULMBLAS(zscal)(n, alpha, x, incX);
 }
 

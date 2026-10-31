@@ -256,6 +256,41 @@ interfaces).  Neither the tests of ulmBLAS nor the Netlib test programs
 noticed it: both use ldB = ldA.  Fixed; the level 3 tests now use
 different leading dimensions for A, B and C.
 
+Issue #0017: level 1 functions with increments <= 0 accessed memory outside the vector
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0900, T0901 (numeric, regression test), T0013 (netlib, regression test)
+
+The reference BLAS returns 0 from `?asum` and `i?amax` and leaves x
+unchanged in `?scal`, `csscal`, `zdscal` if incx <= 0 (the reference
+CBLAS: the same, `i?amax` returns 0 also for n <= 0).  ulmBLAS used x[0]
+n times for incx = 0, and for incx < 0 it read (`?asum`, `cblas_i?amax`,
+`cblas_snrm2`, `cblas_dnrm2`) or wrote (`?scal`) the n-1 elements in front
+of x.  `i?amax` of the Fortran 77 interface returned an index in reverse
+order for incx < 0, `cblas_i?amax` returned -1 for n <= 0.  Fixed: the
+Fortran 77 and CBLAS functions follow the reference for incx <= 0;
+`cblas_?nrm2` supports negative increments as LAPACK 3.12.1.  The
+`ulmblas_` functions keep the general increments of ulmBLAS: for incx < 0
+the BLAS storage order (as all other `ulmblas_` level 1 functions), for
+incx = 0 the element x[0] repeated; `ulmblas_i?amax` returns a 0-based
+index and -1 for n <= 0.
+
+Issue #0018: ?rotg overflows for large operands
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0903 (numeric, regression test), T0013 (netlib, regression test)
+
+`srotg` and `drotg` used the algorithm of the reference BLAS before LAPACK
+3.10 (scale |a| + |b|), which gives NaN for |a| + |b| > max (e.g.
+drotg(1e308, 1e308)), for infinite operands and other signs of zero than
+LAPACK 3.12.1.  `crotg` and `zrotg` returned r = Inf, c = 0, s = 0 if
+|a|^2 + |b|^2 overflows.  Fixed: both follow DROTG and ZROTG of LAPACK
+3.12.1 (Anderson, "Algorithm 978: Safe Scaling in the Level 1 BLAS").
+Remaining differences to a gfortran build of the reference are rounding
+from fused multiply-adds (gfortran contracts by default) and, for infinite
+complex operands, NaN that gfortran produces in the division of a complex
+by a real number.
+
 ## Design questions
 
 Issue #0002: alpha = 0 with NaN or Inf in operands that reference BLAS does not reference

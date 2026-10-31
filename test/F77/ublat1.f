@@ -11,6 +11,10 @@
 *       4  XERBLA          name, length of the name (hidden argument of a
 *                          CHARACTER*(*) dummy) and INFO for invalid
 *                          arguments of routines of all levels and types
+*       5  INCX <= 0       ?ASUM, I?AMAX return 0 and ?SCAL does nothing
+*                          (reference BLAS); ?NRM2 with INCX < 0
+*       6  SROTG, DROTG,   values of LAPACK 3.12.1 for operands whose
+*          ZROTG           squares overflow
 *
 *     .. Parameters ..
       INTEGER           NOUT
@@ -20,21 +24,24 @@
 *     .. Local Scalars ..
       INTEGER           IC
 *     .. Local Arrays ..
-      CHARACTER*14      L(4)
+      CHARACTER*14      L(6)
 *     .. Common blocks ..
       COMMON            /UCOMB/PASS
 *     .. Data statements ..
       DATA              L/'CROTG, ZROTG', 'CSROT, ZDROT',
-     +                  'SCABS1, DCABS1', 'XERBLA'/
+     +                  'SCABS1, DCABS1', 'XERBLA', 'INCX <= 0',
+     +                  'S, D, ZROTG'/
 *     .. Executable Statements ..
       WRITE (NOUT,99999)
-      DO 10 IC = 1, 4
+      DO 10 IC = 1, 6
          WRITE (NOUT,99998) IC, L(IC)
          PASS = .TRUE.
          IF (IC.EQ.1) CALL CHKROTG
          IF (IC.EQ.2) CALL CHKROT
          IF (IC.EQ.3) CALL CHKABS1
          IF (IC.EQ.4) CALL CHKERB
+         IF (IC.EQ.5) CALL CHKINC
+         IF (IC.EQ.6) CALL CHKRG2
          IF (PASS) WRITE (NOUT,99997)
    10 CONTINUE
       STOP
@@ -324,5 +331,120 @@
       ELSE
          NAME = '?'
       END IF
+      RETURN
+      END
+
+      SUBROUTINE CHKINC
+*     Increments <= 0 (issue #0017): ?ASUM and I?AMAX return 0, ?SCAL,
+*     CSSCAL, ZDSCAL do nothing (reference BLAS).  The vectors start at
+*     element 9 of arrays whose other elements are guard values; the
+*     arrays must be unchanged.  ?NRM2 with INCX = -2 must not read the
+*     guard values.
+      INTEGER           I, J, K, INC, N, INCS(3), NS(2)
+      REAL              SX(16), SX0(16)
+      DOUBLE PRECISION  DX(16), DX0(16)
+      COMPLEX           CX(16), CX0(16)
+      DOUBLE COMPLEX    ZX(16), ZX0(16)
+      LOGICAL           SAME
+      REAL              SASUM, SCASUM, SNRM2, SCNRM2
+      DOUBLE PRECISION  DASUM, DZASUM, DNRM2, DZNRM2
+      INTEGER           ISAMAX, IDAMAX, ICAMAX, IZAMAX
+      EXTERNAL          SASUM, SCASUM, SNRM2, SCNRM2, DASUM, DZASUM,
+     +                  DNRM2, DZNRM2, ISAMAX, IDAMAX, ICAMAX, IZAMAX,
+     +                  SSCAL, DSCAL, CSCAL, ZSCAL, CSSCAL, ZDSCAL, FAIL
+      INTRINSIC         ABS, CMPLX, DCMPLX, REAL
+      DATA              INCS/0, -1, -2/, NS/1, 3/
+      DO 10 I = 1, 16
+         SX0(I) = REAL(1000 + I)
+         DX0(I) = 1000 + I
+         CX0(I) = CMPLX(REAL(1000 + I), REAL(-I))
+         ZX0(I) = DCMPLX(DBLE(1000 + I), DBLE(-I))
+   10 CONTINUE
+      DO 50 I = 1, 3
+         DO 40 J = 1, 2
+            INC = INCS(I)
+            N = NS(J)
+            DO 20 K = 1, 16
+               SX(K) = SX0(K)
+               DX(K) = DX0(K)
+               CX(K) = CX0(K)
+               ZX(K) = ZX0(K)
+   20       CONTINUE
+            IF (SASUM(N,SX(9),INC).NE.0.0 .OR.
+     +          DASUM(N,DX(9),INC).NE.0D0 .OR.
+     +          SCASUM(N,CX(9),INC).NE.0.0 .OR.
+     +          DZASUM(N,ZX(9),INC).NE.0D0)
+     +         CALL FAIL('?ASUM with INCX <= 0: result is not 0')
+            IF (ISAMAX(N,SX(9),INC).NE.0 .OR.
+     +          IDAMAX(N,DX(9),INC).NE.0 .OR.
+     +          ICAMAX(N,CX(9),INC).NE.0 .OR.
+     +          IZAMAX(N,ZX(9),INC).NE.0)
+     +         CALL FAIL('I?AMAX with INCX <= 0: result is not 0')
+            CALL SSCAL(N, 2.0, SX(9), INC)
+            CALL DSCAL(N, 2D0, DX(9), INC)
+            CALL CSCAL(N, (2.0,1.0), CX(9), INC)
+            CALL ZSCAL(N, (2D0,1D0), ZX(9), INC)
+            CALL CSSCAL(N, 2.0, CX(9), INC)
+            CALL ZDSCAL(N, 2D0, ZX(9), INC)
+            SAME = .TRUE.
+            DO 30 K = 1, 16
+               IF (SX(K).NE.SX0(K) .OR. DX(K).NE.DX0(K) .OR.
+     +             CX(K).NE.CX0(K) .OR. ZX(K).NE.ZX0(K)) SAME = .FALSE.
+   30       CONTINUE
+            IF (.NOT.SAME)
+     +         CALL FAIL('?SCAL with INCX <= 0 modified the array')
+   40    CONTINUE
+   50 CONTINUE
+*     X = (3, 4) with INCX = -2: elements 11 and 9
+      SX(9) = 4.0
+      SX(11) = 3.0
+      DX(9) = 4D0
+      DX(11) = 3D0
+      CX(9) = (0.0,4.0)
+      CX(11) = (3.0,0.0)
+      ZX(9) = (0D0,4D0)
+      ZX(11) = (3D0,0D0)
+      IF (ABS(SNRM2(2,SX(9),-2)-5.0).GT.1E-5 .OR.
+     +    ABS(DNRM2(2,DX(9),-2)-5D0).GT.1D-12 .OR.
+     +    ABS(SCNRM2(2,CX(9),-2)-5.0).GT.1E-5 .OR.
+     +    ABS(DZNRM2(2,ZX(9),-2)-5D0).GT.1D-12)
+     +   CALL FAIL('?NRM2 with INCX = -2: wrong result')
+      RETURN
+      END
+
+      SUBROUTINE CHKRG2
+*     SROTG, DROTG, ZROTG of LAPACK 3.12.1 (issue #0018): no overflow if
+*     the squares of the operands overflow.  a = b = h (real) and a = b =
+*     (h,h) (complex) give r = sqrt(2)*h (with the phase of a),
+*     c = 1/sqrt(2), s = 1/sqrt(2) (real s, z = sqrt(2)).
+      REAL              SA, SB, SC, SS
+      DOUBLE PRECISION  DA, DB, DC, DS, ZC, H, RT2
+      DOUBLE COMPLEX    ZA, ZB, ZS
+      LOGICAL           NEARC
+      EXTERNAL          SROTG, DROTG, ZROTG, NEARC, FAIL
+      INTRINSIC         ABS, DCMPLX, SQRT
+      RT2 = SQRT(2D0)
+      SA = 1E38
+      SB = 1E38
+      CALL SROTG(SA, SB, SC, SS)
+      IF (ABS(SA/1E38-REAL(RT2)).GT.1E-5 .OR.
+     +    ABS(SB-REAL(RT2)).GT.1E-5 .OR.
+     +    ABS(SC-REAL(1/RT2)).GT.1E-5 .OR.
+     +    ABS(SS-REAL(1/RT2)).GT.1E-5)
+     +   CALL FAIL('SROTG(1E38, 1E38): wrong result')
+      H = 1D308
+      DA = H
+      DB = H
+      CALL DROTG(DA, DB, DC, DS)
+      IF (ABS(DA/H-RT2).GT.1D-14 .OR. ABS(DB-RT2).GT.1D-14 .OR.
+     +    ABS(DC-1/RT2).GT.1D-14 .OR. ABS(DS-1/RT2).GT.1D-14)
+     +   CALL FAIL('DROTG(1D308, 1D308): wrong result')
+      ZA = DCMPLX(H, H)
+      ZB = DCMPLX(H, H)
+      CALL ZROTG(ZA, ZB, ZC, ZS)
+      IF (.NOT.NEARC(ZA/H, DCMPLX(RT2,RT2), 1D-14) .OR.
+     +    ABS(ZC-1/RT2).GT.1D-14 .OR.
+     +    .NOT.NEARC(ZS, DCMPLX(1/RT2,0D0), 1D-14))
+     +   CALL FAIL('ZROTG((1D308,1D308), (1D308,1D308)): wrong result')
       RETURN
       END

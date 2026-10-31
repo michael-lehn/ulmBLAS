@@ -11,6 +11,9 @@ ULMBLAS(snrm2)(ULMBLAS_INDEX_TYPE n,
                const float        *x,
                ULMBLAS_INDEX_TYPE incX)
 {
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
     return ulmBLAS::nrm2<std::ptrdiff_t>(n, x, incX);
 }
 
@@ -19,6 +22,9 @@ ULMBLAS(dnrm2)(ULMBLAS_INDEX_TYPE n,
                const double       *x,
                ULMBLAS_INDEX_TYPE incX)
 {
+    if (incX<0) {
+        x -= incX*(n-1);
+    }
     return ulmBLAS::nrm2<std::ptrdiff_t>(n, x, incX);
 }
 
