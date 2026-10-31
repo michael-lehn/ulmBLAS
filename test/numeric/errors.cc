@@ -276,3 +276,21 @@ ULMBLAS_TEST(T0703, "errors/row major calls set RowMajorStrg")
     ROWCASE(double, "cblas_dger", 8, 1, cblas_dger(CblasRowMajor, 4, 4, b.ral, b.X, 0, b.Y, 1, b.A, 4));
     ROWCASE(double, "cblas_zher2", 6, 0, cblas_zher2(CblasColMajor, CblasUpper, 4, b.al, b.X, 0, b.Y, 1, b.A, 4));
 }
+
+//
+//  Issue #0025: AtlasConj (114) is accepted as an extension; all other
+//  values of the transposition arguments are still errors.
+//
+ULMBLAS_TEST(T0704, "errors/invalid transposition codes besides AtlasConj")
+{
+    const CBLAS_TRANSPOSE bad = CBLAS_TRANSPOSE(115), low = CBLAS_TRANSPOSE(110);
+    ERRCASE(double, "cblas_dgemv", 2, cblas_dgemv(CblasColMajor, bad, 4, 4, b.ral, b.A, 4, b.X, 1, b.rbe, b.Y, 1));
+    ERRCASE(double, "cblas_dgbmv", 2, cblas_dgbmv(CblasColMajor, low, 4, 4, 1, 1, b.ral, b.A, 4, b.X, 1, b.rbe, b.Y, 1));
+    ERRCASE(double, "cblas_zgemm", 2, cblas_zgemm(CblasColMajor, bad, CblasNoTrans, 4, 4, 4, b.al, b.A, 4, b.B, 4, b.be, b.C, 4));
+    ERRCASE(double, "cblas_zgemm", 3, cblas_zgemm(CblasRowMajor, CblasNoTrans, low, 4, 4, 4, b.al, b.A, 4, b.B, 4, b.be, b.C, 4));
+    ERRCASE(float, "cblas_strmv", 3, cblas_strmv(CblasColMajor, CblasUpper, bad, CblasNonUnit, 4, b.A, 4, b.X, 1));
+    ERRCASE(double, "cblas_ztpsv", 3, cblas_ztpsv(CblasRowMajor, CblasUpper, low, CblasNonUnit, 4, b.A, b.X, 1));
+    ERRCASE(double, "cblas_dsyrk", 3, cblas_dsyrk(CblasColMajor, CblasUpper, bad, 4, 4, b.ral, b.A, 4, b.rbe, b.C, 4));
+    ERRCASE(double, "cblas_zsyr2k", 3, cblas_zsyr2k(CblasColMajor, CblasUpper, AtlasConj, 4, 4, b.al, b.A, 4, b.B, 4, b.be, b.C, 4));
+    ERRCASE(double, "cblas_ztrsm", 4, cblas_ztrsm(CblasColMajor, CblasLeft, CblasUpper, bad, CblasNonUnit, 4, 4, b.al, b.A, 4, b.B, 4));
+}

@@ -426,16 +426,16 @@ branches only).
 
 Issue #0025: ATLAS extensions of the transposition argument
 Type: DESIGN
-Status: OPEN
-Covered by tests: T0604 (numeric, DESIGN)
+Status: RESOLVED
+Covered by tests: T0604, T0704 (numeric, regression test)
 
 The C interface accepts `AtlasConj` (114, conjugate without transposition)
 for gemv, gbmv, gemm, trmv, tbmv, tpmv, trsv, tbsv, tpsv, trmm, trsm and
-the real ?syrk, ?syr2k, the Fortran 77 interface accepts TRANS = 'R' for
-the same routines.  The reference reports an error (2 or 3).  Real types
-compute as without transposition, complex types with conj(A).  Open: keep
-as documented extensions (the ATLAS interface of ulmBLAS uses them), or
-reject them in the CBLAS and Fortran 77 interfaces?
+the real ?syrk, ?syr2k, the Fortran 77 interface TRANS = 'R' for the same
+routines; the reference reports an error.  Answer: documented extensions
+of ulmBLAS (cblas.h, ARCHITECTURE.md); real types compute as without
+transposition, complex types with conj(A).  All other values of the
+transposition arguments are rejected as before (T0704).
 
 Issue #0026: ?scal with alpha = 0 and NaN or Inf in x
 Type: DESIGN

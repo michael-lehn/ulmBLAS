@@ -361,12 +361,11 @@ ULMBLAS_TEST_XFAIL(T0603, "conventions/trmm with Inf in B", 23)
 }
 
 //
-//  Issue #0025: the C interface accepts the ATLAS extension AtlasConj (114)
-//  as transposition argument (reference CBLAS: error 2 or 3); recorded is
-//  y of cblas_dgemv and cblas_zgemv with A = [2] or [(2,1)], x = 3.
+//  Issue #0025: AtlasConj (114) is a documented extension of the C interface
+//  (conjugate without transposition); with A = [2] or [(2,1)], x = 3:
+//  dgemv gives 6 (as NoTrans), zgemv (6,-3).
 //
-ULMBLAS_TEST_DESIGN(T0604, "conventions/AtlasConj as transposition argument",
-                    25, "dgemv=6 zgemv=(6,-3)")
+ULMBLAS_TEST(T0604, "conventions/AtlasConj as transposition argument")
 {
     double A[2] = { 2, 1 }, x[2] = { 3, 0 }, y[2] = { 7, 7 };
     double one[2] = { 1, 0 }, zero[2] = { 0, 0 };
@@ -375,8 +374,9 @@ ULMBLAS_TEST_DESIGN(T0604, "conventions/AtlasConj as transposition argument",
     std::string r = "dgemv=" + format("%g", y[0]);
     cblas_zgemv(CblasColMajor, CBLAS_TRANSPOSE(114), 1, 1, one, A, 1, x, 1,
                 zero, y, 1);
-    ctx.observed = r + format(" zgemv=(%g,%g)", y[0], y[1]);
-    ctx.pass();
+    r += format(" zgemv=(%g,%g)", y[0], y[1]);
+    ctx.check(r=="dgemv=6 zgemv=(6,-3)", "%s, expected dgemv=6 zgemv=(6,-3)",
+              r.c_str());
 }
 
 //
