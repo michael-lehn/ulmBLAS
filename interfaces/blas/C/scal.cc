@@ -119,9 +119,11 @@ CBLAS(dscal)(const ULMBLAS_INDEX_TYPE n,
 void
 CBLAS(csscal)(const ULMBLAS_INDEX_TYPE n,
               const float              alpha,
-              float                    *x,
+              void                     *x_v,
               const ULMBLAS_INDEX_TYPE incX)
 {
+    float *x = static_cast<float *>(x_v);
+
     if (incX<=0) {
         return;
     }
@@ -131,9 +133,11 @@ CBLAS(csscal)(const ULMBLAS_INDEX_TYPE n,
 void
 CBLAS(zdscal)(const ULMBLAS_INDEX_TYPE n,
               const double             alpha,
-              double                   *x,
+              void                     *x_v,
               const ULMBLAS_INDEX_TYPE incX)
 {
+    double *x = static_cast<double *>(x_v);
+
     if (incX<=0) {
         return;
     }
@@ -142,10 +146,13 @@ CBLAS(zdscal)(const ULMBLAS_INDEX_TYPE n,
 
 void
 CBLAS(cscal)(const ULMBLAS_INDEX_TYPE n,
-             const float              *alpha,
-             float                    *x,
+             const void               *alpha_v,
+             void                     *x_v,
              const ULMBLAS_INDEX_TYPE incX)
 {
+    const float *alpha = static_cast<const float *>(alpha_v);
+    float *x = static_cast<float *>(x_v);
+
     if (incX<=0) {
         return;
     }
@@ -154,10 +161,13 @@ CBLAS(cscal)(const ULMBLAS_INDEX_TYPE n,
 
 void
 CBLAS(zscal)(const ULMBLAS_INDEX_TYPE n,
-             const double             *alpha,
-             double                   *x,
+             const void               *alpha_v,
+             void                     *x_v,
              const ULMBLAS_INDEX_TYPE incX)
 {
+    const double *alpha = static_cast<const double *>(alpha_v);
+    double *x = static_cast<double *>(x_v);
+
     if (incX<=0) {
         return;
     }

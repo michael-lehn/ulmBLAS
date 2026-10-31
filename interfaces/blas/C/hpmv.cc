@@ -159,14 +159,20 @@ void
 CBLAS(chpmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              ULMBLAS_INDEX_TYPE    n,
-             const float           *alpha,
-             const float           *AP,
-             const float           *x,
+             const void            *alpha_v,
+             const void            *AP_v,
+             const void            *x_v,
              ULMBLAS_INDEX_TYPE    incX,
-             const float           *beta,
-             float                 *y,
+             const void            *beta_v,
+             void                  *y_v,
              ULMBLAS_INDEX_TYPE    incY)
 {
+    const float *alpha = static_cast<const float *>(alpha_v);
+    const float *AP = static_cast<const float *>(AP_v);
+    const float *x = static_cast<const float *>(x_v);
+    const float *beta = static_cast<const float *>(beta_v);
+    float *y = static_cast<float *>(y_v);
+
 //
 //  Test the input parameters
 //
@@ -204,14 +210,20 @@ void
 CBLAS(zhpmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              ULMBLAS_INDEX_TYPE    n,
-             const double          *alpha,
-             const double          *AP,
-             const double          *x,
+             const void            *alpha_v,
+             const void            *AP_v,
+             const void            *x_v,
              ULMBLAS_INDEX_TYPE    incX,
-             const double          *beta,
-             double                *y,
+             const void            *beta_v,
+             void                  *y_v,
              ULMBLAS_INDEX_TYPE    incY)
 {
+    const double *alpha = static_cast<const double *>(alpha_v);
+    const double *AP = static_cast<const double *>(AP_v);
+    const double *x = static_cast<const double *>(x_v);
+    const double *beta = static_cast<const double *>(beta_v);
+    double *y = static_cast<double *>(y_v);
+
 //
 //  Test the input parameters
 //

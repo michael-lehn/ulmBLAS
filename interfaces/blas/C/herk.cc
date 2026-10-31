@@ -91,12 +91,15 @@ CBLAS(cherk)(enum CBLAS_ORDER      order,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
              float                 alpha,
-             const float           *A,
+             const void            *A_v,
              ULMBLAS_INDEX_TYPE    ldA,
              float                 beta,
-             float                 *C,
+             void                  *C_v,
              ULMBLAS_INDEX_TYPE    ldC)
 {
+    const float *A = static_cast<const float *>(A_v);
+    float *C = static_cast<float *>(C_v);
+
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
@@ -153,12 +156,15 @@ CBLAS(zherk)(enum CBLAS_ORDER      order,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
              double                alpha,
-             const double          *A,
+             const void            *A_v,
              ULMBLAS_INDEX_TYPE    ldA,
              double                beta,
-             double                *C,
+             void                  *C_v,
              ULMBLAS_INDEX_TYPE    ldC)
 {
+    const double *A = static_cast<const double *>(A_v);
+    double *C = static_cast<double *>(C_v);
+
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //

@@ -74,17 +74,21 @@ CBLAS(dnrm2)(ULMBLAS_INDEX_TYPE n,
 
 float
 CBLAS(scnrm2)(ULMBLAS_INDEX_TYPE n,
-              const float        *x,
+              const void         *x_v,
               ULMBLAS_INDEX_TYPE incX)
 {
+    const float *x = static_cast<const float *>(x_v);
+
     return ULMBLAS(scnrm2)(n, x, incX);
 }
 
 double
 CBLAS(dznrm2)(ULMBLAS_INDEX_TYPE n,
-              const double       *x,
+              const void         *x_v,
               ULMBLAS_INDEX_TYPE incX)
 {
+    const double *x = static_cast<const double *>(x_v);
+
     return ULMBLAS(dznrm2)(n, x, incX);
 }
 

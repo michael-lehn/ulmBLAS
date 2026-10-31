@@ -439,14 +439,19 @@ void
 CBLAS(cgeru)(enum CBLAS_ORDER   order,
              ULMBLAS_INDEX_TYPE m,
              ULMBLAS_INDEX_TYPE n,
-             const float        *alpha,
-             const float        *x,
+             const void         *alpha_v,
+             const void         *x_v,
              ULMBLAS_INDEX_TYPE incX,
-             const float        *y,
+             const void         *y_v,
              ULMBLAS_INDEX_TYPE incY,
-             float              *A,
+             void               *A_v,
              ULMBLAS_INDEX_TYPE ldA)
 {
+    const float *alpha = static_cast<const float *>(alpha_v);
+    const float *x = static_cast<const float *>(x_v);
+    const float *y = static_cast<const float *>(y_v);
+    float *A = static_cast<float *>(A_v);
+
 //
 //  Test the input parameters
 //
@@ -512,14 +517,19 @@ void
 CBLAS(zgeru)(enum CBLAS_ORDER   order,
              ULMBLAS_INDEX_TYPE m,
              ULMBLAS_INDEX_TYPE n,
-             const double       *alpha,
-             const double       *x,
+             const void         *alpha_v,
+             const void         *x_v,
              ULMBLAS_INDEX_TYPE incX,
-             const double       *y,
+             const void         *y_v,
              ULMBLAS_INDEX_TYPE incY,
-             double             *A,
+             void               *A_v,
              ULMBLAS_INDEX_TYPE ldA)
 {
+    const double *alpha = static_cast<const double *>(alpha_v);
+    const double *x = static_cast<const double *>(x_v);
+    const double *y = static_cast<const double *>(y_v);
+    double *A = static_cast<double *>(A_v);
+
 //
 //  Test the input parameters
 //
@@ -585,14 +595,19 @@ void
 CBLAS(cgerc)(enum CBLAS_ORDER   order,
              ULMBLAS_INDEX_TYPE m,
              ULMBLAS_INDEX_TYPE n,
-             const float        *alpha,
-             const float        *x,
+             const void         *alpha_v,
+             const void         *x_v,
              ULMBLAS_INDEX_TYPE incX,
-             const float        *y,
+             const void         *y_v,
              ULMBLAS_INDEX_TYPE incY,
-             float              *A,
+             void               *A_v,
              ULMBLAS_INDEX_TYPE ldA)
 {
+    const float *alpha = static_cast<const float *>(alpha_v);
+    const float *x = static_cast<const float *>(x_v);
+    const float *y = static_cast<const float *>(y_v);
+    float *A = static_cast<float *>(A_v);
+
 //
 //  Test the input parameters
 //
@@ -658,14 +673,19 @@ void
 CBLAS(zgerc)(enum CBLAS_ORDER   order,
              ULMBLAS_INDEX_TYPE m,
              ULMBLAS_INDEX_TYPE n,
-             const double       *alpha,
-             const double       *x,
+             const void         *alpha_v,
+             const void         *x_v,
              ULMBLAS_INDEX_TYPE incX,
-             const double       *y,
+             const void         *y_v,
              ULMBLAS_INDEX_TYPE incY,
-             double             *A,
+             void               *A_v,
              ULMBLAS_INDEX_TYPE ldA)
 {
+    const double *alpha = static_cast<const double *>(alpha_v);
+    const double *x = static_cast<const double *>(x_v);
+    const double *y = static_cast<const double *>(y_v);
+    double *A = static_cast<double *>(A_v);
+
 //
 //  Test the input parameters
 //

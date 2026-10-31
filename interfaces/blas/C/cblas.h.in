@@ -59,6 +59,21 @@ enum CBLAS_SIDE {
 };
 
 //
+//  Type names of the CBLAS standard (C code can omit "enum"); CBLAS_LAYOUT
+//  is the name of the storage order since LAPACK 3.6.  CBLAS_INDEX, the
+//  return type of cblas_i?amax, is the index type of this build (the
+//  reference CBLAS uses size_t; the standard leaves the type to the
+//  platform).
+//
+typedef enum CBLAS_ORDER      CBLAS_ORDER;
+typedef enum CBLAS_ORDER      CBLAS_LAYOUT;
+typedef enum CBLAS_TRANSPOSE  CBLAS_TRANSPOSE;
+typedef enum CBLAS_UPLO       CBLAS_UPLO;
+typedef enum CBLAS_DIAG       CBLAS_DIAG;
+typedef enum CBLAS_SIDE       CBLAS_SIDE;
+typedef ULMBLAS_INDEX_TYPE    CBLAS_INDEX;
+
+//
 //  Declaration of CBLAS functions currently implemented in ulmBLAS
 //
 
@@ -80,12 +95,12 @@ CBLAS(dasum)(ULMBLAS_INDEX_TYPE n,
 
 float
 CBLAS(scasum)(ULMBLAS_INDEX_TYPE n,
-              const float        *x,
+              const void         *x,
               ULMBLAS_INDEX_TYPE incX);
 
 double
 CBLAS(dzasum)(ULMBLAS_INDEX_TYPE n,
-              const double       *x,
+              const void         *x,
               ULMBLAS_INDEX_TYPE incX);
 
 void
@@ -106,18 +121,18 @@ CBLAS(daxpy)(ULMBLAS_INDEX_TYPE n,
 
 void
 CBLAS(caxpy)(ULMBLAS_INDEX_TYPE n,
-             const float        *alpha,
-             const float        *x,
+             const void         *alpha,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             float              *y,
+             void               *y,
              ULMBLAS_INDEX_TYPE incY);
 
 void
 CBLAS(zaxpy)(ULMBLAS_INDEX_TYPE n,
-             const double       *alpha,
-             const double       *x,
+             const void         *alpha,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             double             *y,
+             void               *y,
              ULMBLAS_INDEX_TYPE incY);
 
 void
@@ -150,42 +165,42 @@ CBLAS(ddot)(ULMBLAS_INDEX_TYPE n,
 
 void
 CBLAS(cdotc_sub)(ULMBLAS_INDEX_TYPE n,
-                 const float        *x,
+                 const void         *x,
                  ULMBLAS_INDEX_TYPE incX,
-                 const float        *y,
+                 const void         *y,
                  ULMBLAS_INDEX_TYPE incY,
-                 float              *dotc);
+                 void               *dotc);
 
 void
 CBLAS(zdotc_sub)(ULMBLAS_INDEX_TYPE n,
-                 const double       *x,
+                 const void         *x,
                  ULMBLAS_INDEX_TYPE incX,
-                 const double       *y,
+                 const void         *y,
                  ULMBLAS_INDEX_TYPE incY,
-                 double             *dotc);
+                 void               *dotc);
 
 void
 CBLAS(cdotu_sub)(ULMBLAS_INDEX_TYPE n,
-                 const float        *x,
+                 const void         *x,
                  ULMBLAS_INDEX_TYPE incX,
-                 const float        *y,
+                 const void         *y,
                  ULMBLAS_INDEX_TYPE incY,
-                 float              *dotc);
+                 void               *dotc);
 
 void
 CBLAS(zdotu_sub)(ULMBLAS_INDEX_TYPE n,
-                 const double       *x,
+                 const void         *x,
                  ULMBLAS_INDEX_TYPE incX,
-                 const double       *y,
+                 const void         *y,
                  ULMBLAS_INDEX_TYPE incY,
-                 double             *dotc);
+                 void               *dotc);
 
-ULMBLAS_INDEX_TYPE
+CBLAS_INDEX
 CBLAS(isamax)(ULMBLAS_INDEX_TYPE n,
               const float        *x,
               ULMBLAS_INDEX_TYPE incX);
 
-ULMBLAS_INDEX_TYPE
+CBLAS_INDEX
 CBLAS(idamax)(ULMBLAS_INDEX_TYPE n,
               const double       *x,
               ULMBLAS_INDEX_TYPE incX);
@@ -202,12 +217,12 @@ CBLAS(dnrm2)(ULMBLAS_INDEX_TYPE n,
 
 float
 CBLAS(scnrm2)(ULMBLAS_INDEX_TYPE n,
-              const float        *x,
+              const void         *x,
               ULMBLAS_INDEX_TYPE incX);
 
 double
 CBLAS(dznrm2)(ULMBLAS_INDEX_TYPE n,
-              const double       *x,
+              const void         *x,
               ULMBLAS_INDEX_TYPE incX);
 
 void
@@ -241,16 +256,16 @@ CBLAS(drotg)(double *a,
              double *s);
 
 void
-CBLAS(crotg)(float *a,
-             float *b,
+CBLAS(crotg)(void  *a,
+             void  *b,
              float *c,
-             float *s);
+             void  *s);
 
 void
-CBLAS(zrotg)(double *a,
-             double *b,
+CBLAS(zrotg)(void   *a,
+             void   *b,
              double *c,
-             double *s);
+             void   *s);
 
 void
 CBLAS(srotm)(const ULMBLAS_INDEX_TYPE n,
@@ -284,18 +299,18 @@ CBLAS(drotmg)(double         *d1,
 
 void
 CBLAS(csrot)(const ULMBLAS_INDEX_TYPE n,
-             float                    *x,
+             void                     *x,
              const ULMBLAS_INDEX_TYPE incX,
-             float                    *y,
+             void                     *y,
              const ULMBLAS_INDEX_TYPE incY,
              const float              c,
              const float              s);
 
 void
 CBLAS(zdrot)(const ULMBLAS_INDEX_TYPE n,
-             double                   *x,
+             void                     *x,
              const ULMBLAS_INDEX_TYPE incX,
-             double                   *y,
+             void                     *y,
              const ULMBLAS_INDEX_TYPE incY,
              const double             c,
              const double             s);
@@ -316,10 +331,10 @@ CBLAS(dsdot)(ULMBLAS_INDEX_TYPE n,
              ULMBLAS_INDEX_TYPE incY);
 
 float
-CBLAS(scabs1)(const float *z);
+CBLAS(scabs1)(const void  *z);
 
 double
-CBLAS(dcabs1)(const double *z);
+CBLAS(dcabs1)(const void   *z);
 
 void
 CBLAS(sscal)(const ULMBLAS_INDEX_TYPE n,
@@ -349,64 +364,64 @@ CBLAS(dswap)(const ULMBLAS_INDEX_TYPE n,
 
 void
 CBLAS(cswap)(const ULMBLAS_INDEX_TYPE n,
-             float                    *x,
+             void                     *x,
              const ULMBLAS_INDEX_TYPE incX,
-             float                    *y,
+             void                     *y,
              const ULMBLAS_INDEX_TYPE incY);
 
 void
 CBLAS(zswap)(const ULMBLAS_INDEX_TYPE n,
-             double                   *x,
+             void                     *x,
              const ULMBLAS_INDEX_TYPE incX,
-             double                   *y,
+             void                     *y,
              const ULMBLAS_INDEX_TYPE incY);
 
-ULMBLAS_INDEX_TYPE
+CBLAS_INDEX
 CBLAS(icamax)(ULMBLAS_INDEX_TYPE N,
-              const float        *X,
+              const void         *X,
               ULMBLAS_INDEX_TYPE incX);
 
-ULMBLAS_INDEX_TYPE
+CBLAS_INDEX
 CBLAS(izamax)(ULMBLAS_INDEX_TYPE N,
-              const double       *X,
+              const void         *X,
               ULMBLAS_INDEX_TYPE incX);
 
 void
 CBLAS(ccopy)(ULMBLAS_INDEX_TYPE n,
-             const float        *x,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             float              *y,
+             void               *y,
              ULMBLAS_INDEX_TYPE incY);
 
 void
 CBLAS(zcopy)(const ULMBLAS_INDEX_TYPE N,
-             const double             *X,
+             const void               *X,
              const ULMBLAS_INDEX_TYPE incX,
-             double                   *Y,
+             void                     *Y,
              const ULMBLAS_INDEX_TYPE incY);
 
 void
 CBLAS(cscal)(const ULMBLAS_INDEX_TYPE n,
-             const float              *alpha,
-             float                    *x,
+             const void               *alpha,
+             void                     *x,
              const ULMBLAS_INDEX_TYPE incX);
 
 void
 CBLAS(zscal)(const ULMBLAS_INDEX_TYPE  N,
-              const double             *alpha,
-              double                   *X,
+              const void               *alpha,
+              void                     *X,
               const ULMBLAS_INDEX_TYPE incX);
 
 void
 CBLAS(csscal)(const ULMBLAS_INDEX_TYPE n,
               const float              alpha,
-              float                    *x,
+              void                     *x,
               const ULMBLAS_INDEX_TYPE incX);
 
 void
 CBLAS(zdscal)(const ULMBLAS_INDEX_TYPE N,
              const double              alpha,
-             double                    *X,
+             void                      *X,
              const ULMBLAS_INDEX_TYPE  incX);
 
 
@@ -453,13 +468,13 @@ CBLAS(cgbmv)(enum CBLAS_ORDER      order,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    kl,
              ULMBLAS_INDEX_TYPE    ku,
-             const float           *alpha,
-             const float           *A,
+             const void            *alpha,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             const float           *x,
+             const void            *x,
              ULMBLAS_INDEX_TYPE    incX,
-             const float           *beta,
-             float                 *y,
+             const void            *beta,
+             void                  *y,
              ULMBLAS_INDEX_TYPE    incY);
 
 void
@@ -469,13 +484,13 @@ CBLAS(zgbmv)(enum CBLAS_ORDER      order,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    kl,
              ULMBLAS_INDEX_TYPE    ku,
-             const double          *alpha,
-             const double          *A,
+             const void            *alpha,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             const double          *x,
+             const void            *x,
              ULMBLAS_INDEX_TYPE    incX,
-             const double          *beta,
-             double                *y,
+             const void            *beta,
+             void                  *y,
              ULMBLAS_INDEX_TYPE    incY);
 
 void
@@ -511,13 +526,13 @@ CBLAS(cgemv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              ULMBLAS_INDEX_TYPE    m,
              ULMBLAS_INDEX_TYPE    n,
-             const float           *alpha,
-             const float           *A,
+             const void            *alpha,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             const float           *x,
+             const void            *x,
              ULMBLAS_INDEX_TYPE    incX,
-             const float           *beta,
-             float                 *y,
+             const void            *beta,
+             void                  *y,
              ULMBLAS_INDEX_TYPE    incY);
 
 void
@@ -525,13 +540,13 @@ CBLAS(zgemv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  transA,
              ULMBLAS_INDEX_TYPE    m,
              ULMBLAS_INDEX_TYPE    n,
-             const double          *alpha,
-             const double          *A,
+             const void            *alpha,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             const double          *x,
+             const void            *x,
              ULMBLAS_INDEX_TYPE    incX,
-             const double          *beta,
-             double                *y,
+             const void            *beta,
+             void                  *y,
              ULMBLAS_INDEX_TYPE    incY);
 
 void
@@ -562,48 +577,48 @@ void
 CBLAS(cgeru)(enum CBLAS_ORDER   order,
              ULMBLAS_INDEX_TYPE m,
              ULMBLAS_INDEX_TYPE n,
-             const float        *alpha,
-             const float        *x,
+             const void         *alpha,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             const float        *y,
+             const void         *y,
              ULMBLAS_INDEX_TYPE incY,
-             float              *A,
+             void               *A,
              ULMBLAS_INDEX_TYPE ldA);
 
 void
 CBLAS(zgeru)(enum CBLAS_ORDER   order,
              ULMBLAS_INDEX_TYPE m,
              ULMBLAS_INDEX_TYPE n,
-             const double       *alpha,
-             const double       *x,
+             const void         *alpha,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             const double       *y,
+             const void         *y,
              ULMBLAS_INDEX_TYPE incY,
-             double             *A,
+             void               *A,
              ULMBLAS_INDEX_TYPE ldA);
 
 void
 CBLAS(cgerc)(enum CBLAS_ORDER   order,
              ULMBLAS_INDEX_TYPE m,
              ULMBLAS_INDEX_TYPE n,
-             const float        *alpha,
-             const float        *x,
+             const void         *alpha,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             const float        *y,
+             const void         *y,
              ULMBLAS_INDEX_TYPE incY,
-             float              *A,
+             void               *A,
              ULMBLAS_INDEX_TYPE ldA);
 
 void
 CBLAS(zgerc)(enum CBLAS_ORDER   order,
              ULMBLAS_INDEX_TYPE m,
              ULMBLAS_INDEX_TYPE n,
-             const double       *alpha,
-             const double       *x,
+             const void         *alpha,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             const double       *y,
+             const void         *y,
              ULMBLAS_INDEX_TYPE incY,
-             double             *A,
+             void               *A,
              ULMBLAS_INDEX_TYPE ldA);
 
 void
@@ -651,26 +666,26 @@ void
 CBLAS(chemv)(enum CBLAS_ORDER   order,
              enum CBLAS_UPLO    upLo,
              ULMBLAS_INDEX_TYPE n,
-             const float        *alpha,
-             const float        *A,
+             const void         *alpha,
+             const void         *A,
              ULMBLAS_INDEX_TYPE ldA,
-             const float        *x,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             const float        *beta,
-             float              *y,
+             const void         *beta,
+             void               *y,
              ULMBLAS_INDEX_TYPE incY);
 
 void
 CBLAS(zhemv)(enum CBLAS_ORDER   order,
              enum CBLAS_UPLO    upLo,
              ULMBLAS_INDEX_TYPE n,
-             const double       *alpha,
-             const double       *A,
+             const void         *alpha,
+             const void         *A,
              ULMBLAS_INDEX_TYPE ldA,
-             const double       *x,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             const double       *beta,
-             double             *y,
+             const void         *beta,
+             void               *y,
              ULMBLAS_INDEX_TYPE incY);
 
 void
@@ -701,9 +716,9 @@ CBLAS(ctrmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
-             const float           *A,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             float                 *x,
+             void                  *x,
              ULMBLAS_INDEX_TYPE    incX);
 
 void
@@ -712,9 +727,9 @@ CBLAS(ztrmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
-             const double          *A,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             double                *x,
+             void                  *x,
              ULMBLAS_INDEX_TYPE    incX);
 
 void
@@ -745,9 +760,9 @@ CBLAS(ctrsv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
-             const float           *A,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             float                 *x,
+             void                  *x,
              ULMBLAS_INDEX_TYPE    incX);
 
 void
@@ -756,9 +771,9 @@ CBLAS(ztrsv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
-             const double          *A,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             double                *x,
+             void                  *x,
              ULMBLAS_INDEX_TYPE    incX);
 
 void
@@ -786,9 +801,9 @@ CBLAS(cher)(enum CBLAS_ORDER   order,
             enum CBLAS_UPLO    upLo,
             ULMBLAS_INDEX_TYPE n,
             float              alpha,
-            const float        *x,
+            const void         *x,
             ULMBLAS_INDEX_TYPE incX,
-            float              *A,
+            void               *A,
             ULMBLAS_INDEX_TYPE ldA);
 
 void
@@ -796,9 +811,9 @@ CBLAS(zher)(enum CBLAS_ORDER   order,
             enum CBLAS_UPLO    upLo,
             ULMBLAS_INDEX_TYPE n,
             double             alpha,
-            const double       *x,
+            const void         *x,
             ULMBLAS_INDEX_TYPE incX,
-            double             *A,
+            void               *A,
             ULMBLAS_INDEX_TYPE ldA);
 
 void
@@ -829,24 +844,24 @@ void
 CBLAS(cher2)(enum CBLAS_ORDER   order,
              enum CBLAS_UPLO    upLo,
              ULMBLAS_INDEX_TYPE n,
-             const float        *alpha,
-             const float        *x,
+             const void         *alpha,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             const float        *y,
+             const void         *y,
              ULMBLAS_INDEX_TYPE incY,
-             float              *A,
+             void               *A,
              ULMBLAS_INDEX_TYPE ldA);
 
 void
 CBLAS(zher2)(enum CBLAS_ORDER   order,
              enum CBLAS_UPLO    upLo,
              ULMBLAS_INDEX_TYPE n,
-             const double       *alpha,
-             const double       *x,
+             const void         *alpha,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             const double       *y,
+             const void         *y,
              ULMBLAS_INDEX_TYPE incY,
-             double             *A,
+             void               *A,
              ULMBLAS_INDEX_TYPE ldA);
 
 void
@@ -880,9 +895,9 @@ CBLAS(ctbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const float           *A,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             float                 *x,
+             void                  *x,
              ULMBLAS_INDEX_TYPE    incX);
 
 void
@@ -892,9 +907,9 @@ CBLAS(ztbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const double          *A,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             double                *x,
+             void                  *x,
              ULMBLAS_INDEX_TYPE    incX);
 
 void
@@ -928,9 +943,9 @@ CBLAS(ctbsv)(enum CBLAS_ORDER      order,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const float           *A,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             float                 *x,
+             void                  *x,
              ULMBLAS_INDEX_TYPE    incX);
 
 void
@@ -940,9 +955,9 @@ CBLAS(ztbsv)(enum CBLAS_ORDER      order,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const double          *A,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             double                *x,
+             void                  *x,
              ULMBLAS_INDEX_TYPE    incX);
 
 void
@@ -978,13 +993,13 @@ CBLAS(chbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const float           *alpha,
-             const float           *A,
+             const void            *alpha,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             const float           *x,
+             const void            *x,
              ULMBLAS_INDEX_TYPE    incX,
-             const float           *beta,
-             float                 *y,
+             const void            *beta,
+             void                  *y,
              ULMBLAS_INDEX_TYPE    incY);
 
 void
@@ -992,13 +1007,13 @@ CBLAS(zhbmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const double          *alpha,
-             const double          *A,
+             const void            *alpha,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             const double          *x,
+             const void            *x,
              ULMBLAS_INDEX_TYPE    incX,
-             const double          *beta,
-             double                *y,
+             const void            *beta,
+             void                  *y,
              ULMBLAS_INDEX_TYPE    incY);
 
 void
@@ -1029,24 +1044,24 @@ void
 CBLAS(chpmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              ULMBLAS_INDEX_TYPE    n,
-             const float           *alpha,
-             const float           *AP,
-             const float           *x,
+             const void            *alpha,
+             const void            *AP,
+             const void            *x,
              ULMBLAS_INDEX_TYPE    incX,
-             const float           *beta,
-             float                 *y,
+             const void            *beta,
+             void                  *y,
              ULMBLAS_INDEX_TYPE    incY);
 
 void
 CBLAS(zhpmv)(enum CBLAS_ORDER      order,
              enum CBLAS_UPLO       upLo,
              ULMBLAS_INDEX_TYPE    n,
-             const double          *alpha,
-             const double          *AP,
-             const double          *x,
+             const void            *alpha,
+             const void            *AP,
+             const void            *x,
              ULMBLAS_INDEX_TYPE    incX,
-             const double          *beta,
-             double                *y,
+             const void            *beta,
+             void                  *y,
              ULMBLAS_INDEX_TYPE    incY);
 
 void
@@ -1075,8 +1090,8 @@ CBLAS(ctpmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
-             const float           *A,
-             float                 *x,
+             const void            *A,
+             void                  *x,
              ULMBLAS_INDEX_TYPE    incX);
 
 void
@@ -1085,8 +1100,8 @@ CBLAS(ztpmv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
-             const double          *A,
-             double                *x,
+             const void            *A,
+             void                  *x,
              ULMBLAS_INDEX_TYPE    incX);
 
 void
@@ -1115,8 +1130,8 @@ CBLAS(ctpsv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
-             const float           *A,
-             float                 *x,
+             const void            *A,
+             void                  *x,
              ULMBLAS_INDEX_TYPE    incX);
 
 void
@@ -1125,8 +1140,8 @@ CBLAS(ztpsv)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  trans,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
-             const double          *A,
-             double                *x,
+             const void            *A,
+             void                  *x,
              ULMBLAS_INDEX_TYPE    incX);
 
 void
@@ -1152,18 +1167,18 @@ CBLAS(chpr)(enum CBLAS_ORDER   order,
             enum CBLAS_UPLO    upLo,
             ULMBLAS_INDEX_TYPE n,
             float              alpha,
-            const float        *x,
+            const void         *x,
             ULMBLAS_INDEX_TYPE incX,
-            float              *A);
+            void               *A);
 
 void
 CBLAS(zhpr)(enum CBLAS_ORDER   order,
             enum CBLAS_UPLO    upLo,
             ULMBLAS_INDEX_TYPE n,
             double             alpha,
-            const double       *x,
+            const void         *x,
             ULMBLAS_INDEX_TYPE incX,
-            double             *A);
+            void               *A);
 
 void
 CBLAS(sspr2)(enum CBLAS_ORDER   order,
@@ -1191,23 +1206,23 @@ void
 CBLAS(chpr2)(enum CBLAS_ORDER   order,
              enum CBLAS_UPLO    upLo,
              ULMBLAS_INDEX_TYPE n,
-             const float        *alpha,
-             const float        *x,
+             const void         *alpha,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             const float        *y,
+             const void         *y,
              ULMBLAS_INDEX_TYPE incY,
-             float              *A);
+             void               *A);
 
 void
 CBLAS(zhpr2)(enum CBLAS_ORDER   order,
              enum CBLAS_UPLO    upLo,
              ULMBLAS_INDEX_TYPE n,
-             const double       *alpha,
-             const double       *x,
+             const void         *alpha,
+             const void         *x,
              ULMBLAS_INDEX_TYPE incX,
-             const double       *y,
+             const void         *y,
              ULMBLAS_INDEX_TYPE incY,
-             double             *A);
+             void               *A);
 
 //
 //  Level 3
@@ -1251,13 +1266,13 @@ CBLAS(cgemm)(enum CBLAS_ORDER      order,
              ULMBLAS_INDEX_TYPE    m,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const float           *alpha,
-             const float           *A,
+             const void            *alpha,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             const float           *B,
+             const void            *B,
              ULMBLAS_INDEX_TYPE    ldB,
-             const float           *beta,
-             float                 *C,
+             const void            *beta,
+             void                  *C,
              ULMBLAS_INDEX_TYPE    ldC);
 
 void
@@ -1267,13 +1282,13 @@ CBLAS(zgemm)(enum CBLAS_ORDER      order,
              ULMBLAS_INDEX_TYPE    m,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const double          *alpha,
-             const double          *A,
+             const void            *alpha,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             const double          *B,
+             const void            *B,
              ULMBLAS_INDEX_TYPE    ldB,
-             const double          *beta,
-             double                *C,
+             const void            *beta,
+             void                  *C,
              ULMBLAS_INDEX_TYPE    ldC);
 
 void
@@ -1297,13 +1312,13 @@ CBLAS(csymm)(enum CBLAS_ORDER   order,
              enum CBLAS_UPLO    upLo,
              ULMBLAS_INDEX_TYPE m,
              ULMBLAS_INDEX_TYPE n,
-             const float        *alpha,
-             const float        *A,
+             const void         *alpha,
+             const void         *A,
              ULMBLAS_INDEX_TYPE ldA,
-             const float        *B,
+             const void         *B,
              ULMBLAS_INDEX_TYPE ldB,
-             const float        *beta,
-             float              *C,
+             const void         *beta,
+             void               *C,
              ULMBLAS_INDEX_TYPE ldC);
 
 void
@@ -1312,13 +1327,13 @@ CBLAS(zsymm)(enum CBLAS_ORDER   order,
              enum CBLAS_UPLO    upLo,
              ULMBLAS_INDEX_TYPE m,
              ULMBLAS_INDEX_TYPE n,
-             const double       *alpha,
-             const double       *A,
+             const void         *alpha,
+             const void         *A,
              ULMBLAS_INDEX_TYPE ldA,
-             const double       *B,
+             const void         *B,
              ULMBLAS_INDEX_TYPE ldB,
-             const double       *beta,
-             double             *C,
+             const void         *beta,
+             void               *C,
              ULMBLAS_INDEX_TYPE ldC);
 
 void
@@ -1327,13 +1342,13 @@ CBLAS(chemm)(enum CBLAS_ORDER   order,
              enum CBLAS_UPLO    upLo,
              ULMBLAS_INDEX_TYPE m,
              ULMBLAS_INDEX_TYPE n,
-             const float        *alpha,
-             const float        *A,
+             const void         *alpha,
+             const void         *A,
              ULMBLAS_INDEX_TYPE ldA,
-             const float        *B,
+             const void         *B,
              ULMBLAS_INDEX_TYPE ldB,
-             const float        *beta,
-             float              *C,
+             const void         *beta,
+             void               *C,
              ULMBLAS_INDEX_TYPE ldC);
 
 void
@@ -1342,13 +1357,13 @@ CBLAS(zhemm)(enum CBLAS_ORDER   order,
              enum CBLAS_UPLO    upLo,
              ULMBLAS_INDEX_TYPE m,
              ULMBLAS_INDEX_TYPE n,
-             const double       *alpha,
-             const double       *A,
+             const void         *alpha,
+             const void         *A,
              ULMBLAS_INDEX_TYPE ldA,
-             const double       *B,
+             const void         *B,
              ULMBLAS_INDEX_TYPE ldB,
-             const double       *beta,
-             double             *C,
+             const void         *beta,
+             void               *C,
              ULMBLAS_INDEX_TYPE ldC);
 
 void
@@ -1387,13 +1402,13 @@ CBLAS(csyr2k)(enum CBLAS_ORDER      order,
               enum CBLAS_TRANSPOSE  trans,
               ULMBLAS_INDEX_TYPE    n,
               ULMBLAS_INDEX_TYPE    k,
-              const float           *alpha,
-              const float           *A,
+              const void            *alpha,
+              const void            *A,
               ULMBLAS_INDEX_TYPE    ldA,
-              const float           *B,
+              const void            *B,
               ULMBLAS_INDEX_TYPE    ldB,
-              const float           *beta,
-              float                 *C,
+              const void            *beta,
+              void                  *C,
               ULMBLAS_INDEX_TYPE    ldC);
 
 void
@@ -1402,13 +1417,13 @@ CBLAS(zsyr2k)(enum CBLAS_ORDER      order,
               enum CBLAS_TRANSPOSE  trans,
               ULMBLAS_INDEX_TYPE    n,
               ULMBLAS_INDEX_TYPE    k,
-              const double          *alpha,
-              const double          *A,
+              const void            *alpha,
+              const void            *A,
               ULMBLAS_INDEX_TYPE    ldA,
-              const double          *B,
+              const void            *B,
               ULMBLAS_INDEX_TYPE    ldB,
-              const double          *beta,
-              double                *C,
+              const void            *beta,
+              void                  *C,
               ULMBLAS_INDEX_TYPE    ldC);
 
 void
@@ -1417,13 +1432,13 @@ CBLAS(cher2k)(enum CBLAS_ORDER      order,
               enum CBLAS_TRANSPOSE  trans,
               ULMBLAS_INDEX_TYPE    n,
               ULMBLAS_INDEX_TYPE    k,
-              const float           *alpha,
-              const float           *A,
+              const void            *alpha,
+              const void            *A,
               ULMBLAS_INDEX_TYPE    ldA,
-              const float           *B,
+              const void            *B,
               ULMBLAS_INDEX_TYPE    ldB,
               float                 beta,
-              float                 *C,
+              void                  *C,
               ULMBLAS_INDEX_TYPE    ldC);
 
 void
@@ -1432,13 +1447,13 @@ CBLAS(zher2k)(enum CBLAS_ORDER      order,
               enum CBLAS_TRANSPOSE  trans,
               ULMBLAS_INDEX_TYPE    n,
               ULMBLAS_INDEX_TYPE    k,
-              const double          *alpha,
-              const double          *A,
+              const void            *alpha,
+              const void            *A,
               ULMBLAS_INDEX_TYPE    ldA,
-              const double          *B,
+              const void            *B,
               ULMBLAS_INDEX_TYPE    ldB,
               double                beta,
-              double                *C,
+              void                  *C,
               ULMBLAS_INDEX_TYPE    ldC);
 
 void
@@ -1473,11 +1488,11 @@ CBLAS(csyrk)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  trans,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const float           *alpha,
-             const float           *A,
+             const void            *alpha,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             const float           *beta,
-             float                 *C,
+             const void            *beta,
+             void                  *C,
              ULMBLAS_INDEX_TYPE    ldC);
 
 void
@@ -1486,11 +1501,11 @@ CBLAS(zsyrk)(enum CBLAS_ORDER      order,
              enum CBLAS_TRANSPOSE  trans,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const double          *alpha,
-             const double          *A,
+             const void            *alpha,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             const double          *beta,
-             double                *C,
+             const void            *beta,
+             void                  *C,
              ULMBLAS_INDEX_TYPE    ldC);
 
 void
@@ -1500,10 +1515,10 @@ CBLAS(cherk)(enum CBLAS_ORDER      order,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
              float                 alpha,
-             const float           *A,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
              float                 beta,
-             float                 *C,
+             void                  *C,
              ULMBLAS_INDEX_TYPE    ldC);
 
 void
@@ -1513,10 +1528,10 @@ CBLAS(zherk)(enum CBLAS_ORDER      order,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
              double                alpha,
-             const double          *A,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
              double                beta,
-             double                *C,
+             void                  *C,
              ULMBLAS_INDEX_TYPE    ldC);
 
 void
@@ -1555,10 +1570,10 @@ CBLAS(ctrmm)(enum CBLAS_ORDER         order,
              enum CBLAS_DIAG          diag,
              ULMBLAS_INDEX_TYPE       m,
              ULMBLAS_INDEX_TYPE       n,
-             const float              *alpha,
-             const float              *A,
+             const void               *alpha,
+             const void               *A,
              ULMBLAS_INDEX_TYPE       ldA,
-             float                    *B,
+             void                     *B,
              const ULMBLAS_INDEX_TYPE ldB);
 
 void
@@ -1569,10 +1584,10 @@ CBLAS(ztrmm)(enum CBLAS_ORDER         order,
              enum CBLAS_DIAG          diag,
              ULMBLAS_INDEX_TYPE       m,
              ULMBLAS_INDEX_TYPE       n,
-             const double             *alpha,
-             const double             *A,
+             const void               *alpha,
+             const void               *A,
              ULMBLAS_INDEX_TYPE       ldA,
-             double                   *B,
+             void                     *B,
              const ULMBLAS_INDEX_TYPE ldB);
 
 void
@@ -1611,10 +1626,10 @@ CBLAS(ctrsm)(enum CBLAS_ORDER      order,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    m,
              ULMBLAS_INDEX_TYPE    n,
-             const float           *alpha,
-             const float           *A,
+             const void            *alpha,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             float                 *B,
+             void                  *B,
              ULMBLAS_INDEX_TYPE    ldB);
 
 void
@@ -1625,10 +1640,10 @@ CBLAS(ztrsm)(enum CBLAS_ORDER      order,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    m,
              ULMBLAS_INDEX_TYPE    n,
-             const double          *alpha,
-             const double          *A,
+             const void            *alpha,
+             const void            *A,
              ULMBLAS_INDEX_TYPE    ldA,
-             double                *B,
+             void                  *B,
              ULMBLAS_INDEX_TYPE    ldB);
 
 //

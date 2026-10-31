@@ -98,21 +98,27 @@ CBLAS(dcopy)(ULMBLAS_INDEX_TYPE n,
 
 void
 CBLAS(ccopy)(ULMBLAS_INDEX_TYPE n,
-             const float        *x,
+             const void         *x_v,
              ULMBLAS_INDEX_TYPE incX,
-             float              *y,
+             void               *y_v,
              ULMBLAS_INDEX_TYPE incY)
 {
+    const float *x = static_cast<const float *>(x_v);
+    float *y = static_cast<float *>(y_v);
+
     ULMBLAS(ccopy)(n, x, incX, y, incY);
 }
 
 void
 CBLAS(zcopy)(ULMBLAS_INDEX_TYPE n,
-             const double       *x,
+             const void         *x_v,
              ULMBLAS_INDEX_TYPE incX,
-             double             *y,
+             void               *y_v,
              ULMBLAS_INDEX_TYPE incY)
 {
+    const double *x = static_cast<const double *>(x_v);
+    double *y = static_cast<double *>(y_v);
+
     ULMBLAS(zcopy)(n, x, incX, y, incY);
 }
 

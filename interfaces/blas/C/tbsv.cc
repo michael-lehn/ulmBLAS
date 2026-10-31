@@ -291,11 +291,14 @@ CBLAS(ctbsv)(enum CBLAS_ORDER      order,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const float           *A,
+             const void            *A_v,
              ULMBLAS_INDEX_TYPE    ldA,
-             float                 *x,
+             void                  *x_v,
              ULMBLAS_INDEX_TYPE    incX)
 {
+    const float *A = static_cast<const float *>(A_v);
+    float *x = static_cast<float *>(x_v);
+
 //
 //  Test the input parameters
 //
@@ -345,11 +348,14 @@ CBLAS(ztbsv)(enum CBLAS_ORDER      order,
              enum CBLAS_DIAG       diag,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const double          *A,
+             const void            *A_v,
              ULMBLAS_INDEX_TYPE    ldA,
-             double                *x,
+             void                  *x_v,
              ULMBLAS_INDEX_TYPE    incX)
 {
+    const double *A = static_cast<const double *>(A_v);
+    double *x = static_cast<double *>(x_v);
+
 //
 //  Test the input parameters
 //

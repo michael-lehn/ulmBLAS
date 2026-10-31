@@ -69,20 +69,28 @@ CBLAS(drotg)(double *a,
 }
 
 void
-CBLAS(crotg)(float *a,
-             float *b,
+CBLAS(crotg)(void  *a_v,
+             void  *b_v,
              float *c,
-             float *s)
+             void  *s_v)
 {
+    float *a = static_cast<float *>(a_v);
+    float *b = static_cast<float *>(b_v);
+    float *s = static_cast<float *>(s_v);
+
     ULMBLAS(crotg)(a, b, c, s);
 }
 
 void
-CBLAS(zrotg)(double *a,
-             double *b,
+CBLAS(zrotg)(void   *a_v,
+             void   *b_v,
              double *c,
-             double *s)
+             void   *s_v)
 {
+    double *a = static_cast<double *>(a_v);
+    double *b = static_cast<double *>(b_v);
+    double *s = static_cast<double *>(s_v);
+
     ULMBLAS(zrotg)(a, b, c, s);
 }
 

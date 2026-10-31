@@ -432,20 +432,20 @@ ULMBLAS_TEST(T0606, "conventions/trsm multiplies by the reciprocal")
 }
 
 //
-//  Issue #0028: the C interface declares complex arguments as float* and
-//  double* (CBLAS: void*) and the index type of i?amax as
-//  ULMBLAS_INDEX_TYPE (CBLAS: CBLAS_INDEX, size_t in the reference).
+//  Issue #0028: the C interface declares complex arguments as void pointers
+//  (as the CBLAS standard); the index type of i?amax is the signed index
+//  type of the build (ABI unchanged).
 //
-ULMBLAS_TEST_DESIGN(T0607, "conventions/types of cblas.h", 28,
-                    "complex=float* index=signed")
+ULMBLAS_TEST(T0607, "conventions/types of cblas.h")
 {
-    bool floatPtr = std::is_same<decltype(&cblas_cscal),
-                                 void (*)(ULMBLAS_INDEX_TYPE, const float *,
-                                          float *, ULMBLAS_INDEX_TYPE)>::value;
-    bool isSigned = std::is_signed<decltype(cblas_idamax(0, 0, 1))>::value;
-    ctx.observed = std::string("complex=") + (floatPtr ? "float*" : "void*")
-                 + " index=" + (isSigned ? "signed" : "unsigned");
-    ctx.pass();
+    bool voidPtr = std::is_same<decltype(&cblas_cscal),
+                                void (*)(ULMBLAS_INDEX_TYPE, const void *,
+                                         void *, ULMBLAS_INDEX_TYPE)>::value;
+    bool index   = std::is_same<CBLAS_INDEX, ULMBLAS_INDEX_TYPE>::value
+                && std::is_same<decltype(cblas_idamax(0, 0, 1)),
+                                CBLAS_INDEX>::value;
+    ctx.check(voidPtr, "cblas_cscal: complex arguments are not void *");
+    ctx.check(index, "cblas_idamax does not return ULMBLAS_INDEX_TYPE");
 }
 
 //

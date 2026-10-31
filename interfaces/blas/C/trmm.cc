@@ -466,12 +466,16 @@ CBLAS(ctrmm)(enum CBLAS_ORDER         order,
              enum CBLAS_DIAG          diag,
              ULMBLAS_INDEX_TYPE       m,
              ULMBLAS_INDEX_TYPE       n,
-             const float              *alpha,
-             const float              *A,
+             const void               *alpha_v,
+             const void               *A_v,
              ULMBLAS_INDEX_TYPE       ldA,
-             float                    *B,
+             void                     *B_v,
              const ULMBLAS_INDEX_TYPE ldB)
 {
+    const float *alpha = static_cast<const float *>(alpha_v);
+    const float *A = static_cast<const float *>(A_v);
+    float *B = static_cast<float *>(B_v);
+
     bool left     = (side==CblasLeft);
 
 //
@@ -545,12 +549,16 @@ CBLAS(ztrmm)(enum CBLAS_ORDER         order,
              enum CBLAS_DIAG          diag,
              ULMBLAS_INDEX_TYPE       m,
              ULMBLAS_INDEX_TYPE       n,
-             const double             *alpha,
-             const double             *A,
+             const void               *alpha_v,
+             const void               *A_v,
              ULMBLAS_INDEX_TYPE       ldA,
-             double                   *B,
+             void                     *B_v,
              const ULMBLAS_INDEX_TYPE ldB)
 {
+    const double *alpha = static_cast<const double *>(alpha_v);
+    const double *A = static_cast<const double *>(A_v);
+    double *B = static_cast<double *>(B_v);
+
     bool left     = (side==CblasLeft);
 
 //

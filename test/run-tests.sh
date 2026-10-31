@@ -22,7 +22,8 @@
 #             (test/F77, test/C, IDs T0001-T0012 and T0021-T0032).  A run
 #             passes if the program exits with status 0, its output contains
 #             no failure markers and shows that all routines were tested.
-#   header    the generated headers can be used from C (IDs T0501, T0502).
+#   header    the generated headers can be used from C (IDs T0501, T0502),
+#             a client in the style of the CBLAS standard compiles (T0503).
 #   example   the C++ examples of examples/ build and run with the flags of
 #             the configuration and exit with status 0 (IDs T0520-T0529).
 #   registry  self-tests of the registry validation (IDs T0510-T0515), run
@@ -151,7 +152,8 @@ T0032 C c_zblat3"
 
 header_tests="
 T0501 cblas.h
-T0502 clapack.h"
+T0502 clapack.h
+T0503 cblas_client.c"
 
 example_tests="
 T0520 gemm"
@@ -621,9 +623,12 @@ run_headers()
             continue
         fi
         src=$TEST_BUILD/$config/header_test.c
-        printf '#include <%s>\nint main(void) { return 0; }\n' "$header" \
-            > "$src"
-        if $CC -Wall -I"$lib" -c -o "$src.o" "$src" \
+        case $header in
+            *.c)    cp "header/$header" "$src"; werror=-Werror ;;
+            *)      printf '#include <%s>\nint main(void) { return 0; }\n' \
+                           "$header" > "$src"; werror= ;;
+        esac
+        if $CC -Wall $werror -I"$lib" -c -o "$src.o" "$src" \
                 > "$TEST_BUILD/$config/header_test.log" 2>&1
         then
             report PASS "$id" "$config" "$name"

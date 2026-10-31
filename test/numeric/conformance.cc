@@ -413,3 +413,33 @@ ULMBLAS_TEST(T0903, "conformance/?rotg as in LAPACK 3.12.1")
     testRealRotg<float>(ctx); testRealRotg<double>(ctx);
     testComplexRotg<float>(ctx); testComplexRotg<double>(ctx);
 }
+
+//
+//  Issue #0028: a C++ client in the style of the CBLAS standard passes
+//  std::complex arrays as void pointers and uses the standard type names
+//  (this test compiles only with such declarations in cblas.h).
+//
+ULMBLAS_TEST(T0904, "conformance/cblas.h with std::complex and type names")
+{
+    typedef std::complex<double> Z;
+
+    const Z         A[4] = { Z(1,1), Z(2,0), Z(0,1), Z(1,0) };   // col major
+    const Z         x[2] = { Z(1,0), Z(0,1) };
+    Z               y[2], alpha(2,0), beta(0,0);
+    CBLAS_LAYOUT    layout = CblasColMajor;
+    CBLAS_TRANSPOSE trans  = CblasNoTrans;
+
+    cblas_zgemv(layout, trans, 2, 2, &alpha, A, 2, x, 1, &beta, y, 1);
+    // y = 2*(A(:,0)*1 + A(:,1)*i) = 2*((1,1)+(0,1)*i, 2+i) = ((0,2), (4,2))
+    ctx.check(y[0]==Z(0,2) && y[1]==Z(4,2), "zgemv: y = (%g,%g) (%g,%g)",
+              y[0].real(), y[0].imag(), y[1].real(), y[1].imag());
+
+    CBLAS_INDEX i = cblas_izamax(2, y, 1);
+    ctx.check(i==1, "izamax: %d, expected 1", int(i));
+
+    Z dot;
+    cblas_zdotc_sub(2, x, 1, y, 1, &dot);
+    // conj(1)*(0,2) + conj(i)*(4,2) = (0,2) + (2,-4) = (2,-2)
+    ctx.check(dot==Z(2,-2), "zdotc: (%g,%g), expected (2,-2)", dot.real(),
+              dot.imag());
+}

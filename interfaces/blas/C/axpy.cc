@@ -119,23 +119,31 @@ CBLAS(daxpy)(ULMBLAS_INDEX_TYPE n,
 
 void
 CBLAS(caxpy)(ULMBLAS_INDEX_TYPE n,
-             const float        *alpha,
-             const float        *x,
+             const void         *alpha_v,
+             const void         *x_v,
              ULMBLAS_INDEX_TYPE incX,
-             float              *y,
+             void               *y_v,
              ULMBLAS_INDEX_TYPE incY)
 {
+    const float *alpha = static_cast<const float *>(alpha_v);
+    const float *x = static_cast<const float *>(x_v);
+    float *y = static_cast<float *>(y_v);
+
     ULMBLAS(caxpy)(n, alpha, x, incX, y, incY);
 }
 
 void
 CBLAS(zaxpy)(ULMBLAS_INDEX_TYPE n,
-             const double       *alpha,
-             const double       *x,
+             const void         *alpha_v,
+             const void         *x_v,
              ULMBLAS_INDEX_TYPE incX,
-             double             *y,
+             void               *y_v,
              ULMBLAS_INDEX_TYPE incY)
 {
+    const double *alpha = static_cast<const double *>(alpha_v);
+    const double *x = static_cast<const double *>(x_v);
+    double *y = static_cast<double *>(y_v);
+
     ULMBLAS(zaxpy)(n, alpha, x, incX, y, incY);
 }
 

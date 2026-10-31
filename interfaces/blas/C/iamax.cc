@@ -80,9 +80,11 @@ CBLAS(idamax)(ULMBLAS_INDEX_TYPE n,
 
 ULMBLAS_INDEX_TYPE
 CBLAS(icamax)(ULMBLAS_INDEX_TYPE n,
-              const float        *x,
+              const void         *x_v,
               ULMBLAS_INDEX_TYPE incX)
 {
+    const float *x = static_cast<const float *>(x_v);
+
     if (n<=0 || incX<=0) {
         return 0;
     }
@@ -91,9 +93,11 @@ CBLAS(icamax)(ULMBLAS_INDEX_TYPE n,
 
 ULMBLAS_INDEX_TYPE
 CBLAS(izamax)(ULMBLAS_INDEX_TYPE n,
-              const double       *x,
+              const void         *x_v,
               ULMBLAS_INDEX_TYPE incX)
 {
+    const double *x = static_cast<const double *>(x_v);
+
     if (n<=0 || incX<=0) {
         return 0;
     }

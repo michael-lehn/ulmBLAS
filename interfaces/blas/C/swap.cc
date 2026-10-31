@@ -98,21 +98,27 @@ CBLAS(dswap)(const ULMBLAS_INDEX_TYPE n,
 
 void
 CBLAS(cswap)(const ULMBLAS_INDEX_TYPE n,
-             float                    *x,
+             void                     *x_v,
              const ULMBLAS_INDEX_TYPE incX,
-             float                    *y,
+             void                     *y_v,
              const ULMBLAS_INDEX_TYPE incY)
 {
+    float *x = static_cast<float *>(x_v);
+    float *y = static_cast<float *>(y_v);
+
     ULMBLAS(cswap)(n, x, incX, y, incY);
 }
 
 void
 CBLAS(zswap)(const ULMBLAS_INDEX_TYPE n,
-             double                   *x,
+             void                     *x_v,
              const ULMBLAS_INDEX_TYPE incX,
-             double                   *y,
+             void                     *y_v,
              const ULMBLAS_INDEX_TYPE incY)
 {
+    double *x = static_cast<double *>(x_v);
+    double *y = static_cast<double *>(y_v);
+
     ULMBLAS(zswap)(n, x, incX, y, incY);
 }
 

@@ -78,9 +78,11 @@ CBLAS(dasum)(ULMBLAS_INDEX_TYPE n,
 
 float
 CBLAS(scasum)(ULMBLAS_INDEX_TYPE n,
-              const float        *x,
+              const void         *x_v,
               ULMBLAS_INDEX_TYPE incX)
 {
+    const float *x = static_cast<const float *>(x_v);
+
     if (incX<=0) {
         return 0;
     }
@@ -89,9 +91,11 @@ CBLAS(scasum)(ULMBLAS_INDEX_TYPE n,
 
 double
 CBLAS(dzasum)(ULMBLAS_INDEX_TYPE n,
-              const double       *x,
+              const void         *x_v,
               ULMBLAS_INDEX_TYPE incX)
 {
+    const double *x = static_cast<const double *>(x_v);
+
     if (incX<=0) {
         return 0;
     }

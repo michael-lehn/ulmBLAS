@@ -489,8 +489,8 @@ kernels (the SSE kernel multiplies with the stored reciprocal as well).
 
 Issue #0028: types of cblas.h differ from the CBLAS of LAPACK 3.12
 Type: DESIGN
-Status: OPEN
-Covered by tests: T0607 (numeric, DESIGN)
+Status: RESOLVED
+Covered by tests: T0503 (header, regression test), T0607, T0904 (numeric, regression test)
 
 Complex arguments are `float *` / `double *` (CBLAS: `void *`), so C
 callers pass `float _Complex *` only with a cast; `i?amax` returns
@@ -510,6 +510,21 @@ names, `CBLAS_LAYOUT` as an alias of `CBLAS_ORDER`, `CBLAS_INDEX` as a
 typedef of the existing return type `ULMBLAS_INDEX_TYPE` (the reference
 allows a platform-dependent type; switching to size_t would change the
 return type and is not needed).
+
+Answer: source compatibility without ABI change, implemented.  The CBLAS
+names take complex arguments as `const void *` / `void *` (the `ulmblas_`
+names keep `float *` / `double *`), cblas.h defines the type names
+`CBLAS_ORDER`, `CBLAS_LAYOUT`, `CBLAS_TRANSPOSE`, `CBLAS_UPLO`,
+`CBLAS_DIAG`, `CBLAS_SIDE` and `CBLAS_INDEX` (= `ULMBLAS_INDEX_TYPE`, the
+unchanged return type of `cblas_i?amax`).  All 148 prototypes and
+`cblas_xerbla` agree with the reference cblas.h (`make check-conformance`
+declares them again after the cblas.h of ulmBLAS); a C client in the style
+of the standard compiles with -Wall -Werror (T0503), a C++ client with
+`std::complex` (T0904); existing callers that pass `float *` or `double *`
+compile unchanged (tests, examples, benchmarks).  Remaining difference:
+the enumeration tag of the storage order is `CBLAS_ORDER` (reference:
+`CBLAS_LAYOUT`, with `CBLAS_ORDER` as a macro), so `enum CBLAS_LAYOUT` is
+not accepted; the type names are.
 
 Issue #0029: the ulmblas_ functions do not check their arguments
 Type: DESIGN

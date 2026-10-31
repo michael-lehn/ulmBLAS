@@ -115,11 +115,14 @@ CBLAS(cher)(enum CBLAS_ORDER   order,
             enum CBLAS_UPLO    upLo,
             ULMBLAS_INDEX_TYPE n,
             float              alpha,
-            const float        *x,
+            const void         *x_v,
             ULMBLAS_INDEX_TYPE incX,
-            float              *A,
+            void               *A_v,
             ULMBLAS_INDEX_TYPE ldA)
 {
+    const float *x = static_cast<const float *>(x_v);
+    float *A = static_cast<float *>(A_v);
+
 //
 //  Test the input parameters
 //
@@ -159,11 +162,14 @@ CBLAS(zher)(enum CBLAS_ORDER   order,
             enum CBLAS_UPLO    upLo,
             ULMBLAS_INDEX_TYPE n,
             double             alpha,
-            const double       *x,
+            const void         *x_v,
             ULMBLAS_INDEX_TYPE incX,
-            double             *A,
+            void               *A_v,
             ULMBLAS_INDEX_TYPE ldA)
 {
+    const double *x = static_cast<const double *>(x_v);
+    double *A = static_cast<double *>(A_v);
+
 //
 //  Test the input parameters
 //

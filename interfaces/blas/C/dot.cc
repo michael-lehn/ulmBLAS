@@ -155,45 +155,61 @@ CBLAS(ddot)(ULMBLAS_INDEX_TYPE n,
 
 void
 CBLAS(cdotc_sub)(ULMBLAS_INDEX_TYPE n,
-                 const float        *x,
+                 const void         *x_v,
                  ULMBLAS_INDEX_TYPE incX,
-                 const float        *y,
+                 const void         *y_v,
                  ULMBLAS_INDEX_TYPE incY,
-                 float              *dotc)
+                 void               *dotc_v)
 {
+    const float *x = static_cast<const float *>(x_v);
+    const float *y = static_cast<const float *>(y_v);
+    float *dotc = static_cast<float *>(dotc_v);
+
     return ULMBLAS(cdotc_sub)(n, x, incX, y, incY, dotc);
 }
 
 void
 CBLAS(zdotc_sub)(ULMBLAS_INDEX_TYPE n,
-                 const double       *x,
+                 const void         *x_v,
                  ULMBLAS_INDEX_TYPE incX,
-                 const double       *y,
+                 const void         *y_v,
                  ULMBLAS_INDEX_TYPE incY,
-                 double             *dotc)
+                 void               *dotc_v)
 {
+    const double *x = static_cast<const double *>(x_v);
+    const double *y = static_cast<const double *>(y_v);
+    double *dotc = static_cast<double *>(dotc_v);
+
     return ULMBLAS(zdotc_sub)(n, x, incX, y, incY, dotc);
 }
 
 void
 CBLAS(cdotu_sub)(ULMBLAS_INDEX_TYPE n,
-                 const float        *x,
+                 const void         *x_v,
                  ULMBLAS_INDEX_TYPE incX,
-                 const float        *y,
+                 const void         *y_v,
                  ULMBLAS_INDEX_TYPE incY,
-                 float              *dotc)
+                 void               *dotc_v)
 {
+    const float *x = static_cast<const float *>(x_v);
+    const float *y = static_cast<const float *>(y_v);
+    float *dotc = static_cast<float *>(dotc_v);
+
     return ULMBLAS(cdotu_sub)(n, x, incX, y, incY, dotc);
 }
 
 void
 CBLAS(zdotu_sub)(ULMBLAS_INDEX_TYPE n,
-                 const double       *x,
+                 const void         *x_v,
                  ULMBLAS_INDEX_TYPE incX,
-                 const double       *y,
+                 const void         *y_v,
                  ULMBLAS_INDEX_TYPE incY,
-                 double             *dotc)
+                 void               *dotc_v)
 {
+    const double *x = static_cast<const double *>(x_v);
+    const double *y = static_cast<const double *>(y_v);
+    double *dotc = static_cast<double *>(dotc_v);
+
     return ULMBLAS(zdotu_sub)(n, x, incX, y, incY, dotc);
 }
 

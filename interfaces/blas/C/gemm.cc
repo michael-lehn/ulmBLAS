@@ -499,15 +499,21 @@ CBLAS(cgemm)(enum CBLAS_ORDER      order,
              ULMBLAS_INDEX_TYPE    m,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const float           *alpha,
-             const float           *A,
+             const void            *alpha_v,
+             const void            *A_v,
              ULMBLAS_INDEX_TYPE    ldA,
-             const float           *B,
+             const void            *B_v,
              ULMBLAS_INDEX_TYPE    ldB,
-             const float           *beta,
-             float                 *C,
+             const void            *beta_v,
+             void                  *C_v,
              ULMBLAS_INDEX_TYPE    ldC)
 {
+    const float *alpha = static_cast<const float *>(alpha_v);
+    const float *A = static_cast<const float *>(A_v);
+    const float *B = static_cast<const float *>(B_v);
+    const float *beta = static_cast<const float *>(beta_v);
+    float *C = static_cast<float *>(C_v);
+
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //
@@ -599,15 +605,21 @@ CBLAS(zgemm)(enum CBLAS_ORDER      order,
              ULMBLAS_INDEX_TYPE    m,
              ULMBLAS_INDEX_TYPE    n,
              ULMBLAS_INDEX_TYPE    k,
-             const double          *alpha,
-             const double          *A,
+             const void            *alpha_v,
+             const void            *A_v,
              ULMBLAS_INDEX_TYPE    ldA,
-             const double          *B,
+             const void            *B_v,
              ULMBLAS_INDEX_TYPE    ldB,
-             const double          *beta,
-             double                *C,
+             const void            *beta_v,
+             void                  *C_v,
              ULMBLAS_INDEX_TYPE    ldC)
 {
+    const double *alpha = static_cast<const double *>(alpha_v);
+    const double *A = static_cast<const double *>(A_v);
+    const double *B = static_cast<const double *>(B_v);
+    const double *beta = static_cast<const double *>(beta_v);
+    double *C = static_cast<double *>(C_v);
+
 //
 //  Set  numRowsA and numRowsB as the number of rows of A and B
 //

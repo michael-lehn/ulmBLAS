@@ -19,7 +19,9 @@
 #  LDFLAGS, LDLIBS, FLIBS, LAPACK_TARBALL as for reference-lapack.sh.
 #  expected.txt lists the documented differences (test/known_issues.md).
 #
-#  Exit status 0 if all calls agree (apart from the expected differences).
+#  The declarations of the cblas.h of ulmBLAS are compared with those of the
+#  reference cblas.h.  Exit status 0 if the declarations agree and all calls
+#  agree (apart from the expected differences).
 #
 set -u
 
@@ -108,6 +110,32 @@ for p in level1 level23; do
 done
 
 status=0
+
+#
+#  Declarations: every prototype of the reference cblas.h (except ?gemmtr,
+#  which ulmBLAS does not provide) is declared again after the cblas.h of
+#  ulmBLAS; a different parameter or return type is a compile error.  The
+#  prototypes are taken from the preprocessed reference header; CBLAS_INDEX
+#  is the index type of the build (the standard leaves it to the platform).
+#
+$CC -E -P -I$WORK -I$SRC/CBLAS/include $SRC/CBLAS/include/cblas.h \
+    > refdecl.i || exit 2
+{
+    echo '#include <cblas.h>'
+    awk 'BEGIN { RS = ";" }
+         /cblas_/ && !/typedef/ && !/gemmtr/ {
+             gsub(/[ \t\n]+/, " "); sub(/^ /, ""); print $0 ";"
+         }' refdecl.i | sed 's/^size_t \(cblas_i\)/CBLAS_INDEX \1/'
+} > declarations.c
+ndecl=`grep -c 'cblas_' declarations.c`
+if $CC -c -I$LIBDIR -o declarations.o declarations.c > declarations.log 2>&1
+then
+    echo "PASS  declarations ($ndecl prototypes of the reference cblas.h)"
+else
+    echo "FAIL  declarations (see $WORK/declarations.log)"
+    status=1
+fi
+
 run()
 {
     name=$1; shift
