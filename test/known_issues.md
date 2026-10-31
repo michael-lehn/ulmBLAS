@@ -333,6 +333,19 @@ B of `cblas_?symm`, alpha, beta and B of `cblas_?hemm` and alpha of
 const (CBLAS: `const void *`), so C and C++ callers could not pass
 pointers to const.  Fixed; the ABI is unchanged.
 
+Issue #0023: trmm propagates Inf and NaN of B into rows that do not depend on them
+Type: BUG
+Status: OPEN
+Covered by tests: T0603 (numeric, XFAIL)
+
+`trmm` packs the diagonal blocks of A including the zeros of the other
+triangle (`trlpack`, `trupack`) and the micro kernel multiplies them with
+B, so Inf in a row of B gives NaN (0*Inf) in the other rows of the same
+block of MR rows, e.g. dtrmm(L, L, N, N, A = [1 *; 1 1], B = (1, Inf))
+gives (NaN, Inf) instead of (1, Inf).  The reference BLAS multiplies only
+by elements of the triangle.  trsm is not affected.  A fix changes the
+packing or the micro kernel calls of the diagonal blocks.
+
 ## Design questions
 
 Issue #0002: alpha = 0 with NaN or Inf in operands that reference BLAS does not reference
@@ -383,3 +396,81 @@ complex types it is the first element with NaN in the real or imaginary
 part; otherwise the first element with Inf; otherwise the first maximum of
 |re| + |im|, compared as |re|/4 + |im|/4 once the sum overflows.
 
+Issue #0024: products with zero elements that the reference BLAS skips
+Type: DESIGN
+Status: OPEN
+Covered by tests: T0602 (numeric, DESIGN)
+
+Several reference routines skip an operation if an element of x, y, A or
+B is zero (e.g. `IF (X(J).NE.ZERO)` in DTRMV, DTRSV, DSYR, DGER, DSYRK,
+DTRMM, DTRSM), so NaN or Inf in the corresponding column of the other
+operand does not reach the result; other routines (DGEMV, DGBMV) never
+skip.  ulmBLAS skips where its level 1 kernels return early (axpy with a
+zero scalar) and computes the products elsewhere, so NaN propagation
+differs in both directions: gemv/gbmv/hemv drop NaN of A for alpha*x(j) =
+0; ger with ldA = 1 tests x instead of y; syr, syr2, spr2, her, her2,
+hpr2, trmv, trsv (full storage), tbmv/tpmv (diagonal), syrk, herk,
+syr2k, her2k, trmm, trsm (side = Left) propagate NaN where the reference
+skips; spr/hpr test alpha*x(j); tbsv/tpsv test the quotient; transposed
+tr/tb/tp multiplies give +0 where the reference keeps -0; alpha = NaN or
+Inf with k = 0 gives beta*C (the reference: NaN in its transposed
+branches, beta*C otherwise).  Only results with NaN or Inf in operands or
+signed zeros are affected.  Open: follow the reference (branches in the
+kernels or in the interfaces), or document the IEEE propagation of
+ulmBLAS?  The test records the results of one call per class.
+
+Issue #0025: ATLAS extensions of the transposition argument
+Type: DESIGN
+Status: OPEN
+Covered by tests: T0604 (numeric, DESIGN)
+
+The C interface accepts `AtlasConj` (114, conjugate without transposition)
+for gemv, gbmv, gemm, trmv, tbmv, tpmv, trsv, tbsv, tpsv, trmm, trsm and
+the real ?syrk, ?syr2k, the Fortran 77 interface accepts TRANS = 'R' for
+the same routines.  The reference reports an error (2 or 3).  Real types
+compute as without transposition, complex types with conj(A).  Open: keep
+as documented extensions (the ATLAS interface of ulmBLAS uses them), or
+reject them in the CBLAS and Fortran 77 interfaces?
+
+Issue #0026: ?scal with alpha = 0 and NaN or Inf in x
+Type: DESIGN
+Status: OPEN
+Covered by tests: T0605 (numeric, DESIGN)
+
+`?scal`, `csscal` and `zdscal` set x to zero for alpha = 0; the reference
+multiplies, so NaN and Inf give NaN.  The internal `scal` is also used for
+beta = 0 in level 2 and 3, where zeros are required (issues #0006, #0010).
+Open: should the public `?scal` multiply?
+
+Issue #0027: trsm with side = Left multiplies by the reciprocals of the diagonal
+Type: DESIGN
+Status: OPEN
+Covered by tests: T0606 (numeric, DESIGN)
+
+The packing of the triangular blocks stores 1/a(j,j); the reference
+divides by a(j,j) for side = Left (for side = Right it also uses
+1/a(j,j)).  Results differ by rounding, and 1/a(j,j) can overflow where
+the quotient does not: dtrsm with a = 1e-310, b = 1e-300 gives Inf
+(reference: 1e10).  Open: accept, or divide in the solve kernels?
+
+Issue #0028: types of cblas.h differ from the CBLAS of LAPACK 3.12
+Type: DESIGN
+Status: OPEN
+Covered by tests: T0607 (numeric, DESIGN)
+
+Complex arguments are `float *` / `double *` (CBLAS: `void *`), so C
+callers pass `float _Complex *` only with a cast; `i?amax` returns
+`ULMBLAS_INDEX_TYPE` (reference: `CBLAS_INDEX`, `size_t`); there is no
+`CBLAS_LAYOUT`.  Changing the pointer types to `void *` keeps the ABI and
+existing callers.  Open: adopt the reference declarations?
+
+Issue #0029: the ulmblas_ functions do not check their arguments
+Type: DESIGN
+Status: OPEN
+Covered by tests: T0608 (numeric, DESIGN)
+
+The `ulmblas_` names of the C interface (ulmBLAS's own column major API)
+call no error handler: invalid dimensions, leading dimensions and
+increments are used as given, unknown enumeration values select the else
+branch (e.g. Trans for an unknown transposition of real gemv).  Open:
+document as unchecked interface (as the C++ templates), or check?

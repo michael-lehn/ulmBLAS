@@ -1,6 +1,9 @@
 //
 //  Tests of conventions that the BLAS documentation leaves open.
 //
+#include <cmath>
+#include <limits>
+#include <type_traits>
 #include <test/numeric/blas.h>
 #include <test/numeric/reference.h>
 #include <test/numeric/testing.h>
@@ -223,4 +226,184 @@ ULMBLAS_TEST(T0601, "conventions/i?amax with NaN and Inf")
               "%s", observed.c_str());
     observed = iamaxComplex<float>("c") + "; " + iamaxComplex<double>("z");
     ctx.check(observed=="c: 1 3 2; z: 1 3 2", "%s", observed.c_str());
+}
+
+//
+//  Results of calls for which the reference BLAS skips a zero element of x,
+//  y, A or B (Fortran: IF (X(J).NE.ZERO) ...), so that NaN or Inf in the
+//  corresponding column of A is not propagated, or multiplies by a
+//  structural zero.  ulmBLAS computes these products (issue #0024).  Each
+//  entry is name=result; the reference BLAS gives the value in brackets.
+//
+namespace {
+
+using namespace test;
+
+std::string
+num(double x)
+{
+    return std::isnan(x) ? std::string("nan") : format("%g", x);
+}
+
+std::string
+zeroSkips()
+{
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double inf = std::numeric_limits<double>::infinity();
+    std::string  r;
+
+    {   // dgemv N: A = [NaN], x = [0], beta = 0 (ref: NaN)
+        double A[1] = { nan }, x[1] = { 0 }, y[1] = { 7 };
+        cblas_dgemv(CblasColMajor, CblasNoTrans, 1, 1, 1, A, 1, x, 1, 0, y, 1);
+        r += "gemv=" + num(y[0]);
+    }
+    {   // dger: x = [NaN], y = [0], A = [1] (ref: 1)
+        double A[1] = { 1 }, x[1] = { nan }, y[1] = { 0 };
+        cblas_dger(CblasColMajor, 1, 1, 1, x, 1, y, 1, A, 1);
+        r += " ger=" + num(A[0]);
+    }
+    {   // dsyr L: x = (0, NaN), A21 = 2 (ref: 2)
+        double A[4] = { 1, 2, -1, 3 }, x[2] = { 0, nan };
+        cblas_dsyr(CblasColMajor, CblasLower, 2, 1, x, 1, A, 2);
+        r += " syr=" + num(A[1]);
+    }
+    {   // dspr L: alpha = Inf, x = (0, 1), AP = (1, 2, 3) (ref: AP(1) = 1)
+        double AP[3] = { 1, 2, 3 }, x[2] = { 0, 1 };
+        cblas_dspr(CblasColMajor, CblasLower, 2, inf, x, 1, AP);
+        r += " spr=" + num(AP[0]);
+    }
+    {   // dtrmv U N: A = [1 NaN; 0 1], x = (1, 0) (ref: x1 = 1)
+        double A[4] = { 1, 0, nan, 1 }, x[2] = { 1, 0 };
+        cblas_dtrmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 2,
+                    A, 2, x, 1);
+        r += " trmv=" + num(x[0]);
+    }
+    {   // dtrsv U N: A = [0], x = [0] (ref: 0)
+        double A[1] = { 0 }, x[1] = { 0 };
+        cblas_dtrsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 1,
+                    A, 1, x, 1);
+        r += " trsv=" + num(x[0]);
+    }
+    {   // dsyrk L N: n = 2, k = 1, A = (0, NaN), beta = 1, C21 = 5 (ref: 5)
+        double A[2] = { 0, nan }, C[4] = { 1, 5, -1, 1 };
+        cblas_dsyrk(CblasColMajor, CblasLower, CblasNoTrans, 2, 1, 1, A, 2,
+                    1, C, 2);
+        r += " syrk=" + num(C[1]);
+    }
+    {   // dtrmm L L N N: A = [1 *; NaN 1], B = (0, 1) (ref: B2 = 1)
+        double A[4] = { 1, nan, -1, 1 }, B[2] = { 0, 1 };
+        cblas_dtrmm(CblasColMajor, CblasLeft, CblasLower, CblasNoTrans,
+                    CblasNonUnit, 2, 1, 1, A, 2, B, 2);
+        r += " trmm=" + num(B[1]);
+    }
+    {   // dgemm T N with k = 0, alpha = NaN, beta = 0 (ref: NaN)
+        double A[1] = { 1 }, B[1] = { 1 }, C[1] = { 7 };
+        cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, 1, 1, 0, nan, A,
+                    1, B, 1, 0, C, 1);
+        r += " gemm(k=0)=" + num(C[0]);
+    }
+    return r;
+}
+
+} // namespace
+
+ULMBLAS_TEST_DESIGN(T0602, "conventions/products with zero elements that "
+                    "reference BLAS skips", 24,
+                    "gemv=0 ger=nan syr=nan spr=nan trmv=nan trsv=nan "
+                    "syrk=nan trmm=nan gemm(k=0)=0")
+{
+    ctx.observed = zeroSkips();
+    ctx.pass();
+}
+
+//
+//  Issue #0023: trmm multiplies B by the structural zeros of the packed
+//  diagonal blocks of A, so Inf in B gives NaN in other rows.  Expected:
+//  reference BLAS, B = (1, Inf).
+//
+ULMBLAS_TEST_XFAIL(T0603, "conventions/trmm with Inf in B", 23)
+{
+    const double inf = std::numeric_limits<double>::infinity();
+    double A[4] = { 1, 1, -1, 1 }, B[2] = { 1, inf };   // A = [1 *; 1 1]
+    cblas_dtrmm(CblasColMajor, CblasLeft, CblasLower, CblasNoTrans,
+                CblasNonUnit, 2, 1, 1, A, 2, B, 2);
+    ctx.check(B[0]==1 && B[1]==inf, "dtrmm: B = (%g, %g), expected (1, inf)",
+              B[0], B[1]);
+}
+
+//
+//  Issue #0025: the C interface accepts the ATLAS extension AtlasConj (114)
+//  as transposition argument (reference CBLAS: error 2 or 3); recorded is
+//  y of cblas_dgemv and cblas_zgemv with A = [2] or [(2,1)], x = 3.
+//
+ULMBLAS_TEST_DESIGN(T0604, "conventions/AtlasConj as transposition argument",
+                    25, "dgemv=6 zgemv=(6,-3)")
+{
+    double A[2] = { 2, 1 }, x[2] = { 3, 0 }, y[2] = { 7, 7 };
+    double one[2] = { 1, 0 }, zero[2] = { 0, 0 };
+    cblas_dgemv(CblasColMajor, CBLAS_TRANSPOSE(114), 1, 1, 1, A, 1, x, 1, 0,
+                y, 1);
+    std::string r = "dgemv=" + format("%g", y[0]);
+    cblas_zgemv(CblasColMajor, CBLAS_TRANSPOSE(114), 1, 1, one, A, 1, x, 1,
+                zero, y, 1);
+    ctx.observed = r + format(" zgemv=(%g,%g)", y[0], y[1]);
+    ctx.pass();
+}
+
+//
+//  Issue #0026: ?scal with alpha = 0 sets x to zero; reference BLAS
+//  multiplies (NaN and Inf give NaN).
+//
+ULMBLAS_TEST_DESIGN(T0605, "conventions/scal with alpha=0 and NaN, Inf", 26,
+                    "0 0")
+{
+    double x[2] = { std::numeric_limits<double>::quiet_NaN(),
+                    std::numeric_limits<double>::infinity() };
+    cblas_dscal(2, 0, x, 1);
+    ctx.observed = format("%g %g", x[0], x[1]);
+    ctx.pass();
+}
+
+//
+//  Issue #0027: trsm with side = Left multiplies by the reciprocals of the
+//  diagonal elements; reference BLAS divides.  1e-300/1e-310: ref 1e+10.
+//
+ULMBLAS_TEST_DESIGN(T0606, "conventions/trsm divides or multiplies by the "
+                    "reciprocal", 27, "inf")
+{
+    double A[1] = { 1e-310 }, B[1] = { 1e-300 };
+    cblas_dtrsm(CblasColMajor, CblasLeft, CblasLower, CblasNoTrans,
+                CblasNonUnit, 1, 1, 1, A, 1, B, 1);
+    ctx.observed = format("%g", B[0]);
+    ctx.pass();
+}
+
+//
+//  Issue #0028: the C interface declares complex arguments as float* and
+//  double* (CBLAS: void*) and the index type of i?amax as
+//  ULMBLAS_INDEX_TYPE (CBLAS: CBLAS_INDEX, size_t in the reference).
+//
+ULMBLAS_TEST_DESIGN(T0607, "conventions/types of cblas.h", 28,
+                    "complex=float* index=signed")
+{
+    bool floatPtr = std::is_same<decltype(&cblas_cscal),
+                                 void (*)(ULMBLAS_INDEX_TYPE, const float *,
+                                          float *, ULMBLAS_INDEX_TYPE)>::value;
+    bool isSigned = std::is_signed<decltype(cblas_idamax(0, 0, 1))>::value;
+    ctx.observed = std::string("complex=") + (floatPtr ? "float*" : "void*")
+                 + " index=" + (isSigned ? "signed" : "unsigned");
+    ctx.pass();
+}
+
+//
+//  Issue #0029: the ulmblas_ functions do not check their arguments (no
+//  xerbla); recorded: ulmblas_dgemv with ldA = 0 < m = 1 computes.
+//
+ULMBLAS_TEST_DESIGN(T0608, "conventions/ulmblas_ functions without argument "
+                    "checks", 29, "y=6")
+{
+    double A[1] = { 2 }, x[1] = { 3 }, y[1] = { 7 };
+    ulmblas_dgemv(CblasNoTrans, 1, 1, 1, A, 0, x, 1, 0, y, 1);
+    ctx.observed = format("y=%g", y[0]);
+    ctx.pass();
 }
