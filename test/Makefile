@@ -7,6 +7,10 @@
 #      make check-reference-lapack
 #                           test programs of Reference-LAPACK 3.12.1
 #                           (downloaded, not part of make check)
+#      make check-conformance
+#                           differential test against the reference BLAS
+#                           and CBLAS of LAPACK 3.12.1 (downloaded, not
+#                           part of make check)
 #
 #  All tests are built and run for each test configuration in config/
 #  (different block sizes, see config/make.testcase*.inc) in
@@ -47,6 +51,7 @@ RUN_TESTS      = TEST_BUILD='$(BUILD)' CONFIGS='$(CONFIGS)' \
                  $(SHELL) run-tests.sh
 
 .PHONY : all check check-numeric check-netlib check-reference-lapack \
+         check-conformance \
          build-numeric build-netlib \
          clean $(LIB_TARGETS) $(LIBF77_TARGETS) $(NUMERIC_TARGETS) \
          $(NETLIB_TARGETS)
@@ -120,6 +125,23 @@ check-reference-lapack : tool-ar tool-cc tool-fc-link
 	 LDFLAGS=$(call shell_quote,$(LDFLAGS)) LDLIBS=$(call shell_quote,$(LDLIBS)) \
 	 FLIBS=$(call shell_quote,$(FLIBS)) \
 	 $(SHELL) reference-lapack.sh $(BUILD)/$(REFERENCE_CONFIG)/lib \
+	          $(BUILD)/reference-lapack
+
+#
+#  check-conformance: every level 1, 2 and 3 routine of the Fortran 77 and C
+#  interfaces of configuration REFERENCE_CONFIG (index type int) compared
+#  call by call with the reference BLAS and CBLAS of LAPACK 3.12.1, built
+#  from the downloaded sources (see conformance/conformance.sh and
+#  blas_conformance.md).  Not part of make check.
+#
+check-conformance : tool-ar tool-cc tool-fc-link
+	@$(MAKE) lib-$(REFERENCE_CONFIG) lib-f77-$(REFERENCE_CONFIG)
+	@CC=$(call shell_quote,$(CC)) CFLAGS=$(call shell_quote,$(CPPFLAGS) $(ULMBLAS_CFLAGS) $(CFLAGS)) \
+	 FC=$(call shell_quote,$(FC)) FFLAGS=$(call shell_quote,$(FOPTFLAGS) $(FFLAGS)) \
+	 CXX=$(call shell_quote,$(CXX) $(ULMBLAS_CXXFLAGS) $(CXXFLAGS)) \
+	 LDFLAGS=$(call shell_quote,$(LDFLAGS)) LDLIBS=$(call shell_quote,$(LDLIBS)) \
+	 FLIBS=$(call shell_quote,$(FLIBS)) \
+	 $(SHELL) conformance/conformance.sh $(BUILD)/$(REFERENCE_CONFIG)/lib \
 	          $(BUILD)/reference-lapack
 
 clean :

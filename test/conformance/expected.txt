@@ -1,0 +1,6 @@
+Differences that belong to open issues of test/known_issues.md (read by
+compare.cc): one line per class, "#NNNN regular expression" matching the
+descriptions of the calls that may differ from the reference.
+Issue 0024: full storage trmv, trsv skip no column with x(j) = 0:
+#0024 ^[sdcz]tFmv .* zx=1$
+#0024 ^[sdcz]tFsv .* zx=1$

@@ -171,6 +171,16 @@ part of the default set and are run with `CONFIGS=...` (see the
   `cblat1` and `zblat1` of 3.12.1 report infinite results of `scnrm2` and
   `dznrm2` as failures; they are also run with the reference BLAS of the
   tarball and reported as REF if exactly the same cases fail.
+- **Conformance test** (`make check-conformance`, `test/conformance`, not
+  part of `make check`): builds the reference BLAS and CBLAS from the same
+  tarball and links two programs (`level1.c`, `level23.cc`) once with
+  ulmBLAS and once with the reference; they call every routine of both
+  interfaces with many sizes, increments (also zero and negative), leading
+  dimensions, flags, both storage orders and special values of alpha and
+  beta, with guard cells around all operands, and print all buffers, which
+  `compare.cc` compares (up to rounding).  Differences that belong to open
+  issues are listed in `expected.txt`.  The index type must be `int`.  See
+  [`test/blas_conformance.md`](test/blas_conformance.md).
 - **Header tests**: the generated headers can be used from C.
 
 Every test has a stable ID.  Results are PASS, FAIL, XFAIL (known bug),

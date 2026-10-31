@@ -12,6 +12,7 @@ include $(TOPDIR)/make.inc
 
 .PHONY : all cblas atlblas clapack atllapack f77blas refblas lbt \
          check check-numeric check-netlib check-reference-lapack \
+         check-conformance \
          check_cblas check_f77blas \
          bench bench-gemm benchmark-suite add_benchmark_result \
          check_benchmark_results check_arch clean help
@@ -47,7 +48,7 @@ lbt : tool-ar
 #
 #  Tests (see test/Makefile)
 #
-check check-numeric check-netlib check-reference-lapack :
+check check-numeric check-netlib check-reference-lapack check-conformance :
 	$(MAKE) -C test $@
 
 check_cblas :
@@ -128,6 +129,9 @@ help :
 	@echo '  check-netlib     only the Netlib BLAS test suites (needs FC and CC)'
 	@echo '  check-reference-lapack'
 	@echo '                   test programs of Reference-LAPACK 3.12.1 (downloaded)'
+	@echo '  check-conformance'
+	@echo '                   all BLAS routines compared with the reference BLAS'
+	@echo '                   and CBLAS of LAPACK 3.12.1 (downloaded)'
 	@echo '  check_arch       ARCHFLAGS this machine and CXX support, with a suggestion'
 	@echo '  bench-gemm       GEMM benchmark of ulmBLAS and the BLAS libraries found'
 	@echo '                   (PREC=s|d|c|z LIBS=auto|"ulmblas openblas ..." SIZES=...,'

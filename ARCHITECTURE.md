@@ -247,7 +247,15 @@ implementations.  Behavior follows the
 reference BLAS of LAPACK 3.12.1, with the correction of the rescaling in
 `?rotmg` of its development version and `i?amax` with NaN as in its
 development version (the index of the first NaN, see
-[`test/known_issues.md`](test/known_issues.md)).
+[`test/known_issues.md`](test/known_issues.md)).  The Fortran 77 interface
+and the CBLAS names follow the contracts of the reference BLAS and CBLAS,
+also for increments <= 0 (e.g. `?asum` returns 0, `?scal` does nothing) and
+for row major calls (positions in error messages as the reference CBLAS);
+the `ulmblas_` names of the C interface are ulmBLAS's own column major API:
+they check no arguments and keep the general increments of the templates
+(negative: BLAS storage order, zero: the first element repeated).  The audit
+of all entry points against the reference, the conventions and the open
+questions: [`test/blas_conformance.md`](test/blas_conformance.md).
 
 Not provided: `lsame` and `xerbla_array` (auxiliary routines that LAPACK
 contains itself), `?gemmtr` (LAPACK 3.12), the routines of the

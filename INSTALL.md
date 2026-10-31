@@ -224,6 +224,12 @@ results are written to `test/build/check.log`.
 `make check-reference-lapack` (not part of `make check`, needs network
 access) downloads Reference-LAPACK 3.12.1 (checksum verified) and runs its
 unmodified BLAS and CBLAS test programs against ulmBLAS.
+`make check-conformance` (also not part of `make check`) builds the
+reference BLAS and CBLAS from the same sources and compares every level 1,
+2 and 3 routine of both interfaces call by call with them, including
+zero and negative increments, row major storage, special values of alpha
+and beta and guard cells around all operands (see
+[test/blas_conformance.md](test/blas_conformance.md)).
 
 The configurations combine tiny block sizes (so that small matrices cross
 all block boundaries), the default block sizes, MR x NR of 4 x 4, 2 x 4,
