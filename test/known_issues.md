@@ -346,6 +346,17 @@ gives (NaN, Inf) instead of (1, Inf).  The reference BLAS multiplies only
 by elements of the triangle.  trsm is not affected.  A fix changes the
 packing or the micro kernel calls of the diagonal blocks.
 
+Investigation: `trlpack`/`trupack` store the diagonal MR x MR block of
+each panel with explicit zeros in the other triangle, and `mtrlmm`/
+`mtrumm` call the micro kernel with kc = (i+1)*MR for diagonal tile i,
+so it forms 0*B(l,:) for l > r.  Proposed fix: before a diagonal tile,
+test the MR x nr elements of the packed B rows of the diagonal block for
+NaN and Inf (O(MR*NR) per tile against O(kc*MR*NR) for the kernel); only
+if one is found, compute the tile as kernel call with kc = i*MR (the dense
+part) plus the triangle by a loop over l <= r.  Finite B keeps the
+current path; side = Right and upper triangles use the same packing and
+need the same test.
+
 ## Design questions
 
 Issue #0002: alpha = 0 with NaN or Inf in operands that reference BLAS does not reference
@@ -460,6 +471,18 @@ divides by a(j,j) for side = Left (for side = Right it also uses
 the quotient does not: dtrsm with a = 1e-310, b = 1e-300 gives Inf
 (reference: 1e10).  Open: accept, or divide in the solve kernels?
 
+Investigation (Apple M5, reference trsm micro kernel; variant: the packing
+stores a(j,j), the kernel divides, padded diagonal elements of edge tiles
+set to 1): accuracy of dtrsm (L, L, N, N) against a double-double
+solution: mean error 0.40 instead of 0.50 ulp for n = 4, 0.55 instead of
+0.62 ulp for n = 64, equal for n = 256; correctly rounded components 74%
+instead of 62% (n = 4) and 60% instead of 54% (n = 64).  Speed: dtrsm 0.5
+to 2.5% slower (n = 8 to 256), below 1% for n >= 512; ztrsm with
+std::complex division 44 to 49% slower for n <= 32, 7% for n = 1024.  The
+x86 SSE kernel (mulpd with the stored reciprocal) was not measured.
+Recommendation: divide for real types, keep the (std::complex, scaled)
+reciprocal for complex types.
+
 Issue #0028: types of cblas.h differ from the CBLAS of LAPACK 3.12
 Type: DESIGN
 Status: OPEN
@@ -470,6 +493,19 @@ callers pass `float _Complex *` only with a cast; `i?amax` returns
 `ULMBLAS_INDEX_TYPE` (reference: `CBLAS_INDEX`, `size_t`); there is no
 `CBLAS_LAYOUT`.  Changing the pointer types to `void *` keeps the ABI and
 existing callers.  Open: adopt the reference declarations?
+
+Investigation: a client written against the reference cblas.h (C with
+`double _Complex`, C++ with `std::complex`, `CBLAS_LAYOUT`, `CBLAS_INDEX`,
+type names without `enum`) compiles with the reference header but not
+with the one of ulmBLAS (gcc 16 and clang: incompatible pointer types,
+`enum` tag required, unknown `CBLAS_LAYOUT` and `CBLAS_INDEX`).  Needed
+for source compatibility, all without ABI change (C linkage, pointers are
+passed alike): complex arguments as `const void *` / `void *` (callers
+that pass `float *` or `double *` still compile), typedefs for the enum
+names, `CBLAS_LAYOUT` as an alias of `CBLAS_ORDER`, `CBLAS_INDEX` as a
+typedef of the existing return type `ULMBLAS_INDEX_TYPE` (the reference
+allows a platform-dependent type; switching to size_t would change the
+return type and is not needed).
 
 Issue #0029: the ulmblas_ functions do not check their arguments
 Type: DESIGN
