@@ -1632,6 +1632,25 @@ CBLAS(ztrsm)(enum CBLAS_ORDER      order,
              ULMBLAS_INDEX_TYPE    ldB);
 
 //
+//  ulmBLAS's own C interface (ulmblas_ names): column major storage, the
+//  arguments of the BLAS routines without the order argument.  These
+//  functions do not check their arguments and call no error handler; the
+//  caller must ensure the preconditions of the corresponding BLAS routine:
+//
+//  - dimensions m, n, k (and kl, ku) >= 0;
+//  - leading dimensions at least the number of rows (the band width for
+//    band matrices), at least 1;
+//  - increments of level 2 and 3 vectors not zero; level 1 functions accept
+//    any increment (negative: the vector is stored backwards from the end,
+//    as in BLAS; zero: the first element is used n times);
+//  - enumeration values among those listed above (an unknown value selects
+//    one of the valid cases);
+//  - the output operands do not overlap with the inputs.
+//
+//  ulmblas_i?amax returns a 0-based index and -1 for n <= 0.
+//
+
+//
 //  Level 1
 //
 float

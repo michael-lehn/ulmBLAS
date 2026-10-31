@@ -473,11 +473,12 @@ existing callers.  Open: adopt the reference declarations?
 
 Issue #0029: the ulmblas_ functions do not check their arguments
 Type: DESIGN
-Status: OPEN
-Covered by tests: T0608 (numeric, DESIGN)
+Status: RESOLVED
+Covered by tests: T0608 (numeric, regression test)
 
 The `ulmblas_` names of the C interface (ulmBLAS's own column major API)
 call no error handler: invalid dimensions, leading dimensions and
-increments are used as given, unknown enumeration values select the else
-branch (e.g. Trans for an unknown transposition of real gemv).  Open:
-document as unchecked interface (as the C++ templates), or check?
+increments are used as given, unknown enumeration values select one of
+the valid cases.  Answer: no general argument validation; the
+preconditions are documented in cblas.h (and ARCHITECTURE.md).
+

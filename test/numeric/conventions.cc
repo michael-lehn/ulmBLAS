@@ -451,13 +451,12 @@ ULMBLAS_TEST_DESIGN(T0607, "conventions/types of cblas.h", 28,
 
 //
 //  Issue #0029: the ulmblas_ functions do not check their arguments (no
-//  xerbla); recorded: ulmblas_dgemv with ldA = 0 < m = 1 computes.
+//  error handler, documented preconditions in cblas.h): ulmblas_dgemv with
+//  ldA = 0 < m = 1 computes y = 6.
 //
-ULMBLAS_TEST_DESIGN(T0608, "conventions/ulmblas_ functions without argument "
-                    "checks", 29, "y=6")
+ULMBLAS_TEST(T0608, "conventions/ulmblas_ functions without argument checks")
 {
     double A[1] = { 2 }, x[1] = { 3 }, y[1] = { 7 };
     ulmblas_dgemv(CblasNoTrans, 1, 1, 1, A, 0, x, 1, 0, y, 1);
-    ctx.observed = format("y=%g", y[0]);
-    ctx.pass();
+    ctx.check(y[0]==6, "ulmblas_dgemv: y = %g, expected 6", y[0]);
 }
