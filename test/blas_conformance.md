@@ -34,6 +34,11 @@ was checked for every routine.
   interface, dimensions {0, 1, 5} (level 3: {0, 1, 5, 9}), several leading
   dimensions, alpha/beta in {0, 1, other} with NaN in the operands that
   must not be read (about 217000 calls).
+- **Declarations.**  `make check-conformance` declares every prototype of
+  the reference cblas.h again after the cblas.h of ulmBLAS (a different
+  type is a compile error); test T0503 compiles a C client in the style of
+  the standard with `-Wall -Werror`, T0904 a C++ client with
+  `std::complex`.
 - **Reference test programs.**  The BLAS and CBLAS test programs of LAPACK
   3.12.1 (`make check-reference-lapack`) and the level 1 test programs of
   the development version (for `i?amax`).
@@ -79,11 +84,12 @@ Decisions on the design questions (see the registry for details):
 | #0024 | reference semantics routine by routine; documented quick returns kept, no data-dependent skipping of zero elements: the skips that only ulmBLAS made (gemv, gbmv, hemv, ger, spr, hpr, tbsv, tpsv, row major hpr2) are removed; where the reference skips (e.g. DTRMV, DSYR, DSYRK, DTRMM), ulmBLAS computes (IEEE propagation of NaN and Inf) |
 | #0025 | `AtlasConj` and 'R' are documented extensions; all other invalid codes are rejected |
 | #0026 | `?scal` multiplies also for alpha = 0, as the reference |
+| #0027 | trsm keeps the reciprocals of the diagonal (division: slightly more accurate, dtrsm up to 2.5% and ztrsm up to 49% slower on the Apple M5); to be reconsidered with x86-64 measurements |
+| #0028 | cblas.h source compatible with the CBLAS standard without ABI change: `void *` for complex arguments of the CBLAS names, the standard type names, `CBLAS_INDEX` = the index type of the build; all prototypes are compared with the reference cblas.h by `make check-conformance` |
 | #0029 | no argument checks in the `ulmblas_` functions; preconditions documented in cblas.h |
 
 Open: #0023 (trmm: 0*Inf from the zeros of packed diagonal blocks; XFAIL
-test), #0027 (trsm with reciprocals of the diagonal) and #0028 (types of
-cblas.h); for these the investigations are reported first.
+test); the alternatives are described in the registry.
 
 Differences that are accepted as implementation-specific (not registered):
 

@@ -262,6 +262,10 @@ elements data-dependently (e.g. `IF (X(J).NE.ZERO)` in DTRMV), ulmBLAS
 computes the products, so NaN and Inf propagate as in IEEE arithmetic.  The
 audit of all entry points against the reference, the conventions and the
 open questions: [`test/blas_conformance.md`](test/blas_conformance.md).
+`cblas.h` follows the declarations of the reference CBLAS (complex
+arguments as `void *`, the type names `CBLAS_LAYOUT`, `CBLAS_TRANSPOSE`,
+..., `CBLAS_INDEX`); `CBLAS_INDEX` is the index type of the build, so the
+binary interface does not depend on the header.
 
 Not provided: `lsame` and `xerbla_array` (auxiliary routines that LAPACK
 contains itself), `?gemmtr` (LAPACK 3.12), the routines of the
