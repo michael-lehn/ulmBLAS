@@ -346,16 +346,37 @@ gives (NaN, Inf) instead of (1, Inf).  The reference BLAS multiplies only
 by elements of the triangle.  trsm is not affected.  A fix changes the
 packing or the micro kernel calls of the diagonal blocks.
 
-Investigation: `trlpack`/`trupack` store the diagonal MR x MR block of
-each panel with explicit zeros in the other triangle, and `mtrlmm`/
-`mtrumm` call the micro kernel with kc = (i+1)*MR for diagonal tile i,
-so it forms 0*B(l,:) for l > r.  Proposed fix: before a diagonal tile,
-test the MR x nr elements of the packed B rows of the diagonal block for
-NaN and Inf (O(MR*NR) per tile against O(kc*MR*NR) for the kernel); only
-if one is found, compute the tile as kernel call with kc = i*MR (the dense
-part) plus the triangle by a loop over l <= r.  Finite B keeps the
-current path; side = Right and upper triangles use the same packing and
-need the same test.
+Comparison (run on the Apple M5, all side/uplo/trans/diag combinations,
+Inf or NaN in each row or column of B, sizes 1 to 300): BLIS 0.9, BLIS
+master (a8037cf, var2 and var2b) and OpenBLAS 0.3.34 (VORTEXM4, 1 and 8
+threads) give the same spurious NaN as ulmBLAS, exactly in the other
+triangle of each diagonal block (BLIS: zeros written by the packing of
+the diagonal block, `bli_packm_cxc_diag_ref.c`; OpenBLAS: `trmm_*copy`
+writes zeros into the diagonal block, the TRMM kernels shorten k with
+OFFSET only to whole micro tiles).  Both shorten k for blocks off the
+diagonal as ulmBLAS does; neither avoids 0*Inf inside the diagonal block.
+The reference BLAS does.
+
+Alternatives (none implemented):
+
+- Shorten k further (the approach of BLIS and OpenBLAS): ulmBLAS already
+  limits k to the diagonal block; finer steps (OpenBLAS SKYLAKEX: 2
+  columns) only shrink the affected region.
+- Dedicated triangular micro kernel, as trsm already has (`mtrlsm` calls
+  `ugemm` with kc = i*MR for the dense part and `utrlsm` for the
+  triangle): `mtrlmm`/`mtrumm` call `ugemm` for the off-diagonal part and
+  new kernels `utrlmm`/`utrumm` (reference version plus buffered variant
+  for edge tiles) that use only the triangle of the packed diagonal block.
+  Packing and buffer layout stay; cost one extra call and pass over the
+  MR x NR tile per diagonal block, about MR(MR+1)/2*NR operations in
+  non-gemm code (small for large m, noticeable for small m and for the SME
+  kernels with MR = 32 until a SIMD version exists).
+- Guarded fallback: detect Inf/NaN in B (while packing B) and use the
+  previous alternative only then; fastest for finite data, but a second
+  code path (rejected as too complicated for now).
+- Masked rank-1 updates of the diagonal block with the buffered gemm
+  kernel: no new kernel, but MR extra kernel calls per diagonal block.
+- Accept and document the deviation, as BLIS and OpenBLAS do.
 
 ## Design questions
 
