@@ -28,6 +28,10 @@ ger(IndexType    m,
 {
     typedef decltype(Alpha(0)*TX(0)*TY(0)+TA(0))  T;
 
+    if (m==0 || n==0 || alpha==Alpha(0)) {
+        return;
+    }
+
     constexpr IndexType   UnitStride(1);
     static constexpr bool homogeneousTypes = std::is_same<T,Alpha>::value
                                           && std::is_same<T,TX>::value
@@ -144,6 +148,10 @@ gerc(IndexType    m,
      IndexType    incColA)
 {
     typedef decltype(Alpha(0)*TX(0)*TY(0)+TA(0))  T;
+
+    if (m==0 || n==0 || alpha==Alpha(0)) {
+        return;
+    }
 
     constexpr IndexType   UnitStride(1);
     static constexpr bool homogeneousTypes = std::is_same<T,Alpha>::value

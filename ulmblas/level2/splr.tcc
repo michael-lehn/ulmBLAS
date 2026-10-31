@@ -14,6 +14,10 @@ splr(IndexType    n,
      IndexType    incX,
      TA           *A)
 {
+    if (n==0 || alpha==Alpha(0)) {
+        return;
+    }
+
     for (IndexType j=0; j<n; ++j) {
         axpy(n-j, alpha*x[j*incX], &x[j*incX], incX, A, IndexType(1));
         A += n-j;

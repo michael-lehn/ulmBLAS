@@ -14,6 +14,10 @@ spur(IndexType    n,
      IndexType    incX,
      TA           *A)
 {
+    if (n==0 || alpha==Alpha(0)) {
+        return;
+    }
+
     for (IndexType j=0; j<n; ++j) {
         axpy(j+1, alpha*x[j*incX], x, incX, A, IndexType(1));
         A += j+1;

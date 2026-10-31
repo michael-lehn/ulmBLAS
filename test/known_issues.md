@@ -248,22 +248,21 @@ three columns).  The interfaces now call the templates with
 
 Issue #0002: alpha = 0 with NaN or Inf in operands that reference BLAS does not reference
 Type: DESIGN
-Status: OPEN
-Covered by tests: T0600 (numeric, DESIGN)
+Status: RESOLVED
+Covered by tests: T0600 (numeric, regression test)
 
 If alpha is zero, reference BLAS returns immediately (or only scales by
 beta) and does not reference A, x or y.  The BLAS documentation guarantees
 this only for some functions (e.g. "B need not be set" for TRMM/TRSM if
-alpha is zero) and not for others.  ulmBLAS follows reference BLAS for GEMV,
-SPMV, SBMV, HER, HER2, HPR, HPR2, the complex packed and banded functions
-and all level 3 functions, but GER, GERU, GERC, SYMV, HEMV, SYR, SYR2, SPR
-and SPR2 compute `0*x` and propagate NaN or Inf from the operands into the
-result (for all supported precisions; the kernels `ger`, `sylmv`, `helmv`,
-`sylr`, `sylr2`, `splr`, `spur`, `splr2`, `spur2` in `ulmblas/level2` have
-no early return for alpha = 0).  The test records which functions
-propagate NaN.  Open: should ulmBLAS match reference BLAS here?  Note:
-beta = 0 (C or y need not be set) is documented and is handled correctly by
-all tested functions.
+alpha is zero) and not for others.  ulmBLAS followed reference BLAS for
+GEMV, SPMV, SBMV, HER, HER2, HPR, HPR2, the complex packed and banded
+functions and all level 3 functions, but GER, GERU, GERC, SYMV, HEMV, SYR,
+SYR2, SPR and SPR2 computed `0*x` and propagated NaN or Inf from the
+operands into the result.  Answer: as reference BLAS.  The kernels `ger`,
+`gerc`, `sylr`, `sylr2`, `splr`, `spur`, `splr2` and `spur2` in
+`ulmblas/level2` return immediately for alpha = 0, `sylmv` and `helmv`
+after `y = beta*y`.  The test checks all functions for both storage orders
+and both triangles.
 
 Issue #0004: Semantics of dgetrf with row major storage
 Type: DESIGN
@@ -281,13 +280,16 @@ of #0003 and passes afterwards.
 
 Issue #0014: i?amax with NaN
 Type: DESIGN
-Status: OPEN
-Covered by tests: T0601 (numeric, DESIGN)
+Status: RESOLVED
+Covered by tests: T0601 (numeric, regression test)
 
-`i?amax` of ulmBLAS returns the same indices as the reference BLAS up to
-LAPACK 3.12.1: an element is selected if its absolute value (|re| + |im|)
-is greater than the current maximum, so a NaN is only returned if it is the
-first element.  The development version of Reference-LAPACK (after 3.12.1)
-returns the position of the first NaN, and its test programs check this.
-Open: follow the released behavior or the development version?  The test
-records the indices for three vectors with NaN and Inf.
+`i?amax` of ulmBLAS returned the same indices as the reference BLAS up to
+LAPACK 3.12.1: an element was selected if its absolute value (|re| + |im|)
+was greater than the current maximum, so a NaN was only returned if it was
+the first element.  The development version of Reference-LAPACK (after
+3.12.1, commit b35878842c) returns the position of the first NaN, and its
+test programs check this.  Answer: as the development version.  For real
+types the result is the first NaN, otherwise the first maximum.  For
+complex types it is the first element with NaN in the real or imaginary
+part; otherwise the first element with Inf; otherwise the first maximum of
+|re| + |im|, compared as |re|/4 + |im|/4 once the sum overflows.

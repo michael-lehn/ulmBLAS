@@ -17,6 +17,10 @@ spur2(IndexType    n,
       IndexType    incY,
       TA           *A)
 {
+    if (n==0 || alpha==Alpha(0)) {
+        return;
+    }
+
     for (IndexType j=0; j<n; ++j) {
         axpy2v(j+1,
                alpha*y[j*incY],

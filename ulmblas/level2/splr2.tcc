@@ -17,6 +17,10 @@ splr2(IndexType    n,
       IndexType    incY,
       TA           *A)
 {
+    if (n==0 || alpha==Alpha(0)) {
+        return;
+    }
+
     for (IndexType j=0; j<n; ++j) {
         axpy2v(n-j,
                alpha*y[j*incY],

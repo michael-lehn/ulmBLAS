@@ -15,6 +15,10 @@ sylr(IndexType    n,
      IndexType    incRowA,
      IndexType    incColA)
 {
+    if (n==0 || alpha==Alpha(0)) {
+        return;
+    }
+
 //
 //  Simple reference implementation
 //

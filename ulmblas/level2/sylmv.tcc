@@ -34,6 +34,10 @@ sylmv(IndexType    n,
 
     scal(n, beta, y, incY);
 
+    if (alpha==Alpha(0)) {
+        return;
+    }
+
     if (homogeneousTypes && incRowA==UnitStride) {
         constexpr IndexType bf = FuseFactor<T>::dotxaxpyf;
         const IndexType nb = (n/bf)*bf;
