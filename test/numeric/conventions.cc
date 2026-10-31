@@ -380,17 +380,42 @@ ULMBLAS_TEST_DESIGN(T0604, "conventions/AtlasConj as transposition argument",
 }
 
 //
-//  Issue #0026: ?scal with alpha = 0 sets x to zero; reference BLAS
-//  multiplies (NaN and Inf give NaN).
+//  Issue #0026: ?scal, csscal and zdscal multiply also for alpha = 0, as
+//  the reference BLAS (NaN and Inf give NaN), and leave x unchanged for
+//  alpha = 1.  Expected values of the reference BLAS of LAPACK 3.12.1.
 //
-ULMBLAS_TEST_DESIGN(T0605, "conventions/scal with alpha=0 and NaN, Inf", 26,
-                    "0 0")
+ULMBLAS_TEST(T0605, "conventions/scal with alpha=0 and NaN, Inf")
 {
-    double x[2] = { std::numeric_limits<double>::quiet_NaN(),
-                    std::numeric_limits<double>::infinity() };
-    cblas_dscal(2, 0, x, 1);
-    ctx.observed = format("%g %g", x[0], x[1]);
-    ctx.pass();
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double inf = std::numeric_limits<double>::infinity();
+
+    double x[3] = { nan, inf, 2 };
+    cblas_dscal(3, 0, x, 1);
+    ctx.check(std::isnan(x[0]) && std::isnan(x[1]) && x[2]==0,
+              "dscal(0): x = (%g, %g, %g), expected (NaN, NaN, 0)", x[0],
+              x[1], x[2]);
+    float s[2] = { float(inf), 2 };
+    cblas_sscal(2, 0, s, 1);
+    ctx.check(std::isnan(s[0]) && s[1]==0, "sscal(0): x = (%g, %g)",
+              double(s[0]), double(s[1]));
+    double z[4] = { inf, 1, 2, 3 }, zero[2] = { 0, 0 };
+    cblas_zscal(2, zero, z, 1);
+    ctx.check(std::isnan(z[0]) && std::isnan(z[1]) && z[2]==0 && z[3]==0,
+              "zscal(0): x = (%g,%g) (%g,%g), expected (NaN,NaN) (0,0)",
+              z[0], z[1], z[2], z[3]);
+    double zd[2] = { inf, 1 };
+    cblas_zdscal(1, 0, zd, 1);
+    ctx.check(std::isnan(zd[0]) && zd[1]==0,
+              "zdscal(0): x = (%g,%g), expected (NaN,0)", zd[0], zd[1]);
+    float c[2] = { 1, float(nan) };
+    cblas_csscal(1, 0, c, 1);
+    ctx.check(c[0]==0 && std::isnan(c[1]),
+              "csscal(0): x = (%g,%g), expected (0,NaN)", double(c[0]),
+              double(c[1]));
+    double one[2] = { 1, 0 }, w[2] = { -0.0, nan };
+    cblas_zscal(1, one, w, 1);
+    ctx.check(std::signbit(w[0]) && std::isnan(w[1]),
+              "zscal(1) modified x");
 }
 
 //

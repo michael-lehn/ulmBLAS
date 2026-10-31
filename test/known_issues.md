@@ -439,13 +439,15 @@ reject them in the CBLAS and Fortran 77 interfaces?
 
 Issue #0026: ?scal with alpha = 0 and NaN or Inf in x
 Type: DESIGN
-Status: OPEN
-Covered by tests: T0605 (numeric, DESIGN)
+Status: RESOLVED
+Covered by tests: T0605 (numeric, regression test), T0013 (netlib, regression test)
 
 `?scal`, `csscal` and `zdscal` set x to zero for alpha = 0; the reference
-multiplies, so NaN and Inf give NaN.  The internal `scal` is also used for
-beta = 0 in level 2 and 3, where zeros are required (issues #0006, #0010).
-Open: should the public `?scal` multiply?
+multiplies, so NaN and Inf give NaN.  Answer: as the reference.  The
+public functions (Fortran 77, CBLAS and `ulmblas_` names) use `scalBlas`,
+which leaves x unchanged for alpha = 1 and multiplies otherwise (complex
+products as in Fortran); the internal `scal`, used for beta = 0 in level
+2 and 3, still assigns zeros (issues #0006, #0010).
 
 Issue #0027: trsm with side = Left multiplies by the reciprocals of the diagonal
 Type: DESIGN

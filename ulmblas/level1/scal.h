@@ -1,6 +1,8 @@
 #ifndef ULMBLAS_LEVEL1_SCAL_H
 #define ULMBLAS_LEVEL1_SCAL_H 1
 
+#include <complex>
+
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename VX>
@@ -9,6 +11,13 @@ template <typename IndexType, typename Alpha, typename VX>
          const Alpha    &alpha,
          VX             *x,
          IndexType      incX);
+
+template <typename IndexType, typename Alpha, typename VX>
+    void
+    scalBlas(IndexType      n,
+             const Alpha    &alpha,
+             VX             *x,
+             IndexType      incX);
 
 } // namespace ulmBLAS
 

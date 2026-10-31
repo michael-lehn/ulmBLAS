@@ -395,6 +395,15 @@
      +         CALL FAIL('?SCAL with INCX <= 0 modified the array')
    40    CONTINUE
    50 CONTINUE
+*     ?SCAL with alpha = 0 multiplies (issue #0026): Inf gives NaN
+      DX(1) = 1D0
+      DX(2) = DX(1)/0D0
+      SX(1) = 1.0
+      SX(2) = SX(1)/0.0
+      CALL DSCAL(1, 0D0, DX(2), 1)
+      CALL SSCAL(1, 0.0, SX(2), 1)
+      IF (DX(2).EQ.DX(2) .OR. SX(2).EQ.SX(2))
+     +   CALL FAIL('?SCAL with ALPHA = 0: Inf does not give NaN')
 *     X = (3, 4) with INCX = -2: elements 11 and 9
       SX(9) = 4.0
       SX(11) = 3.0

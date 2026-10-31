@@ -20,7 +20,7 @@ F77BLAS(sscal)(const ULMBLAS_INDEX_TYPE *n_,
     if (incX<=0) {
         return;
     }
-    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
+    ulmBLAS::scalBlas<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
@@ -39,7 +39,7 @@ F77BLAS(dscal)(const ULMBLAS_INDEX_TYPE *n_,
     if (incX<=0) {
         return;
     }
-    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
+    ulmBLAS::scalBlas<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
@@ -61,7 +61,7 @@ F77BLAS(cscal)(const ULMBLAS_INDEX_TYPE *n_,
     if (incX<=0) {
         return;
     }
-    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
+    ulmBLAS::scalBlas<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
@@ -83,7 +83,7 @@ F77BLAS(zscal)(const ULMBLAS_INDEX_TYPE *n_,
     if (incX<=0) {
         return;
     }
-    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
+    ulmBLAS::scalBlas<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
@@ -105,7 +105,7 @@ F77BLAS(csscal)(const ULMBLAS_INDEX_TYPE *n_,
     if (incX<=0) {
         return;
     }
-    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
+    ulmBLAS::scalBlas<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
@@ -127,7 +127,7 @@ F77BLAS(zdscal)(const ULMBLAS_INDEX_TYPE *n_,
     if (incX<=0) {
         return;
     }
-    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
+    ulmBLAS::scalBlas<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 } // extern "C"

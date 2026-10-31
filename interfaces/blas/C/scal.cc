@@ -13,7 +13,7 @@ ULMBLAS(sscal)(const ULMBLAS_INDEX_TYPE n,
     if (incX<0) {
         x -= incX*(n-1);
     }
-    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
+    ulmBLAS::scalBlas<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
@@ -25,7 +25,7 @@ ULMBLAS(dscal)(const ULMBLAS_INDEX_TYPE n,
     if (incX<0) {
         x -= incX*(n-1);
     }
-    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
+    ulmBLAS::scalBlas<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
@@ -40,7 +40,7 @@ ULMBLAS(csscal)(const ULMBLAS_INDEX_TYPE n,
     if (incX<0) {
         x -= incX*(n-1);
     }
-    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
+    ulmBLAS::scalBlas<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 
@@ -56,7 +56,7 @@ ULMBLAS(zdscal)(const ULMBLAS_INDEX_TYPE n,
     if (incX<0) {
         x -= incX*(n-1);
     }
-    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
+    ulmBLAS::scalBlas<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
@@ -72,7 +72,7 @@ ULMBLAS(cscal)(const ULMBLAS_INDEX_TYPE n,
     if (incX<0) {
         x -= incX*(n-1);
     }
-    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
+    ulmBLAS::scalBlas<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 
@@ -89,7 +89,7 @@ ULMBLAS(zscal)(const ULMBLAS_INDEX_TYPE n,
     if (incX<0) {
         x -= incX*(n-1);
     }
-    ulmBLAS::scal<std::ptrdiff_t>(n, alpha, x, incX);
+    ulmBLAS::scalBlas<std::ptrdiff_t>(n, alpha, x, incX);
 }
 
 void
