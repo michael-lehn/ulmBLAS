@@ -23,13 +23,15 @@ namespace {
 
 int          xerblaCalls;
 int          xerblaInfo;
+int          xerblaRowMajor;
 std::string  xerblaRoutine;
 
 void
 resetXerbla()
 {
-    xerblaCalls = 0;
-    xerblaInfo  = 0;
+    xerblaCalls    = 0;
+    xerblaInfo     = 0;
+    xerblaRowMajor = -1;
     xerblaRoutine.clear();
 }
 
@@ -106,9 +108,12 @@ checkCase(test::Context &ctx, const char *name, int info, bool same)
 extern "C" void
 cblas_xerbla(int info, const char *rout, const char *, ...)
 {
+    extern int RowMajorStrg;
+
     ++xerblaCalls;
-    xerblaInfo    = info;
-    xerblaRoutine = rout;
+    xerblaInfo     = info;
+    xerblaRowMajor = RowMajorStrg;
+    xerblaRoutine  = rout;
 }
 
 ULMBLAS_TEST(T0700, "errors/cblas_dsyr with n=4, ldA=1")
@@ -235,4 +240,39 @@ ULMBLAS_TEST(T0702, "errors/cblas_?syr, ?syr2, ?her, ?her2 with n=0, ldA=0")
     ERRCASE(double, "cblas_zher", 8, cblas_zher(CblasRowMajor, CblasLower, 0, b.ral, b.X, 1, b.A, 0));
     ERRCASE(float, "cblas_cher2", 10, cblas_cher2(CblasColMajor, CblasUpper, 0, b.al, b.X, 1, b.Y, 1, b.A, 0));
     ERRCASE(double, "cblas_zher2", 10, cblas_zher2(CblasRowMajor, CblasLower, 0, b.al, b.X, 1, b.Y, 1, b.A, 0));
+}
+
+//
+//  Issue #0020: for row major calls the wrappers report the position of
+//  the argument in the call of the column major routine and set
+//  RowMajorStrg, so that cblas_xerbla can translate it (reference CBLAS).
+//  The level 3 wrappers did not set RowMajorStrg.  Expected INFO values as
+//  reported by the reference CBLAS of LAPACK 3.12.1.
+//
+#define ROWCASE(T, NAME, INFO, ROWMAJOR, CALL)                              \
+    {                                                                       \
+        ERRCASE(T, NAME, INFO, CALL)                                        \
+        ctx.check(xerblaRowMajor==ROWMAJOR, "%s: RowMajorStrg is %d, "      \
+                  "expected %d", NAME, xerblaRowMajor, ROWMAJOR);          \
+    }
+
+ULMBLAS_TEST(T0703, "errors/row major calls set RowMajorStrg")
+{
+    // level 3
+    ROWCASE(double, "cblas_dgemm", 4, 1, cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 4, -1, 4, b.ral, b.A, 4, b.B, 4, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_dgemm", 11, 1, cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4, b.ral, b.A, 1, b.B, 4, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_dgemm", 9, 1, cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4, b.ral, b.A, 4, b.B, 1, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_dgemm", 5, 0, cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 4, -1, 4, b.ral, b.A, 4, b.B, 4, b.rbe, b.C, 4));
+    ROWCASE(float, "cblas_ssymm", 5, 1, cblas_ssymm(CblasRowMajor, CblasLeft, CblasUpper, -1, 4, b.ral, b.A, 4, b.B, 4, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_zhemm", 5, 1, cblas_zhemm(CblasRowMajor, CblasLeft, CblasUpper, -1, 4, b.al, b.A, 4, b.B, 4, b.be, b.C, 4));
+    ROWCASE(double, "cblas_dsyrk", 8, 1, cblas_dsyrk(CblasRowMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral, b.A, 1, b.rbe, b.C, 4));
+    ROWCASE(float, "cblas_cherk", 5, 1, cblas_cherk(CblasRowMajor, CblasUpper, CblasNoTrans, 4, -1, b.ral, b.A, 4, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_dsyr2k", 10, 1, cblas_dsyr2k(CblasRowMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral, b.A, 4, b.B, 1, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_zher2k", 8, 1, cblas_zher2k(CblasRowMajor, CblasUpper, CblasNoTrans, 4, 4, b.al, b.A, 1, b.B, 4, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_dtrmm", 6, 1, cblas_dtrmm(CblasRowMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, 4, -1, b.ral, b.A, 4, b.B, 4));
+    ROWCASE(float, "cblas_strsm", 7, 1, cblas_strsm(CblasRowMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, -1, 4, b.ral, b.A, 4, b.B, 4));
+    // level 2 (already set before the audit)
+    ROWCASE(double, "cblas_dgemv", 3, 1, cblas_dgemv(CblasRowMajor, CblasNoTrans, 4, -1, b.ral, b.A, 4, b.X, 1, b.rbe, b.Y, 1));
+    ROWCASE(double, "cblas_dger", 8, 1, cblas_dger(CblasRowMajor, 4, 4, b.ral, b.X, 0, b.Y, 1, b.A, 4));
+    ROWCASE(double, "cblas_zher2", 6, 0, cblas_zher2(CblasColMajor, CblasUpper, 4, b.al, b.X, 0, b.Y, 1, b.A, 4));
 }

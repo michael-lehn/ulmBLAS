@@ -242,6 +242,9 @@ CBLAS(ssymm)(enum CBLAS_ORDER   order,
     }
 
     if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_ssymm", "");
         return;
     }
@@ -317,6 +320,9 @@ CBLAS(dsymm)(enum CBLAS_ORDER   order,
     }
 
     if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_dsymm", "");
         return;
     }
@@ -392,6 +398,9 @@ CBLAS(csymm)(enum CBLAS_ORDER   order,
     }
 
     if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_csymm", "");
         return;
     }
@@ -467,6 +476,9 @@ CBLAS(zsymm)(enum CBLAS_ORDER   order,
     }
 
     if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_zsymm", "");
         return;
     }

@@ -299,6 +299,20 @@ Covered by tests: T0702 (numeric, regression test)
 The wrappers checked `ldA < n` instead of `ldA < max(1,n)` (reference:
 error 8, or 10 for ?syr2 and ?her2).  Fixed.
 
+Issue #0020: Wrong parameter numbers in messages of cblas_xerbla for row major calls
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0703 (numeric, regression test)
+
+For row major calls the reference CBLAS reports the position of the
+argument in the call of the column major routine, sets RowMajorStrg and
+cblas_xerbla translates the position (e.g. gemm 4 <-> 5, 9 <-> 11).  The
+level 3 wrappers of ulmBLAS did not set RowMajorStrg, so a cblas_xerbla of
+the user (or of the Netlib test programs) could not translate, and the
+default cblas_xerbla of ulmBLAS did not translate at all.  Fixed: all
+wrappers set RowMajorStrg before calling cblas_xerbla, the default
+handler translates as the reference.
+
 ## Design questions
 
 Issue #0002: alpha = 0 with NaN or Inf in operands that reference BLAS does not reference

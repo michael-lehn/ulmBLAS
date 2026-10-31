@@ -362,6 +362,9 @@ CBLAS(strmm)(enum CBLAS_ORDER         order,
     }
 
     if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_strmm", "");
         return;
     }
@@ -439,6 +442,9 @@ CBLAS(dtrmm)(enum CBLAS_ORDER         order,
     }
 
     if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_dtrmm", "");
         return;
     }
@@ -515,6 +521,9 @@ CBLAS(ctrmm)(enum CBLAS_ORDER         order,
     }
 
     if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_ctrmm", "");
         return;
     }
@@ -591,6 +600,9 @@ CBLAS(ztrmm)(enum CBLAS_ORDER         order,
     }
 
     if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_ztrmm", "");
         return;
     }

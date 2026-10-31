@@ -130,6 +130,9 @@ CBLAS(cherk)(enum CBLAS_ORDER      order,
     }
 
     if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_cherk", "");
         return;
     }
@@ -189,6 +192,9 @@ CBLAS(zherk)(enum CBLAS_ORDER      order,
     }
 
     if (info!=0) {
+        extern int RowMajorStrg;
+
+        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
         CBLAS(xerbla)(info, "cblas_zherk", "");
         return;
     }
