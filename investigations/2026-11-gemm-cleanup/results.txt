@@ -1,0 +1,375 @@
+# Raw results of the GEMM cleanup benchmarks (Apple M5, 2026-11-01). See CLEANUP_REPORT.md.
+# build: cur-sme = 6c554eec -mcpu=apple-m4; cur-arm = 6c554eec default (NEON); new-arm = cleanup (reference);
+#        cur-x86, new-x86 = 6c554eec and cleanup, x86-64 SSE3 under Rosetta 2
+# bench-gemm: build prec round n GFLOP/s (median of 3 samples, m = n = k)
+cur-arm c r1 8 28.948
+cur-arm c r1 16 54.876
+cur-arm c r1 32 73.774
+cur-arm c r1 64 95.856
+cur-arm c r1 128 104.311
+cur-arm c r1 256 100.765
+cur-arm c r1 512 115.822
+cur-arm c r1 1024 117.138
+cur-arm c r1 2048 113.916
+cur-arm c r1 4000 116.530
+cur-arm c r2 8 30.439
+cur-arm c r2 16 54.920
+cur-arm c r2 32 78.459
+cur-arm c r2 64 98.920
+cur-arm c r2 128 112.118
+cur-arm c r2 256 118.448
+cur-arm c r2 512 123.935
+cur-arm c r2 1024 124.270
+cur-arm c r2 2048 123.617
+cur-arm c r2 4000 124.284
+cur-arm d r1 8 32.688
+cur-arm d r1 16 45.182
+cur-arm d r1 32 35.505
+cur-arm d r1 64 47.407
+cur-arm d r1 128 52.385
+cur-arm d r1 256 57.086
+cur-arm d r1 512 59.075
+cur-arm d r1 1024 60.121
+cur-arm d r1 2048 60.954
+cur-arm d r1 4000 61.513
+cur-arm d r2 8 21.166
+cur-arm d r2 16 35.554
+cur-arm d r2 32 23.634
+cur-arm d r2 64 34.596
+cur-arm d r2 128 34.228
+cur-arm d r2 256 45.805
+cur-arm d r2 512 47.795
+cur-arm d r2 1024 50.860
+cur-arm d r2 2048 45.291
+cur-arm d r2 4000 49.226
+cur-arm s r1 8 10.375
+cur-arm s r1 16 30.150
+cur-arm s r1 32 58.415
+cur-arm s r1 64 81.214
+cur-arm s r1 128 102.526
+cur-arm s r1 256 111.391
+cur-arm s r1 512 121.873
+cur-arm s r1 1024 124.509
+cur-arm s r1 2048 125.831
+cur-arm s r1 4000 126.254
+cur-arm s r2 8 9.303
+cur-arm s r2 16 25.686
+cur-arm s r2 32 46.699
+cur-arm s r2 64 67.034
+cur-arm s r2 128 84.664
+cur-arm s r2 256 94.567
+cur-arm s r2 512 100.134
+cur-arm s r2 1024 101.790
+cur-arm s r2 2048 102.660
+cur-arm s r2 4000 103.896
+cur-arm z r1 8 21.650
+cur-arm z r1 16 30.690
+cur-arm z r1 32 44.444
+cur-arm z r1 64 50.326
+cur-arm z r1 128 56.544
+cur-arm z r1 256 60.180
+cur-arm z r1 512 61.361
+cur-arm z r1 1024 61.592
+cur-arm z r1 2048 61.554
+cur-arm z r1 4000 60.715
+cur-arm z r2 8 17.712
+cur-arm z r2 16 28.414
+cur-arm z r2 32 43.170
+cur-arm z r2 64 49.598
+cur-arm z r2 128 54.680
+cur-arm z r2 256 57.406
+cur-arm z r2 512 58.544
+cur-arm z r2 1024 56.553
+cur-arm z r2 2048 31.857
+cur-arm z r2 4000 58.486
+cur-sme c r1 8 10.712
+cur-sme c r1 16 68.861
+cur-sme c r1 32 276.529
+cur-sme c r1 64 471.284
+cur-sme c r1 128 718.188
+cur-sme c r1 256 1053.303
+cur-sme c r1 512 1214.424
+cur-sme c r1 1024 1374.155
+cur-sme c r1 2048 1268.257
+cur-sme c r1 4000 1380.430
+cur-sme c r2 8 10.776
+cur-sme c r2 16 70.464
+cur-sme c r2 32 313.653
+cur-sme c r2 64 529.869
+cur-sme c r2 128 842.469
+cur-sme c r2 256 1086.400
+cur-sme c r2 512 1290.968
+cur-sme c r2 1024 1417.630
+cur-sme c r2 2048 1391.995
+cur-sme c r2 4000 1480.916
+cur-sme d r1 8 35.665
+cur-sme d r1 16 46.263
+cur-sme d r1 32 165.801
+cur-sme d r1 64 249.877
+cur-sme d r1 128 337.632
+cur-sme d r1 256 388.264
+cur-sme d r1 512 423.194
+cur-sme d r1 1024 428.781
+cur-sme d r1 2048 424.825
+cur-sme d r1 4000 433.199
+cur-sme d r2 8 30.255
+cur-sme d r2 16 34.242
+cur-sme d r2 32 126.013
+cur-sme d r2 64 185.826
+cur-sme d r2 128 256.261
+cur-sme d r2 256 290.208
+cur-sme d r2 512 321.043
+cur-sme d r2 1024 318.190
+cur-sme d r2 2048 308.632
+cur-sme d r2 4000 330.134
+cur-sme s r1 8 4.859
+cur-sme s r1 16 55.460
+cur-sme s r1 32 364.223
+cur-sme s r1 64 686.859
+cur-sme s r1 128 908.692
+cur-sme s r1 256 1227.059
+cur-sme s r1 512 1420.994
+cur-sme s r1 1024 1469.720
+cur-sme s r1 2048 1534.487
+cur-sme s r1 4000 1586.311
+cur-sme s r2 8 4.268
+cur-sme s r2 16 46.057
+cur-sme s r2 32 291.639
+cur-sme s r2 64 501.788
+cur-sme s r2 128 623.806
+cur-sme s r2 256 916.529
+cur-sme s r2 512 1081.606
+cur-sme s r2 1024 1108.379
+cur-sme s r2 2048 1165.725
+cur-sme s r2 4000 1205.493
+cur-sme z r1 8 11.013
+cur-sme z r1 16 79.155
+cur-sme z r1 32 131.088
+cur-sme z r1 64 220.068
+cur-sme z r1 128 299.245
+cur-sme z r1 256 364.843
+cur-sme z r1 512 389.724
+cur-sme z r1 1024 412.480
+cur-sme z r1 2048 417.939
+cur-sme z r1 4000 413.561
+cur-sme z r2 8 10.931
+cur-sme z r2 16 79.877
+cur-sme z r2 32 121.713
+cur-sme z r2 64 196.732
+cur-sme z r2 128 273.189
+cur-sme z r2 256 329.682
+cur-sme z r2 512 373.592
+cur-sme z r2 1024 389.430
+cur-sme z r2 2048 373.366
+cur-sme z r2 4000 385.633
+cur-x86 d r1 8 6.512
+cur-x86 d r1 16 11.830
+cur-x86 d r1 32 15.561
+cur-x86 d r1 64 18.961
+cur-x86 d r1 128 22.310
+cur-x86 d r1 256 23.101
+cur-x86 d r1 512 22.730
+cur-x86 d r1 1024 23.185
+cur-x86 d r1 2048 23.185
+cur-x86 d r1 4000 23.288
+cur-x86 d r2 8 9.102
+cur-x86 d r2 16 16.992
+cur-x86 d r2 32 22.646
+cur-x86 d r2 64 25.048
+cur-x86 d r2 128 26.448
+cur-x86 d r2 256 27.228
+cur-x86 d r2 512 25.357
+cur-x86 d r2 1024 27.193
+cur-x86 d r2 2048 27.577
+cur-x86 d r2 4000 26.794
+new-arm c r1 8 9.923
+new-arm c r1 16 12.018
+new-arm c r1 32 12.219
+new-arm c r1 64 13.287
+new-arm c r1 128 12.837
+new-arm c r1 256 13.496
+new-arm c r1 512 12.750
+new-arm c r1 1024 12.918
+new-arm c r1 2048 12.014
+new-arm c r1 4000 10.649
+new-arm c r2 8 11.089
+new-arm c r2 16 12.799
+new-arm c r2 32 13.477
+new-arm c r2 64 13.780
+new-arm c r2 128 13.960
+new-arm c r2 256 14.045
+new-arm c r2 512 14.061
+new-arm c r2 1024 14.059
+new-arm c r2 2048 13.810
+new-arm c r2 4000 12.712
+new-arm d r1 8 10.227
+new-arm d r1 16 20.965
+new-arm d r1 32 26.766
+new-arm d r1 64 28.926
+new-arm d r1 128 29.247
+new-arm d r1 256 30.004
+new-arm d r1 512 29.969
+new-arm d r1 1024 30.742
+new-arm d r1 2048 30.933
+new-arm d r1 4000 30.810
+new-arm d r2 8 7.898
+new-arm d r2 16 17.119
+new-arm d r2 32 21.630
+new-arm d r2 64 23.272
+new-arm d r2 128 24.785
+new-arm d r2 256 24.842
+new-arm d r2 512 25.293
+new-arm d r2 1024 24.885
+new-arm d r2 2048 25.066
+new-arm d r2 4000 24.767
+new-arm d r3 8 9.931
+new-arm d r3 16 20.410
+new-arm d r3 32 26.477
+new-arm d r3 64 28.357
+new-arm d r3 128 29.820
+new-arm d r3 256 30.297
+new-arm d r3 512 30.640
+new-arm d r3 1024 30.527
+new-arm d r3 2048 29.887
+new-arm d r3 4000 28.729
+new-arm s r1 8 8.409
+new-arm s r1 16 13.101
+new-arm s r1 32 15.486
+new-arm s r1 64 16.864
+new-arm s r1 128 17.509
+new-arm s r1 256 17.892
+new-arm s r1 512 18.002
+new-arm s r1 1024 18.075
+new-arm s r1 2048 18.119
+new-arm s r1 4000 18.117
+new-arm s r2 8 6.864
+new-arm s r2 16 10.504
+new-arm s r2 32 12.662
+new-arm s r2 64 13.876
+new-arm s r2 128 14.370
+new-arm s r2 256 14.183
+new-arm s r2 512 14.219
+new-arm s r2 1024 15.034
+new-arm s r2 2048 14.883
+new-arm s r2 4000 16.988
+new-arm z r1 8 10.935
+new-arm z r1 16 12.171
+new-arm z r1 32 12.950
+new-arm z r1 64 13.199
+new-arm z r1 128 13.391
+new-arm z r1 256 13.450
+new-arm z r1 512 13.482
+new-arm z r1 1024 13.375
+new-arm z r1 2048 13.362
+new-arm z r1 4000 12.511
+new-arm z r2 8 10.843
+new-arm z r2 16 12.297
+new-arm z r2 32 12.951
+new-arm z r2 64 13.189
+new-arm z r2 128 13.393
+new-arm z r2 256 13.409
+new-arm z r2 512 13.367
+new-arm z r2 1024 13.469
+new-arm z r2 2048 12.944
+new-arm z r2 4000 12.978
+new-x86 d r1 8 7.219
+new-x86 d r1 16 13.956
+new-x86 d r1 32 19.168
+new-x86 d r1 64 21.538
+new-x86 d r1 128 22.698
+new-x86 d r1 256 23.346
+new-x86 d r1 512 23.345
+new-x86 d r1 1024 23.039
+new-x86 d r1 2048 23.327
+new-x86 d r1 4000 21.565
+new-x86 d r2 8 8.576
+new-x86 d r2 16 17.058
+new-x86 d r2 32 22.938
+new-x86 d r2 64 24.989
+new-x86 d r2 128 26.561
+new-x86 d r2 256 27.525
+new-x86 d r2 512 27.172
+new-x86 d r2 1024 25.969
+new-x86 d r2 2048 27.374
+new-x86 d r2 4000 27.667
+# shapes.c: build round m n k GFLOP/s microseconds (best of 7)
+cur-arm r1 8 8 8 31.093 0.033
+cur-arm r1 16 16 16 39.156 0.209
+cur-arm r1 32 32 32 30.786 2.129
+cur-arm r1 64 64 64 38.329 13.678
+cur-arm r1 256 256 256 49.581 676.758
+cur-arm r1 2048 64 2048 41.943 12800.000
+cur-arm r1 64 2048 2048 45.011 11927.625
+cur-arm r1 2048 2048 64 47.966 11192.750
+cur-arm r2 8 8 8 34.096 0.030
+cur-arm r2 16 16 16 44.939 0.182
+cur-arm r2 32 32 32 33.922 1.932
+cur-arm r2 64 64 64 46.310 11.321
+cur-arm r2 256 256 256 55.247 607.352
+cur-arm r2 2048 64 2048 43.445 12357.500
+cur-arm r2 64 2048 2048 45.892 11698.500
+cur-arm r2 2048 2048 64 54.525 9846.375
+cur-sme r1 8 8 8 31.974 0.032
+cur-sme r1 16 16 16 40.312 0.203
+cur-sme r1 32 32 32 108.327 0.605
+cur-sme r1 64 64 64 195.833 2.677
+cur-sme r1 256 256 256 301.560 111.270
+cur-sme r1 2048 64 2048 245.627 2185.719
+cur-sme r1 64 2048 2048 224.289 2393.656
+cur-sme r1 2048 2048 64 207.933 2581.938
+cur-sme r2 8 8 8 35.441 0.029
+cur-sme r2 16 16 16 46.302 0.177
+cur-sme r2 32 32 32 161.014 0.407
+cur-sme r2 64 64 64 232.928 2.251
+cur-sme r2 256 256 256 342.529 97.961
+cur-sme r2 2048 64 2048 259.966 2065.156
+cur-sme r2 64 2048 2048 238.027 2255.500
+cur-sme r2 2048 2048 64 238.596 2250.125
+cur-x86 r1 8 8 8 7.514 0.136
+cur-x86 r1 16 16 16 14.052 0.583
+cur-x86 r1 32 32 32 19.079 3.435
+cur-x86 r1 64 64 64 19.929 26.308
+cur-x86 r1 256 256 256 21.837 1536.594
+cur-x86 r1 2048 64 2048 20.955 25620.500
+cur-x86 r1 64 2048 2048 22.155 24232.250
+cur-x86 r1 2048 2048 64 21.650 24797.750
+cur-x86 r2 8 8 8 8.922 0.115
+cur-x86 r2 16 16 16 16.738 0.489
+cur-x86 r2 32 32 32 22.290 2.940
+cur-x86 r2 64 64 64 24.845 21.102
+cur-x86 r2 256 256 256 26.157 1282.828
+cur-x86 r2 2048 64 2048 24.464 21945.750
+cur-x86 r2 64 2048 2048 25.658 20924.000
+cur-x86 r2 2048 2048 64 25.489 21062.750
+new-arm r1 8 8 8 8.468 0.121
+new-arm r1 16 16 16 17.301 0.473
+new-arm r1 32 32 32 22.206 2.951
+new-arm r1 64 64 64 23.623 22.194
+new-arm r1 256 256 256 24.038 1395.891
+new-arm r1 2048 64 2048 21.289 25218.500
+new-arm r1 64 2048 2048 23.870 22491.500
+new-arm r1 2048 2048 64 25.189 21313.750
+new-arm r2 8 8 8 9.515 0.108
+new-arm r2 16 16 16 19.731 0.415
+new-arm r2 32 32 32 25.654 2.555
+new-arm r2 64 64 64 26.407 19.854
+new-arm r2 256 256 256 29.309 1144.859
+new-arm r2 2048 64 2048 26.207 20486.000
+new-arm r2 64 2048 2048 28.321 18956.500
+new-arm r2 2048 2048 64 29.165 18408.000
+new-x86 r1 8 8 8 7.563 0.135
+new-x86 r1 16 16 16 14.055 0.583
+new-x86 r1 32 32 32 19.014 3.447
+new-x86 r1 64 64 64 20.170 25.993
+new-x86 r1 256 256 256 22.208 1510.937
+new-x86 r1 2048 64 2048 17.896 29999.000
+new-x86 r1 64 2048 2048 22.064 24332.250
+new-x86 r1 2048 2048 64 21.748 24686.000
+new-x86 r2 8 8 8 8.245 0.124
+new-x86 r2 16 16 16 16.697 0.491
+new-x86 r2 32 32 32 22.748 2.881
+new-x86 r2 64 64 64 25.177 20.824
+new-x86 r2 256 256 256 27.437 1222.953
+new-x86 r2 2048 64 2048 21.983 24422.000
+new-x86 r2 64 2048 2048 26.503 20257.250
+new-x86 r2 2048 2048 64 25.811 20799.750

@@ -2,7 +2,7 @@
 
 Tuning iteration 3, the last, of OpenBLAS's SKYLAKEX DGEMM kernel inside
 ulmBLAS
-([ulmblas/level3/ukernel/openblas](../../ulmblas/level3/ukernel/openblas/README.md)).
+([ulmblas/level3/ukernel/openblas](https://github.com/michael-lehn/ulmBLAS/blob/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel/openblas/README.md)).
 
 - **Hypothesis** (from the
   [diagnosis](../016-2026-10-27-uc3-icelake-openblas-kernel-prof/README.md)

@@ -29,4 +29,6 @@ CONFIG_CPPFLAGS += -DUSE_TESTPARAM_NR=$(NR)
 CONFIG_CPPFLAGS += -mcpu=apple-m4
 CONFIG_REQUIRES  = sme
 
+CONFIG_KERNEL_REMOVED = SME2
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

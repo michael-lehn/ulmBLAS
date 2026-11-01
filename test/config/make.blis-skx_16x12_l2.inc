@@ -9,4 +9,6 @@ CONFIG_DESCRIPTION = BLIS kernel skx_16x12_l2, default block sizes
 CONFIG_CPPFLAGS += -mavx -mfma -mavx512f -DULMBLAS_DGEMM_UKERNEL_blis_skx_16x12_l2
 CONFIG_REQUIRES  = avx fma avx512f
 
+CONFIG_KERNEL_REMOVED = DGEMM blis_skx_16x12_l2
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

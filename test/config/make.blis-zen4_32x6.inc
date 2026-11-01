@@ -9,4 +9,6 @@ CONFIG_DESCRIPTION = BLIS kernel zen4_32x6, default block sizes
 CONFIG_CPPFLAGS += -mavx -mfma -mavx512f -DULMBLAS_DGEMM_UKERNEL_blis_zen4_32x6
 CONFIG_REQUIRES  = avx fma avx512f
 
+CONFIG_KERNEL_REMOVED = DGEMM blis_zen4_32x6
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

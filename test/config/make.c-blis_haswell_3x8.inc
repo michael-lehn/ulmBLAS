@@ -9,4 +9,6 @@ CONFIG_DESCRIPTION = CGEMM kernel BLIS haswell_3x8, default block sizes
 CONFIG_CPPFLAGS += -mavx -mfma -DULMBLAS_CGEMM_UKERNEL_blis_haswell_3x8
 CONFIG_REQUIRES  = avx fma
 
+CONFIG_KERNEL_REMOVED = CGEMM blis_haswell_3x8
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

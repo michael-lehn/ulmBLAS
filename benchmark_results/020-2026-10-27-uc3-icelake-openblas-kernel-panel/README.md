@@ -1,7 +1,7 @@
 # Intel Xeon Platinum 8358 (Ice Lake): OpenBLAS's kernel inside ulmBLAS, one call per panel of B (2026-10-27)
 
 Tuning iteration 2 of OpenBLAS's SKYLAKEX DGEMM kernel inside ulmBLAS
-([ulmblas/level3/ukernel/openblas](../../ulmblas/level3/ukernel/openblas/README.md)).
+([ulmblas/level3/ukernel/openblas](https://github.com/michael-lehn/ulmBLAS/blob/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel/openblas/README.md)).
 
 - **Hypothesis** (from the diagnosis
   [016-2026-10-27-uc3-icelake-openblas-kernel-prof](../016-2026-10-27-uc3-icelake-openblas-kernel-prof/README.md)):

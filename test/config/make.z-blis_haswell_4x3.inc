@@ -9,4 +9,6 @@ CONFIG_DESCRIPTION = ZGEMM kernel BLIS haswell_4x3, default block sizes
 CONFIG_CPPFLAGS += -mavx -mfma -DULMBLAS_ZGEMM_UKERNEL_blis_haswell_4x3
 CONFIG_REQUIRES  = avx fma
 
+CONFIG_KERNEL_REMOVED = ZGEMM blis_haswell_4x3
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

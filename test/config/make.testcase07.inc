@@ -25,4 +25,6 @@ CONFIG_CPPFLAGS += -DUSE_TESTPARAM_NR=$(NR)
 CONFIG_CPPFLAGS += -mavx -mfma
 CONFIG_REQUIRES  = avx fma
 
+CONFIG_KERNEL_REMOVED = AVX/FMA
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

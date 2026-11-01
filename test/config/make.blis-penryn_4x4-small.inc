@@ -20,4 +20,6 @@ CONFIG_CPPFLAGS += -DUSE_TESTPARAM_NR=$(NR)
 CONFIG_CPPFLAGS += -msse3 -DULMBLAS_DGEMM_UKERNEL_blis_penryn_4x4
 CONFIG_REQUIRES  = sse3
 
+CONFIG_KERNEL_REMOVED = DGEMM blis_penryn_4x4
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

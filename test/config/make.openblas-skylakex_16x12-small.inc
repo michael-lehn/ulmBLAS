@@ -20,4 +20,6 @@ CONFIG_CPPFLAGS += -DUSE_TESTPARAM_NR=$(NR)
 CONFIG_CPPFLAGS += -mavx -mfma -mavx512f -DULMBLAS_DGEMM_UKERNEL_openblas_skylakex_16x12
 CONFIG_REQUIRES  = avx fma avx512f
 
+CONFIG_KERNEL_REMOVED = DGEMM openblas_skylakex_16x12
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

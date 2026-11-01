@@ -23,4 +23,6 @@ CONFIG_CPPFLAGS += -DUSE_TESTPARAM_NR=$(NR)
 CONFIG_CPPFLAGS += -mavx -mfma -DULMBLAS_SGEMM_UKERNEL_blis_haswell_6x16
 CONFIG_REQUIRES  = avx fma
 
+CONFIG_KERNEL_REMOVED = SGEMM blis_haswell_6x16
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

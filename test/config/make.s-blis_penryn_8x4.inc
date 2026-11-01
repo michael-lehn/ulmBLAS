@@ -9,4 +9,6 @@ CONFIG_DESCRIPTION = SGEMM kernel BLIS penryn_8x4, default block sizes
 CONFIG_CPPFLAGS += -msse3 -DULMBLAS_SGEMM_UKERNEL_blis_penryn_8x4
 CONFIG_REQUIRES  = sse3
 
+CONFIG_KERNEL_REMOVED = SGEMM blis_penryn_8x4
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

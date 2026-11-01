@@ -9,4 +9,6 @@ CONFIG_DESCRIPTION = SGEMM kernel AOCL haswell_6x16, default block sizes
 CONFIG_CPPFLAGS += -mavx -mfma -DULMBLAS_SGEMM_UKERNEL_blis_aocl_haswell_6x16
 CONFIG_REQUIRES  = avx fma
 
+CONFIG_KERNEL_REMOVED = SGEMM blis_aocl_haswell_6x16
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

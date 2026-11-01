@@ -10,4 +10,6 @@ CONFIG_CPPFLAGS += -mavx -mavx2 -mfma -DULMBLAS_DGEMM_UKERNEL_openblas_haswell_4
 CONFIG_CPPFLAGS += -DULMBLAS_DGEMM_KC=600
 CONFIG_REQUIRES  = avx avx2 fma
 
+CONFIG_KERNEL_REMOVED = DGEMM openblas_haswell_4x8
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

@@ -23,4 +23,6 @@ CONFIG_CPPFLAGS += -DUSE_TESTPARAM_NR=$(NR)
 CONFIG_CPPFLAGS += -mavx -mfma -mavx512f -mavx512dq -DULMBLAS_ZGEMM_UKERNEL_blis_zen4_12x4
 CONFIG_REQUIRES  = avx fma avx512f avx512dq
 
+CONFIG_KERNEL_REMOVED = ZGEMM blis_zen4_12x4
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

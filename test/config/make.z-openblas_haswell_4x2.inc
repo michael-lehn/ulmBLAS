@@ -9,4 +9,6 @@ CONFIG_DESCRIPTION = ZGEMM kernel OpenBLAS haswell_4x2, default block sizes
 CONFIG_CPPFLAGS += -mavx -mavx2 -mfma -DULMBLAS_ZGEMM_UKERNEL_openblas_haswell_4x2
 CONFIG_REQUIRES  = avx avx2 fma
 
+CONFIG_KERNEL_REMOVED = ZGEMM openblas_haswell_4x2
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

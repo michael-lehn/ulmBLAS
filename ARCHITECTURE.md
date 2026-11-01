@@ -106,23 +106,18 @@ micro kernels and the configuration at the bottom:
 | Level 3 algorithms | `ulmblas/level3/*.tcc` | cache blocking (MC, KC, NC), structure of symmetric, Hermitian and triangular matrices |
 | Packing | `ulmblas/level3/pack` | copying blocks into MR and NR panels, zero padding, symmetric and triangular blocks |
 | Macro kernels | `ulmblas/level3/mkernel` | loops over the MR x NR tiles; edge tiles through a buffer; tiles on the diagonal of triangular results |
-| Micro kernels | `ulmblas/level3/ukernel/{ref,sse,avx,neon,sme,blis,openblas}` | the MR x NR update, the architecture-specific part (the SME2 backend also packs single panels) |
+| Micro kernels | `ulmblas/level3/ukernel/{ref,sse}` | the MR x NR update, the architecture-specific part |
 | Configuration | `ulmblas/config` | kernel selection, block sizes, compile-time checks |
 
 The macro kernels work with *any* register block size: the edge tiles of a
 block (mr < MR or nr < NR) are computed by the micro kernel into a local
 buffer, and the diagonal tiles of syrk, syr2k, herk and her2k are found by
-comparing row and column ranges.  MR and NR need not divide each other (the
-AVX/FMA and NEON DGEMM kernels use MR = 6, NR = 8), and a test configuration
-runs the reference kernel with these block sizes on every platform.  Static checks
+comparing row and column ranges.  MR and NR need not divide each other: a
+test configuration runs the reference kernel with MR = 6, NR = 8 on every
+platform.  Static checks
 enforce the remaining constraints (MC a multiple of MR and NR, NC a multiple
 of NR, so that the packed panels fit the buffers).
 
-Two exceptions concern small problems.  On AArch64 (NEON or SME2), `gemm`
-for double computes problems with m·n·k ≤ 8192 (A and C with unit row
-stride, as column major and the Fortran interface pass them) directly
-with NEON register tiles on A, B and C, without packing (`ulmblas/level3/gemmdirect.tcc`;
-the threshold is `ULMBLAS_GEMM_DIRECT_MAX_MNK`, and 0 disables the path).
 The packing buffers are kept between calls in a small cache per thread
 (`ulmblas/auxiliary/memorypool.tcc`): no lock, no shared state, and a
 block released by another thread is simply freed.  The buffers have a
@@ -139,47 +134,16 @@ that throws (T0357, T0358 test the failure with fault injection).
 
 | Kernel | Data types | MR x NR | Instruction set | Selected |
 |---|---|---|---|---|
-| reference (`ukernel/ref`) | all four | 4 x 4 (double; 8 x 4, 4 x 2, 2 x 2 for float, complex float, complex double) | portable C++ | on x86 without SSE3, on AArch64 with `-DULMBLAS_NO_NEON`, on all other targets |
+| reference (`ukernel/ref`) | all four | 4 x 4 (double; 8 x 4, 4 x 2, 2 x 2 for float, complex float, complex double) | portable C++ | on all targets other than x86-64 with SSE3; for all types other than double |
 | SSE3 (`ukernel/sse`) | double: GEMM and TRSM kernels; level 1 kernels | 4 x 4 | x86-64 SSE3, inline assembly | by default on x86-64 |
-| AVX/FMA (`ukernel/avx`) | double: GEMM kernel | 6 x 8 | x86-64 AVX and FMA, inline assembly derived from BLIS | with `ARCHFLAGS='-mavx -mfma'` (or e.g. `-march=native`) |
-| NEON (`ukernel/neon`) | double: GEMM kernel (derived from BLIS); float, complex float, complex double: GEMM kernels | 6 x 8; 8 x 12, 4 x 6, 4 x 3 | AArch64 AdvSIMD (NEON) FMA, inline assembly and intrinsics | by default on AArch64 (64-bit pointers) |
-| SME2, experimental (`ukernel/sme`) | double: GEMM kernel (derived from BLIS pull request #921) and panel packing; float, complex float, complex double: GEMM kernels and packing | 32 x 16; 32 x 32, 32 x 16, 16 x 16 | AArch64 SME2 (FMOPA into ZA, streaming mode), ACLE intrinsics | with clang and flags enabling SME2, e.g. `ARCHFLAGS=-mcpu=apple-m4` |
 
 Kernels are selected at compile time from the compiler's target macros
-(`ulmblas/config/simd.h`); there is no runtime dispatch, so a library built
-with AVX/FMA requires a CPU with AVX and FMA.  AdvSIMD is part of every AArch64
-CPU, so the NEON kernel needs no flags; `CPPFLAGS=-DULMBLAS_NO_NEON` selects
-the reference kernels.  The SME2 backend replaces the NEON kernels for all four
-types if the compiler is clang and the flags enable SME2;
-`CPPFLAGS=-DULMBLAS_NO_SME` keeps the NEON kernels.  Types without an
-optimized kernel use the reference kernel.  The vendored kernels of BLIS,
-AOCL-BLAS and OpenBLAS (x86-64) are selected explicitly, per data type,
-with `-DULMBLAS_DGEMM_UKERNEL_…`, `-DULMBLAS_ZGEMM_UKERNEL_…`,
-`-DULMBLAS_SGEMM_UKERNEL_…` and `-DULMBLAS_CGEMM_UKERNEL_…` (see the
-[support matrix](README.md#current-micro-kernel-support) and
-[ulmblas/level3/ukernel/blis](ulmblas/level3/ukernel/blis/README.md)).
+(`ulmblas/config/simd.h`); there is no runtime dispatch.  The kernels for AVX,
+AVX-512, NEON and SME2 and those vendored from BLIS, AOCL-BLAS and OpenBLAS were removed
+for the time being ([CLEANUP_REPORT.md](CLEANUP_REPORT.md)).
 
-| Platform | Built | Test suite run | Optimized kernels executed and benchmarked |
-|---|---|---|---|
-| Linux x86-64, Debian 12, Intel Core i5-12500; GCC 12, clang 16 | yes | full `make check` (the NEON and SME2 configurations are skipped) | SSE3 and AVX/FMA executed, both benchmarked |
-| macOS arm64, Apple M5; Apple clang 21, GCC 16 | yes | full `make check` (the AVX/FMA configurations are skipped; with GCC also the SME2 configuration) | NEON and SME2 (Apple clang) executed and benchmarked |
-| macOS x86-64 under Rosetta 2; Apple clang 21 | yes | numeric tests (SSE3 kernels) | SSE3 executed, not benchmarked; AVX/FMA only compiled (Rosetta 2 provides no AVX) |
-| 32-bit x86 | compiled (all interface sources; reference kernels), not linked | no | — |
-
-Other platforms with a C++11 compiler and GNU Make should work with the
-reference kernels, but I have not tried them.  Optimized kernels exist for
-x86-64 and AArch64.  The NEON kernels have only run on Apple silicon (Linux
-on AArch64 is untested), the SME2 backend only on an Apple M5.  The
-x86-64 vendored kernels were also tested on an Intel Xeon (Ice Lake) and,
-for DGEMM, on an AMD EPYC (Zen 4) of bwUniCluster 3.0.  More in
+More on the tested platforms in
 [BUILDING.md](BUILDING.md#tested-configurations).
-
-Every kernel, with origin, files, selection macro, requirements, tests and
-benchmarks, is listed in the
-[micro kernel README](ulmblas/level3/ukernel/README.md); the vendored
-kernels of other libraries and how they are integrated are described in
-[ulmblas/level3/ukernel/blis](ulmblas/level3/ukernel/blis/README.md) and
-[ulmblas/level3/ukernel/openblas](ulmblas/level3/ukernel/openblas/README.md).
 
 ## Adding a micro kernel
 
@@ -187,8 +151,8 @@ A micro kernel for a new architecture or data type plugs into the existing
 algorithms, and all routines that use the GEMM micro kernel (the complete
 level 3 BLAS) benefit without further changes.  Kernels from BLIS are a
 natural source, BLIS has kernels for many x86-64, ARM, POWER and RISC-V
-processors, and the AVX/FMA and NEON kernels show how it is done.  You
-can't just copy a BLIS kernel, though.  These are the things to take care
+processors, and [the kernels removed by the cleanup](https://github.com/michael-lehn/ulmBLAS/tree/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel)
+show how it is done.  You can't just copy a BLIS kernel, though.  These are the things to take care
 of:
 
 - Interface.  ulmBLAS calls
@@ -198,10 +162,10 @@ of:
 - Packing layout.  A is packed as MR x kc panels (column by column), B as
   kc x NR panels (row by row), as in BLIS; kernels expecting other layouts
   need adapted packing.  A kernel that stores its tile with unit column
-  stride can compute the transposed product instead: the NEON kernel calls
-  the BLIS 8 x 6 kernel with the panels of B and A swapped (C^T = B^T A^T).
+  stride can compute the transposed product instead, with the panels of B
+  and A swapped (C^T = B^T A^T).
 - Block sizes.  MR, NR and the cache block sizes MC, KC, NC are set per
-  kernel and data type in `ulmblas/config/blocksize.h`; MC and KC must be
+  configuration and data type in `ulmblas/config/blocksize.h`; MC and KC must be
   chosen (measured) for the cache sizes of the target.
 - Edge tiles and strides.  ulmBLAS calls the kernel for full tiles only;
   edge tiles go through a buffer.  If the assembly code supports only unit
@@ -209,21 +173,23 @@ of:
   for general strides.
 - Numerical semantics.  With β = 0, C must not be read (it may contain
   NaN); β = NaN must not be taken as zero.
-- Alignment and memory.  The packing buffers are aligned for the kernel
-  (32 bytes for AVX) and padded for reading ahead; inline assembly must declare
+- Alignment and memory.  The packing buffers are aligned to 16 bytes
+  (`ulmblas/auxiliary/memorypool.tcc`; a kernel with aligned loads of wider
+  registers needs more) and padded for reading ahead; inline assembly must declare
   all modified registers and memory.
 - Instruction set, compiler and object format.  The kernel is selected by
   the compiler's target macros; inline assembly must assemble with GCC and
   clang and work on ELF and Mach-O (e.g. numeric local labels).
 - Tests.  A test configuration with `CONFIG_REQUIRES` runs the complete
   test suite with the new kernel where the CPU supports it and reports SKIP
-  elsewhere; `test/numeric/ukernel.cc` tests the micro kernel directly.
+  elsewhere; `test/numeric/ukernel.cc` tests the micro kernel directly.  A
+  configuration whose kernel is temporarily removed stays registered with
+  `CONFIG_KERNEL_REMOVED` and reports SKIP with that reason.
 - License and attribution.  The upstream copyright and license notices
   must be preserved (see [License](README.md#license-provenance-and-acknowledgments)).
 
-The AVX/FMA kernel (`ulmblas/level3/ukernel/avx/ugemm.tcc`) is a good
-example: it lists where the code comes from and every change I made to
-the BLIS code.
+The SSE kernel (`ulmblas/level3/ukernel/sse/ugemm.tcc`) is the example on
+this branch.
 
 ## Interfaces
 
@@ -343,9 +309,8 @@ MKLROOT=/opt/intel/oneapi/mkl/latest make bench-gemm PREC=z   # e.g. with oneMKL
 Libraries that are not found are skipped and listed with the reason.
 
 Options: `PREC=s|d|c|z` selects SGEMM, DGEMM, CGEMM or ZGEMM;
-`LIBS="..."` the libraries; `ARCHFLAGS='...'` the ulmBLAS micro kernels
-(e.g. `ARCHFLAGS='-mavx -mfma -DULMBLAS_DGEMM_UKERNEL_blis_haswell_8x6'`,
-see the [support matrix](README.md#current-micro-kernel-support)); `SAMPLES=n`
+`LIBS="..."` the libraries; `ARCHFLAGS='...'` the flags of the ulmBLAS build
+(see the [support matrix](README.md#current-micro-kernel-support)); `SAMPLES=n`
 the timed samples per size (default 3, median reported); `ROUNDS=n`
 repetitions over all libraries in rotated order (default 1); `SIZES="..."`
 the sizes; `CPU=n` pins the programs to one CPU on Linux; `OUT=dir` the

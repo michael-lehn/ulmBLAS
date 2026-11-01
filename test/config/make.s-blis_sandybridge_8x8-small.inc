@@ -23,4 +23,6 @@ CONFIG_CPPFLAGS += -DUSE_TESTPARAM_NR=$(NR)
 CONFIG_CPPFLAGS += -mavx -DULMBLAS_SGEMM_UKERNEL_blis_sandybridge_8x8
 CONFIG_REQUIRES  = avx
 
+CONFIG_KERNEL_REMOVED = SGEMM blis_sandybridge_8x8
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

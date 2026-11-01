@@ -1,0 +1,219 @@
+Test by test comparison of GitHub master (6c554eec) with the cleanup branch
+on an Apple M5: all 88 configurations of master plus testcase12-14.
+Produced with compare-test-results.py from test/build/check.log.
+'make check' natively; 'make check-numeric' for x86-64 under Rosetta 2.
+
+=============== arm64
+results: before 16198, after 16750
+test IDs: before 190, after 190, missing [], new []
+
+(configuration, test) of BEFORE, status before -> after:
+    1270  PASS -> PASS
+     368  PASS -> SKIP(kernel removed)
+      24  SKIP(64-bit index) -> SKIP(64-bit index)
+   14536  SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+
+per configuration:
+  blis-haswell_12x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_12x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_4x12: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_4x12-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_6x8: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_6x8-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_8x6: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_8x6-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-penryn_4x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-penryn_4x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-sandybridge_8x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-sandybridge_8x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-sandybridge_int_8x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-sandybridge_int_8x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-skx_16x12_l2: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-skx_16x12_l2-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-skx_16x14: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-skx_16x14-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-zen4_32x6: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-zen4_32x6-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-zen4_8x24: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-zen4_8x24-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-zen5_8x24: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-zen5_8x24-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_aocl_haswell_3x8: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_aocl_haswell_3x8-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_haswell_3x8: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_haswell_3x8-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_haswell_8x3: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_haswell_8x3-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_sandybridge_8x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_sandybridge_8x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-openblas_haswell_8x2: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-openblas_haswell_8x2-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-openblas_skylakex_8x2: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-openblas_skylakex_8x2-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  openblas-haswell_4x8: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  openblas-haswell_4x8-kc600: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  openblas-haswell_4x8-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  openblas-skylakex_16x12: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  openblas-skylakex_16x12-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  registry: 6 PASS -> PASS
+  s-blis_aocl_haswell_6x16: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_aocl_haswell_6x16-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_16x6: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_16x6-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_24x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_24x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_4x24: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_4x24-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_6x16: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_6x16-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_penryn_8x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_penryn_8x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_sandybridge_8x8: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_sandybridge_8x8-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_skx_32x12_l2: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_skx_32x12_l2-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-openblas_haswell_8x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-openblas_haswell_8x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-openblas_skylakex_16x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-openblas_skylakex_16x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  testcase01: 184 PASS -> PASS
+  testcase02: 184 PASS -> PASS
+  testcase03: 184 PASS -> PASS
+  testcase04: 184 PASS -> PASS
+  testcase05: 184 PASS -> PASS
+  testcase06: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  testcase07: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  testcase08: 184 PASS -> SKIP(kernel removed)
+  testcase09: 184 PASS -> SKIP(kernel removed)
+  testcase10: 172 PASS -> PASS, 12 SKIP(64-bit index) -> SKIP(64-bit index)
+  testcase11: 172 PASS -> PASS, 12 SKIP(64-bit index) -> SKIP(64-bit index)
+  z-blis_aocl_haswell_3x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_aocl_haswell_3x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_haswell_3x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_haswell_3x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_haswell_4x3: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_haswell_4x3-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_sandybridge_4x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_sandybridge_4x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_zen4_12x4: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_zen4_12x4-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_zen4_4x12: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_zen4_4x12-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-openblas_haswell_4x2: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-openblas_haswell_4x2-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-openblas_skylakex_4x2: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-openblas_skylakex_4x2-small: 184 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+
+results only in AFTER:
+     184  testcase12: SKIP(CPU or compiler)
+     184  testcase13: PASS
+     184  testcase14: SKIP(CPU or compiler)
+
+disappeared: 0, failures after: 0
+
+=============== x86
+results: before 13998, after 14475
+test IDs: before 165, after 165, missing [], new []
+
+(configuration, test) of BEFORE, status before -> after:
+    1119  PASS -> PASS
+     636  PASS -> SKIP(kernel removed)
+   12243  SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+
+per configuration:
+  blis-haswell_12x4: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_12x4-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_4x12: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_4x12-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_6x8: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_6x8-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_8x6: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-haswell_8x6-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-penryn_4x4: 159 PASS -> SKIP(kernel removed)
+  blis-penryn_4x4-small: 159 PASS -> SKIP(kernel removed)
+  blis-sandybridge_8x4: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-sandybridge_8x4-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-sandybridge_int_8x4: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-sandybridge_int_8x4-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-skx_16x12_l2: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-skx_16x12_l2-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-skx_16x14: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-skx_16x14-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-zen4_32x6: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-zen4_32x6-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-zen4_8x24: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-zen4_8x24-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-zen5_8x24: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  blis-zen5_8x24-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_aocl_haswell_3x8: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_aocl_haswell_3x8-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_haswell_3x8: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_haswell_3x8-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_haswell_8x3: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_haswell_8x3-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_sandybridge_8x4: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-blis_sandybridge_8x4-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-openblas_haswell_8x2: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-openblas_haswell_8x2-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-openblas_skylakex_8x2: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  c-openblas_skylakex_8x2-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  openblas-haswell_4x8: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  openblas-haswell_4x8-kc600: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  openblas-haswell_4x8-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  openblas-skylakex_16x12: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  openblas-skylakex_16x12-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  registry: 6 PASS -> PASS
+  s-blis_aocl_haswell_6x16: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_aocl_haswell_6x16-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_16x6: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_16x6-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_24x4: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_24x4-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_4x24: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_4x24-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_6x16: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_haswell_6x16-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_penryn_8x4: 159 PASS -> SKIP(kernel removed)
+  s-blis_penryn_8x4-small: 159 PASS -> SKIP(kernel removed)
+  s-blis_sandybridge_8x8: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_sandybridge_8x8-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_skx_32x12_l2: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-blis_skx_32x12_l2-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-openblas_haswell_8x4: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-openblas_haswell_8x4-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-openblas_skylakex_16x4: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  s-openblas_skylakex_16x4-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  testcase01: 159 PASS -> PASS
+  testcase02: 159 PASS -> PASS
+  testcase03: 159 PASS -> PASS
+  testcase04: 159 PASS -> PASS
+  testcase05: 159 PASS -> PASS
+  testcase06: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  testcase07: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  testcase08: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  testcase09: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  testcase10: 159 PASS -> PASS
+  testcase11: 159 PASS -> PASS
+  z-blis_aocl_haswell_3x4: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_aocl_haswell_3x4-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_haswell_3x4: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_haswell_3x4-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_haswell_4x3: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_haswell_4x3-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_sandybridge_4x4: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_sandybridge_4x4-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_zen4_12x4: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_zen4_12x4-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_zen4_4x12: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-blis_zen4_4x12-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-openblas_haswell_4x2: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-openblas_haswell_4x2-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-openblas_skylakex_4x2: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+  z-openblas_skylakex_4x2-small: 159 SKIP(CPU or compiler) -> SKIP(CPU or compiler)
+
+results only in AFTER:
+     159  testcase12: PASS
+     159  testcase13: PASS
+     159  testcase14: SKIP(CPU or compiler)
+
+disappeared: 0, failures after: 0

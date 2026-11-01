@@ -9,4 +9,6 @@ CONFIG_DESCRIPTION = SGEMM kernel OpenBLAS skylakex_16x4, default block sizes
 CONFIG_CPPFLAGS += -mavx -mfma -mavx512f -DULMBLAS_SGEMM_UKERNEL_openblas_skylakex_16x4
 CONFIG_REQUIRES  = avx fma avx512f
 
+CONFIG_KERNEL_REMOVED = SGEMM openblas_skylakex_16x4
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

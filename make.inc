@@ -167,28 +167,6 @@ CXXCOMPILE = $(CXX) $(ULMBLAS_CPPFLAGS) $(ULMBLAS_INDEX_DEFS) \
 FCOMPILE   = $(FC) $(FOPTFLAGS) $(FFLAGS)
 
 #
-#  Micro kernels that are assembly files (ulmblas/level3/ukernel/openblas/
-#  asm/*.S) are assembled into every library if they are selected, i.e. if
-#  the flags (ARCHFLAGS, CPPFLAGS, CXXFLAGS or the CONFIG_CPPFLAGS of a
-#  configuration) define their selection macro.  The library makefiles add
-#  $(ULMBLAS_ASM_OBJECTS) to their objects and build them with ASCOMPILE
-#  (the C++ compiler driver preprocesses *.S files and runs the assembler).
-#  Recursively expanded: CONFIG_CPPFLAGS and BUILD_DIR are set after this
-#  file is included.
-#
-ULMBLAS_ASM_DIR      = $(TOPDIR)/ulmblas/level3/ukernel/openblas/asm
-ULMBLAS_KERNEL_FLAGS = $(ARCHFLAGS) $(CONFIG_CPPFLAGS) $(CPPFLAGS) $(CXXFLAGS)
-ULMBLAS_ASM_SELECTED = $(filter -DULMBLAS_DGEMM_UKERNEL_openblas_$1 \
-                                -DULMBLAS_DGEMM_UKERNEL_openblas_$1=%, \
-                                $(ULMBLAS_KERNEL_FLAGS))
-ULMBLAS_ASM_SOURCES  = $(if $(call ULMBLAS_ASM_SELECTED,haswell_4x8), \
-                            $(ULMBLAS_ASM_DIR)/haswell_4x8.S)
-ULMBLAS_ASM_OBJECTS  = $(patsubst %.S, $(BUILD_DIR)/%.o, \
-                                  $(notdir $(ULMBLAS_ASM_SOURCES)))
-
-ASCOMPILE  = $(CXX) -I$(TOPDIR) $(CPPFLAGS) $(DEPFLAGS)
-
-#
 #  Generate a header from a template (*.h.in) with the C++ preprocessor.
 #  -P suppresses line markers, -CC keeps comments.  The template undefines
 #  __cplusplus on purpose, hence -w.

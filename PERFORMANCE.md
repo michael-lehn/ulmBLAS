@@ -1,5 +1,12 @@
 # ulmBLAS performance
 
+> **Cleanup branch.**  This branch restores the simple GEMM architecture of
+> 2015 ([CLEANUP_REPORT.md](CLEANUP_REPORT.md)): only the portable reference
+> kernels and the SSE3 kernels for x86-64 remain, so it is much slower than
+> master.  The measurements on this page are of
+> [the state before the cleanup](https://github.com/michael-lehn/ulmBLAS/tree/6c554eec707e22f118bae5dcaea10ad9945aac54), with kernels this branch does not
+> have.  They are kept as the record of what was measured.
+
 This page collects all my benchmarks of ulmBLAS: the machines, the
 operations I measured and the results, with links to the benchmark
 campaigns in [benchmark_results/](benchmark_results/README.md) that
@@ -76,7 +83,7 @@ interleaved rounds; every variant is its own curve:
 
 The best ulmBLAS build uses **OpenBLAS's SKYLAKEX micro kernel**
 (16 x 12, AVX-512), vendored into ulmBLAS
-([ulmblas/level3/ukernel/openblas](ulmblas/level3/ukernel/openblas/README.md))
+([ulmblas/level3/ukernel/openblas](https://github.com/michael-lehn/ulmBLAS/blob/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel/openblas/README.md))
 and called from ulmBLAS's own GEMM algorithm, packing and blocking.  The
 other builds use AOCL-BLAS's `zen4` 32 x 6 and BLIS's `skx` 16 x 14 kernel
 and ulmBLAS's own AVX2/FMA 6 x 8 kernel.
@@ -350,7 +357,7 @@ micro kernels and its reference kernel, against oneMKL 2025.0.1
 
 The best ulmBLAS build uses **AOCL-BLAS's `zen4` 12 x 4 kernel**
 (AVX-512), vendored into ulmBLAS
-([ulmblas/level3/ukernel/blis](ulmblas/level3/ukernel/blis/README.md#zgemm-kernels)).
+([ulmblas/level3/ukernel/blis](https://github.com/michael-lehn/ulmBLAS/blob/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel/blis/README.md#zgemm-kernels)).
 Native AOCL-BLAS selects the same kernel on this CPU; BLIS's `skx`
 configuration has no complex kernel and computes ZGEMM with its DGEMM
 kernel (induced method 1m).

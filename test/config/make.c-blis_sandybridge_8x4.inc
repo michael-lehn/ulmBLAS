@@ -9,4 +9,6 @@ CONFIG_DESCRIPTION = CGEMM kernel BLIS sandybridge_8x4, default block sizes
 CONFIG_CPPFLAGS += -mavx -DULMBLAS_CGEMM_UKERNEL_blis_sandybridge_8x4
 CONFIG_REQUIRES  = avx
 
+CONFIG_KERNEL_REMOVED = CGEMM blis_sandybridge_8x4
+
 include $(dir $(lastword $(MAKEFILE_LIST)))make.names.inc

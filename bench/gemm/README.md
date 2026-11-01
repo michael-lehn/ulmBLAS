@@ -72,19 +72,10 @@ place of another.
 
 ## ulmBLAS micro kernels
 
-The micro kernels of ulmBLAS are selected at compile time by `ARCHFLAGS`
-(see the [micro kernel README](../../ulmblas/level3/ukernel/README.md));
-`make bench-gemm` rebuilds `libcblas.a` when they change, and
-`detection.txt` lists the kernel set, MR x NR and MC, KC, NC per type:
-
-```sh
-make bench-gemm ARCHFLAGS='-mavx -mfma'                    # x86-64: AVX2/FMA kernel
-make bench-gemm ARCHFLAGS='-mavx -mfma -mavx512f -DULMBLAS_DGEMM_UKERNEL_openblas_skylakex_16x12'
-make bench-gemm ARCHFLAGS=-mcpu=apple-m4                   # Apple M4/M5: SME2 kernel (clang)
-```
-
-One run benchmarks one ulmBLAS build; compare several kernels with several
-runs (different `OUT`).
+The micro kernels of ulmBLAS are selected at compile time from the target of
+the compiler (see the [micro kernel README](../../ulmblas/level3/ukernel/README.md));
+`make bench-gemm` rebuilds `libcblas.a` when `ARCHFLAGS` change, and
+`detection.txt` lists the kernel set, MR x NR and MC, KC, NC per type.
 
 ## Interpreting the numbers
 
