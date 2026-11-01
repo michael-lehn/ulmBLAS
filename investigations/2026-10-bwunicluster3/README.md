@@ -33,8 +33,8 @@ baseline on an exclusive Zen 4 node is still queued.
 Sections 1-7 are complete; the results grow with the campaigns
 ([section 5](#5-results)).  ulmBLAS can now select 13 DGEMM micro kernels
 of BLIS 2.0, AOCL-BLAS 5.x and OpenBLAS 0.3.34 at build time
-([ulmblas/level3/ukernel/blis](../../ulmblas/level3/ukernel/blis/README.md),
-[ulmblas/level3/ukernel/openblas](../../ulmblas/level3/ukernel/openblas/README.md));
+([ulmblas/level3/ukernel/blis](https://github.com/michael-lehn/ulmBLAS/blob/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel/blis/README.md),
+[ulmblas/level3/ukernel/openblas](https://github.com/michael-lehn/ulmBLAS/blob/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel/openblas/README.md));
 all pass the test suite on native hardware ([kernels/tests](kernels/tests/README.md)).
 The analysis of OpenBLAS on Ice Lake: [openblas](openblas/README.md).
 

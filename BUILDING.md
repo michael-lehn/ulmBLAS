@@ -81,24 +81,9 @@ defaults of the user variables are `CXXFLAGS = -Wall` and
 `FFLAGS = -Wall -fimplicit-none`.  As usual for GNU Make, variables given on
 the command line take precedence over the environment.  `ARCHFLAGS` defaults to
 `-msse3 -mfpmath=sse` if the C++ compiler accepts these flags (x86), which
-selects the optimized SSE kernels; on other architectures it is empty.  On
-AArch64 (64-bit pointers) the NEON micro kernels are selected without any
-flags (AdvSIMD is part of every AArch64 CPU): for double MR = 6, NR = 8,
-derived from BLIS (see `LICENSE`), and kernels of their own for float,
-complex float and complex double; `CPPFLAGS=-DULMBLAS_NO_NEON` selects the
-portable reference kernels instead.  Other architectures use the reference
-kernels.  With `ARCHFLAGS='-mavx -mfma'` (or
-e.g. `-march=native` on a CPU with AVX and FMA) the AVX/FMA micro kernel for
-double (MR = 6, NR = 8, derived from BLIS, see `LICENSE`) replaces the SSE
-micro kernel; the libraries then require a CPU with AVX and FMA.  With clang
-and flags that enable SME2 (e.g. `ARCHFLAGS=-mcpu=apple-m4` on an Apple M4
-or M5) the experimental SME2 backend (for double MR = 32, NR = 16, micro
-kernel derived from BLIS pull request #921, see `LICENSE`; kernels of their
-own for the other three types; panel packing in streaming mode) replaces
-the NEON kernels; the libraries then require a
-CPU with SME2, SME_F64F64 and a streaming vector length of 512 bits.
-`CPPFLAGS=-DULMBLAS_NO_SME` keeps the NEON kernels.  GCC 16 on macOS cannot
-link the SME2 backend (its runtime lacks `__arm_get_current_vg`).  Objects are rebuilt when the compiler
+selects the optimized SSE kernels; on other architectures it is empty and the
+portable reference kernels are used.  Wider instruction sets (e.g.
+`-march=native`) do not select a faster kernel.  Objects are rebuilt when the compiler
 or the flags change, and header dependencies are tracked.
 
 ## Libraries
@@ -123,24 +108,18 @@ make check VERBOSE=1          # print every result
 make check STRICT=1           # skipped tests are errors
 ```
 
-All tests are run for eleven configurations (`test/config`): four with tiny
+All tests are run for ten configurations (`test/config`): five with tiny
 block sizes and the reference kernels (so that small matrices cover multiple
 and partial blocks of the GEMM algorithm; one of them with MR = 6 and NR = 8,
-which do not divide each other), one with the default block sizes and
-kernels (on AArch64 the NEON kernel), two with the AVX/FMA micro kernel
-(`-mavx -mfma`, default and tiny block sizes), one with the NEON micro
-kernel and tiny block sizes, one with the SME2 backend and tiny block
-sizes (MR = 32, NR = 16; `-mcpu=apple-m4`), and two with a 64-bit
+which do not divide each other, one with MR = 32 and NR = 16), one with the
+default block sizes and kernels, one of them built with `-mavx -mfma`, one with
+the SSE kernels and tiny block sizes, and two with a 64-bit
 `ULMBLAS_INDEX_TYPE` (default and tiny block sizes; see
-[INSTALL.md](INSTALL.md#index-type)).  The AVX/FMA configurations are only built and
-run if the compiler, the CPU and the operating system support AVX and FMA,
-the NEON configuration only on AArch64, the SME2 configuration only with
-clang on a CPU with SME2; otherwise their tests are reported as SKIP.  The libraries of each configuration are
-built in `test/build/`.  The vendored kernels of BLIS, AOCL-BLAS and
-OpenBLAS have configurations of their own (`blis-NAME`, `openblas-NAME`,
-`s-NAME`, `c-NAME`, `z-NAME`, each also with `-small`), which are not
-part of the default set and are run with `CONFIGS=...` (see the
-[micro kernel README](ulmblas/level3/ukernel/README.md)).
+[INSTALL.md](INSTALL.md#index-type)).  The configurations with `-mavx -mfma` and
+with the SSE kernels and tiny block sizes are only built and run if the
+compiler, the CPU and the operating system support these instructions;
+otherwise their tests are reported as SKIP.  The libraries of each
+configuration are built in `test/build/`.
 
 - **C++ tests** (`test/numeric`): levels 1, 2 and 3 of the C interface for
   float, double, complex float and complex double, row and column major,
@@ -213,6 +192,10 @@ which validates it, regenerates its figures and updates the index (see
 
 ## Tested configurations
 
+The test records of this branch are in [CLEANUP_REPORT.md](CLEANUP_REPORT.md).
+The records below are of the state before the cleanup, which contained the
+same reference and SSE kernels.
+
 Tested (October 2026) on macOS 26 (arm64) with GNU Make 4.4.1 and 3.81:
 
 - full `make check` with Apple clang 21 (`c++`) and GCC 16.2 (`g++-16`,
@@ -230,32 +213,14 @@ Tested (October 2026) on macOS 26 (arm64) with GNU Make 4.4.1 and 3.81:
 Tested (October 2026) on Debian 12 (x86-64, Intel Core i5-12500) with GNU
 Make 4.3: full `make check` with GCC 12.2 (`g++`, `gcc`) and with clang 16
 (`clang++-16`, `clang-16`), both with gfortran 12.2; the SSE kernels are
-selected by default, the AVX/FMA micro kernel is tested by the
-configurations 06 and 07 (and with `ARCHFLAGS='-mavx -mfma'`); the NEON
-configuration 08 is skipped.
+selected by default.
 
 C++11 is the minimum (C++98 is rejected: the code uses `decltype`, `auto`
 and `<type_traits>`).
 
-On arm64 the NEON micro kernel is used (configurations 04 and 08; tested
-with Apple clang 21 and GCC 16, and with AddressSanitizer and
-UndefinedBehaviorSanitizer); it was only run on Apple silicon (an Apple M5),
-not on Linux or other AArch64 CPUs.  The SME2 backend (configuration 09,
-and configuration 04 with `ARCHFLAGS=-mcpu=apple-m4`) was tested with Apple
-clang 21 on an Apple M5 only.  The x86 SSE kernels
+The x86 SSE kernels
 were tested on native x86-64 hardware (Linux, GCC 12 and clang 16) and on
 macOS x86-64 under Rosetta 2 (Apple clang 21), not on native macOS x86-64
-hardware.  The AVX/FMA micro kernel was tested on Linux x86-64 (GCC 12,
-clang 16); for macOS x86-64 it was only compiled (Rosetta 2 does not
-provide AVX).  BSD was not tested.  The
+hardware.  BSD was not tested.  The
 macOS system GNU Make 3.81 was tested; GNU Make 3.80 and older are rejected
 by a version check, which was only tested by simulating the version.
-
-The vendored x86-64 kernels were tested on an Intel Xeon Platinum 8358
-(Ice Lake), those that need no AVX-512 also on the Intel Core i5-12500
-(except the SGEMM kernels), and the DGEMM kernels on an AMD EPYC 9454
-(Zen 4); the test records are in
-[investigations/2026-10-bwunicluster3/kernels/tests](investigations/2026-10-bwunicluster3/kernels/tests/README.md)
-(DGEMM) and
-[investigations/2026-10-gemm-datatypes](investigations/2026-10-gemm-datatypes/README.md)
-(ZGEMM, CGEMM).

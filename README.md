@@ -3,6 +3,13 @@
 A BLAS implementation in C++ that shows how high-performance matrix
 multiplication works, and that is easy to extend.
 
+> **Cleanup branch.**  This branch restores the simple GEMM architecture of
+> 2015 ([CLEANUP_REPORT.md](CLEANUP_REPORT.md)): only the portable reference
+> kernels and the SSE3 kernels for x86-64 remain, so it is much slower than
+> master.  Text and results below that mention the AVX, NEON, SME2, BLIS,
+> AOCL-BLAS or OpenBLAS kernels describe
+> [the state before the cleanup](https://github.com/michael-lehn/ulmBLAS/tree/6c554eec707e22f118bae5dcaea10ad9945aac54); they do not apply to this branch.
+
 ## Contents
 
 - [About](#about)
@@ -77,8 +84,8 @@ hat off to their developers.
 
 I did not write the vendored kernels.  Each vendored file records its
 upstream repository, revision, path and checksum and lists every change;
-see [ulmblas/level3/ukernel/blis](ulmblas/level3/ukernel/blis/README.md),
-[ulmblas/level3/ukernel/openblas](ulmblas/level3/ukernel/openblas/README.md)
+see [ulmblas/level3/ukernel/blis](https://github.com/michael-lehn/ulmBLAS/blob/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel/blis/README.md),
+[ulmblas/level3/ukernel/openblas](https://github.com/michael-lehn/ulmBLAS/blob/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel/openblas/README.md)
 and the [license section](#license-provenance-and-acknowledgments).  All
 notices are reproduced in [LICENSE](LICENSE).
 
@@ -156,45 +163,22 @@ too, for example the multiple-precision types of GMP in numerical
 experiments (see [How to Use](#how-to-use)).
 
 To get close to the peak of a processor, though, you need micro kernels
-that make use of its vector and matrix units.  The table lists the
-optimized GEMM micro kernels on master by instruction set and data type.
-The level 3 routines of a type are built on its GEMM micro kernel.
+that make use of its vector and matrix units.  The table lists the GEMM
+micro kernels of this branch by instruction set and data type.  The level
+3 routines of a type are built on its GEMM micro kernel.
 
 ### Current micro kernel support
 
 | Platform / architecture | float (SGEMM) | double (DGEMM) | complex float (CGEMM) | complex double (ZGEMM) |
 |---|:---:|:---:|:---:|:---:|
 | [Portable C++, universal fallback](ulmblas/level3/ukernel/README.md#portable-reference-kernel-all-types) | ○ | ○ | ○ | ○ |
-| x86-64 SSE3 | [●](ulmblas/level3/ukernel/README.md#sgemm-x86-64) | [●](ulmblas/level3/ukernel/README.md#dgemm-x86-64-sse3) | ○ | ○ |
-| x86-64 AVX | [●](ulmblas/level3/ukernel/README.md#sgemm-x86-64) | [●](ulmblas/level3/ukernel/README.md#dgemm-x86-64-avx) | [●](ulmblas/level3/ukernel/README.md#cgemm-x86-64) | [●](ulmblas/level3/ukernel/README.md#zgemm-x86-64) |
-| x86-64 AVX2/FMA | [●](ulmblas/level3/ukernel/README.md#sgemm-x86-64) | [●](ulmblas/level3/ukernel/README.md#dgemm-x86-64-avx2fma) | [●](ulmblas/level3/ukernel/README.md#cgemm-x86-64) | [●](ulmblas/level3/ukernel/README.md#zgemm-x86-64) |
-| x86-64 AVX-512 | [●](ulmblas/level3/ukernel/README.md#sgemm-x86-64) | [●](ulmblas/level3/ukernel/README.md#dgemm-x86-64-avx-512) | [●](ulmblas/level3/ukernel/README.md#cgemm-x86-64) | [●](ulmblas/level3/ukernel/README.md#zgemm-x86-64) |
-| AArch64 NEON | [●](ulmblas/level3/ukernel/README.md#sgemm-aarch64-neon) | [●](ulmblas/level3/ukernel/README.md#dgemm-aarch64-neon) | [●](ulmblas/level3/ukernel/README.md#cgemm-aarch64-neon) | [●](ulmblas/level3/ukernel/README.md#zgemm-aarch64-neon) |
-| AArch64 SME2 (Apple M4, M5; tested on M5) | [●](ulmblas/level3/ukernel/README.md#sgemm-aarch64-sme2) | [●](ulmblas/level3/ukernel/README.md#dgemm-aarch64-sme2) | [●](ulmblas/level3/ukernel/README.md#cgemm-aarch64-sme2) | [●](ulmblas/level3/ukernel/README.md#zgemm-aarch64-sme2) |
+| x86-64 SSE3 | ○ | [●](ulmblas/level3/ukernel/README.md#sse3-kernels-x86-64-double) | ○ | ○ |
 
-● optimized micro kernel(s) on master, tested and benchmarked on native
-hardware ·
-◐ on master and tested, benchmarks still in progress ·
+● optimized micro kernel ·
 ○ portable reference kernel only
 
-Each symbol links to the [micro kernel README](ulmblas/level3/ukernel/README.md),
-which lists origin, MR x NR, selection macros, requirements, tests,
-benchmarks and licenses of the kernels in that cell.  The kernels of
-ulmBLAS itself are the defaults for their instruction set, the kernels of
-BLIS, AOCL-BLAS and OpenBLAS are selected at build time.  The tested
-configurations are listed in [BUILDING.md](BUILDING.md#tested-configurations).
-
-### ulmBLAS's own work on Apple Silicon
-
-For the matrix unit of the Apple M4 and M5, ulmBLAS has an SME2 DGEMM
-micro kernel (32 x 16).  It is derived from the double precision kernel of
-[BLIS pull request #921](https://github.com/flame/blis/pull/921).  I
-developed the backend around it in ulmBLAS: packing in streaming mode, a
-path without packing for very small products, per-thread packing buffers
-and block sizes chosen from measurements.  The SME2 and NEON kernels for
-float, complex float and complex double are my own (the SME2 SGEMM kernel
-uses the tile layout of the single precision kernel of PR #921, but none
-of its code).  For results see [Performance](#performance).
+The tested configurations are listed in
+[BUILDING.md](BUILDING.md#tested-configurations).
 
 ## How to Install
 
@@ -327,31 +311,11 @@ license terms, which [LICENSE](LICENSE) reproduces:
 - BLIS: the design of ulmBLAS follows BLIS, and ulmBLAS uses code,
   concepts and ideas of the BLIS framework (BSD 3-Clause, The University of
   Texas).
-- AVX/FMA micro kernel: derived from the micro kernel
-  `bli_dgemm_haswell_asm_6x8` of BLIS 2.0 (Copyright (C) 2014, The
-  University of Texas at Austin; Copyright (C) 2018 - 2019, Advanced Micro
-  Devices, Inc.; BSD 3-Clause), as adapted for the course High Performance
-  Computing I (Ulm University, 2025/26); provenance and modifications are
-  listed in `ulmblas/level3/ukernel/avx/ugemm.tcc`.
-- NEON micro kernel: derived from the micro kernel
-  `bli_dgemm_armv8a_asm_8x6r` of BLIS 2.0 (Copyright (C) 2014, The
-  University of Texas at Austin; Copyright (C) 2021, The University of
-  Tokyo; BSD 3-Clause); provenance and modifications are listed in
-  `ulmblas/level3/ukernel/neon/ugemm.tcc`.
-- SME2 micro kernel: derived from the double precision kernel of BLIS
-  pull request #921 (https://github.com/flame/blis/pull/921, commit
-  235ef8ec; Copyright (C) 2014, The University of Texas at Austin;
-  Copyright (C) 2021, The University of Tokyo; BSD 3-Clause); provenance
-  and modifications are listed in `ulmblas/level3/ukernel/sme/ugemm.tcc`.
-- Vendored micro kernels of BLIS 2.0, AOCL-BLAS 5.0 and 5.1 in
-  `ulmblas/level3/ukernel/blis/kernel/` (The University of Texas at Austin;
-  Advanced Micro Devices, Inc.; BSD 3-Clause) and of OpenBLAS 0.3.34 in
-  `ulmblas/level3/ukernel/openblas/` (The OpenBLAS Project; BSD 3-Clause):
-  generated from the unmodified upstream files; every file names its
-  source with revision and checksum and lists its changes; see sections 7
-  and 8 of [LICENSE](LICENSE) and the READMEs of
-  [blis](ulmblas/level3/ukernel/blis/README.md) and
-  [openblas](ulmblas/level3/ukernel/openblas/README.md).
+- The AVX/FMA, NEON and SME2 micro kernels derived from BLIS, and the
+  vendored micro kernels of BLIS, AOCL-BLAS and OpenBLAS, are not part of
+  this branch.  Their provenance is documented
+  [before the cleanup](https://github.com/michael-lehn/ulmBLAS/tree/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel); [LICENSE](LICENSE) still
+  reproduces their notices.
 - ATLAS timing programs and headers in `bench/` (ATLAS 3.10.1, BSD-style
   license; R. Clint Whaley, Antoine P. Petitet, Jeff Horner and others).
 - Reference BLAS in `refblas/` (from LAPACK 3.3.1) and the BLAS and

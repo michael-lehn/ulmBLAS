@@ -5,7 +5,7 @@ Platinum 8358 (Ice Lake) — 93-97 against 77-79 GFLOP/s for n ≥ 1024 in
 [010-2026-10-26-uc3-icelake-dgemm](../../../benchmark_results/010-2026-10-26-uc3-icelake-dgemm/README.md)
 — and can ulmBLAS reach it with OpenBLAS's micro kernel?  This page records
 the analysis; the kernel integration is described in
-[ulmblas/level3/ukernel/openblas](../../../ulmblas/level3/ukernel/openblas/README.md).
+[ulmblas/level3/ukernel/openblas](https://github.com/michael-lehn/ulmBLAS/blob/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel/openblas/README.md).
 The integrated kernel passes the ulmBLAS test suite on Ice Lake and Zen 4.
 
 ## What actually runs

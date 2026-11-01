@@ -24,98 +24,25 @@ LAPACK routines (`libclapack.a`, `clapack.h`) in the top-level directory:
 git clone https://github.com/michael-lehn/ulmBLAS.git
 cd ulmBLAS
 make check_arch                   # supported ARCHFLAGS, with a suggestion
-make                              # SSE3 kernels on x86-64, NEON on AArch64
+make                              # SSE3 kernels on x86-64, otherwise reference kernels
 make help                         # all targets and settings
 ```
 
 ## Choosing the micro kernels
 
-The micro kernels are selected at compile time with `ARCHFLAGS`, and the
-library then needs a CPU with these instructions.  To find suitable
-flags, run
+The micro kernels are selected at compile time from the target of the
+compiler: on x86-64 with SSE3 the SSE kernels for double (`make.inc` adds
+`-msse3` to the default `ARCHFLAGS` if the compiler accepts it), everywhere
+else and for the other data types the portable reference kernels.  There is
+nothing to choose on this branch; `make check_arch` shows what is selected:
 
 ```sh
 make check_arch
 ```
 
-It detects the CPU and its instruction sets (without executing them) and
-the C++ compiler, lists every `ARCHFLAGS` configuration of ulmBLAS that both
-support, shows which micro kernel each one actually selects for each data
-type, and marks one with `=>` and `(suggested)`.  It builds nothing.  On
-the MacBook Air with an Apple M5 and Apple clang:
-
-```text
-$ make check_arch
-System:    Darwin arm64, Apple M5
-Compiler:  CXX=c++ (Apple clang version 21.0.0 (clang-2100.3.34.2))
-Features:  neon sme2-f64-svl512  (CPU and operating system)
-
-Current ARCHFLAGS: '' (the default of make.inc)
-
-Supported configurations (CPU, operating system and compiler checked):
-
- ulmBLAS's own micro kernels, selected by the instruction set:
-   ulmBLAS NEON (default)       make
-                                -> double neon 6x8; float neon 8x12; complex float neon 4x6; complex double neon 4x3
-=> ulmBLAS SME2 (experimental)  make ARCHFLAGS='-mcpu=apple-m4'  (suggested)
-                                -> double sme 32x16; float sme 32x32; complex float sme 32x16; complex double sme 16x16
-
-Default:   make
-           -> double neon 6x8; float neon 8x12; complex float neon 4x6; complex double neon 4x3
-Suggested: make ARCHFLAGS='-mcpu=apple-m4'
-           -> double sme 32x16; float sme 32x32; complex float sme 32x16; complex double sme 16x16
-  Why: measured on an Apple M5: DGEMM about 7 times as fast as with the NEON kernel for large matrices.
-  Benchmark campaigns:
-    benchmark_results/004-2026-10-25-macbook-m5-sme
-    benchmark_results/006-2026-10-25-macbook-m5-sme-square
-    benchmark_results/007-2026-10-26-macbook-m5-sme-small
-
-Wider instruction sets alone (e.g. -march=native) do not select a faster
-kernel; vendored kernels need their selection macro.  The kernels:
-ulmblas/level3/ukernel/README.md.
-```
-
-What the output shows:
-
-- **Current ARCHFLAGS** and where they come from (the default of
-  `make.inc`, the command line or the environment).
-- **Each configuration** with the micro kernel it selects and its register
-  tile (MR x NR) per data type, as reported by the ulmBLAS headers compiled
-  with these flags.  Here SME2 changes the kernels of all four types.  The
-  reason for the suggestion is based on DGEMM; the SGEMM and CGEMM
-  benchmarks of these kernels are still running.
-- **The default and the suggested command** next to each other, the reason
-  for the suggestion and the benchmark campaigns it is based on
-  ([004](benchmark_results/004-2026-10-25-macbook-m5-sme/README.md),
-  [006](benchmark_results/006-2026-10-25-macbook-m5-sme-square/README.md),
-  [007](benchmark_results/007-2026-10-26-macbook-m5-sme-small/README.md));
-  where no campaign covers the CPU type, the reason says that it is a
-  heuristic.
-- **Configurations that do not work here**, with the reason: e.g. with
-  GCC, `-mcpu=apple-m4` compiles but keeps the NEON kernel (the SME2
-  backend needs clang), so it is listed as not supported.
-
-On x86-64 the list also contains the vendored BLIS, AOCL-BLAS and OpenBLAS
-DGEMM kernels with their complete selection macro (on an Intel Xeon (Ice
-Lake): 12 configurations, OpenBLAS's SKYLAKEX kernel suggested).  The
-vendored kernels for float, complex float and complex double have
-selection macros of their own, which `make check_arch` does not list; they
-are in the [micro kernel README](ulmblas/level3/ukernel/README.md).
-
-Flags can also be given directly, for example
-
-```sh
-make ARCHFLAGS='-mavx -mfma'      # x86-64: ulmBLAS's AVX2/FMA kernel
-make ARCHFLAGS='-mavx -mavx2 -mfma -DULMBLAS_DGEMM_UKERNEL_openblas_haswell_4x8'
-                                  # x86-64: OpenBLAS's HASWELL kernel for double
-make ARCHFLAGS=-mcpu=apple-m4     # Apple M4, M5 with clang: SME2 kernels
-```
-
-Wider instruction sets alone (e.g. `-march=native`) do not select a
-faster kernel: the BLIS, AOCL-BLAS and OpenBLAS kernels need their
-selection macro.  All kernels are listed in the
-[support matrix](README.md#current-micro-kernel-support).  `make f77blas` builds the
-Fortran 77 interface (`libf77blas.a`, `f77blas.h`; needs `FC`).
+Wider instruction sets (e.g. `ARCHFLAGS=-march=native`) do not select a
+faster kernel.  `make f77blas` builds the Fortran 77 interface
+(`libf77blas.a`, `f77blas.h`; needs `FC`).
 
 ## Index type
 
@@ -156,7 +83,6 @@ error handler `cblas_xerbla` keeps its `int` argument (a parameter number).
 
 ```sh
 make lbt                          # libulmblas_lbt.so (macOS: .dylib)
-make lbt ARCHFLAGS=-mcpu=apple-m4 # with the micro kernels of your choice
 ```
 
 - For [libblastrampoline](https://github.com/JuliaLinearAlgebra/libblastrampoline),
@@ -201,7 +127,7 @@ skipped tests into errors).  `CONFIGS=...` selects configurations,
 results are written to `test/build/check.log`.
 
 `make check` builds the libraries for every test configuration in
-`test/config/` (eleven by default) and runs, for each of them:
+`test/config/` (ten by default) and runs, for each of them:
 
 - **C++ tests** of every routine of the C interface for the four data types:
   row and column major, all transposition, side, triangle and diagonal
@@ -227,11 +153,10 @@ unmodified BLAS and CBLAS test programs against ulmBLAS.
 
 The configurations combine tiny block sizes (so that small matrices cross
 all block boundaries), the default block sizes, MR x NR of 4 x 4, 2 x 4,
-4 x 2, 6 x 8 and 32 x 16, and the reference, SSE3, AVX/FMA, NEON and SME2
-kernels.  Configurations whose CPU features are not available (e.g. AVX/FMA on
-ARM or under Rosetta 2, SME2 without clang or on CPUs without SME2)
-are reported as SKIP with the reason; build errors, crashes and failures of
-supported configurations are never skipped.
+4 x 2, 6 x 8 and 32 x 16, and the reference and SSE3 kernels.  Configurations
+whose CPU features are not available (the SSE3 and AVX/FMA configurations on
+ARM) are reported as SKIP with the reason; build errors, crashes and failures
+of supported configurations are never skipped.
 
 Every test has a stable ID.  Known bugs are XFAIL tests until they are
 fixed, open design questions are DESIGN tests recording the current
@@ -265,9 +190,6 @@ c++ -o dgemm dgemm.o -L$HOME/opt/ulmblas/lib -lcblas
 
 For the header-only C++ interface, copy the directory `ulmblas/` (it
 needs no library) and compile with `-I` pointing to its parent directory.
-The one exception is OpenBLAS's HASWELL DGEMM kernel, an assembly file
-that has to be assembled and linked as well
-([openblas/README.md](ulmblas/level3/ukernel/openblas/README.md#the-haswell-kernel-haswell_4x8)).
 
 `make clean` removes all generated files.  Compilers, flags and cross
 compilation: [BUILDING.md](BUILDING.md).

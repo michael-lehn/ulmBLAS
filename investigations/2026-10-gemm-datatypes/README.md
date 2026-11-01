@@ -157,7 +157,7 @@ benchmark campaign, documentation) and pushed to master once verified.
 
 Integrated: the 8 kernels of the plan (table and selection:
 [ulmblas/level3/ukernel/README.md](../../ulmblas/level3/ukernel/README.md#zgemm-x86-64),
-details: [blis/README.md](../../ulmblas/level3/ukernel/blis/README.md#zgemm-kernels)).
+details: [blis/README.md](https://github.com/michael-lehn/ulmBLAS/blob/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel/blis/README.md#zgemm-kernels)).
 Benchmarks: campaigns
 [027](../../benchmark_results/027-2026-10-28-heim-zgemm/README.md) (Intel
 Core i5-12500),
@@ -189,7 +189,7 @@ imaginary and complex values.
 
 Integrated: the 6 kernels of the plan (table and selection:
 [ulmblas/level3/ukernel/README.md](../../ulmblas/level3/ukernel/README.md#cgemm-x86-64),
-details: [blis/README.md](../../ulmblas/level3/ukernel/blis/README.md#cgemm-kernels)).
+details: [blis/README.md](https://github.com/michael-lehn/ulmBLAS/blob/6c554eec707e22f118bae5dcaea10ad9945aac54/ulmblas/level3/ukernel/blis/README.md#cgemm-kernels)).
 Benchmarks:
 [031](../../benchmark_results/031-2026-10-29-uc3-icelake-cgemm/README.md)
 (Intel Xeon, Ice Lake) and

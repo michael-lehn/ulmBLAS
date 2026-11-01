@@ -1,5 +1,12 @@
 # Apple M5 experiments
 
+> **Cleanup branch.**  This branch restores the simple GEMM architecture of
+> 2015 ([CLEANUP_REPORT.md](CLEANUP_REPORT.md)): only the portable reference
+> kernels and the SSE3 kernels for x86-64 remain, so it is much slower than
+> master.  The measurements on this page are of
+> [the state before the cleanup](https://github.com/michael-lehn/ulmBLAS/tree/6c554eec707e22f118bae5dcaea10ad9945aac54), with kernels this branch does not
+> have.  They are kept as the record of what was measured.
+
 Experiments with the experimental SME2 DGEMM backend of ulmBLAS on one
 performance core of an Apple M5 (MacBook Air): how much the block sizes
 matter (Part I) and what limits small matrices (Part II).  The backend
