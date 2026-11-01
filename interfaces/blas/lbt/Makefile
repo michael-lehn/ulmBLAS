@@ -69,7 +69,16 @@ $(BUILD_DIR)/gemm_strided.o : ../C/gemm_strided.cc ../C/ulmblas_strided.h \
 
 LBT_OBJECTS = $(BUILD_DIR)/functions.o $(BUILD_DIR)/gemm_strided.o
 
+#  No C++ exception may pass through the interface (Julia calls it from C):
+#  the objects of ulmBLAS must not refer to functions that throw (operator
+#  new, std::__throw_*, __cxa_throw, ...).  Checked before linking.
+THROWING = '_Zn[wa][jmy](St11align_val_t)?$$|__cxa_throw$$|__cxa_rethrow$$|__cxa_allocate_exception$$|_ZSt[0-9]+__throw_'
+
 $(LBT_LIB) : $(BUILD_DIR)/liblbtblas.a $(LBT_OBJECTS)
+	@if nm -u $^ | grep -E $(THROWING); then \
+	    echo "error: objects refer to functions that throw (above)"; \
+	    exit 1; \
+	fi
 	@mkdir -p $(OUTDIR)
 	$(CXX) $(ARCHFLAGS) $(LDFLAGS) -o $@ $(LBT_OBJECTS) $(LBT_LINK) -lm
 

@@ -4,12 +4,34 @@
 #include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/config/simd.h>
 
-#if defined(USE_SSE) || defined(USE_AVX)
-#   include <xmmintrin.h>
-#endif
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <stdlib.h>
 
 namespace ulmBLAS {
 
+//
+//  Out of memory: a buffer for packed operands could not be allocated.  The
+//  BLAS interfaces have no way to report it (and returning without
+//  computing would leave wrong results), so the message goes to stderr and
+//  the program is terminated (as in BLIS).  The buffers have a fixed size
+//  (block sizes), independent of the matrix dimensions; if they cannot be
+//  allocated, the process is out of memory.  No exception is thrown:
+//  exceptions must not pass through the C and Fortran interfaces.
+//
+[[noreturn]] inline void
+outOfMemory(std::size_t n, std::size_t size)
+{
+    std::fprintf(stderr, "ulmBLAS: out of memory (buffer of %zu elements of "
+                 "%zu bytes), program terminated\n", n, size);
+    std::abort();
+}
+
+//
+//  Allocates a block of n elements with posix_memalign (does not throw);
+//  never returns null.
+//
 template <typename T>
 T *
 malloc(std::size_t n)
@@ -48,26 +70,32 @@ malloc(std::size_t n)
     constexpr std::size_t align1 = (zalign>align0) ? zalign : align0;
     constexpr std::size_t align2 = (salign>align1) ? salign : align1;
     constexpr std::size_t align  = (calign>align2) ? calign : align2;
-    return reinterpret_cast<T *>(_mm_malloc(n*sizeof(T), align));
 #elif defined(USE_AVX)
-    return reinterpret_cast<T *>(_mm_malloc(n*sizeof(T), 32));
-#elif defined(USE_SSE)
-    return reinterpret_cast<T *>(_mm_malloc(n*sizeof(T), 16));
-#   else
-    return new T[n];
-#   endif
+    constexpr std::size_t align  = 32;
+#else
+//  At least the alignment of T, a multiple of sizeof(void *) as required by
+//  posix_memalign.
+    constexpr std::size_t align  = (alignof(T)>16) ? alignof(T) : 16;
+#endif
+    void *block = nullptr;
+
+    if (n==0) {
+        n = 1;
+    }
+    if (n>SIZE_MAX/sizeof(T) || posix_memalign(&block, align, n*sizeof(T))) {
+        outOfMemory(n, sizeof(T));
+    }
+    return static_cast<T *>(block);
 }
 
+//
+//  The elements are trivially destructible (float, double, complex).
+//
 template <typename T>
 void
 free(T *block)
 {
-//  The condition of malloc: blocks from _mm_malloc go back to _mm_free.
-#if defined(USE_SSE) || defined(USE_AVX)
-    _mm_free(block);
-#   else
-    delete [] block;
-#   endif
+    std::free(block);
 }
 
 template <typename T>

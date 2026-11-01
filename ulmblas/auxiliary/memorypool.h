@@ -8,7 +8,10 @@ namespace ulmBLAS {
 //
 //  Buffers for the packed operands of the level 2 and level 3 routines: a
 //  routine takes its buffers with allocate(n) at the beginning of a call
-//  and returns them with release(block) at the end.
+//  and returns them with release(block) at the end.  allocate never
+//  returns null and throws no exception: if a block cannot be allocated,
+//  the program is terminated with a message (outOfMemory in
+//  memorypool.tcc).
 //
 //  Each thread keeps the blocks it released (up to numEntries per element
 //  type; if all are taken, a block not in use makes room) and hands them

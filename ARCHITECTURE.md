@@ -125,7 +125,15 @@ with NEON register tiles on A, B and C, without packing (`ulmblas/level3/gemmdir
 the threshold is `ULMBLAS_GEMM_DIRECT_MAX_MNK`, and 0 disables the path).
 The packing buffers are kept between calls in a small cache per thread
 (`ulmblas/auxiliary/memorypool.tcc`): no lock, no shared state, and a
-block released by another thread is simply freed.
+block released by another thread is simply freed.  The buffers have a
+fixed size (block sizes), independent of the matrix dimensions; they are
+allocated with `posix_memalign`, never with `new`.  If a buffer cannot be
+allocated, ulmBLAS prints `ulmBLAS: out of memory ...` to stderr and
+terminates the program (`abort`, as BLIS does): the BLAS interfaces cannot
+report the error, and returning without computing would leave a wrong
+result.  No C++ exception passes through the C and Fortran interfaces;
+`make lbt` checks that the objects of the library refer to no function
+that throws (T0357, T0358 test the failure with fault injection).
 
 ## Micro kernels and platforms
 
