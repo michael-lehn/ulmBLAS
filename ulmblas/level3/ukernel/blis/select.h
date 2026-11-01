@@ -267,8 +267,13 @@
 #   define ULMBLAS_BLIS_DGEMM_API       2
 #   define ULMBLAS_BLIS_DGEMM_STORAGE   0
 //  The kernel copies 12 columns of B into a stack buffer of 256*8*12 + 4096
-//  bytes (k <= 298); OpenBLAS calls it with k <= Q = 256.
-#   define ULMBLAS_BLIS_DGEMM_KMAX      256
+//  bytes (k <= 298); OpenBLAS calls it with k <= Q = 256.  With the Windows
+//  ABI the buffer has 128*8*12 + 512 bytes (k <= 133).
+#   if defined(_WIN32)
+#       define ULMBLAS_BLIS_DGEMM_KMAX  128
+#   else
+#       define ULMBLAS_BLIS_DGEMM_KMAX  256
+#   endif
 //  OpenBLAS's driver calls the kernel for whole blocks and, for the first
 //  block of A, for 3*DGEMM_UNROLL_N = 24 columns of B at a time: the
 //  kernel computes 4 x 12 tiles only for groups of 24 columns.

@@ -5,6 +5,7 @@
 #
 #      libulmblas_lbt.so      (Linux)
 #      libulmblas_lbt.dylib   (macOS)
+#      libulmblas_lbt.dll     (Windows, MinGW-w64)
 #
 #  The objects of ../F77 are built with config/make.lbt.inc and -fPIC; the
 #  Fortran functions (DDOT, ...) come from functions.c, so no Fortran
@@ -29,7 +30,15 @@ BUILD_DIR  ?= build.lbt
 LBT_INDEX   = int64_t
 LBT_SUFFIX  = _64_
 
-ifeq ($(shell uname -s),Darwin)
+#  Windows (MinGW-w64): all global symbols of the objects are exported (no
+#  symbol is marked dllexport), the C++ runtime and winpthread are linked
+#  statically, so the DLL only depends on DLLs of the system.
+ifneq (,$(findstring mingw,$(shell $(CXX) -dumpmachine)))
+LBT_LIB      = $(OUTDIR)/libulmblas_lbt.dll
+LBT_LINK     = -shared -Wl,--whole-archive $(BUILD_DIR)/liblbtblas.a \
+               -Wl,--no-whole-archive -static -static-libstdc++ \
+               -static-libgcc -Wl,--no-undefined
+else ifeq ($(shell uname -s),Darwin)
 LBT_LIB      = $(OUTDIR)/libulmblas_lbt.dylib
 LBT_LINK     = -dynamiclib -install_name @rpath/libulmblas_lbt.dylib \
                -Wl,-force_load,$(BUILD_DIR)/liblbtblas.a

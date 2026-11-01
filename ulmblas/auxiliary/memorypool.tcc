@@ -8,6 +8,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <stdlib.h>
+#if defined(_WIN32)
+#   include <malloc.h>
+#endif
 
 namespace ulmBLAS {
 
@@ -29,8 +32,9 @@ outOfMemory(std::size_t n, std::size_t size)
 }
 
 //
-//  Allocates a block of n elements with posix_memalign (does not throw);
-//  never returns null.
+//  Allocates a block of n elements with posix_memalign (_aligned_malloc on
+//  Windows, which has no posix_memalign); does not throw, never returns
+//  null.
 //
 template <typename T>
 T *
@@ -82,9 +86,16 @@ malloc(std::size_t n)
     if (n==0) {
         n = 1;
     }
+#if defined(_WIN32)
+    if (n>SIZE_MAX/sizeof(T)
+     || !(block = _aligned_malloc(n*sizeof(T), align))) {
+        outOfMemory(n, sizeof(T));
+    }
+#else
     if (n>SIZE_MAX/sizeof(T) || posix_memalign(&block, align, n*sizeof(T))) {
         outOfMemory(n, sizeof(T));
     }
+#endif
     return static_cast<T *>(block);
 }
 
@@ -95,7 +106,11 @@ template <typename T>
 void
 free(T *block)
 {
+#if defined(_WIN32)
+    _aligned_free(block);
+#else
     std::free(block);
+#endif
 }
 
 template <typename T>

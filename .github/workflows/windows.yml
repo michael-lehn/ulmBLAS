@@ -1,0 +1,75 @@
+#  Windows x86-64 with MinGW-w64 (MSYS2 UCRT64): the library for
+#  libblastrampoline (make lbt) per variant, its exports and imports, the
+#  ILP64 interface and the Windows x64 ABI (.github/windows/abicheck.c), and
+#  the tests (make check) for the variants the CPU of the runner supports.
+name: windows
+
+on:
+  push:
+    branches: [windows]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.os }} ${{ matrix.variant }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, windows-2025]
+        variant: [x86_64, haswell, skylakex, zen4]
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            make
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-gcc-fortran
+      - name: flags and CPU
+        run: |
+          case ${{ matrix.variant }} in
+          x86_64)   flags="-msse3"; need="pni";;
+          haswell)  flags="-mavx -mavx2 -mfma -DULMBLAS_DGEMM_UKERNEL_openblas_haswell_4x8 -DULMBLAS_SGEMM_UKERNEL_openblas_haswell_8x4 -DULMBLAS_CGEMM_UKERNEL_openblas_haswell_8x2 -DULMBLAS_ZGEMM_UKERNEL_openblas_haswell_4x2"; need="avx2 fma";;
+          skylakex) flags="-mavx -mavx2 -mfma -mavx512f -mavx512dq -DULMBLAS_DGEMM_UKERNEL_openblas_skylakex_16x12 -DULMBLAS_SGEMM_UKERNEL_openblas_skylakex_16x4 -DULMBLAS_CGEMM_UKERNEL_openblas_skylakex_8x2 -DULMBLAS_ZGEMM_UKERNEL_blis_zen4_12x4"; need="avx2 fma avx512f avx512dq";;
+          zen4)     flags="-mavx -mavx2 -mfma -mavx512f -mavx512dq -DULMBLAS_DGEMM_UKERNEL_blis_zen4_32x6 -DULMBLAS_SGEMM_UKERNEL_openblas_skylakex_16x4 -DULMBLAS_CGEMM_UKERNEL_openblas_skylakex_8x2 -DULMBLAS_ZGEMM_UKERNEL_blis_zen4_12x4"; need="avx2 fma avx512f avx512dq";;
+          esac
+          echo "FLAGS=$flags" >> $GITHUB_ENV
+          grep -m1 "model name" /proc/cpuinfo
+          cpuflags=" $(grep -m1 '^flags' /proc/cpuinfo | cut -d: -f2) "
+          run=1
+          for f in $need; do
+              case "$cpuflags" in *" $f "*) ;; *) run=0; echo "CPU lacks $f";; esac
+          done
+          echo "RUN=$run" >> $GITHUB_ENV
+          gcc --version | head -1
+          ld --version | head -1
+      - name: build the library (make lbt)
+        run: |
+          make -j4 lbt ARCHFLAGS="$FLAGS" OUTDIR=$PWD/out BUILD_DIR=$PWD/build.lbt
+          ls -l out
+      - name: exports and imports
+        run: |
+          dll=out/libulmblas_lbt.dll
+          objdump -p $dll > objdump.txt
+          sed -n '/\[Ordinal\/Name Pointer\] Table/,/^$/p' objdump.txt | awk 'NF{print $NF}' | sort > exports.txt
+          echo "exports: $(wc -l < exports.txt), _64_: $(grep -c '_64_$' exports.txt), strided: $(grep -c 'gemm_strided$' exports.txt)"
+          grep 'gemm_strided$' exports.txt
+          echo "imports:"; grep "DLL Name" objdump.txt | sort -u
+          test "$(grep -c '_64_$' exports.txt)" = 171
+          test "$(grep -c 'gemm_strided$' exports.txt)" = 4
+          ! grep "DLL Name" objdump.txt | grep -v -i -E "KERNEL32|api-ms-win-crt|ucrtbase|msvcrt"
+      - name: ILP64 and Windows x64 ABI
+        if: env.RUN == '1'
+        run: |
+          gcc -O2 -o abicheck .github/windows/abicheck.c .github/windows/xmmcall.S
+          ./abicheck out/libulmblas_lbt.dll
+      - name: tests (make check)
+        if: env.RUN == '1'
+        run: make check ARCHFLAGS="$FLAGS"

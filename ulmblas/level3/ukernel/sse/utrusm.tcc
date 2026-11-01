@@ -1,6 +1,7 @@
 #ifndef ULMBLAS_LEVEL3_UKERNEL_SSE_UTRUSM_TCC
 #define ULMBLAS_LEVEL3_UKERNEL_SSE_UTRUSM_TCC 1
 
+#include <cstdint>
 #include <iostream>
 #include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level1extensions/gecopy.h>
@@ -17,8 +18,8 @@ utrusm(const double  *A,
        IndexType     incRowC_,
        IndexType     incColC_)
 {
-    long incRowC = incRowC_;
-    long incColC = incColC_;
+    std::int64_t incRowC = incRowC_;
+    std::int64_t incColC = incColC_;
 
     __asm__ volatile
     (
