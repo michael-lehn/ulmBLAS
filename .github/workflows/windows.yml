@@ -50,7 +50,7 @@ jobs:
           #  the test configurations of the kernels of this variant (the
           #  default configurations testcase* in the job x86_64)
           for c in $k; do configs="$configs $c $c-small"; done
-          echo "CONFIGS=$configs" >> $GITHUB_ENV
+          echo "KERNEL_CONFIGS=$configs" >> $GITHUB_ENV
           echo "FLAGS=$flags" >> $GITHUB_ENV
           grep -m1 "model name" /proc/cpuinfo
           cpuflags=" $(grep -m1 '^flags' /proc/cpuinfo | cut -d: -f2) "
@@ -84,4 +84,4 @@ jobs:
       - name: tests (make check)
         if: env.RUN == '1'
         run: |
-          if [ -n "$CONFIGS" ]; then make check CONFIGS="$CONFIGS"; else make check; fi
+          if [ -n "$KERNEL_CONFIGS" ]; then make check CONFIGS="$KERNEL_CONFIGS"; else make check; fi
