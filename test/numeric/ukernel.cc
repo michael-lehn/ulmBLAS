@@ -846,9 +846,8 @@ ULMBLAS_TEST(T0347, "ukernel/gepack_A and gepack_B, all strides, columns "
 }
 
 //
-//  Every k mod 8 (and k below and above 8, 16, 24): the SME2 packing of
-//  double packs 8 values of k at once and the last k%8 separately, for full
-//  and partial panels (mr < 32, nr < 16).
+//  Every k mod 8 (and k below and above 8, 16, 24), for full and partial
+//  panels.
 //
 ULMBLAS_TEST(T0348, "ukernel/gepack_A and gepack_B, k = 1 ... 25, all "
              "strides")

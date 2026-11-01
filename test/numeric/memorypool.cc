@@ -208,8 +208,8 @@ ULMBLAS_TEST(T0350, "auxiliary/MemoryPool: distinct and reused blocks, sizes, "
 }
 
 ULMBLAS_TEST(T0353, "auxiliary/MemoryPool: blocks aligned as the micro kernels "
-             "require (32 bytes with AVX, 16 with SSE, more for some "
-             "vendored kernels)")
+             "require (16 bytes with SSE, otherwise the alignment of "
+             "the type)")
 {
     if (testAlignment<float>(ctx, "float")
      && testAlignment<double>(ctx, "double")

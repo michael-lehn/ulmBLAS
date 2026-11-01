@@ -158,8 +158,8 @@ testGemmLarge(Context &ctx)
 
 //
 //  GEMM with every k mod 8 combined with n mod 16 and m mod 32 different
-//  from zero: the SME2 packing (double, MR = 32, NR = 16) packs 8 values of
-//  k at once and the last k%8 separately, also in partial panels.  All
+//  from zero, also in partial panels (a kernel or packing routine may handle
+//  several values of k at once and the rest separately).  All
 //  orders and transpositions, so that A and B are packed with unit row and
 //  with unit column stride.
 //
@@ -688,7 +688,7 @@ ULMBLAS_TEST(T0355, "level3/sgemm, cgemm, zgemm all tile and k remainders, "
     testGemmRemainders<cdouble>(ctx);
 }
 
-ULMBLAS_TEST(T0352, "level3/dgemm small problems (direct path), all tile "
+ULMBLAS_TEST(T0352, "level3/dgemm small problems, all tile "
              "remainders, beta=0 with NaN in C")
 {
     testGemmSmall<double>(ctx);
