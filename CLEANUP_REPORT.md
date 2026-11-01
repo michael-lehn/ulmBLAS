@@ -10,7 +10,7 @@ configuration; no new configuration system is implemented here.
 | Starting point | `6c554eec707e22f118bae5dcaea10ad9945aac54` (GitHub `master`, 2026-11-01) |
 | Branch | `cleanup/gemm-restore-simple-architecture` |
 | Result | 72 library files removed, 11 changed; about 72 000 lines fewer in `ulmblas/` |
-| Tests | 0 failures, see [Test results](#4-test-results); native x86-64 **not** run |
+| Tests | 0 failures, no test or configuration of `6c554eec` missing, see [Test results](#4-test-results); native x86-64 **not** run |
 | Performance | Apple M5: 1/2 of NEON, 1/14 of SME2 (DGEMM); SSE3 unchanged within noise |
 
 ## 1. The historical reference
@@ -20,15 +20,12 @@ committed between 2026-10-05 and 2026-10-23, so it is exactly the tree as it
 stood two weeks ago; its library code dates from 2015.  It is also the merge
 base of the two histories described next.
 
-**The history exists in two forms.**
-
-- GitHub `master` squashes the development of 10-23 to 10-29 into one commit,
-  `8177d950 Major update`, followed by 15 commits up to `6c554eec`.  This is
-  the current state and the base of this branch.
-- The local `master` of the main working tree (`bb07e43c`, 128 commits, up to
-  10-27) still has the individual commits.  It has **diverged** from GitHub,
-  and its `origin/master` was stale, so `git status` there reports "up to
-  date".  The commit hashes in section 2 exist only in that clone unless noted.
+**The history exists in two forms.**  GitHub `master` squashes the development of
+10-23 to 10-29 into one commit, `8177d950 Major update`, followed by 15 commits up
+to `6c554eec`.  This squash is intentional; it is the current state and the base of
+this branch.  The local `master` of the main working tree (`bb07e43c`) still has the
+individual commits, which served only to classify the changes in section 2, so
+those commit hashes exist only in that clone unless noted.
 
 The main working tree and its `master` were not modified.
 
@@ -92,13 +89,14 @@ Commits of the granular history, plus the changes after the squash.
 | Dependency | Decision |
 |---|---|
 | `make check`, numeric tests, Netlib, `make check-reference-lapack`, examples | kept |
-| `USE_TESTPARAM_KEEP_KERNELS` | kept, `testcase07` uses it |
-| `MemoryPool` behavior (T0350, T0353, T0357, T0358) | kept; T0353 now requires 16 bytes with SSE |
+| `USE_TESTPARAM_KEEP_KERNELS` | kept, `testcase12` and the configurations of removed kernels use it |
+| `MemoryPool` behavior (T0350, T0353, T0357, T0358) | kept, source and tests identical to `6c554eec` |
 | Fault injection through `posix_memalign` (T0358) | kept, needs the current allocator |
 | Public `ulmblas_?gemm_strided`, `make lbt` | kept |
 | `make bench-gemm`, `bench/gemm/ulmblas-kernels.cc`, `make check_arch` | kept, reduced to the remaining kernels |
 | `benchmark_results/`, `investigations/` | kept; links to removed READMEs now point to `6c554eec` |
-| Test configurations of vendored kernels (77 files), `mk/vendor_*.py` | removed with the kernels |
+| Test configurations of removed kernels (81 files) | kept, reported as SKIP, see section 4 |
+| `mk/vendor_*.py` (generators of vendored kernels, not tests) | removed with the kernels; at `6c554eec` |
 
 ## 3. The result
 
@@ -109,25 +107,23 @@ Commits of the granular history, plus the changes after the squash.
 
 Not restored, deliberately:
 
-- **`MemoryPool`.**  The pool of `bb1827b2` allocates with `new T[]` and through
-  `std::list` and `std::unordered_map`.  These can throw through the C and
-  Fortran interfaces, which `6c554eec` fixed and `make lbt` rejects at link
-  time.  So this is a performance change that correctness now depends on.  Only
-  the alignment for vendored kernels was removed.
+- **`MemoryPool`.**  `memorypool.tcc` is byte-identical to `6c554eec`.  The pool of
+  `bb1827b2` allocates with `new T[]` and through `std::list` and
+  `std::unordered_map`.  These can throw through the C and Fortran interfaces,
+  which `6c554eec` fixed and `make lbt` rejects at link time.  The alignment
+  branches for the AVX and vendored kernels are inactive until those kernels
+  return.
+- **`LICENSE`.**  Byte-identical to `6c554eec`, because the removed kernels and
+  their license notices will return.
 - **`constexpr`.**  Mechanical, not architecture-specific, used throughout; going
   back would touch more than 150 definitions without any benefit.
 - **Everything outside GEMM.**  `ukernel/sse`, `ref`, level 1 and 2, `lapack`,
   the sources of the interfaces and all other macro kernels are unchanged from
   `6c554eec`, which is why the fixes above are retained.
 
-Test configurations (no test program removed, no test ID changed):
-
-| Configuration | Before | Now |
-|---|---|---|
-| `testcase06` | AVX/FMA kernel | SSE kernels in a build with `-mavx -mfma` |
-| `testcase07` | AVX/FMA, small blocks | **SSE kernels, small blocks** (new coverage: before, no configuration ran them across block boundaries) |
-| `testcase08` | NEON, small blocks | removed, would be identical to `testcase05` |
-| `testcase09` | SME2, small blocks | reference kernel with MR = 32, NR = 16 |
+Tests: `test/numeric` is byte-identical to `6c554eec`, and all of its test
+configurations are present.  `test/Makefile.config` and `test/run-tests.sh` gained
+the explicit SKIP and its summary, described in section 4.
 
 Documentation: `INSTALL.md`, `BUILDING.md`, `ARCHITECTURE.md`,
 `bench/gemm/README.md` and `ulmblas/level3/ukernel/README.md` describe the
@@ -137,40 +133,117 @@ cleanup; I did not rewrite the prose, which will apply again once kernels return
 
 ## 4. Test results
 
-Final commit, Apple M5, macOS 26, Apple clang 21, gfortran 16.2.
+Final commit, Apple M5, macOS 26, Apple clang 21, gfortran 16.2.  **No test has
+disappeared:** every (configuration, test ID) result of `6c554eec` also exists on
+this branch, in all 88 configurations and on both architectures.  The comparison
+is `investigations/2026-11-gemm-cleanup/test-coverage.txt`, produced by
+`compare-test-results.py` in the same directory.
+
+### Correction of the first version of this cleanup
+
+The first version lost coverage.  It reported 184 fewer tests as harmless, but:
+
+- it deleted `testcase08` (NEON, small blocks) and 77 optional configurations of
+  vendored kernels;
+- it reused `testcase06`, `07` (AVX/FMA) and `09` (SME2) for other purposes, so
+  their kernel coverage vanished with the counts unchanged.  That is why comparing
+  counts showed only 184 tests, although 368 arm64 results had lost their kernel;
+- it edited `test/numeric` and the alignment logic of `memorypool.tcc`.
+
+All of this is now restored.  The new configurations moved to new numbers.
+
+### Default `make check`
+
+| Run | PASS | FAIL | SKIP |
+|---|---:|---:|---:|
+| arm64 `make check`, `6c554eec` | 1638 | 0 | 392 |
+| arm64 `make check`, this branch | 1454 | 0 | 1128 |
+| x86-64 under Rosetta 2, `make check-numeric`, `6c554eec` | 1119 | 0 | 636 |
+| x86-64 under Rosetta 2, `make check-numeric`, this branch | 1437 | 0 | 795 |
+
+A configuration has 184 tests on arm64 (156 numeric, 2 header, 1 example, 25
+Netlib) and 159 without Netlib; the 6 registry tests run once.
+
+What happened to each arm64 result of `6c554eec`:
+
+| Before -> now | Results | Configurations | Meaning |
+|---|---:|---|---|
+| PASS -> PASS | 1270 | registry, `01`-`05`, `10`, `11` | still executed |
+| PASS -> SKIP, kernel removed | 368 | `08` (NEON), `09` (SME2) | backend temporarily removed |
+| SKIP -> SKIP, CPU or compiler | 368 | `06`, `07` (AVX/FMA) | backend impossible on arm64, as before |
+| SKIP -> SKIP, 64-bit index | 24 | `10`, `11` | Netlib CBLAS programs pass `int`, as before |
+| **disappeared** | **0** | | |
+
+New on arm64: `testcase13` adds 184 PASS; `12` and `14` add 368 SKIP because they
+need x86.  **Why the PASS count is 184 lower:** `08` and `09` lost 368 and `13`
+added 184.
+
+Under Rosetta 2: 1119 PASS -> PASS, 636 PASS -> SKIP (kernel removed, the four
+SSE3 configurations `blis-penryn_4x4`, `s-blis_penryn_8x4` and their `-small`
+variants, which are optional and not in the first table; that it equals the 636
+SKIPs of the table is a coincidence), 12 243 SKIP -> SKIP
+(no AVX, NEON or SME), 0 disappeared.  `testcase12` and `13` add 318 PASS.
+
+### The test configurations
+
+| Configuration | Tests | Status here |
+|---|---|---|
+| `testcase01`-`03`, `05`, `11` | reference kernel, small blocks | run |
+| `testcase04`, `10` | default kernel | run; **arm64: now reference instead of NEON**, x86-64: SSE as before |
+| `testcase06`, `07` | AVX/FMA kernel | SKIP: kernel removed; no AVX here |
+| `testcase08` | NEON kernel, small blocks | SKIP: kernel removed |
+| `testcase09` | SME2 kernel, small blocks | SKIP: kernel removed |
+| 77 optional vendored configurations | BLIS, AOCL-BLAS, OpenBLAS | SKIP with `CONFIGS=...`; as on `6c554eec`, not part of the default `make check` |
+| `testcase12` (new) | SSE kernels, small blocks | was `07` in the first version; x86-64 only; no configuration ran them across block boundaries before |
+| `testcase13` (new) | reference kernel, MR = 32, NR = 16 | was `09` in the first version; nearly all tiles partial |
+| `testcase14` (new) | SSE kernels in a `-mavx -mfma` build | was `06` in the first version; needs AVX |
+
+**Mechanism.**  The 81 configurations of removed kernels are the files of
+`6c554eec` plus one line, for example `CONFIG_KERNEL_REMOVED = NEON`.  The tests stay
+registered and are reported one by one as SKIP.  The CPU probe comes first: the
+reason "micro kernel temporarily removed" appears only where the test would run
+if the kernel were present, so it never hides a backend the machine cannot run.
+`make check` now ends with SKIP counts by configuration and reason.  When a
+kernel returns, delete that line from its configurations.  Whether they pass then
+depends on how the kernel is reintroduced: nothing here has compiled them.
+
+### Are all generic numerical tests still executed?
+
+Yes.  All 156 numeric test IDs run in each of the 8 configurations that run on
+arm64 (`01`-`05`, `10`, `11`, `13`), and their sources are unchanged.  All 25 Netlib
+programs run in 6 of them; `10` and `11` run the 13 Fortran programs, as before.
+Two limits:
+
+- **A PASS no longer exercises what some tests were written for.**  T0334, T0348
+  (SME2 packing), T0352 (direct path), T0353 (32-byte and vendored alignment) and
+  T0355 (vendored kernels for other types) still run and pass, but those code paths
+  do not exist here.  They become meaningful again when the kernels return.
+- **Silent backend change on arm64.**  `testcase04` and `10` are 368 PASS -> PASS
+  results that tested NEON at default block sizes and now test the reference
+  kernel, so more NEON coverage is missing than the SKIPs of `testcase08` show.
+  They return to NEON automatically once the kernel returns.
+
+### Other checks of the final commit
 
 | Run | PASS | FAIL | SKIP | Note |
 |---|---:|---:|---:|---|
-| `make check`, arm64, **before** (`6c554eec`) | 1638 | 0 | 392 | NEON, SME2 and reference kernels |
-| `make check`, arm64, **after** | 1454 | 0 | 392 | reference kernels |
-| `make check-numeric`, x86-64 under Rosetta 2, **before** | 1119 | 0 | 636 | |
-| `make check-numeric`, x86-64 under Rosetta 2, **after** | 1437 | 0 | 159 | SSE kernels, including `testcase07` |
-| `make check-numeric` with g++-16, arm64, after | 801 | 0 | 0 | 5 configurations |
-| UBSan, x86-64 under Rosetta 2, after | 324 | 0 | 0 | `testcase04`, `testcase07` |
-| ASan + UBSan, arm64, after | 1270 | 8 | 318 | the 8 are T0357, explained below |
+| `make check-numeric` with g++-16, arm64 | 642 | 0 | 159 | `01`, `04`, `05`, `13`; `09` skipped |
+| ASan + UBSan, arm64 | 642 | 0 | 0 | `01`, `04`, `05`, `13`, with `ASAN_OPTIONS=allocator_may_return_null=1` |
+| UBSan, x86-64 under Rosetta 2 | 324 | 0 | 0 | `04`, `12` (SSE kernels) |
 | `make check-reference-lapack` | 22 | 0 | | and 2 REF: failures identical to the reference BLAS |
 
-- **Before and after on arm64 agree test by test** in all 10 shared
-  configurations.  The 184 fewer tests are exactly `testcase08`.
-- **The SKIPs** are `testcase06` and `testcase07` where the instructions are
-  unavailable, and the Netlib CBLAS programs in the 64-bit index configurations.
-- **The 8 ASan failures are a tool artifact, not a defect.**  ASan aborts on
-  the 2^57-byte request of T0357 before ulmBLAS can handle it.  The unmodified
-  `6c554eec` fails the same way, and with
-  `ASAN_OPTIONS=allocator_may_return_null=1` T0357 and T0358 pass in all 8.
-  There were no memory errors or undefined behavior in any test.
-- `make`, `f77blas`, `atlblas`, `atllapack`, `lbt` (including its no-throw link
-  check) and `check_arch` succeed.  `make check_benchmark_results` reports no
-  problems.
-
-The sanitizer and GCC runs used a state that differs from the final code only in
-test names and comments.
+- Without `allocator_may_return_null=1`, ASan aborts on the 2^57-byte request of
+  T0357 before ulmBLAS can handle it.  The unmodified `6c554eec` fails the same way.
+- The ASan run over all configurations (1270 PASS, the 8 T0357 aborts above) was
+  made on the first version and not repeated.
+- `make`, `f77blas`, `atlblas`, `atllapack`, `lbt` (including its no-throw link check)
+  and `check_arch` succeed, and `make check_benchmark_results` reports no problems.
 
 | Requested attention | Covered by |
 |---|---|
 | Arbitrary row and column strides | T0800-T0805 (including negative and zero strides of A and B), T0342, T0347, T0348 |
 | Row and column major | T0300-T0307, T0401-T0407, Netlib CBLAS, Reference-LAPACK CBLAS |
-| Partial tiles and boundaries | T0334, T0341, T0342, T0352, T0355; small block configurations `01`-`03`, `05`, `07`, `09`, `11` |
+| Partial tiles and boundaries | T0334, T0341, T0342, T0352, T0355; small block configurations `01`-`03`, `05`, `11`-`13` |
 | `alpha`, `beta`, `beta = 0` | T0343-T0346, T0354, T0600, T0805 |
 | Fixed numerical and memory-safety bugs | regression tests in `test/known_issues.md`; T0351, T0356-T0358 |
 
@@ -240,55 +313,16 @@ Small problems lose about 3.5 times at n = 8: the direct path is gone.
   and CGEMM and ZGEMM are about equal there: entering streaming mode costs more
   than such a small problem gains.
 
-## 6. Unresolved problems and design questions
-
-### Before relying on this branch
+## 6. Unresolved problems
 
 1. **Native x86-64 is untested.**  The SSE kernels are now the only assembly, and
    they ran only under Rosetta 2, without Netlib (no x86-64 gfortran), without
-   `testcase06` (no AVX) and without GCC on x86, the compiler that exposed the
+   `testcase14` (no AVX) and without GCC on x86, the compiler that exposed the
    missing clobbers of #0009.  Run on a native machine: `make -j8 check`, and
    with `CXX=g++ CC=gcc FC=gfortran`.
-2. **The local and GitHub histories have diverged.**  The granular commits exist
-   only in the clone at `~/tmp/ulmBLAS`, and branches such as
-   `gemm-kernel-baseline` and `feature/arm64-dgemm-8x6` are there only as stale
-   remote-tracking refs.  Deleting that clone loses them, so decide whether to
-   keep them, for example on a tag or an archive branch.
-
-### Decisions for you
-
-3. **Should the per-thread `MemoryPool` stay?**  It is not historical, but it is
-   not architecture-specific either, and it carries the no-throw guarantee.  A
-   simpler alternative would have to keep that guarantee.
-4. **`LICENSE` is unchanged.**  It still reproduces the notices of the removed BLIS,
-   AOCL-BLAS and OpenBLAS kernels and names their paths.  Harmless but inaccurate
-   for this branch, and I did not want to edit license text without you.
-5. **Long-term location of removed kernels.**  They are only in the history at
-   `6c554eec`.  If they return, they will need adapting to the new configuration;
-   `mk/vendor_*.py` is there too.
-6. **Minor leftovers:** `mk/probe/cpu.cc` still knows `neon` and `sme`;
-   `test/config` has no `testcase08`; `make check_arch` chooses its rows by `uname`,
-   so a cross build for x86-64 on arm64 labels the SSE kernel "reference kernels"
-   (the kernel it reports is correct).
-
-### Input for the configuration redesign (not implemented)
-
-Couplings that are still in the simple design and that a configuration has to
-answer for:
-
-- **Kernel and block sizes are global, by macro.**  `USE_SSE`, `USE_TESTPARAM` and
-  `SELECT_UGEMM_KERNEL` decide for a whole translation unit, which also risks
-  ODR violations if two configurations are mixed.
-- **`BlockSize<T>` mixes cache and register blocking,** and
-  `BlockSizeUGemm<T>` then overrides MR and NR per kernel, so the values can
-  disagree (`sse` ignores `USE_TESTPARAM_MR` for double).
-- **GEMM and TRSM are coupled:** the SSE TRSM kernels hard-code the block size of
-  the GEMM kernel, enforced only by a `static_assert`.
-- **Alignment belongs to the kernel** but lives in `MemoryPool`, as a fixed 16.
-- **Level 1 fuse factors** are selected separately through `USE_SSE`.
-- **User-defined types** specialize `ulmBLAS::BlockSize` (`examples/gemm.cc`), so
-  this is effectively a public interface.
-- **What the removed code asked for,** and a configuration may need to express:
-  kernels that want to be called per panel or block, own packing, row preference,
-  a small-problem path, and packing order.  The first question is which of these
-  belong in generic GEMM at all.
+2. **Coverage of the removed kernels is registered, not exercised,** until they
+   return (section 4).
+3. **Minor leftovers:** `make check_arch` chooses its rows by `uname`, so a cross
+   build for x86-64 on arm64 labels the SSE kernel "reference kernels" (the kernel
+   it reports is correct).  Its rows and `bench/gemm/ulmblas-kernels.cc` list only
+   the remaining kernels; these are tools, not tests.
