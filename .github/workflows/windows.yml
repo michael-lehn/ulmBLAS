@@ -30,6 +30,7 @@ jobs:
           update: true
           install: >-
             make
+            diffutils
             mingw-w64-ucrt-x86_64-gcc
             mingw-w64-ucrt-x86_64-gcc-fortran
       - name: flags and CPU

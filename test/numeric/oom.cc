@@ -12,6 +12,11 @@
 //  ulmBLAS.  The first and the second allocation of a call fail (the
 //  second after the first has succeeded).
 //
+//  POSIX only (fork, waitpid, the library's posix_memalign); not built on
+//  Windows, where the library allocates with _aligned_malloc.
+//
+#if !defined(_WIN32)
+
 #include <test/numeric/blas.h>
 #include <test/numeric/testing.h>
 
@@ -296,3 +301,5 @@ ULMBLAS_TEST(T0358, "interface/out of memory: level 3 routines and packing "
         ctx.pass();
     }
 }
+
+#endif // !defined(_WIN32)
