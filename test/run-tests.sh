@@ -711,6 +711,16 @@ echo
 echo "Summary ($CONFIGS):"
 printf '  PASS %d, FAIL %d, XFAIL %d, XPASS %d, DESIGN %d, SKIP %d\n' \
        $n_pass $n_fail $n_xfail $n_xpass $n_design $n_skip
+if [ $n_skip -ne 0 ]; then
+    echo
+    echo "Skipped tests by configuration and reason:"
+    awk -F': ' '$1 ~ /^SKIP / {
+                    split($1, f, " ")
+                    n[f[3] " " $NF]++
+                }
+                END { for (k in n) printf "  %5d %s\n", n[k], k }' "$log" \
+        | sort -k2,2
+fi
 if [ -n "$problems" ] && [ -z "$VERBOSE" ]; then
     echo
     echo "Results other than PASS and DESIGN:"

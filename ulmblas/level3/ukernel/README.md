@@ -24,4 +24,9 @@ sizes.
 `utrusm.tcc`, which require MR = NR = 4; checked with a `static_assert`).
 Selected by default on x86-64 if the compiler targets SSE3.  Tested with the
 default block sizes by the configuration `testcase04`, with `-mavx -mfma` by
-`testcase06` and with small block sizes by `testcase07`.
+`testcase14` and with small block sizes by `testcase12`.
+
+The test configurations of the kernels that are temporarily removed stay in
+`test/config` and name their kernel in `CONFIG_KERNEL_REMOVED`; their tests are
+reported as SKIP.  When a kernel returns, delete that line from its
+configurations.

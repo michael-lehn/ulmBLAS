@@ -127,7 +127,8 @@ skipped tests into errors).  `CONFIGS=...` selects configurations,
 results are written to `test/build/check.log`.
 
 `make check` builds the libraries for every test configuration in
-`test/config/` (ten by default) and runs, for each of them:
+`test/config/` (fourteen by default, four of them SKIP while their kernels are
+removed) and runs, for each of them:
 
 - **C++ tests** of every routine of the C interface for the four data types:
   row and column major, all transposition, side, triangle and diagonal

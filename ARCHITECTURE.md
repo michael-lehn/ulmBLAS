@@ -182,7 +182,9 @@ of:
   clang and work on ELF and Mach-O (e.g. numeric local labels).
 - Tests.  A test configuration with `CONFIG_REQUIRES` runs the complete
   test suite with the new kernel where the CPU supports it and reports SKIP
-  elsewhere; `test/numeric/ukernel.cc` tests the micro kernel directly.
+  elsewhere; `test/numeric/ukernel.cc` tests the micro kernel directly.  A
+  configuration whose kernel is temporarily removed stays registered with
+  `CONFIG_KERNEL_REMOVED` and reports SKIP with that reason.
 - License and attribution.  The upstream copyright and license notices
   must be preserved (see [License](README.md#license-provenance-and-acknowledgments)).
 

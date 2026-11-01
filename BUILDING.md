@@ -108,14 +108,16 @@ make check VERBOSE=1          # print every result
 make check STRICT=1           # skipped tests are errors
 ```
 
-All tests are run for ten configurations (`test/config`): five with tiny
+All tests are registered for fourteen configurations (`test/config`): five with tiny
 block sizes and the reference kernels (so that small matrices cover multiple
 and partial blocks of the GEMM algorithm; one of them with MR = 6 and NR = 8,
 which do not divide each other, one with MR = 32 and NR = 16), one with the
 default block sizes and kernels, one of them built with `-mavx -mfma`, one with
 the SSE kernels and tiny block sizes, and two with a 64-bit
 `ULMBLAS_INDEX_TYPE` (default and tiny block sizes; see
-[INSTALL.md](INSTALL.md#index-type)).  The configurations with `-mavx -mfma` and
+[INSTALL.md](INSTALL.md#index-type)).  Four more (`testcase06` to `testcase09`) test
+the AVX/FMA, NEON and SME2 kernels, which are temporarily removed, and report
+SKIP.  The configurations with `-mavx -mfma` and
 with the SSE kernels and tiny block sizes are only built and run if the
 compiler, the CPU and the operating system support these instructions;
 otherwise their tests are reported as SKIP.  The libraries of each
