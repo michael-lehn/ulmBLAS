@@ -2,7 +2,7 @@
    ulmBLAS: the definitions of OpenBLAS's common headers (common.h,
    common_x86_64.h of OpenBLAS 0.3.34) that the vendored OpenBLAS assembly
    kernels in this directory use, for double precision on x86-64 (System V
-   ABI), without TRMMKERNEL.  Not part of OpenBLAS; the values and the
+   ABI; on Windows the Windows x64 ABI), without TRMMKERNEL.  Not part of OpenBLAS; the values and the
    function prologue and epilogue are those of OpenBLAS.  Only for the
    preprocessor of the assembler (*.S).
 
@@ -15,9 +15,6 @@
 
 #if !defined(__x86_64__) || defined(__ILP32__)
 #   error "the OpenBLAS assembly kernels need x86-64 (LP64)"
-#endif
-#if defined(_WIN32)
-#   error "the OpenBLAS assembly kernels are built for the System V ABI only"
 #endif
 #if !defined(ULMBLAS_OPENBLAS_KERNEL)
 #   error "ULMBLAS_OPENBLAS_KERNEL (the function name) is not defined"
@@ -64,8 +61,27 @@ REALNAME: \
         .section .note.GNU-stack,"",@progbits
 #   define ALIGN_4     .align 16
 #   define ALIGN_5     .align 32
+#elif defined(_WIN32)
+/*  common.h and common_x86_64.h, OS_WINDOWS: the kernels take their
+    arguments and save xmm6-xmm15 as the Windows x64 ABI requires */
+#   define OS_WINDOWS
+#   define WINDOWS_ABI
+#   define ARG1        %rcx
+#   define ARG2        %rdx
+#   define ARG3        %r8
+#   define ARG4        %r9
+#   define REALNAME    ULMBLAS_OPENBLAS_KERNEL
+#   define PROLOGUE \
+        .text; \
+        .align 16; \
+        .globl REALNAME ;\
+        .def REALNAME;.scl 2;.type 32;.endef; \
+REALNAME:
+#   define EPILOGUE    .end
+#   define ALIGN_4     .align 16
+#   define ALIGN_5     .align 32
 #else
-#   error "the OpenBLAS assembly kernels need ELF or Mach-O"
+#   error "the OpenBLAS assembly kernels need ELF, Mach-O or Windows (COFF)"
 #endif
 
 #endif /* ULMBLAS_LEVEL3_UKERNEL_OPENBLAS_ASM_COMPAT_H */

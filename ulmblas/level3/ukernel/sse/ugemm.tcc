@@ -1,6 +1,7 @@
 #ifndef ULMBLAS_LEVEL3_UKERNEL_SSE_UGEMM_TCC
 #define ULMBLAS_LEVEL3_UKERNEL_SSE_UGEMM_TCC 1
 
+#include <cstdint>
 #include <ulmblas/level3/ukernel/sse/ugemm.h>
 
 namespace ulmBLAS { namespace sse {
@@ -19,10 +20,10 @@ ugemm(IndexType      kc,
       const double   *nextA,
       const double   *nextB)
 {
-    long kb      = kc / 4;
-    long kl      = kc % 4;
-    long incRowC = incRowC_;
-    long incColC = incColC_;
+    std::int64_t kb      = kc / 4;
+    std::int64_t kl      = kc % 4;
+    std::int64_t incRowC = incRowC_;
+    std::int64_t incColC = incColC_;
 
     //  Only numeric local labels (1: ... with 1b, 1f): they are local to the
     //  assembler for all object formats.  Named labels become symbols on

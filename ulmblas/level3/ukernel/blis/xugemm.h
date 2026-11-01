@@ -191,8 +191,8 @@ xcall(std::integral_constant<int,0>, IndexType kc, const T &alpha,
 //  OpenBLAS: C <- C + alpha*A*B for an m x n block of column-major C
 template <typename T>
 static void
-obcall(long m, long n, long k, const T &alpha, const T *A, const T *B, T *C,
-       long ldc)
+obcall(std::int64_t m, std::int64_t n, std::int64_t k, const T &alpha,
+       const T *A, const T *B, T *C, std::int64_t ldc)
 {
     Kernel<T>::call(m, n, k, alpha, const_cast<T *>(A), const_cast<T *>(B),
                     C, ldc);
@@ -200,9 +200,10 @@ obcall(long m, long n, long k, const T &alpha, const T *A, const T *B, T *C,
 
 template <typename R>
 static void
-obcall(long m, long n, long k, const std::complex<R> &alpha,
+obcall(std::int64_t m, std::int64_t n, std::int64_t k,
+       const std::complex<R> &alpha,
        const std::complex<R> *A, const std::complex<R> *B,
-       std::complex<R> *C, long ldc)
+       std::complex<R> *C, std::int64_t ldc)
 {
     Kernel<std::complex<R> >::call(m, n, k, alpha.real(), alpha.imag(),
                                    reinterpret_cast<R *>(
@@ -242,7 +243,8 @@ xcall(std::integral_constant<int,2>, IndexType kc, const T &alpha,
     constexpr IndexType NR = Kernel<T>::NR;
 
     obscal(MR, NR, beta, C, incColC);
-    obcall(long(MR), long(NR), long(kc), alpha, A, B, C, long(incColC));
+    obcall(std::int64_t(MR), std::int64_t(NR),
+           std::int64_t(kc), alpha, A, B, C, std::int64_t(incColC));
 }
 
 //
@@ -338,7 +340,8 @@ xugemm_block(IndexType   mp,
     const IndexType n = np*Kernel<T>::NR;
 
     obscal(m, n, beta, C, incColC);
-    obcall(long(m), long(n), long(kc), alpha, A, B, C, long(incColC));
+    obcall(std::int64_t(m), std::int64_t(n),
+           std::int64_t(kc), alpha, A, B, C, std::int64_t(incColC));
     return true;
 }
 

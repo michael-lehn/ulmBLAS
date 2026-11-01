@@ -20,9 +20,12 @@
 #include <ulmblas/level3/ukernel/openblas/compat.h>
 
 extern "C" int
-ulmblas_openblas_dgemm_kernel_haswell_4x8(long m, long n, long k, double alpha,
-                                          double *A, double *B, double *C,
-                                          long ldc);
+ulmblas_openblas_dgemm_kernel_haswell_4x8(
+    ulmBLAS::openblas::compat::BLASLONG m,
+    ulmBLAS::openblas::compat::BLASLONG n,
+    ulmBLAS::openblas::compat::BLASLONG k, double alpha,
+    double *A, double *B, double *C,
+    ulmBLAS::openblas::compat::BLASLONG ldc);
 
 namespace ulmBLAS { namespace openblas { namespace kernel {
 namespace haswell_4x8 {

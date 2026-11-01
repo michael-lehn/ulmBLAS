@@ -217,16 +217,18 @@ ugemm(IndexType      kc,
     constexpr IndexType KMAX = ULMBLAS_BLIS_DGEMM_KMAX;
     for (IndexType l=0; l<kc; l+=KMAX) {
         const IndexType k = (kc-l<KMAX) ? kc-l : KMAX;
-        K::ULMBLAS_BLIS_DGEMM_FUNCTION(long(MR), long(NR), long(k), alpha,
+        K::ULMBLAS_BLIS_DGEMM_FUNCTION(std::int64_t(MR), std::int64_t(NR),
+                                       std::int64_t(k), alpha,
                                        const_cast<double *>(A+l*MR),
                                        const_cast<double *>(B+l*NR),
-                                       C, long(incColC));
+                                       C, std::int64_t(incColC));
     }
 #   else
-    K::ULMBLAS_BLIS_DGEMM_FUNCTION(long(MR), long(NR), long(kc), alpha,
+    K::ULMBLAS_BLIS_DGEMM_FUNCTION(std::int64_t(MR), std::int64_t(NR),
+                                   std::int64_t(kc), alpha,
                                    const_cast<double *>(A),
                                    const_cast<double *>(B),
-                                   C, long(incColC));
+                                   C, std::int64_t(incColC));
 #   endif
 #else
     using namespace blis::compat;
@@ -304,10 +306,11 @@ ugemm_panel(IndexType      mp,
             }
         }
     }
-    K::ULMBLAS_BLIS_DGEMM_FUNCTION(long(m), long(NR), long(kc), alpha,
+    K::ULMBLAS_BLIS_DGEMM_FUNCTION(std::int64_t(m), std::int64_t(NR),
+                                   std::int64_t(kc), alpha,
                                    const_cast<double *>(A),
                                    const_cast<double *>(B),
-                                   C, long(incColC));
+                                   C, std::int64_t(incColC));
 }
 
 #   if defined(ULMBLAS_BLIS_DGEMM_BLOCKCALL)
@@ -358,10 +361,11 @@ ugemm_block(IndexType      mp,
             }
         }
     }
-    K::ULMBLAS_BLIS_DGEMM_FUNCTION(long(m), long(n), long(kc), alpha,
+    K::ULMBLAS_BLIS_DGEMM_FUNCTION(std::int64_t(m), std::int64_t(n),
+                                   std::int64_t(kc), alpha,
                                    const_cast<double *>(A),
                                    const_cast<double *>(B),
-                                   C, long(incColC));
+                                   C, std::int64_t(incColC));
     return true;
 }
 #   endif

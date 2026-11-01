@@ -8,8 +8,13 @@
 
 namespace ulmBLAS { namespace openblas { namespace compat {
 
-//  OpenBLAS: BLASLONG is long on LP64 systems (x86-64 Linux, macOS)
+//  OpenBLAS: BLASLONG is long on LP64 systems (x86-64 Linux, macOS) and
+//  long long on Windows (LLP64, long has 32 bits)
+#if defined(_WIN32)
+typedef long long BLASLONG;
+#else
 typedef long BLASLONG;
+#endif
 
 } } } // namespace compat, openblas, ulmBLAS
 
