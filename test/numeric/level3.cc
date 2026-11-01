@@ -198,10 +198,8 @@ testGemmTails(Context &ctx)
 }
 
 //
-//  GEMM of small problems, which gemm computes without packing where a
-//  direct path exists (ulmblas/level3/gemmdirect.tcc: double on AArch64,
-//  m*n*k <= 8192): every remainder of its tiles (rows 8, 4, 2, 1; columns
-//  4, 3, 2, 1), all orders and transpositions, beta = 0 with NaN in C.
+//  GEMM of small problems: every remainder of tiles with up to 16 rows and
+//  8 columns, all orders and transpositions, beta = 0 with NaN in C.
 //
 template <typename T>
 void
@@ -642,9 +640,8 @@ ULMBLAS_TEST(T0334, "level3/dgemm all k mod 8 with partial panels")
 //  GEMM for the other types with every remainder of the register tiles of
 //  their kernels (MR, NR up to 16 elements, k mod 8), all transpositions
 //  (incl. conjugate transposition) and orders, and alpha, beta -1, 1,
-//  imaginary and complex: the vendored kernels for these types (ZGEMM:
-//  ulmblas/level3/ukernel/blis/select_z.h) have their own k loop unrolling,
-//  register tiles, block calls and special cases for alpha and beta.
+//  imaginary and complex: a micro kernel for these types has its own k loop
+//  unrolling, register tiles and special cases for alpha and beta.
 //
 template <typename T>
 void

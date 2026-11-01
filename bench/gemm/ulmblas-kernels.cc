@@ -6,7 +6,7 @@
 //  time, ulmblas/config/simd.h, ulmblas/level3/ukernel/ugemm.h).  Output,
 //  one line per type:
 //
-//      ulmBLAS double: kernel neon, MR x NR = 6 x 8, MC, KC, NC = 960, 1024, 4080
+//      ulmBLAS double: kernel sse, MR x NR = 4 x 4, MC, KC, NC = 384, 384, 4096
 //
 #include <complex>
 #include <cstdio>
@@ -19,35 +19,15 @@
 #define STR(x)  STR_(x)
 
 //
-//  The kernel for T.  ulmBLAS's own kernel sets implement double (sse,
-//  avx, neon, sme) and float, complex float and complex double (neon, sme);
-//  for the other types they use the reference kernel (see their headers in
-//  ulmblas/level3/ukernel/).  A vendored kernel replaces the kernel of its
-//  type: for double ulmblas/level3/ukernel/blis/select.h, for the other
-//  types select_s.h, select_c.h and select_z.h (blisk::Kernel<T>).  Extend
-//  this function when kernels for other types are added.
+//  The kernel for T.  The SSE kernel set implements double; for the other
+//  types it uses the reference kernel (ulmblas/level3/ukernel/sse/ugemm.h).
+//  Extend this function when kernels for other types are added.
 //
 template <typename T>
 std::string
 kernel()
 {
-    const std::string base = STR(ULMBLAS_BASE_UGEMM_KERNEL);
-#if defined(USE_BLIS_XGEMM)
-    if (ulmBLAS::blisk::Kernel<T>::selected) {
-        return std::string(ulmBLAS::blisk::Kernel<T>::name()) + " (vendored)";
-    }
-#endif
-    if (base=="neon" || base=="sme") {
-        return base;
-    }
-    if (!std::is_same<T, double>::value) {
-        return "ref";
-    }
-#if defined(USE_BLIS_DGEMM)
-    return std::string(STR(ULMBLAS_BLIS_DGEMM_NAME)) + " (vendored)";
-#else
-    return base;
-#endif
+    return std::is_same<T, double>::value ? STR(SELECT_UGEMM_KERNEL) : "ref";
 }
 
 template <typename T>
@@ -64,11 +44,7 @@ report(const char *type)
 int
 main()
 {
-    std::printf("ulmBLAS kernel set: %s\n", STR(ULMBLAS_BASE_UGEMM_KERNEL));
-#if defined(USE_BLIS_DGEMM)
-    std::printf("ulmBLAS double: vendored kernel %s (%s)\n",
-                STR(ULMBLAS_BLIS_DGEMM_NAME), STR(ULMBLAS_BLIS_DGEMM_FUNCTION));
-#endif
+    std::printf("ulmBLAS kernel set: %s\n", STR(SELECT_UGEMM_KERNEL));
     report<float>("float");
     report<double>("double");
     report<std::complex<float> >("complex float");

@@ -159,54 +159,16 @@ testCrossThread(Context &ctx)
 }
 
 //
-//  The packing buffers come from MemoryPool.  The AVX micro kernel loads the
-//  packed B with vmovapd (32 bytes), the SSE kernels load A and B with
-//  movapd (16 bytes); the other kernels need the alignment of T only.  A
-//  vendored kernel (USE_BLIS_DGEMM, USE_BLIS_SGEMM, USE_BLIS_CGEMM,
-//  USE_BLIS_ZGEMM) may need more (ULMBLAS_BLIS_..._ALIGN, e.g. 64 bytes for
-//  aligned zmm loads).
+//  The packing buffers come from MemoryPool.  The SSE kernels load A and B
+//  with movapd (16 bytes); the other kernels need the alignment of T only.
 //
-#if defined(USE_BLIS_DGEMM)
-constexpr std::size_t vendoredDgemmAlign = ULMBLAS_BLIS_DGEMM_ALIGN;
-#else
-constexpr std::size_t vendoredDgemmAlign = 1;
-#endif
-#if defined(USE_BLIS_ZGEMM)
-constexpr std::size_t vendoredZgemmAlign0 = ULMBLAS_BLIS_ZGEMM_ALIGN;
-#else
-constexpr std::size_t vendoredZgemmAlign0 = 1;
-#endif
-#if defined(USE_BLIS_SGEMM)
-constexpr std::size_t vendoredSgemmAlign = ULMBLAS_BLIS_SGEMM_ALIGN;
-#else
-constexpr std::size_t vendoredSgemmAlign = 1;
-#endif
-#if defined(USE_BLIS_CGEMM)
-constexpr std::size_t vendoredCgemmAlign = ULMBLAS_BLIS_CGEMM_ALIGN;
-#else
-constexpr std::size_t vendoredCgemmAlign = 1;
-#endif
-//  the largest alignment of the vendored kernels for the other types
-constexpr std::size_t vendoredZgemmAlign1 = vendoredZgemmAlign0>vendoredSgemmAlign
-                                          ? vendoredZgemmAlign0 : vendoredSgemmAlign;
-constexpr std::size_t vendoredZgemmAlign = vendoredZgemmAlign1>vendoredCgemmAlign
-                                         ? vendoredZgemmAlign1 : vendoredCgemmAlign;
-
-constexpr std::size_t
-maxOf(std::size_t a, std::size_t b)
-{
-    return a>b ? a : b;
-}
-
 constexpr std::size_t
 requiredAlignment(std::size_t alignOfT)
 {
-#if defined(USE_AVX)
-    return maxOf(maxOf(32, vendoredDgemmAlign), vendoredZgemmAlign);
-#elif defined(USE_SSE)
-    return maxOf(maxOf(16, vendoredDgemmAlign), vendoredZgemmAlign);
+#if defined(USE_SSE)
+    return alignOfT>16 ? alignOfT : 16;
 #else
-    return maxOf(maxOf(alignOfT, vendoredDgemmAlign), vendoredZgemmAlign);
+    return alignOfT;
 #endif
 }
 

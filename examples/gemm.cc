@@ -13,8 +13,8 @@
 //      c++ -std=c++11 -O3 -I. examples/gemm.cc -o gemm
 //      ./gemm
 //
-//  (with ARCHFLAGS, e.g. -mavx -mfma or -mcpu=apple-m4, the optimized micro
-//  kernels are used as in the library, see make check_arch)
+//  (with -msse3 on x86-64 the optimized SSE micro kernels are used as in the
+//  library, see make check_arch)
 //
 #include <cstdio>
 #include <ulmblas/ulmblas.h>
@@ -27,7 +27,6 @@ template <>
 struct BlockSize<long double>
 {
     static constexpr int MC = 96, KC = 256, NC = 1024, MR = 4, NR = 4;
-    static constexpr int PACK_A_PANELS = 4, PACK_A_GROUP_DISTANCE = 8192;
 };
 
 } // namespace ulmBLAS

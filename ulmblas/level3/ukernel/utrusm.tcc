@@ -10,7 +10,7 @@
 //
 //  Selected optimized micro kernel
 //
-#if defined(USE_SSE) && !defined(USE_AVX) && !defined(USE_BLIS_DGEMM)
+#if defined(USE_SSE)
 #   define  SELECT_UTRUSM_KERNEL    sse
 #   include <ulmblas/level3/ukernel/sse/utrusm.h>
 #else

@@ -1,7 +1,6 @@
 #
-#  Test configuration 05: small block sizes with MR = 6 and NR = 8 (the block
-#  size of the AVX micro kernel for double), which do not divide each other,
-#  with the reference micro kernel.  Like configurations 01 to 03 the tests
+#  Test configuration 05: small block sizes with MR = 6 and NR = 8, which do
+#  not divide each other, with the reference micro kernel.  Like configurations 01 to 03 the tests
 #  (which use small matrices) cover multiple and partial blocks of all levels
 #  of the GEMM algorithm.  Libraries, headers and tests of a configuration are
 #  built in test/build/<configuration>/ (see test/Makefile.config).

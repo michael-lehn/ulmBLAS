@@ -160,13 +160,7 @@ testFullTiles(Context &ctx, const std::vector<T> &s = scalars<T>())
         for (int p=0; p<MR*kc; ++p) A[p] = random.value<T>();
         for (int p=0; p<NR*kc; ++p) B[p] = random.value<T>();
 
-#if defined(USE_AVX)
-        if (!ctx.check(ulmBLAS::isAligned(A, 32) && ulmBLAS::isAligned(B, 32),
-                       "packed buffers not aligned to 32 bytes"))
-        {
-            return false;
-        }
-#elif defined(USE_SSE)
+#if defined(USE_SSE)
         if (!ctx.check(ulmBLAS::isAligned(A, 16) && ulmBLAS::isAligned(B, 16),
                        "packed buffers not aligned to 16 bytes"))
         {
