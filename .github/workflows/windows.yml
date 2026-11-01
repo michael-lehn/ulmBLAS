@@ -36,11 +36,21 @@ jobs:
       - name: flags and CPU
         run: |
           case ${{ matrix.variant }} in
-          x86_64)   flags="-msse3"; need="pni";;
-          haswell)  flags="-mavx -mavx2 -mfma -DULMBLAS_DGEMM_UKERNEL_openblas_haswell_4x8 -DULMBLAS_SGEMM_UKERNEL_openblas_haswell_8x4 -DULMBLAS_CGEMM_UKERNEL_openblas_haswell_8x2 -DULMBLAS_ZGEMM_UKERNEL_openblas_haswell_4x2"; need="avx2 fma";;
-          skylakex) flags="-mavx -mavx2 -mfma -mavx512f -mavx512dq -DULMBLAS_DGEMM_UKERNEL_openblas_skylakex_16x12 -DULMBLAS_SGEMM_UKERNEL_openblas_skylakex_16x4 -DULMBLAS_CGEMM_UKERNEL_openblas_skylakex_8x2 -DULMBLAS_ZGEMM_UKERNEL_blis_zen4_12x4"; need="avx2 fma avx512f avx512dq";;
-          zen4)     flags="-mavx -mavx2 -mfma -mavx512f -mavx512dq -DULMBLAS_DGEMM_UKERNEL_blis_zen4_32x6 -DULMBLAS_SGEMM_UKERNEL_openblas_skylakex_16x4 -DULMBLAS_CGEMM_UKERNEL_openblas_skylakex_8x2 -DULMBLAS_ZGEMM_UKERNEL_blis_zen4_12x4"; need="avx2 fma avx512f avx512dq";;
+          x86_64)   flags="-msse3"; need="pni"; configs="";;
+          haswell)  flags="-mavx -mavx2 -mfma -DULMBLAS_DGEMM_UKERNEL_openblas_haswell_4x8 -DULMBLAS_SGEMM_UKERNEL_openblas_haswell_8x4 -DULMBLAS_CGEMM_UKERNEL_openblas_haswell_8x2 -DULMBLAS_ZGEMM_UKERNEL_openblas_haswell_4x2"; need="avx2 fma"
+                    k="openblas-haswell_4x8 s-openblas_haswell_8x4 c-openblas_haswell_8x2 z-openblas_haswell_4x2"
+                    configs="openblas-haswell_4x8-kc600";;
+          skylakex) flags="-mavx -mavx2 -mfma -mavx512f -mavx512dq -DULMBLAS_DGEMM_UKERNEL_openblas_skylakex_16x12 -DULMBLAS_SGEMM_UKERNEL_openblas_skylakex_16x4 -DULMBLAS_CGEMM_UKERNEL_openblas_skylakex_8x2 -DULMBLAS_ZGEMM_UKERNEL_blis_zen4_12x4"; need="avx2 fma avx512f avx512dq"
+                    k="openblas-skylakex_16x12 s-openblas_skylakex_16x4 c-openblas_skylakex_8x2 z-blis_zen4_12x4"
+                    configs="";;
+          zen4)     flags="-mavx -mavx2 -mfma -mavx512f -mavx512dq -DULMBLAS_DGEMM_UKERNEL_blis_zen4_32x6 -DULMBLAS_SGEMM_UKERNEL_openblas_skylakex_16x4 -DULMBLAS_CGEMM_UKERNEL_openblas_skylakex_8x2 -DULMBLAS_ZGEMM_UKERNEL_blis_zen4_12x4"; need="avx2 fma avx512f avx512dq"
+                    k="blis-zen4_32x6 s-openblas_skylakex_16x4 c-openblas_skylakex_8x2 z-blis_zen4_12x4"
+                    configs="";;
           esac
+          #  the test configurations of the kernels of this variant (the
+          #  default configurations testcase* in the job x86_64)
+          for c in $k; do configs="$configs $c $c-small"; done
+          echo "CONFIGS=$configs" >> $GITHUB_ENV
           echo "FLAGS=$flags" >> $GITHUB_ENV
           grep -m1 "model name" /proc/cpuinfo
           cpuflags=" $(grep -m1 '^flags' /proc/cpuinfo | cut -d: -f2) "
@@ -73,4 +83,5 @@ jobs:
           ./abicheck out/libulmblas_lbt.dll
       - name: tests (make check)
         if: env.RUN == '1'
-        run: make check ARCHFLAGS="$FLAGS"
+        run: |
+          if [ -n "$CONFIGS" ]; then make check CONFIGS="$CONFIGS"; else make check; fi
