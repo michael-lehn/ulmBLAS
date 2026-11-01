@@ -36,9 +36,47 @@ template <typename T>
 T *
 malloc(std::size_t n)
 {
-//  At least the alignment of T and the 16 bytes of the SSE kernels (movapd), a
-//  multiple of sizeof(void *) as required by posix_memalign.
+//  A vendored kernel (BLIS, AOCL, OpenBLAS) may need a larger alignment of
+//  the packed panels than the kernel set it is combined with (e.g. 32 bytes
+//  for the AVX kernel sandybridge_8x4 built without FMA, i.e. with the SSE
+//  kernel set; 64 bytes for aligned loads of zmm registers).
+#if defined(USE_BLIS_DGEMM) || defined(USE_BLIS_XGEMM)
+#   if defined(USE_AVX)
+    constexpr std::size_t base = 32;
+#   else
+    constexpr std::size_t base = 16;
+#   endif
+#   if defined(USE_BLIS_DGEMM)
+    constexpr std::size_t dalign = ULMBLAS_BLIS_DGEMM_ALIGN;
+#   else
+    constexpr std::size_t dalign = 0;
+#   endif
+#   if defined(USE_BLIS_ZGEMM)
+    constexpr std::size_t zalign = ULMBLAS_BLIS_ZGEMM_ALIGN;
+#   else
+    constexpr std::size_t zalign = 0;
+#   endif
+#   if defined(USE_BLIS_SGEMM)
+    constexpr std::size_t salign = ULMBLAS_BLIS_SGEMM_ALIGN;
+#   else
+    constexpr std::size_t salign = 0;
+#   endif
+#   if defined(USE_BLIS_CGEMM)
+    constexpr std::size_t calign = ULMBLAS_BLIS_CGEMM_ALIGN;
+#   else
+    constexpr std::size_t calign = 0;
+#   endif
+    constexpr std::size_t align0 = (dalign>base) ? dalign : base;
+    constexpr std::size_t align1 = (zalign>align0) ? zalign : align0;
+    constexpr std::size_t align2 = (salign>align1) ? salign : align1;
+    constexpr std::size_t align  = (calign>align2) ? calign : align2;
+#elif defined(USE_AVX)
+    constexpr std::size_t align  = 32;
+#else
+//  At least the alignment of T, a multiple of sizeof(void *) as required by
+//  posix_memalign.
     constexpr std::size_t align  = (alignof(T)>16) ? alignof(T) : 16;
+#endif
     void *block = nullptr;
 
     if (n==0) {

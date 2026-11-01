@@ -160,7 +160,13 @@ testFullTiles(Context &ctx, const std::vector<T> &s = scalars<T>())
         for (int p=0; p<MR*kc; ++p) A[p] = random.value<T>();
         for (int p=0; p<NR*kc; ++p) B[p] = random.value<T>();
 
-#if defined(USE_SSE)
+#if defined(USE_AVX)
+        if (!ctx.check(ulmBLAS::isAligned(A, 32) && ulmBLAS::isAligned(B, 32),
+                       "packed buffers not aligned to 32 bytes"))
+        {
+            return false;
+        }
+#elif defined(USE_SSE)
         if (!ctx.check(ulmBLAS::isAligned(A, 16) && ulmBLAS::isAligned(B, 16),
                        "packed buffers not aligned to 16 bytes"))
         {
@@ -846,8 +852,9 @@ ULMBLAS_TEST(T0347, "ukernel/gepack_A and gepack_B, all strides, columns "
 }
 
 //
-//  Every k mod 8 (and k below and above 8, 16, 24), for full and partial
-//  panels.
+//  Every k mod 8 (and k below and above 8, 16, 24): the SME2 packing of
+//  double packs 8 values of k at once and the last k%8 separately, for full
+//  and partial panels (mr < 32, nr < 16).
 //
 ULMBLAS_TEST(T0348, "ukernel/gepack_A and gepack_B, k = 1 ... 25, all "
              "strides")
