@@ -63,9 +63,7 @@ Variants with a copy (C++ interface, same arguments):
   back after its last update.  Workspace kept per calling thread.
 - `TileMatrix` + `potrf(TileMatrix&)`: for data that stays in tile layout.
 - Idea: several implementations with different trade-offs, pick later
-  (maybe at run time).  In place is the most flexible; a copy should pay
-  off for large strides.  Ice Lake measurements with `incRow` 1, 2, 42 and
-  all variants: running, not in this README yet.
+  (maybe at run time).  Measurements: [Strides and copies](#strides-and-copies-ice-lake).
 - Tiles here are plain column-major.  `ulmBLAS::gemm` still packs its
   operands.  Next idea: tiles already in the packed micro-panel format, so
   that the macro kernel `mgemm` can be called directly.
@@ -213,6 +211,76 @@ Numbers per size: [`summary-getrf.dat`](results/2026-11-06-icelake-32threads/sum
 [`summary-potrf.dat`](results/2026-11-06-icelake-32threads/summary-potrf.dat).
 Raw data and all samples: [`results/2026-11-06-icelake-32threads`](results/2026-11-06-icelake-32threads).
 Tuning runs: [`results/tuning`](results/tuning).
+
+## Strides and copies: Ice Lake
+
+Same machine and settings as above, current code.  `incRow` R: the matrix
+is every R-th row of a column-major matrix, `A(i,j) = A[i*R + j*R*n]`.
+OpenBLAS always column-major (its LAPACK can't do anything else).
+
+- Variants: in place (R = 1, 2, 42), `colmajor` copy (R = 1, 2, 42),
+  `tiled` copy (R = 1, 2, 42, `dpotrf` only).
+- Copies are part of the measured call.  The workspace is reused, so the
+  timed calls (after 2 warm-up calls) don't pay for allocation.
+- 3 rounds, one per job, order of the variants rotated.  Rounds ran on
+  different nodes of the same type (uc2n601, 602, 603, 605, 607).
+- Parameters (tile size, threads) are the column-major defaults, not
+  tuned for strides.
+
+In place, R = 1, 2, 42:
+
+![DGETRF GFLOP/s, incRow 1, 2, 42](plots/getrf-strides-gflops.svg)
+
+![DPOTRF GFLOP/s, incRow 1, 2, 42](plots/potrf-strides-gflops.svg)
+
+![DGETRF speedup over OpenBLAS, incRow 1, 2, 42](plots/getrf-strides-speedup.svg)
+
+![DPOTRF speedup over OpenBLAS, incRow 1, 2, 42](plots/potrf-strides-speedup.svg)
+
+- R = 1 reproduces the first campaign (n = 4000: LU 676 vs. 678 GFLOP/s,
+  Cholesky 1029 vs. 1044).
+- R = 2: 0.7-0.9 of R = 1 up to n = 1000, about 0.6 at n = 4000 (LU 432,
+  Cholesky 601).  Still faster than column-major OpenBLAS at 70 (LU) and
+  78 (Cholesky) of 80 sizes; at n = 4000 about equal.
+- R = 42: every element its own cache line.  LU 126, Cholesky 190
+  GFLOP/s at n = 4000, 0.30 and 0.33 of OpenBLAS.  Not a layout to
+  factor in place.
+
+Copy first, or work in place (time in place / time with copy, same R):
+
+![DGETRF, copy vs. in place](plots/getrf-variants-gain.svg)
+
+![DPOTRF, copy vs. in place](plots/potrf-variants-gain.svg)
+
+![DGETRF GFLOP/s, in place vs. copy](plots/getrf-variants-gflops.svg)
+
+![DPOTRF GFLOP/s, in place vs. copy](plots/potrf-variants-gflops.svg)
+
+- R = 42: copying wins from n = 200 (LU) and n = 100 (Cholesky).  At
+  n = 4000: 4.2x (LU, 517 GFLOP/s) and 3.4x (Cholesky, 639-642).
+- R = 2: LU wins with a copy from n = 150 (1.0-1.3 up to n = 2000, 1.47 at
+  4000).  Cholesky from n = 1650 (`colmajor`) or n = 700 (`tiled`), 1.4-1.6
+  at 4000.
+- R = 1: the copy costs, LU up to 18% (0.84 at n = 2000), Cholesky up to
+  32% (0.76 at n = 2000).  The copy tasks overlap with the factorization,
+  but not completely.
+- Copying from R = 42 is expensive itself: the `colmajor` copy with R = 42
+  reaches 0.7-0.8 of the same variant with R = 1 for n >= 3000 (0.8-1.0
+  for smaller n).
+- With the better of in place and copy per size, ulmBLAS with R = 2 or 42
+  is faster than column-major OpenBLAS at 68-79 of 80 sizes (1.1-1.5x at
+  n = 4000).
+- `tiled` vs. `colmajor` copy (Cholesky, n >= 1000): tiled is faster by
+  10% (R = 1), 9% (R = 2), 6% (R = 42), median over n.  But at R = 1 still
+  slower than in place (0.77 at n = 2000, 0.95 at 4000).  PLASMA's layout
+  alone doesn't buy much here: ulmBLAS's kernels pack their operands
+  anyway.  Next: tiles already in the packed micro-panel format.
+- Rule of thumb so far: R = 1 in place.  R = 2: in place for small and
+  medium n, copy for large n (LU: copy almost always).  Large R: copy.
+
+Data: [`results/2026-11-07-icelake-strides-variants`](results/2026-11-07-icelake-strides-variants)
+(raw outputs, all samples, conditions; `summary-*-strides.dat`,
+`summary-*-variants.dat` from `scripts/summarize-strides.py`).
 
 ## Tests
 

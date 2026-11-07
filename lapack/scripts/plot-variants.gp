@@ -32,7 +32,8 @@ F = D."/summary-".R."-variants.dat"
 set output O."/".R."-variants-gain.svg"
 set title NAME.", ".SUB.": copy first, or work in place?"
 set ylabel "time in place / time with copy (same incRow)"
-set yrange [0:*]
+# headroom above the curves for the legend (top left)
+set yrange [0:(R eq "getrf" ? 6 : 5)]
 if (R eq "potrf") {
 plot 1 w l lc rgb INK dt 2 lw 1.2 t "equal time", \
      F u 1:52 w lp lc rgb U1  lw 2 pt 7  ps 0.5 t "colmajor copy, incRow = 1", \
@@ -52,6 +53,7 @@ plot 1 w l lc rgb INK dt 2 lw 1.2 t "equal time", \
 set output O."/".R."-variants-gflops.svg"
 set title NAME.", ".SUB.": GFLOP/s, in place vs. copy"
 set ylabel "GFLOP/s  (".(R eq "getrf" ? "2/3 n^3" : "1/3 n^3")." / time, copies included)"
+set yrange [0:*]
 set key top left
 if (R eq "potrf") {
 plot F u 1:5  w lp lc rgb U1  lw 2 pt 7  ps 0.5 t "in place, incRow = 1", \
