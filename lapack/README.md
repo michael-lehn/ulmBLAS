@@ -220,6 +220,8 @@ Speedup plots: 1 means exactly as fast as OpenBLAS, 2 means twice as fast.
   19.6-29.1 ms vs. 35.1-36.9 ms for OpenBLAS).  Even the slowest call beats
   OpenBLAS.
 - 64 threads (two sockets) were slower than 32 for both libraries.
+- **Conclusion:** tasks without barriers paid off: faster than OpenBLAS
+  from n = 150 on.  Did not pay off for tiny matrices (n <= 100).
 
 Numbers per size: [`summary-getrf.dat`](results/2026-11-06-icelake-32threads/summary-getrf.dat),
 [`summary-potrf.dat`](results/2026-11-06-icelake-32threads/summary-potrf.dat).
@@ -261,6 +263,9 @@ Speedup plots: 1 means exactly as fast as OpenBLAS (column-major).
 - R = 42: every element its own cache line.  LU 126, Cholesky 190
   GFLOP/s at n = 4000, 0.30 and 0.33 of OpenBLAS.  Not a layout to
   factor in place.
+- **Conclusion:** in place pays off for R = 1.  For R = 2 it still beats
+  OpenBLAS, but (see below) a copy is often faster.  For R = 42 it does
+  not pay off.
 
 Copy first, or work in place?  1 means the copy variant is exactly as
 fast as working in place with the same `incRow`; above 1 the copy pays
@@ -295,6 +300,9 @@ off.
   anyway.  Next: tiles already in the packed micro-panel format.
 - Rule of thumb so far: R = 1 in place.  R = 2: in place for small and
   medium n, copy for large n (LU: copy almost always).  Large R: copy.
+- **Conclusion:** the copy paid off for large strides (up to 4x) and for
+  R = 2 at large n.  It did not pay off for R = 1.  The tiled copy paid
+  off a little (6-10%) compared to the `colmajor` copy.
 
 Data: [`results/2026-11-07-icelake-strides-variants`](results/2026-11-07-icelake-strides-variants)
 (raw outputs, all samples, conditions; `summary-*-strides.dat`,
@@ -320,6 +328,8 @@ How much does the stride cost?  `n = 500 ... 4000`, `incRow = 1 ... 128`.
   sets).
 - With a copy the stride hardly matters: LU about 0.8, Cholesky about 0.6
   of `incRow = 1` (n = 4000).
+- **Conclusion:** yes, there is a plateau: from `incRow` about 8-16 on, a
+  bigger stride costs no more.  On the plateau the copy pays off.
 
 What I tried for `dpotrf` in place (all optional parameters):
 
@@ -330,6 +340,9 @@ What I tried for `dpotrf` in place (all optional parameters):
 1 means exactly as fast as without `prepack`; above 1 `prepack` helps.
 
 ![DPOTRF, tiles packed once](plots/potrf-prepack.svg)
+
+- **Conclusion:** `prepack` paid off only in place with a big stride.  It
+  did not pay off with `incRow = 1` or with a copy.
 
 - `outer = s`: group s tile columns.  The rest of the matrix gets one
   update per group instead of one per tile column, so it is read and
@@ -359,6 +372,9 @@ code):
 - `outer` + `strip` (+ `window` for big n) is about as fast as a full copy
   for `incRow` 2-42: 0.9-1.1x.  For `incRow = 128` about 0.8x.
 - `incRow = 1`: plain in place is still best.
+- **Conclusion:** `outer` + `strip` paid off: 2-5x faster than in
+  place, and as fast as a copy for `incRow` 2-42.  It did not save memory
+  yet.
 
 Smaller buffers, `strip = 2` ("lean"): no packed tiles, GEMM works
 directly on the strip buffer, which holds w+1 groups.  Extra memory `(w+1)
@@ -377,6 +393,8 @@ n s nb` doubles.
   the memory.
 - n = 2000: lean is 5-15% slower, and the buffers are 0.5-0.77 x the
   matrix, so not much is saved there.
+- **Conclusion:** smaller buffers paid off for large n: same speed with
+  less than half the memory.  For smaller n they did not.
 
 Tensor slice: `X(i,:,:)` of an `n1 x n x n` tensor (column-major), i.e.
 `incRow = n1`, `incCol = n1 n`:
@@ -394,6 +412,8 @@ Tensor slice: `X(i,:,:)` of an `n1 x n x n` tensor (column-major), i.e.
 - `n1 = 1000`: 1.1x faster than the full copy, 2x faster than in place.
 - `n1` a power of two (256, 4096): everybody is slower, the copy less.
   Here a copy is still the better choice.
+- **Conclusion:** avoiding the copy paid off for the tensor slice with
+  `n1 = 1000`.  It did not pay off for powers of two.
 
 Data: [stride sweep](results/2026-11-07-icelake-stride-sweep),
 [prepack](results/2026-11-07-icelake-prepack),
