@@ -62,11 +62,13 @@ Variants with a copy (C++ interface, same arguments):
   tile's factorization starts once that tile is copied, a tile is copied
   back after its last update.  Workspace kept per calling thread.
 - `TileMatrix` + `potrf(TileMatrix&)`: for data that stays in tile layout.
+- `dpotrf` in place, parameters for large strides (see
+  [Large strides without a copy](#large-strides-without-a-copy-cholesky)):
+  `prepack`, `outer`, `window`, `strip`.
 - Idea: several implementations with different trade-offs, pick later
   (maybe at run time).  Measurements: [Strides and copies](#strides-and-copies-ice-lake).
 - Tiles here are plain column-major.  `ulmBLAS::gemm` still packs its
-  operands.  Next idea: tiles already in the packed micro-panel format, so
-  that the macro kernel `mgemm` can be called directly.
+  operands.
 
 ```sh
 cd lapack
@@ -282,6 +284,86 @@ Data: [`results/2026-11-07-icelake-strides-variants`](results/2026-11-07-icelake
 (raw outputs, all samples, conditions; `summary-*-strides.dat`,
 `summary-*-variants.dat` from `scripts/summarize-strides.py`).
 
+## Large strides without a copy (Cholesky)
+
+Question: a matrix with a big row stride, e.g. a slice of a tensor.  Can
+we factor it without copying it first?
+
+How much does the stride cost?  `n = 500 ... 4000`, `incRow = 1 ... 128`:
+
+![DGETRF, cost of the row stride](plots/getrf-sweep.svg)
+
+![DPOTRF, cost of the row stride](plots/potrf-sweep.svg)
+
+- In place: gets slower up to `incRow` 8-16 (then every element is its
+  own cache line), then stays at about 0.15-0.2 of `incRow = 1` (n =
+  4000; small n lose less).
+- Powers of two (16, 32, 64, 128) are worse than their neighbours (cache
+  sets).
+- With a copy the stride hardly matters: LU about 0.8, Cholesky about 0.6
+  of `incRow = 1` (n = 4000).
+
+What I tried for `dpotrf` in place (all optional parameters):
+
+- `prepack`: pack every tile of L once after its TRSM, the GEMMs call the
+  macro kernel `mgemm` directly.  Helps only in place with a big stride
+  (1.2x at `incRow = 42`), otherwise 3-5% slower.
+
+![DPOTRF, tiles packed once](plots/potrf-prepack.svg)
+
+- `outer = s`: group s tile columns.  The rest of the matrix gets one
+  update per group instead of one per tile column, so it is read and
+  written s times less often.  s = 4 is best.
+- `window = w`: update the rest of the matrix only every w groups.
+- `strip = 1`: copy the tiles of the current group into a small buffer,
+  factor them there, copy them back.
+- Extra memory: packed tiles of w+1 groups (two formats) and the tiles of
+  two groups for `strip`: `2 (w+2) n s nb` doubles.  It doesn't grow with
+  the stride, but it is not small: with s = 4, nb = 128, w = 2 it is
+  about the size of the matrix at n = 4000 (twice at n = 2000).  So for
+  these sizes it saves no memory compared to a copy, only for larger n.
+  To do: smaller buffers.
+
+Results (GFLOP/s, Cholesky, Ice Lake, 32 threads, 3 rounds; in place
+from the `outer` campaign, the rest from the window/strip campaign, same
+code):
+
+| | n = 2000, incRow 8 | 16 | 42 | 128 | n = 4000, incRow 8 | 16 | 42 | 128 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| in place | 196 | 134 | 164 | 76 | 227 | 161 | 189 | 98 |
+| outer 4 | 339 | 236 | 300 | 120 | 511 | 367 | 428 | 239 |
+| outer 4 + strip | 424 | 353 | 369 | 294 | 592 | 512 | 509 | 430 |
+| outer 4 + window 2 + strip | 423 | 361 | 375 | 316 | 633 | 560 | 565 | 494 |
+| full copy (`colmajor`) | 392 | 375 | 358 | 398 | 669 | 618 | 591 | 626 |
+
+- `outer` + `strip` (+ `window` for big n) is about as fast as a full copy
+  for `incRow` 2-42: 0.9-1.1x.  For `incRow = 128` about 0.8x.
+- `incRow = 1`: plain in place is still best.
+
+Tensor slice: `X(i,:,:)` of an `n1 x n x n` tensor (column-major), i.e.
+`incRow = n1`, `incCol = n1 n`:
+
+| n1 | in place | outer 4 + strip | full copy |
+|---:|---:|---:|---:|
+| 16 | 133 | 355 | 362 |
+| 64 | 100 | 335 | 405 |
+| 256 | 70 | 300 | 404 |
+| **1000** | 205 | **424** | 384 |
+| 4096 | 40 | 172 | 274 |
+
+(GFLOP/s, n = 2000.)
+
+- `n1 = 1000`: 1.1x faster than the full copy, 2x faster than in place.
+- `n1` a power of two (256, 4096): everybody is slower, the copy less.
+  Here a copy is still the better choice.
+
+Data: [stride sweep](results/2026-11-07-icelake-stride-sweep),
+[prepack](results/2026-11-07-icelake-prepack),
+[outer](results/2026-11-07-icelake-outer),
+[window/strip](results/2026-11-07-icelake-window-strip),
+[tensor slice](results/2026-11-07-icelake-tensor-slice)
+(`scripts/summarize-sweep.py`, `cluster/sweep.sbatch`).
+
 ## Tests
 
 - `make check`, `make check-full`: against OpenBLAS's `dgetrf_`/`dpotrf_`.
@@ -297,7 +379,8 @@ Data: [`results/2026-11-07-icelake-strides-variants`](results/2026-11-07-icelake
     column-major + padding, `incRow` 2, `incRow` 42, row-major, row-major
     with gaps (`(3n+1, 3)`).  The test matrix is copied into the strided
     array (gaps hold a marker) and back; same checks, plus gaps untouched.
-  - The copy variants on top: 14 (layout, variant) combinations.
+  - The copy variants, prepack, outer, window and strip on top: 27
+    combinations.
   - That found a bug in ulmBLAS itself: `ulmBLAS::ger` with neither stride
     1 did not load `A` into its packing buffer
     ([#0030](../test/known_issues.md), regression test `T0806`).  The C
@@ -313,9 +396,9 @@ Data: [`results/2026-11-07-icelake-strides-variants`](results/2026-11-07-icelake
 - Ice Lake (GCC 14.2, libgomp), code of the benchmark below (column-major
   only): 330,471 checks, 0 failures.  Pivots identical to OpenBLAS on all
   random and `P0 L0 U0` matrices.
-- Ice Lake, current code (strides, variants): 2 x 512,690 checks (1 and 32
-  threads), dependency checker 370,510, 11,208 determinism runs, bounds
-  and neighbor tests: 0 failures.
+- Ice Lake, current code (strides, variants, prepack, outer, window,
+  strip): 2 x 789,135 checks (1 and 32 threads), dependency checker
+  570,255, 11,215 determinism runs, bounds and neighbor tests: 0 failures.
 
 ## macOS: libomp ordering bug (found, worked around)
 

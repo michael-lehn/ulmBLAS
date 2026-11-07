@@ -32,6 +32,41 @@ import sys
 FLOPS = {"getrf": lambda n: 2.0 / 3 * n**3, "potrf": lambda n: 1.0 / 3 * n**3}
 
 
+def prepackSummary(rdir, r, v):
+    """summary-<routine>-prepack.dat: groups (variant, prepack, R) for the
+    variants inplace, colmajor, tiled, without and with prepack, R = 1, 42:
+    columns t gflops per group, then t_without / t_with per (variant, R)."""
+    groups = [(var, pp, i) for i in (1, 42) for var in ("inplace", "colmajor", "tiled")
+              for pp in (False, True)]
+
+    def key(var, pp, i):
+        name = var + ("+pp" if pp else "")
+        return ("ulmblas", i) if name == "inplace" else ("ulmblas", i, name)
+    present = [g for g in groups if key(*g) in v]
+    ns = sorted(set.intersection(*(set(v[key(*g)]) for g in present)))
+    out = os.path.join(rdir, "summary-%s-prepack.dat" % r)
+    with open(out, "w") as o:
+        o.write("# n  then (t gflops) per group: %s  then t/t_pp per (variant, R)\n"
+                % " ".join("%s%s:%d" % (g[0], "+pp" if g[1] else "", g[2]) for g in groups))
+        for n in ns:
+            fl = FLOPS[r](n)
+            o.write("%5d" % n)
+            tm = {}
+            for g in groups:
+                k = key(*g)
+                if k in v and n in v[k]:
+                    tm[g] = statistics.median(v[k][n].values())
+                    o.write("  %.6e %9.3f" % (tm[g], fl / tm[g] * 1e-9))
+                else:
+                    o.write("  nan nan")
+            for i in (1, 42):
+                for var in ("inplace", "colmajor", "tiled"):
+                    a, b = tm.get((var, False, i)), tm.get((var, True, i))
+                    o.write(" %.4f" % (a / b) if a and b else " nan")
+            o.write("\n")
+    print("%s: prepack -> %s (%d sizes)" % (r, out, len(ns)))
+
+
 def main():
     rdir = sys.argv[1]
     # data[routine][(lib, inc)][n][round] = median time
@@ -39,13 +74,13 @@ def main():
         lambda: collections.defaultdict(dict)))
     bad = []
     pat = re.compile(r"(r\d+)-(getrf|potrf)-(ulmblas|openblas)-inc(\d+)"
-                     r"(?:-(colmajor|tiled))?\.txt$")
+                     r"(?:-(inplace|colmajor|tiled))?(-pp)?\.txt$")
     for path in sorted(glob.glob(os.path.join(rdir, "raw", "*.txt"))):
         m = pat.search(os.path.basename(path))
         if not m:
             continue
         rnd, routine, lib, inc = m.group(1), m.group(2), m.group(3), int(m.group(4))
-        var = m.group(5) or "inplace"
+        var = (m.group(5) or "inplace") + ("+pp" if m.group(6) else "")
         for line in open(path):
             if line.startswith("#") or not line.strip():
                 continue
@@ -60,6 +95,8 @@ def main():
             data[routine][key][n][rnd] = med
     for r in sorted(data):
         v = data[r]
+        if any(len(k) == 3 and k[2].endswith("+pp") for k in v):
+            prepackSummary(rdir, r, v)
         ob = v[("openblas", 1)]
         incs = sorted(k[1] for k in v if k[0] == "ulmblas" and len(k) == 2)
         ns = sorted(set(ob).intersection(*(set(v[("ulmblas", i)]) for i in incs)))

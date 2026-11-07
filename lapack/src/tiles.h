@@ -74,20 +74,21 @@ copyBlock(Index m, Index n, const double *A, Index ars, Index acs,
 }
 
 //
-//  Workspace of the copying variants, kept per calling thread and reused,
+//  Workspace of the copying variants (slot 0) and of the packed tiles (slot
+//  1), kept per calling thread and reused,
 //  so that repeated calls do not pay for allocation and page faults again.
 //  Not initialized: the copy tasks touch it first (in parallel).
 //
 inline double *
-workspace(std::size_t n)
+workspace(std::size_t n, int slot = 0)
 {
-    thread_local std::unique_ptr<double[]> w;
-    thread_local std::size_t               size = 0;
-    if (size<n) {
-        w.reset(new double[n]);
-        size = n;
+    thread_local std::unique_ptr<double[]> w[2];
+    thread_local std::size_t               size[2] = {0, 0};
+    if (size[slot]<n) {
+        w[slot].reset(new double[n]);
+        size[slot] = n;
     }
-    return w.get();
+    return w[slot].get();
 }
 
 } // namespace ulmlapack

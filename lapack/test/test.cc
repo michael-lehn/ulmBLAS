@@ -102,14 +102,28 @@ const Layout *layout = &layouts[0];
 enum Variant { INPLACE, COLMAJOR, TILED, TILEMATRIX };
 const char *variantName[] = {"", "/colmajor", "/tiled", "/TileMatrix"};
 Variant variant = INPLACE;
+bool    prepack = false;        // dpotrf: param prepack = 1 (packed tiles)
+int     outer   = 0;            // dpotrf: param outer (outer blocking)
+int     window  = 1;            //         param window
+bool    strip   = false;        //         param strip
 
-//  the (layout, variant) combinations that are tested
-const struct { const char *layout; Variant variant; } runs[] = {
-    {"C", INPLACE}, {"cm", INPLACE}, {"inc2", INPLACE}, {"inc42", INPLACE},
-    {"rm", INPLACE}, {"rm-gap", INPLACE},
-    {"inc2", COLMAJOR}, {"inc42", COLMAJOR}, {"rm", COLMAJOR},
-    {"cm", TILED}, {"inc42", TILED}, {"rm-gap", TILED},
-    {"cm", TILEMATRIX}, {"inc2", TILEMATRIX},
+//  the (layout, variant, prepack, outer) combinations that are tested
+const struct { const char *layout; Variant variant; bool prepack; int outer;
+               int window; bool strip; }
+runs[] = {
+    {"C", INPLACE, false}, {"cm", INPLACE, false}, {"inc2", INPLACE, false},
+    {"inc42", INPLACE, false}, {"rm", INPLACE, false},
+    {"rm-gap", INPLACE, false},
+    {"inc2", COLMAJOR, false}, {"inc42", COLMAJOR, false},
+    {"rm", COLMAJOR, false},
+    {"cm", TILED, false}, {"inc42", TILED, false}, {"rm-gap", TILED, false},
+    {"cm", TILEMATRIX, false}, {"inc2", TILEMATRIX, false},
+    {"C", INPLACE, true}, {"rm-gap", INPLACE, true},
+    {"inc42", COLMAJOR, true}, {"cm", TILED, true}, {"inc2", TILEMATRIX, true},
+    {"C", INPLACE, false, 2}, {"inc42", INPLACE, false, 3},
+    {"rm-gap", INPLACE, false, 4}, {"cm", INPLACE, false, 7},
+    {"inc42", INPLACE, false, 3, 1, true}, {"rm-gap", INPLACE, false, 2, 3, false},
+    {"inc2", INPLACE, false, 4, 2, true}, {"C", INPLACE, false, 2, 4, true},
 };
 
 //  marker for the gaps of a strided array
@@ -361,8 +375,8 @@ makeGe(GeKind kind, int m, int n, std::vector<double> &A, int ldA,
 void
 testGetrf(const Config &cfg, int m, int n, int pad, GeKind kind)
 {
-    if (variant==TILED || variant==TILEMATRIX) {
-        return;                 // dgetrf: no tile layout (yet)
+    if (variant==TILED || variant==TILEMATRIX || prepack || outer) {
+        return;                 // dgetrf: no tile layout, no prepack (yet)
     }
     const int ldA = std::max(1, m+pad);
     std::vector<double> A0;
@@ -569,19 +583,24 @@ testPotrf(const Config &cfg, bool lower, int n, int pad, double cond,
 
     int  info;
     bool okGaps = true;
+    ulmlapack_param pp = cfg.p;
+    pp.prepack = prepack;
+    pp.outer   = outer;
+    pp.window  = window;
+    pp.strip   = strip;
     if (layout->cInterface) {
-        info = ulmlapack_dpotrf_param(uplo, n, A.data(), ldA, &cfg.p);
+        info = ulmlapack_dpotrf_param(uplo, n, A.data(), ldA, &pp);
     } else {
         const long ir = layout->incRow(n, n), ic = layout->incCol(n, n);
         std::vector<double> S = toStrided(n, n, A.data(), ldA, ir, ic);
         switch (variant) {
         case COLMAJOR:
             info = (int) ulmlapack::potrf_colmajor(lower, n, S.data(), ir, ic,
-                                                   &cfg.p);
+                                                   &pp);
             break;
         case TILED:
             info = (int) ulmlapack::potrf_tiled(lower, n, S.data(), ir, ic,
-                                                &cfg.p);
+                                                &pp);
             break;
         case TILEMATRIX:
             {
@@ -592,12 +611,12 @@ testPotrf(const Config &cfg, bool lower, int n, int pad, double cond,
                 const long tr = lower ? ir : ic, tc = lower ? ic : ir;
                 ulmlapack::TileMatrix TM(n, n, p.nb);
                 TM.assign(S.data(), tr, tc);
-                info = (int) ulmlapack::potrf(TM, &cfg.p);
+                info = (int) ulmlapack::potrf(TM, &pp);
                 TM.copyTo(S.data(), tr, tc);
             }
             break;
         default:
-            info = (int) ulmlapack::potrf(lower, n, S.data(), ir, ic, &cfg.p);
+            info = (int) ulmlapack::potrf(lower, n, S.data(), ir, ic, &pp);
         }
         okGaps = fromStrided(n, n, A.data(), ldA, ir, ic, S);
     }
@@ -605,9 +624,12 @@ testPotrf(const Config &cfg, bool lower, int n, int pad, double cond,
     dpotrf_(&uplo, &n, R.data(), &ldA, &rinfo, 1);
 
     char buf[256];
-    std::snprintf(buf, sizeof(buf), "dpotrf %c n=%d ldA=%d cond=%.0e neg=%d [%s] %s%s",
+    std::snprintf(buf, sizeof(buf), "dpotrf %c n=%d ldA=%d cond=%.0e neg=%d [%s] %s%s%s%s",
                   uplo, n, ldA, cond, negAt, cfg.name.c_str(), layout->name,
-                  variantName[variant]);
+                  variantName[variant], prepack ? "+prepack" : "",
+                  outer ? ("+outer"+std::to_string(outer)
+                           +(window>1 ? "+w"+std::to_string(window) : "")
+                           +(strip ? "+strip" : "")).c_str() : "");
     const std::string what(buf);
     check(okGaps, what+" gaps untouched");
 
@@ -685,6 +707,10 @@ main(int argc, char **argv)
         }
     }
     variant = run.variant;
+    prepack = run.prepack;
+    outer   = run.outer;
+    window  = std::max(1, run.window);
+    strip   = run.strip;
     for (const Config &c: cfgs) {
         for (auto &mn: sizes) {
             const int m = mn[0], n = mn[1];

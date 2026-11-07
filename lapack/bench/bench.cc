@@ -17,6 +17,10 @@
 //                             graph works on a contiguous column-major copy),
 //                             tiled (on a copy in tile layout; potrf only);
 //                             the copies are part of the measured call
+//            --prepack 1      ulmlapack dpotrf: packed tiles (param prepack)
+//            --outer S        ulmlapack dpotrf in place: outer blocks of S tiles
+//            --window W       with --outer: trailing updates every W blocks
+//            --strip 1        with --outer: factor the block on contiguous tiles
 //
 //  Matrices: m = n, ldA = n, column major.  With --inc-row R > 1 the matrix
 //  is stored with row stride R and column stride R*n (every R-th row of a
@@ -315,7 +319,26 @@ run(bool lu, int n, const Options &opt, FILE *raw)
                 lu ? "getrf" : "potrf", LIBNAME, n, threads, nb, ib, pt, sn,
                 med, ts.front(), ts.back(), k, flops/med*1e-9,
                 (info0==0 && chk<100) ? "ok" : "FAILED");
-    std::printf(" %.3g %ld %s\n", chk, R, opt.variant.c_str());
+#ifdef BENCH_ULMBLAS
+    const bool pp = opt.p.prepack!=0;
+    const int  so = opt.p.outer;
+#else
+    const bool pp = false;
+    const int  so = 0;
+#endif
+    std::printf(" %.3g %ld %s%s", chk, R, opt.variant.c_str(), pp ? "+pp" : "");
+    if (so>1) {
+#ifdef BENCH_ULMBLAS
+        std::printf("+outer%d", so);
+        if (opt.p.window>1) {
+            std::printf("+w%d", opt.p.window);
+        }
+        if (opt.p.strip) {
+            std::printf("+strip");
+        }
+#endif
+    }
+    std::printf("\n");
 #if defined(BENCH_ULMBLAS) && defined(ULMLAPACK_CHECK_DEPS)
     {   // profile of the last call (diagnostic build)
         long tasks; int th; double gen, wall, busy;
@@ -369,6 +392,10 @@ main(int argc, char **argv)
         else if (a=="--serial-n")    opt.p.serial_n      = std::atoi(v);
         else if (a=="--threads")     opt.p.threads       = std::atoi(v);
         else if (a=="--empty")       opt.p.empty_tasks   = std::atoi(v);
+        else if (a=="--prepack")     opt.p.prepack       = std::atoi(v);
+        else if (a=="--outer")       opt.p.outer         = std::atoi(v);
+        else if (a=="--window")      opt.p.window        = std::atoi(v);
+        else if (a=="--strip")       opt.p.strip         = std::atoi(v);
 #endif
         else {
             std::fprintf(stderr, "unknown option %s\n", a.c_str());

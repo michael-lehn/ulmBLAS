@@ -39,6 +39,23 @@ typedef struct {
     int empty_tasks;    /* diagnostics: create and run the task graph with
                            empty tasks (no computation, the result is
                            wrong); measures the cost of the tasks          */
+    int prepack;        /* dpotrf: 1: every tile of L is packed once (into
+                           the formats of the GEMM micro kernel) after its
+                           TRSM, and the GEMM tasks call the macro kernel
+                           directly; 0: every GEMM packs its operands       */
+    int outer;          /* dpotrf in place: s > 1 groups s tile columns to
+                           an outer block; the trailing matrix is updated
+                           once per outer block (packed tiles, the update
+                           accumulated in a contiguous buffer): s times
+                           fewer passes over the matrix, for large strides.
+                           0, 1: off                                        */
+    int window;         /* with outer: the updates of a trailing tile are
+                           deferred until w outer blocks are pending (or
+                           its column is next): w times fewer passes, for
+                           w+1 blocks of packed tiles; default 1           */
+    int strip;          /* with outer: 1: the tiles of the current outer
+                           block are factored as contiguous copies (copied
+                           in and back by tasks); 0: in place              */
 } ulmlapack_param;
 
 /*  Defaults (all fields 0 or -1).                                          */

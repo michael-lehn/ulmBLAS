@@ -11,10 +11,11 @@
 #
 #  Without INCS: the two libraries, column major (as in the campaign
 #  2026-11-06); raw output OUT/raw/rROUND-ROUTINE-LIB.txt.
-#  With INCS (e.g. "1 2 42 42/colmajor 42/tiled"): ulmBLAS with each row
-#  stride (--inc-row) and variant (--variant, default inplace; tiled is
-#  skipped for getrf), and OpenBLAS (column major only); raw output
-#  OUT/raw/rROUND-ROUTINE-LIB-incR[-VARIANT].txt.  Conditions in
+#  With INCS (e.g. "1 2 42 42/colmajor 42/tiled 1/inplace+pp"): ulmBLAS
+#  with each row stride (--inc-row) and variant (--variant, default
+#  inplace; tiled is skipped for getrf; +pp: --prepack 1), and OpenBLAS
+#  (column major only); raw output
+#  OUT/raw/rROUND-ROUTINE-LIB-incR[-VARIANT][-pp].txt.  Conditions in
 #  OUT/conditions.
 #
 set -euo pipefail
@@ -54,9 +55,11 @@ else
             lib=${var%%:*}; tok=${var#*:}
             inc=${tok%%/*}; vari=inplace
             [ "$tok" != "$inc" ] && vari=${tok#*/}
+            pp=0; [ "${vari%+pp}" != "$vari" ] && { pp=1; vari=${vari%+pp}; }
             tag=r$rnd-$R-$lib-inc$inc
-            [ $vari != inplace ] && tag=$tag-$vari
-            VOPT=""; [ $lib = ulmblas ] && VOPT="--variant $vari"
+            [ $vari != inplace ] || [ $pp = 1 ] && tag=$tag-$vari
+            [ $pp = 1 ] && tag=$tag-pp
+            VOPT=""; [ $lib = ulmblas ] && VOPT="--variant $vari --prepack $pp"
             cond "round $rnd $R $lib inc $inc $vari start"
             "${NUMA[@]}" ./build/bench-$lib $R 50 4000 50 $OPT --inc-row $inc $VOPT \
                 --raw $OUT/raw/samples-$tag.txt > $OUT/raw/$tag.txt
