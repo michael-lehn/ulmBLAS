@@ -1,5 +1,15 @@
 # DGETRF and DPOTRF with OpenMP tasks
 
+- [Differences to PLASMA](#differences-to-plasma)
+- [How it works](#how-it-works)
+- [Benchmark: Ice Lake, 32 threads](#benchmark-ice-lake-32-threads)
+- [Strides and copies: Ice Lake](#strides-and-copies-ice-lake)
+- [Large strides without a copy (Cholesky)](#large-strides-without-a-copy-cholesky)
+- [Tests](#tests)
+- [macOS: libomp ordering bug](#macos-libomp-ordering-bug-found-worked-around)
+- [Reproduce](#reproduce)
+- [Files](#files)
+
 Experimental.  LU with partial pivoting (`dgetrf`) and Cholesky
 (`dpotrf`) in double precision, as graphs of OpenMP tasks.
 
@@ -332,7 +342,7 @@ What I tried for `dpotrf` in place (all optional parameters):
   the stride, but it is not small: with s = 4, nb = 128, w = 2 it is
   about the size of the matrix at n = 4000 (twice at n = 2000).  So for
   these sizes it saves no memory compared to a copy, only for larger n.
-  To do: smaller buffers.
+  Smaller buffers: `strip = 2` (see below).
 
 Results (GFLOP/s, Cholesky, Ice Lake, 32 threads, 3 rounds; in place
 from the `outer` campaign, the rest from the window/strip campaign, same
@@ -349,6 +359,24 @@ code):
 - `outer` + `strip` (+ `window` for big n) is about as fast as a full copy
   for `incRow` 2-42: 0.9-1.1x.  For `incRow = 128` about 0.8x.
 - `incRow = 1`: plain in place is still best.
+
+Smaller buffers, `strip = 2` ("lean"): no packed tiles, GEMM works
+directly on the strip buffer, which holds w+1 groups.  Extra memory `(w+1)
+n s nb` doubles.
+
+| n = 4000 | incRow 8 | 16 | 42 | 128 | 1000 | extra memory |
+|---|---:|---:|---:|---:|---:|---:|
+| outer 4 + window 2 + strip | 634 | 548 | 556 | 491 | 597 | 1.02 x matrix |
+| outer 4 + lean | 579 | 480 | 487 | 425 | 551 | 0.26 x matrix |
+| outer 4 + window 2 + lean | 634 | 543 | 542 | 483 | 599 | 0.38 x matrix |
+| full copy (`colmajor`) | 696 | 599 | 593 | 634 | 637 | 1 x matrix |
+
+(GFLOP/s, new campaign, so numbers differ a bit from the table above.)
+
+- n = 4000: window 2 + lean is as fast as window 2 + strip, with 40% of
+  the memory.
+- n = 2000: lean is 5-15% slower, and the buffers are 0.5-0.77 x the
+  matrix, so not much is saved there.
 
 Tensor slice: `X(i,:,:)` of an `n1 x n x n` tensor (column-major), i.e.
 `incRow = n1`, `incCol = n1 n`:
@@ -371,7 +399,8 @@ Data: [stride sweep](results/2026-11-07-icelake-stride-sweep),
 [prepack](results/2026-11-07-icelake-prepack),
 [outer](results/2026-11-07-icelake-outer),
 [window/strip](results/2026-11-07-icelake-window-strip),
-[tensor slice](results/2026-11-07-icelake-tensor-slice)
+[tensor slice](results/2026-11-07-icelake-tensor-slice),
+[lean](results/2026-11-07-icelake-lean)
 (`scripts/summarize-sweep.py`, `cluster/sweep.sbatch`).
 
 ## Tests
@@ -389,7 +418,7 @@ Data: [stride sweep](results/2026-11-07-icelake-stride-sweep),
     column-major + padding, `incRow` 2, `incRow` 42, row-major, row-major
     with gaps (`(3n+1, 3)`).  The test matrix is copied into the strided
     array (gaps hold a marker) and back; same checks, plus gaps untouched.
-  - The copy variants, prepack, outer, window and strip on top: 27
+  - The copy variants, prepack, outer, window and strip on top: 30
     combinations.
   - That found a bug in ulmBLAS itself: `ulmBLAS::ger` with neither stride
     1 did not load `A` into its packing buffer
@@ -409,6 +438,8 @@ Data: [stride sweep](results/2026-11-07-icelake-stride-sweep),
 - Ice Lake, current code (strides, variants, prepack, outer, window,
   strip): 2 x 789,135 checks (1 and 32 threads), dependency checker
   570,255, 11,215 determinism runs, bounds and neighbor tests: 0 failures.
+- Same with lean: 2 x 852,930 checks, dependency checker, 11,171
+  determinism runs: 0 failures.
 
 ## macOS: libomp ordering bug (found, worked around)
 

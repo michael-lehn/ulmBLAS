@@ -299,26 +299,35 @@ potrf_tasks(Index n, Tiles W, const Source *src, Index nb, int threads,
 //  is copied back once it is final.  A strided tile is read and written
 //  once while its block is processed instead of in every task.
 //
+//  lean (strip = 2): no packed tiles.  The block tiles are contiguous
+//  anyway (strip), so the TRSMs don't pack and the GEMMs and UPDATEs call
+//  ulmBLAS::gemm on the contiguous tiles (it packs from the cache, not
+//  from the strided matrix).  The strip tiles then have to live until the
+//  last UPDATE that reads them: a ring of w+1 outer blocks.
+//
 //  Memory: packed tiles of w+1 outer blocks, about 2 (w+1) n s nb doubles
 //  (tokens P), with strip the contiguous tiles of two outer blocks, about
 //  2 n s nb doubles (tokens Q), and one nb x nb buffer per thread; no copy
-//  of the matrix.  The rings: a slot is overwritten only after all readers
+//  of the matrix.  lean: only the strip tiles, (w+1) n s nb doubles.  The rings: a slot is overwritten only after all readers
 //  of its previous use are done (they depend on its token with 'in').
 //
 Index
-potrf_outer_tasks(Index n, Tiles A, Index nb, Index s, Index w, bool strip,
+potrf_outer_tasks(Index n, Tiles A, Index nb, Index s, Index w, int stripMode,
                   int threads, bool empty)
 {
+    const bool  strip = stripMode>0;
+    const bool  lean  = stripMode==2;
     const Index nt   = (n+nb-1)/nb;
     const Index rs   = A.rs, cs = A.cs;
-    const Index ring = (w+1)*s;             // packed slots per tile row
-    const Index sring = 2*s;                // strip slots per tile row
+    const Index ring = lean ? 1 : (w+1)*s;  // packed slots per tile row
+    const Index sring = (lean ? w+1 : 2)*s; // strip slots per tile row
 
     typedef ulmBLAS::BlockSizeUGemm<double> BU;
     const Index MR = BU::MR, NR = BU::NR;
     const Index sizeA  = (nb+MR-1)/MR*MR*nb + MR;
     const Index sizeB  = (nb+NR-1)/NR*NR*nb + NR;
-    double      *packed = workspace(std::size_t(nt)*ring*(sizeA+sizeB), 1);
+    double      *packed = lean ? 0
+                        : workspace(std::size_t(nt)*ring*(sizeA+sizeB), 1);
     double      *sbuf   = strip ? workspace(std::size_t(nt)*sring*nb*nb, 0) : 0;
     auto pslot = [=](Index i, Index k) { return i*ring + k%ring; };
     auto qslot = [=](Index i, Index k) { return i*sring + k%sring; };
@@ -428,10 +437,12 @@ potrf_outer_tasks(Index n, Tiles A, Index nb, Index s, Index w, bool strip,
                         if (run(k)) {
                             ulmBLAS::trlsm(nk, ni, 1.0, false, false,
                                            Bkk, brs, bcs, Bik, bcs, brs);
-                            ulmBLAS::gepack_A(ni, nk, false, Bik, brs, bcs,
-                                              packA(i, k));
-                            ulmBLAS::gepack_B(nk, ni, false, Bik, bcs, brs,
-                                              packB(i, k));
+                            if (!lean) {
+                                ulmBLAS::gepack_A(ni, nk, false, Bik, brs, bcs,
+                                                  packA(i, k));
+                                ulmBLAS::gepack_B(nk, ni, false, Bik, bcs, brs,
+                                                  packB(i, k));
+                            }
                         }
                         CHECKDEPS_END(rt);
                         taskLeave();
@@ -451,11 +462,13 @@ potrf_outer_tasks(Index n, Tiles A, Index nb, Index s, Index w, bool strip,
                         CHECKDEPS_ACCESS(rg, nt*nt+pslot(i, k), false);
                         CHECKDEPS_ACCESS(rg, nt*nt+pslot(j, k), false);
                         CHECKDEPS_ACCESS(rg, nt*nt+nt*ring+qslot(i, k), false);
+                        CHECKDEPS_ACCESS(rg, nt*nt+nt*ring+qslot(j, k), false);
                         CHECKDEPS_ACCESS(rg, nt*nt+nt*ring+qslot(i, j), false);
                         CHECKDEPS_ACCESS(rg, i*nt+j, true);
                         #pragma omp task depend(in: T[i*nt+k], T[j*nt+k], \
                                                     P[pslot(i, k)], P[pslot(j, k)], \
-                                                    Q[qslot(i, k)], Q[qslot(i, j)]) \
+                                                    Q[qslot(i, k)], Q[qslot(j, k)], \
+                                                    Q[qslot(i, j)]) \
                                          depend(inout: T[i*nt+j]) \
                                          priority(j==k+1 ? PRIO_CRIT : PRIO_NEXT)
                         {
@@ -465,6 +478,11 @@ potrf_outer_tasks(Index n, Tiles A, Index nb, Index s, Index w, bool strip,
                                 if (i==j) {
                                     ulmBLAS::sylrk(ni, nk, -1.0, Bik, brs, bcs,
                                                    1.0, Bij, brs, bcs);
+                                } else if (lean) {
+                                    ulmBLAS::gemm(ni, nj, nk, -1.0,
+                                                  false, Bik, brs, bcs,
+                                                  false, btile(j, k), bcs, brs,
+                                                  1.0, Bij, brs, bcs);
                                 } else {
                                     ulmBLAS::mgemm(ni, nj, nk, -1.0,
                                                    packA(i, k), packB(j, k),
@@ -525,11 +543,14 @@ potrf_outer_tasks(Index n, Tiles A, Index nb, Index s, Index w, bool strip,
                         CHECKDEPS_ACCESS(ru, j*nt+kk, false);
                         CHECKDEPS_ACCESS(ru, nt*nt+pslot(i, kk), false);
                         CHECKDEPS_ACCESS(ru, nt*nt+pslot(j, kk), false);
+                        CHECKDEPS_ACCESS(ru, nt*nt+nt*ring+qslot(i, kk), false);
+                        CHECKDEPS_ACCESS(ru, nt*nt+nt*ring+qslot(j, kk), false);
                     }
                     CHECKDEPS_ACCESS(ru, i*nt+j, true);
                     #pragma omp task depend(iterator(kk=Ks:K1), \
                                             in: T[i*nt+kk], T[j*nt+kk], \
-                                                P[i*ring+kk%ring], P[j*ring+kk%ring]) \
+                                                P[i*ring+kk%ring], P[j*ring+kk%ring], \
+                                                Q[i*sring+kk%sring], Q[j*sring+kk%sring]) \
                                      depend(inout: T[i*nt+j]) \
                                      priority(next ? PRIO_NEXT : PRIO_OTHER)
                     {
@@ -540,9 +561,16 @@ potrf_outer_tasks(Index n, Tiles A, Index nb, Index s, Index w, bool strip,
                             buf.assign(std::size_t(nb)*nb, 0.0);
                             double *C = buf.data();
                             for (Index kk=Ks; kk<K1; ++kk) {
-                                ulmBLAS::mgemm(ni, nj, nb, 1.0, packA(i, kk),
-                                               packB(j, kk), 1.0, C,
-                                               Index(1), nb);
+                                if (lean) {
+                                    ulmBLAS::gemm(ni, nj, nb, 1.0,
+                                                  false, btile(i, kk), Index(1), nb,
+                                                  false, btile(j, kk), nb, Index(1),
+                                                  1.0, C, Index(1), nb);
+                                } else {
+                                    ulmBLAS::mgemm(ni, nj, nb, 1.0, packA(i, kk),
+                                                   packB(j, kk), 1.0, C,
+                                                   Index(1), nb);
+                                }
                             }
                             for (Index jj=0; jj<nj; ++jj) {
                                 double       *a = &Aij[jj*cs];
@@ -600,7 +628,7 @@ potrf(bool lower, Index n, double *A, Index incRowA, Index incColA,
     if (p.outer>1 && p.nb<=BS::MC && p.nb<=BS::NC && p.nb<=BS::KC) {
         return potrf_outer_tasks(n, stridedTiles(A, rs, cs, p.nb), p.nb,
                                  p.outer, std::max(1, p.window),
-                                 p.strip!=0, p.threads, p.empty_tasks!=0);
+                                 p.strip, p.threads, p.empty_tasks!=0);
     }
     return potrf_tasks(n, stridedTiles(A, rs, cs, p.nb), 0, p.nb, p.threads,
                        p.empty_tasks!=0, p.prepack!=0);

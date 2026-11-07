@@ -1,0 +1,9 @@
+# ulmlapack, omp_get_max_threads 32, max task priority 3
+# routine lib n threads nb ib pt serial_n median min max samples gflops check backward_error inc_row variant
+potrf ulmblas 1000 15 96 0 0 100 1.944759e-03 1.905873e-03 2.289311e-03 153 171.401 ok 0.0122 16 colmajor
+# ulmlapack, omp_get_max_threads 32, max task priority 3
+# routine lib n threads nb ib pt serial_n median min max samples gflops check backward_error inc_row variant
+potrf ulmblas 2000 31 96 0 0 100 6.747951e-03 6.210952e-03 8.723598e-03 44 395.182 ok 0.00992 16 colmajor
+# ulmlapack, omp_get_max_threads 32, max task priority 3
+# routine lib n threads nb ib pt serial_n median min max samples gflops check backward_error inc_row variant
+potrf ulmblas 4000 32 128 0 0 100 3.583580e-02 3.330791e-02 3.961769e-02 9 595.308 ok 0.00622 16 colmajor

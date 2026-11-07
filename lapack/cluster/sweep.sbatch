@@ -8,9 +8,9 @@
 #  stride sweep.  For every row stride R (--inc-row, column stride R*n) and
 #  variant (default: inplace, colmajor; tiled for potrf) the sizes SIZES,
 #  one process per (R, variant, n).  The order of the strides changes from
-#  round to round.  A variant is VARIANT[+pp][+oS[+wW][+strip]]: --variant
-#  VARIANT, +pp: --prepack 1, +oS: --outer S, +wW: --window W, +strip:
-#  --strip 1.
+#  round to round.  A variant is VARIANT[+pp][+oS[+wW][+strip|+lean]]:
+#  --variant VARIANT, +pp: --prepack 1, +oS: --outer S, +wW: --window W,
+#  +strip: --strip 1, +lean: --strip 2.
 #  Raw output: OUT/raw/sweep-rROUND-ROUTINE-incR-VARIANT.txt.
 #
 set -euo pipefail
@@ -49,6 +49,7 @@ for ((v=0; v<nl; ++v)); do
             sw=$(echo "$vari" | sed -n 's/.*+w\([0-9]*\).*/\1/p')
             [ -n "$sw" ] && xopt="$xopt --window $sw"
             case "$vari" in *+strip*) xopt="$xopt --strip 1";; esac
+            case "$vari" in *+lean*) xopt="$xopt --strip 2";; esac
             "${NUMA[@]}" ./build/bench-ulmblas $R $n $n 1 $OPT --inc-row $inc \
                 --variant $base $xopt >> $out
         done

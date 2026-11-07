@@ -55,7 +55,8 @@ typedef struct {
                            w+1 blocks of packed tiles; default 1           */
     int strip;          /* with outer: 1: the tiles of the current outer
                            block are factored as contiguous copies (copied
-                           in and back by tasks); 0: in place              */
+                           in and back by tasks); 2: the same, and no
+                           packed tiles (less memory); 0: in place         */
 } ulmlapack_param;
 
 /*  Defaults (all fields 0 or -1).                                          */

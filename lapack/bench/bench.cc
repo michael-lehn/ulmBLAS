@@ -21,6 +21,7 @@
 //            --outer S        ulmlapack dpotrf in place: outer blocks of S tiles
 //            --window W       with --outer: trailing updates every W blocks
 //            --strip 1        with --outer: factor the block on contiguous tiles
+//            --strip 2        the same, without packed tiles (less memory)
 //
 //  Matrices: m = n, ldA = n, column major.  With --inc-row R > 1 the matrix
 //  is stored with row stride R and column stride R*n (every R-th row of a
@@ -334,7 +335,7 @@ run(bool lu, int n, const Options &opt, FILE *raw)
             std::printf("+w%d", opt.p.window);
         }
         if (opt.p.strip) {
-            std::printf("+strip");
+            std::printf(opt.p.strip==2 ? "+lean" : "+strip");
         }
 #endif
     }

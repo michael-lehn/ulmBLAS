@@ -105,11 +105,11 @@ Variant variant = INPLACE;
 bool    prepack = false;        // dpotrf: param prepack = 1 (packed tiles)
 int     outer   = 0;            // dpotrf: param outer (outer blocking)
 int     window  = 1;            //         param window
-bool    strip   = false;        //         param strip
+int     strip   = 0;            //         param strip
 
 //  the (layout, variant, prepack, outer) combinations that are tested
 const struct { const char *layout; Variant variant; bool prepack; int outer;
-               int window; bool strip; }
+               int window; int strip; }
 runs[] = {
     {"C", INPLACE, false}, {"cm", INPLACE, false}, {"inc2", INPLACE, false},
     {"inc42", INPLACE, false}, {"rm", INPLACE, false},
@@ -124,6 +124,8 @@ runs[] = {
     {"rm-gap", INPLACE, false, 4}, {"cm", INPLACE, false, 7},
     {"inc42", INPLACE, false, 3, 1, true}, {"rm-gap", INPLACE, false, 2, 3, false},
     {"inc2", INPLACE, false, 4, 2, true}, {"C", INPLACE, false, 2, 4, true},
+    {"inc42", INPLACE, false, 3, 1, 2}, {"rm-gap", INPLACE, false, 4, 3, 2},
+    {"C", INPLACE, false, 2, 2, 2},
 };
 
 //  marker for the gaps of a strided array
@@ -629,7 +631,7 @@ testPotrf(const Config &cfg, bool lower, int n, int pad, double cond,
                   variantName[variant], prepack ? "+prepack" : "",
                   outer ? ("+outer"+std::to_string(outer)
                            +(window>1 ? "+w"+std::to_string(window) : "")
-                           +(strip ? "+strip" : "")).c_str() : "");
+                           +(strip==1 ? "+strip" : strip==2 ? "+lean" : "")).c_str() : "");
     const std::string what(buf);
     check(okGaps, what+" gaps untouched");
 
