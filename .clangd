@@ -1,0 +1,120 @@
+# Configuration of clangd (LSP in editors such as Neovim, VS Code).
+#
+# compile_flags.txt in this directory gives every file the include root
+# (-I.); clangd then resolves relative paths against this directory.  The
+# fragments below add what the makefiles pass for each part of the tree.
+# The interface sources include headers that make generates in the
+# top-level directory (cblas.h, f77blas.h, clapack.h): run 'make' once.
+
+# C++: library headers and templates (*.h, *.tcc), interfaces, tests,
+# lapack.  Without -xc++ clangd parses *.h as Objective-C++ and does not
+# know *.tcc.
+If:
+  PathMatch: [ulmblas/.*, interfaces/.*\.(cc|h), test/.*\.(cc|h|tcc), lapack/.*\.(cc|h)]
+CompileFlags:
+  Add: [-xc++, -std=c++11]
+---
+If:
+  PathMatch: interfaces/blas/C/.*\.cc
+CompileFlags:
+  Add: ["-DBLAS_HEADER=<cblas.h>", "-DCBLAS(x)=cblas_##x",
+        "-DULMBLAS(x)=ulmblas_##x", -DCBLAS_H=ULMBLAS_CBLAS_H, -DADD_]
+---
+If:
+  PathMatch: interfaces/blas/F77/.*\.cc
+CompileFlags:
+  Add: ["-DBLAS_HEADER=<f77blas.h>", "-DF77BLAS(x)=x##_",
+        -DF77BLAS_H=ULMBLAS_F77BLAS_H]
+---
+If:
+  PathMatch: interfaces/lapack/C/.*\.cc
+CompileFlags:
+  Add: ["-DBLAS_HEADER=<cblas.h>", "-DLAPACK_HEADER=<clapack.h>",
+        "-DCLAPACK(x)=cblas_##x", "-DULMLAPACK(x)=ulmblas_##x",
+        -DCLAPACK_H=ULMBLAS_CLAPACK_H]
+---
+If:
+  PathMatch: test/numeric/.*\.(cc|h)
+CompileFlags:
+  Add: ["-DBLAS_HEADER=<cblas.h>", "-DLAPACK_HEADER=<clapack.h>",
+        "-DULMLAPACK(x)=ulmblas_##x", -pthread]
+---
+# Every x.h includes x.tcc at its end and x.tcc includes x.h: opened on its
+# own, a *.tcc (or a header including it) includes the main file, which
+# clangd reports when it builds the preamble.  Harmless (include guards).
+If:
+  PathMatch: ulmblas/.*
+Diagnostics:
+  Suppress: [pp_including_mainfile_in_preamble]
+---
+# Micro kernels for other targets than the host: parsed with the flags that
+# select them in a build (on any host, e.g. x86 kernels on Apple silicon).
+If:
+  PathMatch: ulmblas/.*/sse/.*
+CompileFlags:
+  Add: [--target=x86_64-apple-darwin, -msse3]
+---
+If:
+  PathMatch: ulmblas/.*/(avx|blis|openblas)/.*
+CompileFlags:
+  Add: [--target=x86_64-apple-darwin, -mavx, -mfma, -mavx512f]
+---
+If:
+  PathMatch: ulmblas/level3/ukernel/blis/.*
+CompileFlags:
+  Add: [-DULMBLAS_DGEMM_UKERNEL_blis_haswell_6x8]
+---
+If:
+  PathMatch: ulmblas/level3/ukernel/openblas/.*
+CompileFlags:
+  Add: [-DULMBLAS_DGEMM_UKERNEL_openblas_skylakex_16x12]
+---
+If:
+  PathMatch: ulmblas/level3/ukernel/sme/.*
+CompileFlags:
+  Add: [-mcpu=apple-m4]
+---
+# Fragments that are only complete inside the header including them:
+# give them what that header has included before.
+If:
+  PathMatch: ulmblas/level3/ukernel/neon/[scz]gemm\.tcc
+CompileFlags:
+  Add: [-include, complex, -include, type_traits,
+        -include, ulmblas/config/blocksize.h,
+        -include, ulmblas/level3/ukernel/ref/ugemm.h]
+---
+If:
+  PathMatch: ulmblas/level3/ukernel/(blis|openblas)/ugemm\.h
+CompileFlags:
+  Add: [-include, ulmblas/level3/ukernel/ugemm.h]
+---
+# The SME2 fragments for float and the complex types use declarations from
+# the middle of sme/ugemm.h and sme/pack.h, which include them; they cannot
+# be parsed on their own, so their (false) diagnostics are hidden.
+If:
+  PathMatch: ulmblas/level3/ukernel/sme/([scz]gemm|[scz]pack)\.tcc
+Diagnostics:
+  Suppress: "*"
+---
+# included by the assembly kernels (*.S) only
+If:
+  PathMatch: ulmblas/level3/ukernel/openblas/asm/.*
+Diagnostics:
+  Suppress: "*"
+---
+If:
+  PathMatch: lapack/bench/.*
+CompileFlags:
+  Add: [-DBENCH_ULMBLAS]
+---
+# task-based LAPACK routines (lapack/Makefile)
+If:
+  PathMatch: lapack/.*
+CompileFlags:
+  Add: [-Ilapack/include, -Ilapack/src, -fopenmp]
+---
+# the *.h.in templates are not compilable on their own
+If:
+  PathMatch: .*\.h\.in
+Diagnostics:
+  Suppress: "*"

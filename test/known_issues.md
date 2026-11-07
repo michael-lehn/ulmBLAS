@@ -580,3 +580,19 @@ increments are used as given, unknown enumeration values select one of
 the valid cases.  Answer: no general argument validation; the
 preconditions are documented in cblas.h (and ARCHITECTURE.md).
 
+
+Issue #0030: ger with a matrix of which neither stride is 1 adds to stale data
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0806 (numeric, regression test)
+
+`ulmBLAS::ger` (`ulmblas/level2/ger.tcc`) packs `A` into a buffer if
+neither its row nor its column stride is 1, computes `A + alpha x y^T` in
+the buffer and copies the buffer back.  It did not copy `A` into the
+buffer first, so the result was `alpha x y^T` added to whatever the buffer
+held (zeros in a fresh buffer, the previous result in a reused one).  The
+C and Fortran interfaces always pass a column or row major matrix, so only
+the C++ interface was affected, e.g. `ulmBLAS::getf2` and `ulmBLAS::getrf`
+with strided matrices (found by the task-based `dgetrf` in `lapack/` with
+row stride 2).  Fixed: the block of `A` is copied into the buffer before
+the update.

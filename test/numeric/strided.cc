@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <vector>
 #include <ulmblas_strided.h>
+#include <ulmblas/ulmblas.h>
 #include <test/numeric/reference.h>
 
 using namespace test;
@@ -338,6 +339,75 @@ testSpecial(Context &ctx)
     }
 }
 
+//
+//  ulmBLAS::ger (C++ template) with a matrix A of which neither stride is 1:
+//  A is packed into a buffer, updated and copied back.  The buffer must be
+//  loaded with A first (it was not, and the result was the update added to
+//  whatever the buffer held; found by getf2 with strided matrices).  Two
+//  calls in a row, so that a reused buffer holds other data.
+//
+template <typename T>
+bool
+gerCaseStrided(Context &ctx, Random &random, std::int64_t m, std::int64_t n,
+               std::int64_t rs, std::int64_t cs)
+{
+    const std::int64_t lo = std::min<std::int64_t>(0, (m-1)*rs)
+                          + std::min<std::int64_t>(0, (n-1)*cs);
+    const std::int64_t hi = std::max<std::int64_t>(0, (m-1)*rs)
+                          + std::max<std::int64_t>(0, (n-1)*cs);
+    std::vector<T> buf(hi-lo+1), x(m), y(n);
+    for (T &v : buf) v = random.value<T>();
+    for (T &v : x) v = random.value<T>();
+    for (T &v : y) v = random.value<T>();
+    T *A = &buf[-lo];
+    const T alpha[2] = {scalar<T>(0.75, -0.5), scalar<T>(-1.5, 0.25)};
+
+    for (int call=0; call<2; ++call) {
+        std::vector<T> ref(buf);
+        T *R = &ref[-lo];
+        for (std::int64_t j=0; j<n; ++j) {
+            for (std::int64_t i=0; i<m; ++i) {
+                R[i*rs+j*cs] += alpha[call]*x[i]*y[j];
+            }
+        }
+        ulmBLAS::ger(m, n, alpha[call], x.data(), std::int64_t(1),
+                     y.data(), std::int64_t(1), A, rs, cs);
+        for (std::size_t k=0; k<buf.size(); ++k) {
+            typedef decltype(std::abs(T(0))) Real;
+            const Real tol = 8*std::numeric_limits<Real>::epsilon()
+                           * (std::abs(ref[k])+2);
+            if (!ctx.check(std::abs(buf[k]-ref[k])<=tol,
+                           "ger m=%lld n=%lld rs=%lld cs=%lld call %d: "
+                           "element %zu wrong",
+                           (long long)m, (long long)n, (long long)rs,
+                           (long long)cs, call+1, k))
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+template <typename T>
+void
+testGerStrided(Context &ctx)
+{
+    Random random(0x6e4b5);
+    const std::int64_t size[][2] = { {1, 1}, {5, 3}, {37, 29}, {300, 260},
+                                     {700, 1100} };
+    for (const auto &s : size) {
+        const std::int64_t m = s[0], n = s[1];
+        const std::int64_t st[][2] = { {2, 2*m+1}, {3, 3*m+2}, {2*n+1, 2},
+                                       {-2, 2*m+1}, {3, -(3*m+1)} };
+        for (const auto &t : st) {
+            if (!gerCaseStrided<T>(ctx, random, m, n, t[0], t[1])) {
+                return;
+            }
+        }
+    }
+}
+
 } // namespace
 
 ULMBLAS_TEST(T0800, "strided/sgemm all layouts")   { testSizes<float>(ctx); }
@@ -355,4 +425,10 @@ ULMBLAS_TEST(T0805, "strided/?gemm alpha=0, k=0, empty, zero strides of C") {
     testSpecial<double>(ctx);
     testSpecial<cfloat>(ctx);
     testSpecial<cdouble>(ctx);
+}
+ULMBLAS_TEST(T0806, "strided/ulmBLAS::ger, neither stride of A is 1") {
+    testGerStrided<float>(ctx);
+    testGerStrided<double>(ctx);
+    testGerStrided<cfloat>(ctx);
+    testGerStrided<cdouble>(ctx);
 }

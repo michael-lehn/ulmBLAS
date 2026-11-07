@@ -112,6 +112,10 @@ ger(IndexType    m,
             }
 
             if (packA) {
+                //  A = A + alpha x y^T: the buffer needs the block of A
+                gecopy(mc, nc, false,
+                       &A[i*MC*incRowA+j*NC*incColA], incRowA, incColA,
+                       buffer_A, UnitStride, mc);
                 ger(mc, nc, alpha_,
                     x_, UnitStride,
                     y_, UnitStride,

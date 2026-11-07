@@ -1,0 +1,42 @@
+# stage profile  host uc2n601.localdomain  2026-11-06T23:03:36+01:00  threads 32
+profile getrf ulmblas 200 4 48 16 4 0 3.310805e-04 3.184350e-04 4.014820e-04 100 16.109 ok 0.00453
+profile # profile n=200 tasks 55 threads 4 generate 2.295198e-05 wall 3.171130e-04 busy 5.474417e-04
+profile getrf ulmblas 300 4 48 16 4 0 6.743360e-04 6.536271e-04 7.092911e-04 100 26.693 ok 0.00416
+profile # profile n=300 tasks 140 threads 4 generate 5.996414e-05 wall 6.458580e-04 busy 1.353462e-03
+profile getrf ulmblas 400 6 48 16 6 0 1.106042e-03 1.074755e-03 1.202471e-03 100 38.576 ok 0.00345
+profile # profile n=400 tasks 285 threads 6 generate 1.102020e-04 wall 1.032545e-03 busy 3.053732e-03
+profile getrf ulmblas 600 9 64 16 8 0 2.115267e-03 2.009806e-03 2.428781e-03 95 68.077 ok 0.00381
+profile # profile n=600 tasks 385 threads 9 generate 1.936781e-04 wall 1.938702e-03 busy 7.929009e-03
+profile getrf ulmblas 800 12 64 16 8 0 3.467995e-03 3.361783e-03 3.622864e-03 58 98.424 ok 0.00399
+profile # profile n=800 tasks 819 threads 12 generate 4.247620e-04 wall 3.067106e-03 busy 1.755983e-02
+profile getrf ulmblas 1000 15 96 16 8 0 4.656254e-03 4.506349e-03 4.822392e-03 43 143.177 ok 0.00362
+profile # profile n=1000 tasks 506 threads 15 generate 2.287400e-04 wall 4.423635e-03 busy 2.342742e-02
+profile getrf ulmblas 1500 23 96 16 8 0 8.684735e-03 8.376756e-03 8.964519e-03 23 259.075 ok 0.00305
+profile # profile n=1500 tasks 1496 threads 23 generate 1.263518e-03 wall 8.166103e-03 busy 7.347337e-02
+profile getrf ulmblas 2000 31 96 16 8 0 1.548229e-02 1.443159e-02 1.702698e-02 13 344.480 ok 0.00247
+profile # profile n=2000 tasks 3311 threads 31 generate 5.057459e-03 wall 1.397359e-02 busy 1.831871e-01
+profile getrf ulmblas 3000 32 128 16 8 0 3.625417e-02 3.378966e-02 3.869998e-02 6 496.495 ok 0.00237
+profile # profile n=3000 tasks 4900 threads 32 generate 6.270827e-03 wall 3.126725e-02 busy 5.761833e-01
+profile getrf ulmblas 4000 32 128 16 8 0 6.922993e-02 6.852486e-02 7.005276e-02 5 616.304 ok 0.00299
+profile # profile n=4000 tasks 11440 threads 32 generate 2.115020e-02 wall 6.308484e-02 busy 1.378053e+00
+profile potrf ulmblas 200 4 32 0 0 0 1.490575e-04 1.411820e-04 1.844750e-04 100 17.890 ok 0.0254
+profile # profile n=200 tasks 84 threads 4 generate 5.776505e-05 wall 1.424830e-04 busy 3.339751e-04
+profile potrf ulmblas 300 4 48 0 0 0 2.234525e-04 2.131411e-04 2.555451e-04 100 40.277 ok 0.0173
+profile # profile n=300 tasks 84 threads 4 generate 3.751810e-05 wall 2.135900e-04 busy 6.006516e-04
+profile potrf ulmblas 400 6 48 0 0 0 3.396415e-04 3.263941e-04 4.070620e-04 100 62.811 ok 0.0145
+profile # profile n=400 tasks 165 threads 6 generate 8.499809e-05 wall 3.101481e-04 busy 1.247603e-03
+profile potrf ulmblas 600 9 64 0 0 0 6.081475e-04 5.873251e-04 7.097311e-04 100 118.392 ok 0.0152
+profile # profile n=600 tasks 220 threads 9 generate 1.299111e-04 wall 5.704891e-04 busy 3.471444e-03
+profile potrf ulmblas 800 12 64 0 0 0 1.053675e-03 9.792149e-04 1.222685e-03 100 161.973 ok 0.0184
+profile # profile n=800 tasks 455 threads 12 generate 3.566728e-04 wall 1.011780e-03 busy 8.483937e-03
+profile potrf ulmblas 1000 15 96 0 0 0 1.508903e-03 1.384466e-03 2.626220e-03 100 220.911 ok 0.0122
+profile # profile n=1000 tasks 286 threads 15 generate 1.197429e-04 wall 1.466297e-03 busy 1.168837e-02
+profile potrf ulmblas 1500 23 96 0 0 0 2.634692e-03 2.526581e-03 3.922778e-03 76 426.995 ok 0.0095
+profile # profile n=1500 tasks 816 threads 23 generate 5.461220e-04 wall 2.469387e-03 busy 3.419189e-02
+profile potrf ulmblas 2000 31 96 0 0 0 5.147159e-03 4.772590e-03 8.325126e-03 37 518.085 ok 0.00992
+profile # profile n=2000 tasks 1771 threads 31 generate 2.173194e-03 wall 4.376510e-03 busy 7.808450e-02
+profile potrf ulmblas 3000 32 128 0 0 0 1.146214e-02 1.096172e-02 1.246786e-02 18 785.194 ok 0.0085
+profile # profile n=3000 tasks 2600 threads 32 generate 1.756736e-03 wall 9.865439e-03 busy 2.350610e-01
+profile potrf ulmblas 4000 32 128 0 0 0 2.341216e-02 2.271102e-02 2.407843e-02 9 911.207 ok 0.00622
+profile # profile n=4000 tasks 5984 threads 32 generate 5.384932e-03 wall 2.070376e-02 busy 5.630486e-01
+done 2026-11-06T23:03:48+01:00

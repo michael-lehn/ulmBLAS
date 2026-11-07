@@ -6,6 +6,7 @@ multiplication works, and that is easy to extend.
 ## Contents
 
 - [About](#about)
+- [Work in Progress](#work-in-progress)
 - [Performance](#performance)
 - [Supported Platforms](#supported-platforms)
 - [How to Install](#how-to-install)
@@ -109,6 +110,16 @@ a regression test suite on several compilers and architectures, and
 documented, reproducible benchmarks.  It is also listed in
 [Meta Quest's third-party software notices](https://www.meta.com/en/legal/quest/third-party-notices/14/)
 ("ulmBLAS Copyright (C) 2014 Michael C. Lehn. Ulm University").
+
+## Work in Progress
+
+- **CUDA:** Playing with CUDA kernels and GPU performance, GEMM step by
+  step.  See the [CUDA tutorial](cuda/) in this repository and
+  [cuda-tutorial](https://github.com/michael-lehn/cuda-tutorial).
+- **LAPACK:** Playing with PLASMA-like OpenMP task scheduling for LU
+  (`dgetrf`) and Cholesky (`dpotrf`) on top of ulmBLAS kernels.  No tile
+  storage, just the usual column-major layout.
+  [Experiments and benchmarks](lapack/).
 
 ## Performance
 
