@@ -181,6 +181,8 @@ LSWAP(k,c)      swaps of panel k in block column c < k     in (k,k), inout (i,c)
 
 ![DGETRF time](plots/getrf-time.svg)
 
+Speedup plots: 1 means exactly as fast as OpenBLAS, 2 means twice as fast.
+
 ![DGETRF speedup](plots/getrf-speedup.svg)
 
 ![DPOTRF GFLOP/s](plots/potrf-gflops.svg)
@@ -235,6 +237,8 @@ In place, R = 1, 2, 42:
 
 ![DPOTRF GFLOP/s, incRow 1, 2, 42](plots/potrf-strides-gflops.svg)
 
+Speedup plots: 1 means exactly as fast as OpenBLAS (column-major).
+
 ![DGETRF speedup over OpenBLAS, incRow 1, 2, 42](plots/getrf-strides-speedup.svg)
 
 ![DPOTRF speedup over OpenBLAS, incRow 1, 2, 42](plots/potrf-strides-speedup.svg)
@@ -248,7 +252,9 @@ In place, R = 1, 2, 42:
   GFLOP/s at n = 4000, 0.30 and 0.33 of OpenBLAS.  Not a layout to
   factor in place.
 
-Copy first, or work in place (time in place / time with copy, same R):
+Copy first, or work in place?  1 means the copy variant is exactly as
+fast as working in place with the same `incRow`; above 1 the copy pays
+off.
 
 ![DGETRF, copy vs. in place](plots/getrf-variants-gain.svg)
 
@@ -289,7 +295,9 @@ Data: [`results/2026-11-07-icelake-strides-variants`](results/2026-11-07-icelake
 Question: a matrix with a big row stride, e.g. a slice of a tensor.  Can
 we factor it without copying it first?
 
-How much does the stride cost?  `n = 500 ... 4000`, `incRow = 1 ... 128`:
+How much does the stride cost?  `n = 500 ... 4000`, `incRow = 1 ... 128`.
+1 means exactly as fast as in place with `incRow = 1` (column-major);
+0.5 means half as fast.
 
 ![DGETRF, cost of the row stride](plots/getrf-sweep.svg)
 
@@ -308,6 +316,8 @@ What I tried for `dpotrf` in place (all optional parameters):
 - `prepack`: pack every tile of L once after its TRSM, the GEMMs call the
   macro kernel `mgemm` directly.  Helps only in place with a big stride
   (1.2x at `incRow = 42`), otherwise 3-5% slower.
+
+1 means exactly as fast as without `prepack`; above 1 `prepack` helps.
 
 ![DPOTRF, tiles packed once](plots/potrf-prepack.svg)
 
