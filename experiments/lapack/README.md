@@ -4,6 +4,7 @@
 - [How it works](#how-it-works)
 - [Benchmark: Ice Lake, 32 threads](#benchmark-ice-lake-32-threads)
 - [dgetrf and dpotrf for row major](#dgetrf-and-dpotrf-for-row-major)
+- [ulmBLAS templates: s, d, c, z vs. OpenBLAS and oneMKL](#ulmblas-templates-s-d-c-z-vs-openblas-and-onemkl)
 - [Strides and copies: Ice Lake](#strides-and-copies-ice-lake)
 - [Large strides without a copy (Cholesky)](#large-strides-without-a-copy-cholesky)
 - [Tests](#tests)
@@ -278,6 +279,63 @@ matrix; 2 means twice as fast.
 Data: [`results/2026-11-08-icelake-rowmajor`](results/2026-11-08-icelake-rowmajor)
 (`cluster/rowmajor.sbatch`, `scripts/summarize-rowmajor.py`,
 `scripts/plot-rowmajor.gp`).
+
+## ulmBLAS templates: s, d, c, z vs. OpenBLAS and oneMKL
+
+The task algorithms are now C++ templates in ulmBLAS itself
+(`ulmblas/lapack/`, see [INSTALL.md](../../INSTALL.md#lapack-functions)).
+Here `?getrf` and `?potrf` of these templates for all four types.
+
+- Same machine as above: one socket, 32 threads, n = 50, 100, ..., 4000,
+  3 rounds, column major, `ldA = n`.
+- ulmBLAS: OpenMP 5 tasks (GCC 14.2, libgomp), fastest GEMM kernels of
+  the GEMM campaigns: OpenBLAS SKYLAKEX for s, d, c, AOCL's zen4 12 x 4
+  for z.
+- OpenBLAS 0.3.34 (OpenMP build) and oneMKL 2025.0 (`mkl_rt`, Intel
+  threading, as MKL.jl in Julia).
+- Parameters (tile size, threads) are still the ones tuned for double.
+
+1 means exactly as fast as OpenBLAS; 2 means twice as fast.
+
+![?GETRF, ulmBLAS / OpenBLAS](plots/getrf-core-vs-openblas.svg)
+
+![?POTRF, ulmBLAS / OpenBLAS](plots/potrf-core-vs-openblas.svg)
+
+1 means exactly as fast as oneMKL; 0.5 means half as fast.
+
+![?GETRF, ulmBLAS / oneMKL](plots/getrf-core-vs-mkl.svg)
+
+![?POTRF, ulmBLAS / oneMKL](plots/potrf-core-vs-mkl.svg)
+
+| n = 4000 | getrf s | d | c | z | potrf s | d | c | z |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| ulmBLAS | 1126 | 693 | 1564 | 927 | 1512 | 1026 | 2038 | 1226 |
+| OpenBLAS | 619 | 425 | 1341 | 772 | 868 | 577 | 1797 | 1004 |
+| oneMKL | 1752 | 951 | 2942 | 1590 | 2827 | 1364 | 3087 | 1506 |
+
+(GFLOP/s; complex: 4 times the real operations, as LAPACK counts.)
+
+- Against OpenBLAS, n >= 1100: getrf 1.4-1.9x (float), 1.5-2.0x
+  (double), 1.2-1.6x (complex double); potrf (n >= 500) 1.6-3.2x, 1.8-2.9x
+  and 1.0-2.0x.  The double results of the experiments above are
+  reproduced (getrf 693 vs. 676 GFLOP/s at n = 4000).
+- Complex float is the weak spot: getrf 1.0-1.4x, potrf 0.9-2.2x, with
+  single sizes below 1 up to n = 2900.
+- Small n: float faster only from n = 600 (getrf) or 300 (potrf) on,
+  double from n = 150 on.  Small matrices are on the TODO list.
+- getrf, complex: from n = 2800 on the gain drops.  There the tile size
+  changes from 96 to 128, tuned for double.
+- oneMKL is faster than ulmBLAS (n >= 250): 0.4-0.85 for getrf, 0.2-0.8
+  for potrf, complex float the weakest.  oneMKL is also much faster than
+  OpenBLAS here.
+- **Conclusion:** the task algorithms paid off against OpenBLAS for all
+  four types for larger matrices (complex float only partly).  They did
+  not pay off against oneMKL, and not for small matrices.  Next:
+  parameters per type, then small matrices.
+
+Data: [`results/2026-11-08-icelake-core`](results/2026-11-08-icelake-core)
+(`cluster/core.sbatch`, `bench/core.cc`, `scripts/summarize-core.py`,
+`scripts/plot-core.gp`).
 
 ## Strides and copies: Ice Lake
 
