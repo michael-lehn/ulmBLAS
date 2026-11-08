@@ -27,95 +27,13 @@
 #include LAPACK_HEADER
 #include <test/numeric/reference.h>
 #include <test/numeric/testing.h>
+#include <test/numeric/lapacktest.h>
 
 using namespace test;
 
 namespace {
 
-typedef std::int64_t Index;
-
-template <typename T>
-struct Real
-{
-    typedef T type;
-};
-
-template <typename T>
-struct Real<std::complex<T> >
-{
-    typedef T type;
-};
-
-template <typename T>
-double
-eps()
-{
-    return std::numeric_limits<typename Real<T>::type>::epsilon();
-}
-
-template <typename T>
-struct IsComplex
-{
-    static const bool value = false;
-};
-
-template <typename T>
-struct IsComplex<std::complex<T> >
-{
-    static const bool value = true;
-};
-
-//
-//  A strided matrix in a buffer of its own: element (i,j) is
-//  data[off + i*rs + j*cs], the rest of the buffer holds a marker.
-//
-template <typename T>
-struct Strided
-{
-    Strided(Index m_, Index n_, Index rs_, Index cs_)
-        : m(m_), n(n_), rs(rs_), cs(cs_)
-    {
-        const Index lo = std::min<Index>(0, (m-1)*rs) + std::min<Index>(0, (n-1)*cs);
-        const Index hi = std::max<Index>(0, (m-1)*rs) + std::max<Index>(0, (n-1)*cs);
-        buf.assign(std::size_t(hi-lo+1), fromCdouble<T>(cdouble(1234.5, -77.25)));
-        off = -lo;
-    }
-
-    T &
-    operator()(Index i, Index j)
-    {
-        return buf[std::size_t(off+i*rs+j*cs)];
-    }
-
-    T *
-    ptr()
-    {
-        return &buf[std::size_t(off)];
-    }
-
-    Index           m, n, rs, cs, off;
-    std::vector<T>  buf;
-};
-
-//  layouts: (row stride, column stride) for an m x n matrix
-std::vector<std::pair<Index, Index> >
-layouts(Index m, Index n)
-{
-    std::vector<std::pair<Index, Index> > l;
-    l.push_back(std::make_pair(Index(1), m+3));         // column major, ld > m
-    l.push_back(std::make_pair(n+2, Index(1)));         // row major, ld > n
-    l.push_back(std::make_pair(Index(2), 2*m+1));       // every second row
-    l.push_back(std::make_pair(3*n+1, Index(3)));       // neither stride 1
-    l.push_back(std::make_pair(Index(-2), -(2*m+5)));   // negative strides
-    return l;
-}
-
-template <typename T>
-bool
-sameBits(const T &a, const T &b)
-{
-    return std::memcmp(&a, &b, sizeof(T))==0;
-}
+using namespace test::lapacktest;
 
 //
 //  getrf: P A = L U.  Checks the residual, |L| <= 1 (complex: the pivot
@@ -209,18 +127,6 @@ getrfCheck(Context &ctx, const char *what, const Full &A0, Strided<T> &A,
     return ctx.check(ratio<30, "getrf %s: residual ratio %.3g", tag, ratio);
 }
 
-template <typename T>
-void
-fill(Full &A0, Strided<T> &A, Random &random)
-{
-    for (Index j=0; j<A.n; ++j) {
-        for (Index i=0; i<A.m; ++i) {
-            const T x = random.value<T>();
-            A(i,j) = x;
-            A0(int(i), int(j)) = toCdouble(x);
-        }
-    }
-}
 
 template <typename T>
 void

@@ -1,19 +1,20 @@
 #!/bin/sh
 #
 #  Runs the test programs of Reference-LAPACK 3.12.1 for linear equations
-#  (TESTING/LIN, xlintst[sdcz]) on the paths GE and PO with the LU and
-#  Cholesky factorizations of ulmBLAS (make check-reference-lapack-lin, see
+#  (TESTING/LIN, xlintst[sdcz]) on the paths GE, PO and TR with the LAPACK
+#  functions of ulmBLAS (make check-reference-lapack-lin, see
 #  test/Makefile).  The sources are downloaded (and their checksum
 #  verified), not copied into the repository; they are used unmodified.
 #
 #      reference-lapack-lin.sh LIBDIR BUILDDIR
 #
-#  LIBDIR contains libf77lapack.a (?getrf_, ?potrf_ of ulmBLAS) and
+#  LIBDIR contains libf77lapack.a (the LAPACK functions of ulmBLAS) and
 #  libf77blas.a.  Reference-LAPACK is built from the tarball, the objects
-#  of ?GETRF and ?POTRF are removed from its library, so the test programs
-#  and all other LAPACK routines (?GESV, ?POSV, ?GETRI, ...) call those of
-#  ulmBLAS; BLAS is ulmBLAS too.  The input files are those of the tarball
-#  reduced to the paths GE and PO (routines, drivers and error exits).
+#  of the functions ulmBLAS has (ROUTINES below) are removed from its
+#  library, so the test programs and all other LAPACK routines call those
+#  of ulmBLAS; BLAS is ulmBLAS too.  The input files are those of the
+#  tarball reduced to the paths GE, PO and TR (routines, drivers and error
+#  exits).
 #  Note: the programs use matrices with at most 132 rows, so ulmBLAS
 #  factors them with its serial algorithms.
 #
@@ -81,9 +82,10 @@ echo "building Reference-LAPACK $VERSION (SRC, TESTING/MATGEN)"
 make -j$JOBS -C SRC > $BUILD/lapack.log 2>&1 \
     && make -j$JOBS -C TESTING/MATGEN >> $BUILD/lapack.log 2>&1 \
     || { echo "error: see $BUILD/lapack.log" >&2; exit 2; }
+ROUTINES="getrf getrs gesv getri potrf potrs posv potri trtrs trtri lauum laswp"
+OBJECTS=`for r in $ROUTINES; do for t in s d c z; do printf '%s ' $t$r.o; done; done`
 cp liblapack.a liblapack_ulmblas.a \
-    && ar d liblapack_ulmblas.a sgetrf.o dgetrf.o cgetrf.o zgetrf.o \
-                                spotrf.o dpotrf.o cpotrf.o zpotrf.o \
+    && ar d liblapack_ulmblas.a $OBJECTS \
     && ranlib liblapack_ulmblas.a || exit 2
 
 #  xGEMMTR (new in LAPACK 3.12, not part of ulmBLAS) is referenced by
@@ -104,7 +106,7 @@ cat > gemmtr_stub.f <<'EOF'
 EOF
 $FC -c -o gemmtr_stub.o gemmtr_stub.f || exit 2
 
-echo "building xlintst[sdcz] with ?getrf, ?potrf and BLAS of ulmBLAS"
+echo "building xlintst[sdcz] with the LAPACK functions and BLAS of ulmBLAS"
 rm -f TESTING/LIN/xlintst?
 make -j$JOBS -C TESTING/LIN LAPACKLIB=$SRC/liblapack_ulmblas.a \
      "BLASLIB=$LIBDIR/libf77lapack.a $LIBDIR/libf77blas.a $SRC/gemmtr_stub.o" \
@@ -115,22 +117,22 @@ status=0
 : > $BUILD/result.txt
 for t in s d c z; do
     T=`echo $t | tr 'a-z' 'A-Z'`
-    awk -v P=$T 'NR<=16 { print; next } $1==P"GE" || $1==P"PO" { print }' \
+    awk -v P=$T 'NR<=16 { print; next } $1==P"GE" || $1==P"PO" || $1==P"TR" { print }' \
         TESTING/${t}test.in > $BUILD/${t}test.in
     (cd TESTING/LIN && ./xlintst$t < $BUILD/${t}test.in > $BUILD/xlintst$t.out 2>&1)
     out=$BUILD/xlintst$t.out
     passed=`grep -cE 'All tests for .* passed the threshold|passed the tests of the error exits' $out`
-    if [ $passed -eq 8 ] && grep -q 'End of tests' $out; then
+    if [ $passed -eq 10 ] && grep -q 'End of tests' $out; then
         r=PASS
     else
         r=FAIL; status=1
     fi
     runs=`grep -E 'All tests for' $out | sed 's/.*( *\([0-9]*\) tests run).*/\1/' \
           | awk '{s+=$1} END {print s+0}'`
-    echo "`printf %-5s $r` xlintst$t GE, PO ($runs tests; see $out)" \
+    echo "`printf %-5s $r` xlintst$t GE, PO, TR ($runs tests; see $out)" \
         | tee -a $BUILD/result.txt
 done
 echo
-echo "Reference-LAPACK $VERSION LIN test programs (GE, PO):" \
+echo "Reference-LAPACK $VERSION LIN test programs (GE, PO, TR):" \
      "`grep -c '^PASS' $BUILD/result.txt` PASS, `grep -c '^FAIL' $BUILD/result.txt` FAIL"
 exit $status

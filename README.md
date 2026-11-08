@@ -116,11 +116,13 @@ documented, reproducible benchmarks.  It is also listed in
 - **CUDA:** Playing with CUDA kernels and GPU performance, GEMM step by
   step.  See the [CUDA tutorial](cuda/) in this repository and
   [cuda-tutorial](https://github.com/michael-lehn/cuda-tutorial).
-- **LAPACK:** LU (`?getrf`) and Cholesky (`?potrf`) for float, double,
-  complex float and complex double, as C++ templates with any row and
-  column stride (`ulmblas/lapack/`), and in the C and Fortran 77
-  interfaces.  With `OPENMP=1` larger matrices are factored with
-  PLASMA-like OpenMP tasks, in place.
+- **LAPACK:** LU and Cholesky (`?getrf`, `?potrf`), solves and inverses
+  (`?getrs`, `?gesv`, `?potrs`, `?posv`, `?trtrs`, `?trtri`, `?lauum`,
+  `?potri`, `?getri`) for float, double, complex float and complex
+  double, as C++ templates with any row and column stride
+  (`ulmblas/lapack/`), and in the C and Fortran 77 interfaces.  With
+  `OPENMP=1` larger matrices are factored and solved with PLASMA-like
+  OpenMP tasks, in place.
   [Experiments and benchmarks](experiments/lapack/),
   [build and use](INSTALL.md#lapack-functions).
 

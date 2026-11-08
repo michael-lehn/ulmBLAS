@@ -56,6 +56,25 @@ getrfParam(long m, long n, int threads)
     return p;
 }
 
+//  solves (getrs, potrs, trtrs) with an n x n matrix and nrhs right-hand
+//  sides: tasks only if there is enough work (n^2 nrhs operations)
+inline Param
+solveParam(long n, long nrhs, int threads)
+{
+    Param p;
+    p.nb           = (n<1000) ? 64 : 128;
+    p.ib           = 0;
+    p.panelThreads = 1;
+    p.serialN      = 255;
+    const double work = double(n)*double(n)*double(nrhs);
+    if (work<double(1L<<25)) {
+        threads = 1;
+    }
+    const long mt = (n+p.nb-1)/p.nb, nt = (nrhs+p.nb-1)/p.nb;
+    p.threads = int(std::max(1L, std::min(long(threads), mt*nt*mt/2+1)));
+    return p;
+}
+
 } } // namespace tasks, ulmBLAS
 
 #endif // ULMBLAS_LAPACK_TASKS_PARAM_H

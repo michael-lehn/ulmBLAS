@@ -154,8 +154,11 @@ error handler `cblas_xerbla` keeps its `int` argument (a parameter number).
 
 ## LAPACK functions
 
-- `?getrf` (LU with partial pivoting) and `?potrf` (Cholesky) for `s`, `d`,
-  `c`, `z`.
+- For `s`, `d`, `c`, `z`: `?getrf` (LU with partial pivoting), `?potrf`
+  (Cholesky), the solves `?getrs`, `?gesv`, `?potrs`, `?posv`, `?trtrs`,
+  the inverses `?trtri`, `?lauum`, `?potri`, `?getri`, and `?laswp` (the
+  LAPACK functions OpenBLAS has its own versions of).  Integer types do
+  not compile (`static_assert`).
 - C++: `ulmBLAS::getrf` and `ulmBLAS::potrf` in `ulmblas/lapack/`, any row
   and column stride (column major, row major, every R-th row, ...).
 - C (`libclapack.a`, `clapack.h`, built by `make`): `ulmblas_?getrf`,
@@ -165,7 +168,8 @@ error handler `cblas_xerbla` keeps its `int` argument (a parameter number).
   it with `libf77blas.a`.
 
 By default the functions are serial (recursive, as LAPACK's `?getrf2` and
-`?potrf2`).  With OpenMP larger matrices are factored with tasks (see
+`?potrf2`).  With OpenMP larger matrices are factored and solved with
+tasks; the inverses are still serial (see
 [experiments/lapack](experiments/lapack/)):
 
 ```sh
@@ -263,7 +267,7 @@ results are written to `test/build/check.log`.
   `sdsdot`, `dsdot` and `nrm2` with Inf and NaN), and `ublat1` for the
   Fortran 77 interface: complex Givens rotations, `?cabs1` and the
   arguments passed to a user-supplied `XERBLA`.
-- **LAPACK functions** `?getrf`, `?potrf` (C++ templates and C interface):
+- **LAPACK functions** (C++ templates and C interface):
   five storage layouts, residuals, known pivots, `INFO`, invalid
   arguments, untouched elements.  `make check-numeric OPENMP=1` runs them
   with the task-based algorithms.
@@ -275,9 +279,10 @@ results are written to `test/build/check.log`.
 access) downloads Reference-LAPACK 3.12.1 (checksum verified) and runs its
 unmodified BLAS and CBLAS test programs against ulmBLAS.
 `make check-reference-lapack-lin` (also not part of `make check`) builds
-Reference-LAPACK 3.12.1 without its `?getrf` and `?potrf` and runs its
-test programs for linear equations (`xlintst[sdcz]`, paths GE and PO:
-factorizations, drivers, error exits) with those of ulmBLAS.  These
+Reference-LAPACK 3.12.1 without the functions ulmBLAS has and runs its
+test programs for linear equations (`xlintst[sdcz]`, paths GE, PO and TR:
+factorizations, solves, inverses, drivers, error exits) with those of
+ulmBLAS.  These
 programs use at most 132 rows, so they only reach the serial algorithms;
 the task-based ones are covered by the C++ tests (with `OPENMP=1`).
 `make check-conformance` (also not part of `make check`) builds the
