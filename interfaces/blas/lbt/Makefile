@@ -97,7 +97,7 @@ $(LBT_LIB) : $(BUILD_DIR)/liblbtblas.a $(LBT_LAPACK) $(LBT_OBJECTS)
 	    exit 1; \
 	fi
 	@mkdir -p $(OUTDIR)
-	$(CXX) $(ARCHFLAGS) $(LDFLAGS) -o $@ $(LBT_OBJECTS) $(LBT_LINK) -lm
+	$(CXX) $(ARCHFLAGS) $(LDFLAGS) -o $@ $(LBT_OBJECTS) $(LBT_LINK) $(OMPLIBS) -lm
 
 clean :
 	$(RM) -r $(BUILD_DIR) $(LBT_LIB)

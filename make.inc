@@ -153,12 +153,35 @@ endif
 ULMBLAS_INDEX_DEFS = -D'ULMBLAS_INDEX_TYPE_OF_BUILD=$(ULMBLAS_INDEX_TYPE)'
 
 #
+#  OPENMP=1: the LAPACK functions (?getrf, ?potrf) factor larger matrices
+#  with OpenMP tasks (OpenMP 5.0: GCC 9 or newer, clang 12 or newer); off
+#  by default.  OMPFLAGS are added to the compile flags, OMPLIBS are needed
+#  to link programs and shared libraries.  macOS (Apple clang): libomp of
+#  Homebrew by default.  At run time the task priorities need the
+#  environment variable OMP_MAX_TASK_PRIORITY (e.g. 3).
+#
+OPENMP ?= 0
+ifeq ($(OPENMP),1)
+ifeq ($(shell uname -s),Darwin)
+OMP_PREFIX ?= $(shell brew --prefix libomp 2>/dev/null || echo /opt/homebrew/opt/libomp)
+OMPFLAGS   ?= -Xpreprocessor -fopenmp -I$(OMP_PREFIX)/include
+OMPLIBS    ?= -L$(OMP_PREFIX)/lib -lomp
+else
+OMPFLAGS   ?= -fopenmp
+OMPLIBS    ?= -fopenmp
+endif
+else
+OMPFLAGS   =
+OMPLIBS    =
+endif
+
+#
 #  Flags that are always used.  ULMBLAS_CPPFLAGS is extended by the
 #  makefiles (include paths, interface macros), CONFIG_CPPFLAGS by
 #  configuration files (e.g. block sizes of the test configurations).
 #
 DEPFLAGS          = -MMD -MP
-ULMBLAS_CXXFLAGS  = $(CXXSTD) $(ARCHFLAGS) $(OPTFLAGS)
+ULMBLAS_CXXFLAGS  = $(CXXSTD) $(ARCHFLAGS) $(OPTFLAGS) $(OMPFLAGS)
 ULMBLAS_CFLAGS    = $(COPTFLAGS)
 
 CXXCOMPILE = $(CXX) $(ULMBLAS_CPPFLAGS) $(ULMBLAS_INDEX_DEFS) \
