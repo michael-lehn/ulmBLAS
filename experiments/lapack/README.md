@@ -333,6 +333,12 @@ Here `?getrf` and `?potrf` of these templates for all four types.
   not pay off against oneMKL, and not for small matrices.  Next:
   parameters per type, then small matrices.
 
+Tests of the templates on the same machine (GCC 14.2, OpenMP,
+`cluster/core-test.sbatch`): `make check-numeric OPENMP=1` (two test
+configurations, 388 PASS), the LAPACK tests T0410-T0424 with 1, 8 and 32
+threads and 30 times with 32 threads, and the LIN test programs of
+Reference-LAPACK 3.12.1 (paths GE, PO, TR, 4 x 20,947 tests): 0 failures.
+
 Data: [`results/2026-11-08-icelake-core`](results/2026-11-08-icelake-core)
 (`cluster/core.sbatch`, `bench/core.cc`, `scripts/summarize-core.py`,
 `scripts/plot-core.gp`).
