@@ -81,6 +81,17 @@ ULMLAPACK(dlaswp)(ULMBLAS_INDEX_TYPE n,
                   ULMBLAS_INDEX_TYPE *piv,
                   ULMBLAS_INDEX_TYPE incPiv);
 
+//
+//  Threads of ?getrf and ?potrf: n > 0 sets the number, n <= 0 restores
+//  the default (omp_get_max_threads()); global setting.  Without OpenMP
+//  the functions are serial and get_num_threads returns 1.
+//
+void
+ULMLAPACK(set_num_threads)(int n);
+
+int
+ULMLAPACK(get_num_threads)(void);
+
 VERBOSE(#ifdef) __cplusplus
 } // extern "C"
 VERBOSE(#endif)

@@ -13,7 +13,7 @@ namespace ulmBLAS {
 //  factorization is completed in any case.
 //
 //  Compiled with OpenMP, larger problems are factored by a task graph with
-//  omp_get_max_threads() threads; inside an active parallel region and
+//  numThreads() threads (threads.h); inside an active parallel region and
 //  without OpenMP by the serial recursive algorithm (getrf2).
 //
 template <typename IndexType, typename T, typename PivIndex>

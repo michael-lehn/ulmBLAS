@@ -83,6 +83,15 @@ F77BLAS(zpotrf)(const char               *upLo,
                 ULMBLAS_INDEX_TYPE       *info,
                 size_t                   upLo_len);
 
+//
+//  Threads of ?getrf and ?potrf (arguments by value, as in the C interface)
+//
+void
+F77BLAS(ulmblas_set_num_threads)(int n);
+
+int
+F77BLAS(ulmblas_get_num_threads)(void);
+
 VERBOSE(#ifdef) __cplusplus
 } // extern "C"
 VERBOSE(#endif)

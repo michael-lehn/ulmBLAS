@@ -8,6 +8,7 @@
 
 #ifdef _OPENMP
 #   include <omp.h>
+#   include <ulmblas/lapack/threads.h>
 #   include <ulmblas/lapack/tasks/getrftasks.h>
 #   include <ulmblas/lapack/tasks/param.h>
 #endif
@@ -31,7 +32,7 @@ getrf(IndexType    m,
     if (!omp_in_parallel()) {
         const IndexType    kmin = std::min(m, n);
         const tasks::Param p    = tasks::getrfParam(long(m), long(n),
-                                                    omp_get_max_threads());
+                                                    numThreads());
         if (kmin>IndexType(p.serialN) && p.threads>1 && kmin>IndexType(p.nb)) {
             Buffer<IndexType> pv(kmin);
             const IndexType info

@@ -6,6 +6,7 @@
 
 #ifdef _OPENMP
 #   include <omp.h>
+#   include <ulmblas/lapack/threads.h>
 #   include <ulmblas/lapack/tasks/param.h>
 #   include <ulmblas/lapack/tasks/potrftasks.h>
 #endif
@@ -32,7 +33,7 @@ potrf(bool         lower,
 
 #ifdef _OPENMP
     if (!omp_in_parallel()) {
-        const tasks::Param p = tasks::potrfParam(long(n), omp_get_max_threads());
+        const tasks::Param p = tasks::potrfParam(long(n), numThreads());
         if (n>IndexType(p.serialN) && p.threads>1 && n>IndexType(p.nb)) {
             return tasks::potrfTasks(n, A, rs, cs, IndexType(p.nb), p.threads);
         }

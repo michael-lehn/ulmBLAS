@@ -15,7 +15,7 @@ namespace ulmBLAS {
 //  i is not positive definite (the factorization could not be completed).
 //
 //  Compiled with OpenMP, larger problems are factored by a task graph
-//  (tiled, right-looking, as PLASMA) with omp_get_max_threads() threads;
+//  (tiled, right-looking, as PLASMA) with numThreads() threads (threads.h);
 //  inside an active parallel region and without OpenMP by the serial
 //  recursive algorithm.
 //
