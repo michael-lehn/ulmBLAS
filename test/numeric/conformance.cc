@@ -21,8 +21,11 @@
 #include <limits>
 #include <type_traits>
 #include <vector>
-#include <sys/mman.h>
-#include <unistd.h>
+#include <cstring>
+#if !defined(_WIN32)
+#   include <sys/mman.h>
+#   include <unistd.h>
+#endif
 #include <test/numeric/blas.h>
 #include <test/numeric/reference.h>
 #include <test/numeric/testing.h>
@@ -241,8 +244,50 @@ testLevel1Ulmblas(Context &ctx)
 
 //
 //  cblas_?her2k, row major: alpha in read-only memory (reference CBLAS
-//  conjugates a copy).  A write is caught as SIGSEGV or SIGBUS.
+//  conjugates a copy).  A write is caught as SIGSEGV or SIGBUS.  On Windows
+//  (no mmap, no sigsetjmp in MinGW) alpha is in ordinary memory and must be
+//  bitwise unchanged after the call.
 //
+template <typename T>
+bool
+her2kCall(const typename Real<T>::type *alpha, std::vector<T> &A,
+          std::vector<T> &B, std::vector<T> &C)
+{
+    if (std::is_same<T, cfloat>::value) {
+        cblas_cher2k(CblasRowMajor, CblasUpper, CblasNoTrans, 2, 2,
+                     reinterpret_cast<const float *>(alpha),
+                     reinterpret_cast<const float *>(&A[0]), 2,
+                     reinterpret_cast<const float *>(&B[0]), 2, 1.0f,
+                     reinterpret_cast<float *>(&C[0]), 2);
+    } else {
+        cblas_zher2k(CblasRowMajor, CblasUpper, CblasNoTrans, 2, 2,
+                     reinterpret_cast<const double *>(alpha),
+                     reinterpret_cast<const double *>(&A[0]), 2,
+                     reinterpret_cast<const double *>(&B[0]), 2, 1.0,
+                     reinterpret_cast<double *>(&C[0]), 2);
+    }
+    // C = alpha A B^H + conj(alpha) B A^H: alpha = (1,2), A = 1, B = 2:
+    // (1+2i)*4 + (1-2i)*4 = 8 in the upper triangle (row major: C[0], C[1],
+    // C[3]); the lower triangle C[2] is not touched
+    return C[0]==T(8) && C[1]==T(8) && C[3]==T(8) && C[2]==T(0);
+}
+
+#if defined(_WIN32)
+
+template <typename T>
+bool
+her2kReadOnlyAlpha()
+{
+    typedef typename Real<T>::type R;
+
+    R alpha[2] = { 1, 2 }, copy[2] = { 1, 2 };
+    std::vector<T> A(4, T(1)), B(4, T(2)), C(4, T(0));
+    const bool ok = her2kCall(alpha, A, B, C);
+    return ok && std::memcmp(alpha, copy, sizeof(alpha))==0;
+}
+
+#else
+
 sigjmp_buf  writeFault;
 
 extern "C" void
@@ -278,29 +323,15 @@ her2kReadOnlyAlpha()
 
     bool ok = false;
     if (sigsetjmp(writeFault, 1)==0) {
-        if (std::is_same<T, cfloat>::value) {
-            cblas_cher2k(CblasRowMajor, CblasUpper, CblasNoTrans, 2, 2,
-                         reinterpret_cast<const float *>(alpha),
-                         reinterpret_cast<const float *>(&A[0]), 2,
-                         reinterpret_cast<const float *>(&B[0]), 2, 1.0f,
-                         reinterpret_cast<float *>(&C[0]), 2);
-        } else {
-            cblas_zher2k(CblasRowMajor, CblasUpper, CblasNoTrans, 2, 2,
-                         reinterpret_cast<const double *>(alpha),
-                         reinterpret_cast<const double *>(&A[0]), 2,
-                         reinterpret_cast<const double *>(&B[0]), 2, 1.0,
-                         reinterpret_cast<double *>(&C[0]), 2);
-        }
-        // C = alpha A B^H + conj(alpha) B A^H: alpha = (1,2), A = 1,
-        // B = 2: (1+2i)*4 + (1-2i)*4 = 8 in the upper triangle (row
-        // major: C[0], C[1], C[3]); the lower triangle C[2] is not touched
-        ok = C[0]==T(8) && C[1]==T(8) && C[3]==T(8) && C[2]==T(0);
+        ok = her2kCall(alpha, A, B, C);
     }
     sigaction(SIGSEGV, &oldSegv, 0);
     sigaction(SIGBUS, &oldBus, 0);
     munmap(p, page);
     return ok;
 }
+
+#endif // defined(_WIN32)
 
 //
 //  ?rotg as in LAPACK 3.12.1 (values of the reference BLAS)
