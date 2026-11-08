@@ -106,7 +106,8 @@ or the flags change, and header dependencies are tracked.
 | Target | Files (in the top-level directory) |
 | --- | --- |
 | `cblas` | `libcblas.a`, `cblas.h` (CBLAS, functions `cblas_*`) |
-| `clapack` | `libclapack.a`, `clapack.h` (`ulmblas_dgetrf`, `ulmblas_dlaswp`) |
+| `clapack` | `libclapack.a`, `clapack.h` (`ulmblas_?getrf`, `ulmblas_?potrf`, `ulmblas_dlaswp`) |
+| `f77lapack` | `libf77lapack.a`, `f77lapack.h` (`?getrf_`, `?potrf_`; with `libf77blas.a`) |
 | `atlblas`, `atllapack` | `libatlblas.a`, `atlblas.h`, `libatllapack.a`, `atllapack.h` (ATLAS names, used by the benchmarks) |
 | `f77blas` | `libf77blas.a`, `f77blas.h` (Fortran 77 interface) |
 | `refblas` | `librefblas.a` (Netlib reference BLAS, for benchmarks) |
@@ -171,6 +172,11 @@ part of the default set and are run with `CONFIGS=...` (see the
   `cblat1` and `zblat1` of 3.12.1 report infinite results of `scnrm2` and
   `dznrm2` as failures; they are also run with the reference BLAS of the
   tarball and reported as REF if exactly the same cases fail.
+- **Reference-LAPACK LIN test programs** (`make
+  check-reference-lapack-lin`, not part of `make check`): builds
+  Reference-LAPACK 3.12.1 without its `?getrf` and `?potrf` and runs
+  `xlintst[sdcz]` on the paths GE and PO with `libf77lapack.a` and
+  `libf77blas.a` (`test/reference-lapack-lin.sh`).
 - **Conformance test** (`make check-conformance`, `test/conformance`, not
   part of `make check`): builds the reference BLAS and CBLAS from the same
   tarball and links two programs (`level1.c`, `level23.cc`) once with

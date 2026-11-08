@@ -116,10 +116,13 @@ documented, reproducible benchmarks.  It is also listed in
 - **CUDA:** Playing with CUDA kernels and GPU performance, GEMM step by
   step.  See the [CUDA tutorial](cuda/) in this repository and
   [cuda-tutorial](https://github.com/michael-lehn/cuda-tutorial).
-- **LAPACK:** Playing with PLASMA-like OpenMP task scheduling for LU
-  (`dgetrf`) and Cholesky (`dpotrf`) on top of ulmBLAS kernels.  No tile
-  storage, just the usual column-major layout.
-  [Experiments and benchmarks](experiments/lapack/).
+- **LAPACK:** LU (`?getrf`) and Cholesky (`?potrf`) for float, double,
+  complex float and complex double, as C++ templates with any row and
+  column stride (`ulmblas/lapack/`), and in the C and Fortran 77
+  interfaces.  With `OPENMP=1` larger matrices are factored with
+  PLASMA-like OpenMP tasks, in place.
+  [Experiments and benchmarks](experiments/lapack/),
+  [build and use](INSTALL.md#lapack-functions).
 
 ## Performance
 

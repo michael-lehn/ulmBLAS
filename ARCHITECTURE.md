@@ -102,7 +102,8 @@ micro kernels and the configuration at the bottom:
 
 | Layer | Directory | Responsibility |
 |---|---|---|
-| BLAS interfaces | `interfaces/blas/C`, `interfaces/blas/F77`, `interfaces/lapack/C` | argument checks, `xerbla`, row major as transposed column major |
+| BLAS and LAPACK interfaces | `interfaces/blas/C`, `interfaces/blas/F77`, `interfaces/lapack/C`, `interfaces/lapack/F77` | argument checks, `xerbla`, row major as transposed column major |
+| LAPACK algorithms | `ulmblas/lapack/*.tcc`, `ulmblas/lapack/tasks` | LU and Cholesky: recursive (serial), tiled with OpenMP tasks (`OPENMP=1`) |
 | Level 3 algorithms | `ulmblas/level3/*.tcc` | cache blocking (MC, KC, NC), structure of symmetric, Hermitian and triangular matrices |
 | Packing | `ulmblas/level3/pack` | copying blocks into MR and NR panels, zero padding, symmetric and triangular blocks |
 | Macro kernels | `ulmblas/level3/mkernel` | loops over the MR x NR tiles; edge tiles through a buffer; tiles on the diagonal of triangular results |
@@ -231,7 +232,8 @@ the BLIS code.
 |---|---|---|
 | `libcblas.a` | `cblas.h` | CBLAS (`cblas_dgemm`, ...): levels 1, 2 and 3 for float, double, complex float and complex double |
 | `libcblas.a` | `ulmblas_strided.h` | GEMM with a row and a column stride for every matrix (`ulmblas_dgemm_strided`, ...): any strides, also negative or zero, no transposition argument |
-| `libclapack.a` | `clapack.h` | `ulmblas_dgetrf` (LU factorization with partial pivoting) and `ulmblas_dlaswp` |
+| `libclapack.a` | `clapack.h` | `ulmblas_?getrf` (LU factorization with partial pivoting), `ulmblas_?potrf` (Cholesky), `ulmblas_dlaswp`, `ulmblas_{set,get}_num_threads` |
+| `libf77lapack.a` | `f77lapack.h` | `?getrf_`, `?potrf_` as in LAPACK (`make f77lapack`) |
 | `libf77blas.a` | `f77blas.h` | Fortran 77 BLAS interface (`make f77blas`) |
 | `libatlblas.a`, `libatllapack.a` | `atlblas.h`, `atllapack.h` | ATLAS names, used by the benchmarks |
 | `libulmblas_lbt.so` (`.dylib`) | – | Fortran 77 interface with 64-bit integers and suffix `_64_`, and the strided GEMM, for Julia (`make lbt`) |

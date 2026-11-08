@@ -156,12 +156,14 @@ help :
 	@echo
 	@echo 'Variables: CXX CC FC AR ARFLAGS RANLIB CXXSTD ARCHFLAGS OPTFLAGS FOPTFLAGS'
 	@echo '           COPTFLAGS CPPFLAGS CXXFLAGS CFLAGS FFLAGS LDFLAGS LDLIBS FLIBS'
+	@echo '           OPENMP=1 (task-based ?getrf, ?potrf) OMPFLAGS OMPLIBS'
 	@echo '           (see make.inc)'
 	@echo
 	@echo 'Current settings:'
 	@echo '  CXX       = $(CXX)'
 	@echo '  CXXSTD    = $(CXXSTD)'
 	@echo '  ARCHFLAGS = $(ARCHFLAGS)'
+	@echo '  OPENMP    = $(OPENMP)'
 	@echo '  OPTFLAGS  = $(OPTFLAGS)'
 	@echo '  CXXFLAGS  = $(CXXFLAGS)'
 	@echo '  CC        = $(CC)'

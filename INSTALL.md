@@ -152,6 +152,36 @@ error handler `cblas_xerbla` keeps its `int` argument (a parameter number).
   reported as SKIP there, the Fortran 77 test programs run with 64-bit
   `INTEGER`.
 
+## LAPACK functions
+
+- `?getrf` (LU with partial pivoting) and `?potrf` (Cholesky) for `s`, `d`,
+  `c`, `z`.
+- C++: `ulmBLAS::getrf` and `ulmBLAS::potrf` in `ulmblas/lapack/`, any row
+  and column stride (column major, row major, every R-th row, ...).
+- C (`libclapack.a`, `clapack.h`, built by `make`): `ulmblas_?getrf`,
+  `ulmblas_?potrf`, ATLAS style (0-based pivots, row or column major).
+- Fortran 77 (`libf77lapack.a`, `f77lapack.h`): `make f77lapack`, as in
+  LAPACK (`?getrf_`, `?potrf_`, 1-based pivots, `INFO`, `XERBLA`).  Link
+  it with `libf77blas.a`.
+
+By default the functions are serial (recursive, as LAPACK's `?getrf2` and
+`?potrf2`).  With OpenMP larger matrices are factored with tasks (see
+[experiments/lapack](experiments/lapack/)):
+
+```sh
+make OPENMP=1                     # also: make f77lapack OPENMP=1 ...
+export OMP_MAX_TASK_PRIORITY=3    # at run time: priorities for the critical path
+```
+
+- Needs OpenMP 5.0: GCC 9 or newer, clang 12 or newer.  On macOS (Apple
+  clang) `libomp` of Homebrew is used; other paths: `OMPFLAGS`,
+  `OMPLIBS`.
+- Programs then link with OpenMP too (`-fopenmp`, or `OMPLIBS`).
+- Threads: `omp_get_max_threads()` by default, or
+  `ulmblas_set_num_threads(n)` (Fortran: `ulmblas_set_num_threads_`,
+  argument by value).  Called inside an OpenMP parallel region the
+  functions run serially.
+
 ## Shared library for Julia
 
 ```sh
@@ -174,6 +204,9 @@ make lbt ARCHFLAGS=-mcpu=apple-m4 # with the micro kernels of your choice
   depend on the `libstdc++` of the compiler (Julia brings its own).
 - `OUTDIR` and `BUILD_DIR` keep several builds apart, e.g. one per
   instruction set.
+- `LAPACK=1`: the library also contains `?getrf_64_` and `?potrf_64_`.
+  Only useful with `OPENMP=1`: Julia then uses ulmBLAS's factorizations
+  instead of OpenBLAS's (which are multithreaded).
 
 In Julia (LAPACK and all routines ulmBLAS does not have stay with the
 library Julia uses by default, usually OpenBLAS):
@@ -182,6 +215,19 @@ library Julia uses by default, usually OpenBLAS):
 using LinearAlgebra
 BLAS.lbt_forward("/path/to/libulmblas_lbt.so"; clear=false)
 BLAS.get_config()                 # lists libulmblas_lbt
+```
+
+With `LAPACK=1 OPENMP=1`, so that `BLAS.set_num_threads` also sets the
+threads of ulmBLAS, register its thread functions before forwarding
+(libblastrampoline appends the suffix `64_` itself):
+
+```julia
+using LinearAlgebra, libblastrampoline_jll
+n = BLAS.get_num_threads()
+ccall((:lbt_register_thread_interface, libblastrampoline_jll.libblastrampoline),
+      Cvoid, (Cstring, Cstring), "ulmblas_get_num_threads_", "ulmblas_set_num_threads_")
+BLAS.lbt_forward("/path/to/libulmblas_lbt.so"; clear=false)
+BLAS.set_num_threads(n)           # ulmBLAS too
 ```
 
 ## Test
@@ -217,6 +263,10 @@ results are written to `test/build/check.log`.
   `sdsdot`, `dsdot` and `nrm2` with Inf and NaN), and `ublat1` for the
   Fortran 77 interface: complex Givens rotations, `?cabs1` and the
   arguments passed to a user-supplied `XERBLA`.
+- **LAPACK functions** `?getrf`, `?potrf` (C++ templates and C interface):
+  five storage layouts, residuals, known pivots, `INFO`, invalid
+  arguments, untouched elements.  `make check-numeric OPENMP=1` runs them
+  with the task-based algorithms.
 - **Header tests**: `cblas.h` and `clapack.h` compile as C.
 - **Examples**: the C++ examples of [examples/](examples) are compiled with
   the flags of the configuration (its kernels and block sizes) and run.
@@ -224,6 +274,12 @@ results are written to `test/build/check.log`.
 `make check-reference-lapack` (not part of `make check`, needs network
 access) downloads Reference-LAPACK 3.12.1 (checksum verified) and runs its
 unmodified BLAS and CBLAS test programs against ulmBLAS.
+`make check-reference-lapack-lin` (also not part of `make check`) builds
+Reference-LAPACK 3.12.1 without its `?getrf` and `?potrf` and runs its
+test programs for linear equations (`xlintst[sdcz]`, paths GE and PO:
+factorizations, drivers, error exits) with those of ulmBLAS.  These
+programs use at most 132 rows, so they only reach the serial algorithms;
+the task-based ones are covered by the C++ tests (with `OPENMP=1`).
 `make check-conformance` (also not part of `make check`) builds the
 reference BLAS and CBLAS from the same sources and compares every level 1,
 2 and 3 routine of both interfaces call by call with them, including
