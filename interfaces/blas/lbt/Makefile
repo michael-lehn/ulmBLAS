@@ -26,18 +26,27 @@ include $(TOPDIR)/make.inc
 
 OUTDIR     ?= $(TOPDIR)
 BUILD_DIR  ?= build.lbt
+
+#  LAPACK=1: the library also contains ?getrf_64_ and ?potrf_64_ (../../
+#  lapack/F77).  Off by default: libblastrampoline would then forward them
+#  to ulmBLAS instead of OpenBLAS, whose versions are multithreaded; ulmBLAS
+#  factors in parallel only if it is built with OpenMP.
+LAPACK     ?= 0
+comma      := ,
+LBT_LAPACK  = $(if $(filter 1,$(LAPACK)),$(BUILD_DIR)/liblbtlapack.a)
 LBT_INDEX   = int64_t
 LBT_SUFFIX  = _64_
 
 ifeq ($(shell uname -s),Darwin)
 LBT_LIB      = $(OUTDIR)/libulmblas_lbt.dylib
 LBT_LINK     = -dynamiclib -install_name @rpath/libulmblas_lbt.dylib \
-               -Wl,-force_load,$(BUILD_DIR)/liblbtblas.a
+               -Wl,-force_load,$(BUILD_DIR)/liblbtblas.a \
+               $(if $(LBT_LAPACK),-Wl$(comma)-force_load$(comma)$(LBT_LAPACK))
 else
 LBT_LIB      = $(OUTDIR)/libulmblas_lbt.so
 LBT_LINK     = -shared -Wl,-soname,libulmblas_lbt.so \
                -Wl,--whole-archive $(BUILD_DIR)/liblbtblas.a \
-               -Wl,--no-whole-archive -static-libstdc++ -static-libgcc \
+               $(LBT_LAPACK) -Wl,--no-whole-archive -static-libstdc++ -static-libgcc \
                -Wl,--no-undefined
 endif
 
@@ -57,6 +66,14 @@ $(BUILD_DIR)/liblbtblas.a : FORCE
 	        OUTDIR=$(abspath $(BUILD_DIR)) BUILD_DIR=$(abspath $(BUILD_DIR))/obj \
 	        ULMBLAS_INDEX_TYPE=$(LBT_INDEX) CXXFLAGS="$(CXXFLAGS) -fPIC"
 
+#  The Fortran 77 interface of the LAPACK functions (?getrf_64_,
+#  ?potrf_64_), by the makefile of ../../lapack/F77
+$(BUILD_DIR)/liblbtlapack.a : $(BUILD_DIR)/liblbtblas.a FORCE
+	$(MAKE) -C ../../lapack/F77 -f Makefile.config CONFIG=lbt \
+	        CONFIG_PATH=$(CURDIR)/ \
+	        OUTDIR=$(abspath $(BUILD_DIR)) BUILD_DIR=$(abspath $(BUILD_DIR))/obj-lapack \
+	        ULMBLAS_INDEX_TYPE=$(LBT_INDEX) CXXFLAGS="$(CXXFLAGS) -fPIC"
+
 $(BUILD_DIR)/functions.o : functions.c $(BUILD_DIR)/liblbtblas.a
 	$(CC) $(ULMBLAS_CFLAGS) $(CFLAGS) -fPIC -I$(BUILD_DIR) $(LBT_DEFS) \
 	      -c -o $@ $<
@@ -74,7 +91,7 @@ LBT_OBJECTS = $(BUILD_DIR)/functions.o $(BUILD_DIR)/gemm_strided.o
 #  new, std::__throw_*, __cxa_throw, ...).  Checked before linking.
 THROWING = '_Zn[wa][jmy](St11align_val_t)?$$|__cxa_throw$$|__cxa_rethrow$$|__cxa_allocate_exception$$|_ZSt[0-9]+__throw_'
 
-$(LBT_LIB) : $(BUILD_DIR)/liblbtblas.a $(LBT_OBJECTS)
+$(LBT_LIB) : $(BUILD_DIR)/liblbtblas.a $(LBT_LAPACK) $(LBT_OBJECTS)
 	@if nm -u $^ | grep -E $(THROWING); then \
 	    echo "error: objects refer to functions that throw (above)"; \
 	    exit 1; \

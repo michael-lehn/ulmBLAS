@@ -10,8 +10,9 @@ TOPDIR = .
 
 include $(TOPDIR)/make.inc
 
-.PHONY : all cblas atlblas clapack atllapack f77blas refblas lbt \
+.PHONY : all cblas atlblas clapack atllapack f77blas f77lapack refblas lbt \
          check check-numeric check-netlib check-reference-lapack \
+         check-reference-lapack-lin \
          check-conformance \
          check_cblas check_f77blas \
          bench bench-gemm benchmark-suite add_benchmark_result \
@@ -39,6 +40,9 @@ atllapack : atlblas
 f77blas : tool-ar tool-fc
 	$(MAKE) -C interfaces/blas/F77
 
+f77lapack : f77blas
+	$(MAKE) -C interfaces/lapack/F77
+
 refblas : tool-ar tool-fc
 	$(MAKE) -C refblas
 
@@ -48,7 +52,8 @@ lbt : tool-ar
 #
 #  Tests (see test/Makefile)
 #
-check check-numeric check-netlib check-reference-lapack check-conformance :
+check check-numeric check-netlib check-reference-lapack check-conformance \
+check-reference-lapack-lin :
 	$(MAKE) -C test $@
 
 check_cblas :
@@ -108,6 +113,7 @@ clean :
 	$(MAKE) -C interfaces/blas/C clean
 	$(MAKE) -C interfaces/blas/F77 clean
 	$(MAKE) -C interfaces/lapack/C clean
+	$(MAKE) -C interfaces/lapack/F77 clean
 	$(MAKE) -C refblas clean
 	$(MAKE) -C interfaces/blas/lbt clean
 	$(MAKE) -C test clean
@@ -121,6 +127,8 @@ help :
 	@echo '  atlblas          ATLAS compatible BLAS: libatlblas.a, atlblas.h'
 	@echo '  atllapack        ATLAS compatible LAPACK: libatllapack.a, atllapack.h'
 	@echo '  f77blas          Fortran 77 interface: libf77blas.a, f77blas.h (needs FC)'
+	@echo '  f77lapack        Fortran 77 interface of ?getrf, ?potrf: libf77lapack.a,'
+	@echo '                   f77lapack.h (with libf77blas.a; needs FC)'
 	@echo '  refblas          Netlib reference BLAS: librefblas.a (needs FC)'
 	@echo '  lbt              shared library for Julia (libblastrampoline): ILP64'
 	@echo '                   Fortran 77 interface, libulmblas_lbt.so / .dylib'
@@ -129,6 +137,9 @@ help :
 	@echo '  check-netlib     only the Netlib BLAS test suites (needs FC and CC)'
 	@echo '  check-reference-lapack'
 	@echo '                   test programs of Reference-LAPACK 3.12.1 (downloaded)'
+	@echo '  check-reference-lapack-lin'
+	@echo '                   ?getrf, ?potrf with the LIN test programs of'
+	@echo '                   Reference-LAPACK 3.12.1 (paths GE, PO; downloaded)'
 	@echo '  check-conformance'
 	@echo '                   all BLAS routines compared with the reference BLAS'
 	@echo '                   and CBLAS of LAPACK 3.12.1 (downloaded)'

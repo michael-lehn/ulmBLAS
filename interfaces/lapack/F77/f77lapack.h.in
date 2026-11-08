@@ -1,0 +1,90 @@
+#define VERBOSE(X) X
+#ifdef __cplusplus
+#undef __cplusplus
+#endif
+
+VERBOSE(#ifndef) F77LAPACK_H
+VERBOSE(#define) F77LAPACK_H 1
+
+VERBOSE(#include) BLAS_HEADER
+
+VERBOSE(#ifdef) __cplusplus
+extern "C" {
+VERBOSE(#endif)
+
+//
+//  Fortran 77 interface of the LAPACK functions of ulmBLAS for calls from
+//  C: all arguments by reference, IPIV 1-based, complex matrices as pairs
+//  of real numbers.  The length of a CHARACTER argument (UPLO) follows the
+//  other arguments (size_t, as with gfortran 8 or newer and flang).
+//
+
+void
+F77BLAS(sgetrf)(const ULMBLAS_INDEX_TYPE *m,
+                const ULMBLAS_INDEX_TYPE *n,
+                float                    *A,
+                const ULMBLAS_INDEX_TYPE *ldA,
+                ULMBLAS_INDEX_TYPE       *ipiv,
+                ULMBLAS_INDEX_TYPE       *info);
+
+void
+F77BLAS(dgetrf)(const ULMBLAS_INDEX_TYPE *m,
+                const ULMBLAS_INDEX_TYPE *n,
+                double                   *A,
+                const ULMBLAS_INDEX_TYPE *ldA,
+                ULMBLAS_INDEX_TYPE       *ipiv,
+                ULMBLAS_INDEX_TYPE       *info);
+
+void
+F77BLAS(cgetrf)(const ULMBLAS_INDEX_TYPE *m,
+                const ULMBLAS_INDEX_TYPE *n,
+                float                    *A,
+                const ULMBLAS_INDEX_TYPE *ldA,
+                ULMBLAS_INDEX_TYPE       *ipiv,
+                ULMBLAS_INDEX_TYPE       *info);
+
+void
+F77BLAS(zgetrf)(const ULMBLAS_INDEX_TYPE *m,
+                const ULMBLAS_INDEX_TYPE *n,
+                double                   *A,
+                const ULMBLAS_INDEX_TYPE *ldA,
+                ULMBLAS_INDEX_TYPE       *ipiv,
+                ULMBLAS_INDEX_TYPE       *info);
+
+void
+F77BLAS(spotrf)(const char               *upLo,
+                const ULMBLAS_INDEX_TYPE *n,
+                float                    *A,
+                const ULMBLAS_INDEX_TYPE *ldA,
+                ULMBLAS_INDEX_TYPE       *info,
+                size_t                   upLo_len);
+
+void
+F77BLAS(dpotrf)(const char               *upLo,
+                const ULMBLAS_INDEX_TYPE *n,
+                double                   *A,
+                const ULMBLAS_INDEX_TYPE *ldA,
+                ULMBLAS_INDEX_TYPE       *info,
+                size_t                   upLo_len);
+
+void
+F77BLAS(cpotrf)(const char               *upLo,
+                const ULMBLAS_INDEX_TYPE *n,
+                float                    *A,
+                const ULMBLAS_INDEX_TYPE *ldA,
+                ULMBLAS_INDEX_TYPE       *info,
+                size_t                   upLo_len);
+
+void
+F77BLAS(zpotrf)(const char               *upLo,
+                const ULMBLAS_INDEX_TYPE *n,
+                double                   *A,
+                const ULMBLAS_INDEX_TYPE *ldA,
+                ULMBLAS_INDEX_TYPE       *info,
+                size_t                   upLo_len);
+
+VERBOSE(#ifdef) __cplusplus
+} // extern "C"
+VERBOSE(#endif)
+
+VERBOSE(#endif) // F77LAPACK_H

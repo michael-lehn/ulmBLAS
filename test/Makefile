@@ -7,6 +7,10 @@
 #      make check-reference-lapack
 #                           test programs of Reference-LAPACK 3.12.1
 #                           (downloaded, not part of make check)
+#      make check-reference-lapack-lin
+#                           LU and Cholesky (paths GE, PO) with the test
+#                           programs of Reference-LAPACK 3.12.1 for linear
+#                           equations (downloaded, not part of make check)
 #      make check-conformance
 #                           differential test against the reference BLAS
 #                           and CBLAS of LAPACK 3.12.1 (downloaded, not
@@ -51,6 +55,7 @@ RUN_TESTS      = TEST_BUILD='$(BUILD)' CONFIGS='$(CONFIGS)' \
                  $(SHELL) run-tests.sh
 
 .PHONY : all check check-numeric check-netlib check-reference-lapack \
+         check-reference-lapack-lin \
          check-conformance \
          build-numeric build-netlib \
          clean $(LIB_TARGETS) $(LIBF77_TARGETS) $(NUMERIC_TARGETS) \
@@ -126,6 +131,19 @@ check-reference-lapack : tool-ar tool-cc tool-fc-link
 	 FLIBS=$(call shell_quote,$(FLIBS)) \
 	 $(SHELL) reference-lapack.sh $(BUILD)/$(REFERENCE_CONFIG)/lib \
 	          $(BUILD)/reference-lapack
+
+#
+#  check-reference-lapack-lin: ?getrf and ?potrf (Fortran 77 interface)
+#  with the test programs xlintst[sdcz] of Reference-LAPACK 3.12.1 on the
+#  paths GE and PO, see reference-lapack-lin.sh.  Not part of make check.
+#
+check-reference-lapack-lin : tool-ar tool-fc-link
+	@$(MAKE) lib-f77-$(REFERENCE_CONFIG)
+	@FC=$(call shell_quote,$(FC)) FFLAGS=$(call shell_quote,$(FOPTFLAGS)) \
+	 $(if $(LIN_LDLIBS),LDLIBS=$(call shell_quote,$(LIN_LDLIBS))) \
+	 $(if $(wildcard $(BUILD)/reference-lapack/lapack-3.12.1.tar.gz),LAPACK_TARBALL=$(BUILD)/reference-lapack/lapack-3.12.1.tar.gz) \
+	 $(SHELL) reference-lapack-lin.sh $(BUILD)/$(REFERENCE_CONFIG)/lib \
+	          $(BUILD)/reference-lapack-lin
 
 #
 #  check-conformance: every level 1, 2 and 3 routine of the Fortran 77 and C

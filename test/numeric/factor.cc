@@ -8,6 +8,9 @@
 //  hold a marker and must not change (bitwise); for potrf also the triangle
 //  that is not referenced.  Residuals are computed in complex<double>.
 //
+//  T0415-T0417 call the C interface (ULMLAPACK(?getrf), ULMLAPACK(?potrf))
+//  with column- and row-major matrices and invalid arguments.
+//
 //  Built with OpenMP the larger cases run the task-based algorithms; the
 //  sizes cross their thresholds (min(m,n) > 150 for getrf, n > 100 for
 //  potrf).
@@ -21,6 +24,7 @@
 #include <ulmblas/ulmblas.h>
 #include <ulmblas/lapack/getrf.h>
 #include <ulmblas/lapack/potrf.h>
+#include LAPACK_HEADER
 #include <test/numeric/reference.h>
 #include <test/numeric/testing.h>
 
@@ -456,6 +460,157 @@ testPotrfNotDefinite(Context &ctx)
     }
 }
 
+//
+//  The C interface for each type
+//
+typedef ULMBLAS_INDEX_TYPE CIndex;
+
+CIndex cGetrf(CBLAS_ORDER o, CIndex m, CIndex n, float *A, CIndex ld, CIndex *p)
+{ return ULMLAPACK(sgetrf)(o, m, n, A, ld, p); }
+CIndex cGetrf(CBLAS_ORDER o, CIndex m, CIndex n, double *A, CIndex ld, CIndex *p)
+{ return ULMLAPACK(dgetrf)(o, m, n, A, ld, p); }
+CIndex cGetrf(CBLAS_ORDER o, CIndex m, CIndex n, cfloat *A, CIndex ld, CIndex *p)
+{ return ULMLAPACK(cgetrf)(o, m, n, A, ld, p); }
+CIndex cGetrf(CBLAS_ORDER o, CIndex m, CIndex n, cdouble *A, CIndex ld, CIndex *p)
+{ return ULMLAPACK(zgetrf)(o, m, n, A, ld, p); }
+
+CIndex cPotrf(CBLAS_ORDER o, CBLAS_UPLO u, CIndex n, float *A, CIndex ld)
+{ return ULMLAPACK(spotrf)(o, u, n, A, ld); }
+CIndex cPotrf(CBLAS_ORDER o, CBLAS_UPLO u, CIndex n, double *A, CIndex ld)
+{ return ULMLAPACK(dpotrf)(o, u, n, A, ld); }
+CIndex cPotrf(CBLAS_ORDER o, CBLAS_UPLO u, CIndex n, cfloat *A, CIndex ld)
+{ return ULMLAPACK(cpotrf)(o, u, n, A, ld); }
+CIndex cPotrf(CBLAS_ORDER o, CBLAS_UPLO u, CIndex n, cdouble *A, CIndex ld)
+{ return ULMLAPACK(zpotrf)(o, u, n, A, ld); }
+
+//  ?getrf, column major: the same pivots and factors as ulmBLAS::getrf on
+//  a copy (bitwise; without a team of threads both run the same code)
+template <typename T>
+void
+testGetrfC(Context &ctx)
+{
+    Random random(0xc6e7);
+    const CIndex size[][2] = { {1, 1}, {9, 4}, {4, 9}, {60, 60}, {130, 101} };
+    for (const auto &s : size) {
+        const CIndex m = s[0], n = s[1], ld = m+2, k = std::min(m, n);
+        std::vector<T> A(static_cast<std::size_t>(ld*n)), B;
+        for (T &x : A) x = random.value<T>();
+        B = A;
+        std::vector<CIndex> pa(static_cast<std::size_t>(k)), pb(static_cast<std::size_t>(k));
+        const CIndex ia = cGetrf(CblasColMajor, m, n, A.data(), ld, pa.data());
+        const Index  ib = ulmBLAS::getrf(Index(m), Index(n), B.data(), Index(1),
+                                         Index(ld), pb.data(), Index(1));
+        bool same = ia==CIndex(ib) && pa==pb;
+        for (std::size_t q=0; same && q<A.size(); ++q) {
+            same = sameBits(A[q], B[q]);
+        }
+        if (!ctx.check(same, "C ?getrf m=%d n=%d: differs from ulmBLAS::getrf",
+                       int(m), int(n)))
+        {
+            return;
+        }
+    }
+}
+
+//  ?potrf, column and row major, lower and upper: residual (as potrfCase)
+template <typename T>
+void
+testPotrfC(Context &ctx)
+{
+    Random random(0xc907);
+    const CIndex size[] = { 1, 5, 64, 120 };
+    for (CIndex n : size) {
+        for (int row=0; row<2; ++row) {
+            for (int lower=0; lower<2; ++lower) {
+                const CIndex ld = n+3;
+                //  A(i,j) = data[i*rs + j*cs]
+                const Index rs = row ? Index(ld) : Index(1);
+                const Index cs = row ? Index(1) : Index(ld);
+                std::vector<T> data(static_cast<std::size_t>(ld*n), T(0));
+                Full F{int(n), int(n)};
+                for (Index j=0; j<n; ++j) {
+                    for (Index i=j; i<n; ++i) {
+                        cdouble x = toCdouble(random.value<T>());
+                        if (i==j) {
+                            x = cdouble(x.real()+double(n), 0);
+                        }
+                        F(int(i), int(j)) = x;
+                        F(int(j), int(i)) = std::conj(x);
+                    }
+                }
+                for (Index j=0; j<n; ++j) {
+                    for (Index i=0; i<n; ++i) {
+                        data[std::size_t(i*rs+j*cs)]
+                            = fromCdouble<T>(F(int(i), int(j)));
+                    }
+                }
+                const CIndex info = cPotrf(row ? CblasRowMajor : CblasColMajor,
+                                           lower ? CblasLower : CblasUpper,
+                                           n, data.data(), ld);
+                if (!ctx.check(info==0, "C ?potrf n=%d: info %d", int(n),
+                               int(info)))
+                {
+                    return;
+                }
+                double norm = 0, err = 0;
+                for (Index i=0; i<n; ++i) {
+                    for (Index j=0; j<n; ++j) {
+                        cdouble sum = 0;
+                        for (Index l=0; l<=std::min(i, j); ++l) {
+                            //  lower: L(i,l) = A(i,l); upper: L = U^H
+                            const cdouble li = lower
+                                ? toCdouble(data[std::size_t(i*rs+l*cs)])
+                                : std::conj(toCdouble(data[std::size_t(l*rs+i*cs)]));
+                            const cdouble lj = lower
+                                ? toCdouble(data[std::size_t(j*rs+l*cs)])
+                                : std::conj(toCdouble(data[std::size_t(l*rs+j*cs)]));
+                            sum += li*std::conj(lj);
+                        }
+                        err  = std::max(err, std::abs(sum-F(int(i), int(j))));
+                        norm = std::max(norm, std::abs(F(int(i), int(j))));
+                    }
+                }
+                const double ratio = err/(norm*double(n)*eps<T>());
+                if (!ctx.check(ratio<30, "C ?potrf n=%d %s %s: residual "
+                               "ratio %.3g", int(n), row ? "row" : "col",
+                               lower ? "lower" : "upper", ratio))
+                {
+                    return;
+                }
+            }
+        }
+    }
+}
+
+//  invalid arguments: -i for argument i, A not referenced
+template <typename T>
+void
+testArgsC(Context &ctx)
+{
+    T      A[4] = { T(1), T(2), T(3), T(4) };
+    CIndex p[2];
+    const CBLAS_ORDER bad = CBLAS_ORDER(42);
+    ctx.check(cGetrf(bad, 2, 2, A, 2, p)==-1, "C ?getrf: order");
+    ctx.check(cGetrf(CblasColMajor, -1, 2, A, 2, p)==-2, "C ?getrf: m < 0");
+    ctx.check(cGetrf(CblasColMajor, 2, -1, A, 2, p)==-3, "C ?getrf: n < 0");
+    ctx.check(cGetrf(CblasColMajor, 2, 2, A, 1, p)==-5, "C ?getrf: ldA < m");
+    ctx.check(cGetrf(CblasRowMajor, 1, 2, A, 1, p)==-5, "C ?getrf: ldA < n");
+    ctx.check(cPotrf(bad, CblasLower, 2, A, 2)==-1, "C ?potrf: order");
+    ctx.check(cPotrf(CblasColMajor, CBLAS_UPLO(42), 2, A, 2)==-2,
+              "C ?potrf: upLo");
+    ctx.check(cPotrf(CblasColMajor, CblasLower, -1, A, 2)==-3, "C ?potrf: n < 0");
+    ctx.check(cPotrf(CblasColMajor, CblasLower, 2, A, 1)==-5, "C ?potrf: ldA < n");
+    ctx.check(cGetrf(CblasColMajor, 0, 2, A, 1, p)==0
+              && cPotrf(CblasColMajor, CblasLower, 0, A, 1)==0,
+              "C: m = 0 or n = 0 is valid");
+    const T B[4] = { T(1), T(2), T(3), T(4) };
+    bool same = true;
+    for (int i=0; i<4; ++i) {
+        same = same && sameBits(A[i], B[i]);
+    }
+    ctx.check(same, "C: A changed by a call with invalid arguments");
+}
+
 } // namespace
 
 ULMBLAS_TEST(T0410, "lapack/ulmBLAS::getrf, random, strides")
@@ -496,4 +651,28 @@ ULMBLAS_TEST(T0414, "lapack/ulmBLAS::potrf, not positive definite (INFO)")
     testPotrfNotDefinite<double>(ctx);
     testPotrfNotDefinite<cfloat>(ctx);
     testPotrfNotDefinite<cdouble>(ctx);
+}
+
+ULMBLAS_TEST(T0415, "lapack/C interface ?getrf, column major")
+{
+    testGetrfC<float>(ctx);
+    testGetrfC<double>(ctx);
+    testGetrfC<cfloat>(ctx);
+    testGetrfC<cdouble>(ctx);
+}
+
+ULMBLAS_TEST(T0416, "lapack/C interface ?potrf, column and row major")
+{
+    testPotrfC<float>(ctx);
+    testPotrfC<double>(ctx);
+    testPotrfC<cfloat>(ctx);
+    testPotrfC<cdouble>(ctx);
+}
+
+ULMBLAS_TEST(T0417, "lapack/C interface ?getrf, ?potrf: invalid arguments")
+{
+    testArgsC<float>(ctx);
+    testArgsC<double>(ctx);
+    testArgsC<cfloat>(ctx);
+    testArgsC<cdouble>(ctx);
 }
