@@ -44,7 +44,7 @@ LBT_SUFFIX  = _64_
 ifneq (,$(findstring mingw,$(shell $(CXX) -dumpmachine)))
 LBT_LIB      = $(OUTDIR)/libulmblas_lbt.dll
 LBT_LINK     = -shared -Wl,--whole-archive $(BUILD_DIR)/liblbtblas.a \
-               -Wl,--no-whole-archive -static -static-libstdc++ \
+               $(LBT_LAPACK) -Wl,--no-whole-archive -static -static-libstdc++ \
                -static-libgcc -Wl,--no-undefined
 else ifeq ($(shell uname -s),Darwin)
 LBT_LIB      = $(OUTDIR)/libulmblas_lbt.dylib
