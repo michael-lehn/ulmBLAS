@@ -47,10 +47,11 @@ COMPILE  = $(CXX) $(CXXSTD) $(OPTFLAGS) $(ARCHFLAGS) $(CPPFLAGS_ALL) \
 LIB      = $(BUILD)/libulmlapack.a
 LIBOBJS  = $(BUILD)/getrf.o $(BUILD)/potrf.o
 
-.PHONY : all lib check check-full check-bounds check-neighbor check-deps \
+.PHONY : all lib bench-core check check-full check-bounds check-neighbor check-deps \
          check-determinism clean
 
-all : lib $(BUILD)/test $(BUILD)/bench-ulmblas $(BUILD)/bench-openblas
+all : lib $(BUILD)/test $(BUILD)/bench-ulmblas $(BUILD)/bench-openblas \
+      $(BUILD)/bench-core-ulmblas $(BUILD)/bench-core-openblas
 
 lib : $(LIB)
 
@@ -83,6 +84,21 @@ $(BUILD)/bench-ulmblas : $(BUILD)/bench-ulmblas.o $(LIB)
 
 $(BUILD)/bench-openblas : $(BUILD)/bench-openblas.o
 	$(CXX) $(OPTFLAGS) $^ $(REFLIBS) $(OMPLIBS) -o $@
+
+#  ?getrf, ?potrf for s, d, c, z: the templates in ulmblas/lapack (with
+#  OpenMP) and OpenBLAS (bench/core.cc)
+$(BUILD)/bench-core-ulmblas : bench/core.cc | $(BUILD)
+	$(COMPILE) -DBENCH_ULMBLAS $< $(REFLIBS) $(OMPLIBS) -o $@
+
+$(BUILD)/bench-core-openblas : bench/core.cc | $(BUILD)
+	$(COMPILE) -DBENCH_OPENBLAS $< $(REFLIBS) $(OMPLIBS) -o $@
+
+#  oneMKL (mkl_rt, its default Intel threading; MKLROOT from the module)
+$(BUILD)/bench-core-mkl : bench/core.cc | $(BUILD)
+	$(CXX) $(CXXSTD) $(OPTFLAGS) -DBENCH_MKL $< -L$(MKLROOT)/lib -lmkl_rt \
+	       -Wl,-rpath,$(MKLROOT)/lib -o $@
+
+bench-core : $(BUILD)/bench-core-ulmblas $(BUILD)/bench-core-openblas
 
 check : $(BUILD)/test
 	$(BUILD)/test quick
