@@ -20,8 +20,8 @@
 #
 set -euo pipefail
 SRC=$1; OUT=$2; R=$3; ROUNDS=${4:-"1 2 3"}; INCS=${5:-}
-source $SRC/lapack/cluster/env.sh
-cd $SRC/lapack
+source $SRC/experiments/lapack/cluster/env.sh
+cd $SRC/experiments/lapack
 [ -x build/bench-ulmblas ] || bash cluster/build.sh $SRC
 mkdir -p $OUT/raw $OUT/conditions
 OPT="--min-time 0.3 --min-samples 7 --max-samples 300 --warmup 2"

@@ -10,8 +10,8 @@
 #
 set -euo pipefail
 SRC=$1; STAGE=$2; OUT=$3
-source $SRC/lapack/cluster/env.sh
-cd $SRC/lapack
+source $SRC/experiments/lapack/cluster/env.sh
+cd $SRC/experiments/lapack
 [ -x build/bench-ulmblas ] || bash cluster/build.sh $SRC
 B="${NUMA[*]}"
 SIZES=${SIZES:-"130 270 520 1030 2020 3530"}

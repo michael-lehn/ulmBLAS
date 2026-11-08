@@ -21,7 +21,7 @@
 #  On macOS with Apple clang and Homebrew (libomp, openblas) the defaults
 #  below are used automatically.
 #
-TOPDIR    = ..
+TOPDIR    = ../..
 CXX      ?= c++
 CXXSTD   ?= -std=c++11
 OPTFLAGS ?= -O3 -fomit-frame-pointer

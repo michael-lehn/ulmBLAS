@@ -593,6 +593,6 @@ buffer first, so the result was `alpha x y^T` added to whatever the buffer
 held (zeros in a fresh buffer, the previous result in a reused one).  The
 C and Fortran interfaces always pass a column or row major matrix, so only
 the C++ interface was affected, e.g. `ulmBLAS::getf2` and `ulmBLAS::getrf`
-with strided matrices (found by the task-based `dgetrf` in `lapack/` with
-row stride 2).  Fixed: the block of `A` is copied into the buffer before
+with strided matrices (found by the task-based `dgetrf` in
+`experiments/lapack/` with row stride 2).  Fixed: the block of `A` is copied into the buffer before
 the update.

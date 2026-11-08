@@ -6,9 +6,9 @@
 #  test.sbatch SRC: build and run the correctness tests on an Ice Lake node
 set -euo pipefail
 SRC=$1
-source $SRC/lapack/cluster/env.sh
-bash $SRC/lapack/cluster/build.sh $SRC
-cd $SRC/lapack
+source $SRC/experiments/lapack/cluster/env.sh
+bash $SRC/experiments/lapack/cluster/build.sh $SRC
+cd $SRC/experiments/lapack
 echo "host $(hostname)  $(date -Is)  $(lscpu | grep 'Model name')"
 for t in 1 32; do
     echo "== OMP_NUM_THREADS=$t (configurations with up to 32 threads)"

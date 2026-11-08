@@ -119,7 +119,7 @@ documented, reproducible benchmarks.  It is also listed in
 - **LAPACK:** Playing with PLASMA-like OpenMP task scheduling for LU
   (`dgetrf`) and Cholesky (`dpotrf`) on top of ulmBLAS kernels.  No tile
   storage, just the usual column-major layout.
-  [Experiments and benchmarks](lapack/).
+  [Experiments and benchmarks](experiments/lapack/).
 
 ## Performance
 

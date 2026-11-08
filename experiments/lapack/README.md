@@ -82,7 +82,7 @@ Variants with a copy (C++ interface, same arguments):
   operands.
 
 ```sh
-cd lapack
+cd experiments/lapack
 make            # build/libulmlapack.a, tests, benchmarks
 make check      # tests against OpenBLAS's LAPACK
 ```
@@ -533,7 +533,7 @@ Data: [stride sweep](results/2026-11-07-icelake-stride-sweep),
     combinations.
   - That found a bug in ulmBLAS itself: `ulmBLAS::ger` with neither stride
     1 did not load `A` into its packing buffer
-    ([#0030](../test/known_issues.md), regression test `T0806`).  The C
+    ([#0030](../../test/known_issues.md), regression test `T0806`).  The C
     and Fortran interfaces never get there (always column- or row-major).
 - `make check-deps`: every task logs its tiles and start/end time; any
   conflicting pair running in the wrong order or overlapping aborts.
