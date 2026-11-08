@@ -169,7 +169,7 @@ error handler `cblas_xerbla` keeps its `int` argument (a parameter number).
 
 By default the functions are serial (recursive, as LAPACK's `?getrf2` and
 `?potrf2`).  With OpenMP larger matrices are factored and solved with
-tasks; the inverses are still serial (see
+tasks (see
 [experiments/lapack](experiments/lapack/)):
 
 ```sh

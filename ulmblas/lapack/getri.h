@@ -8,7 +8,7 @@ namespace ulmBLAS {
 //  piv as returned by getrf, piv 0-based with increment incPiv): inv(A) =
 //  inv(U) inv(L) P, in place.  Returns 0, or i if U(i-1,i-1) is exactly
 //  zero (then A is not changed).  Needs n x n elements of work space.
-//  Serial.  Any strides.
+//  With OpenMP larger matrices as tasks.  Any strides.
 //
 template <typename IndexType, typename T, typename PivIndex>
     IndexType

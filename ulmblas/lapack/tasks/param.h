@@ -56,6 +56,15 @@ getrfParam(long m, long n, int threads)
     return p;
 }
 
+//  inverses (trtri, lauum): tile size and threads as for potrf
+inline Param
+inverseParam(long n, int threads)
+{
+    Param p = potrfParam(n, threads);
+    p.serialN = 128;
+    return p;
+}
+
 //  solves (getrs, potrs, trtrs) with an n x n matrix and nrhs right-hand
 //  sides: tasks only if there is enough work (n^2 nrhs operations)
 inline Param

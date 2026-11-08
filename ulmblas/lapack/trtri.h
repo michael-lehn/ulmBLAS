@@ -7,7 +7,7 @@ namespace ulmBLAS {
 //  Inverse of a triangular n x n matrix, in place (lower or upper
 //  triangle; unitDiag: the diagonal is 1 and not referenced).  Returns 0,
 //  or i if A(i-1,i-1) is exactly zero (then A is not changed, as LAPACK's
-//  ?trtri).  Recursive, serial.  Any strides.
+//  ?trtri).  Recursive; with OpenMP larger matrices as tasks.  Any strides.
 //
 template <typename IndexType, typename T>
     IndexType

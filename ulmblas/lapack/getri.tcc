@@ -5,7 +5,7 @@
 #include <ulmblas/lapack/buffer.h>
 #include <ulmblas/lapack/getri.h>
 #include <ulmblas/lapack/trtri.h>
-#include <ulmblas/level3/trusm.h>
+#include <ulmblas/lapack/tasks/solvetasks.h>
 
 namespace ulmBLAS {
 
@@ -35,7 +35,17 @@ getri(IndexType        n,
             }
         }
     }
-    trusm(n, n, T(1), false, true, L.data(), n, IndexType(1), A, cs, rs);
+    typedef tasks::SolveStep<IndexType, T> Step;
+    Step st;
+    st.kind     = Step::Solve;
+    st.piv      = 0;
+    st.upper    = true;
+    st.conj     = false;
+    st.unitDiag = true;
+    st.A        = L.data();
+    st.incRowA  = n;
+    st.incColA  = 1;
+    tasks::solve(n, n, &st, 1, A, cs, rs);
     //  column interchanges: X P
     for (IndexType j=n-2; j>=0; --j) {
         const IndexType jp = IndexType(piv[j*incPiv]);

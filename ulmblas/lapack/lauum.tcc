@@ -6,6 +6,9 @@
 #include <ulmblas/auxiliary/conjugate.h>
 #include <ulmblas/lapack/islapacktype.h>
 #include <ulmblas/lapack/lauum.h>
+#include <ulmblas/lapack/threads.h>
+#include <ulmblas/lapack/tasks/inversetasks.h>
+#include <ulmblas/lapack/tasks/param.h>
 #include <ulmblas/level3/heurk.h>
 #include <ulmblas/level3/syurk.h>
 #include <ulmblas/level3/trumm.h>
@@ -102,13 +105,20 @@ lauum(bool         lower,
     if (n<=0) {
         return;
     }
-    if (!lower) {
-        lauum_impl::rec(n, A, incRowA, incColA);
-        return;
-    }
     //  lower: with the transposed view U = L^T, element (i,j) of U U^H is
     //  sum_l L(l,i) conj(L(l,j)), stored at (j,i): element (j,i) of L^H L
-    lauum_impl::rec(n, A, incColA, incRowA);
+    const IndexType rs = lower ? incColA : incRowA;
+    const IndexType cs = lower ? incRowA : incColA;
+#ifdef _OPENMP
+    if (!omp_in_parallel()) {
+        const tasks::Param p = tasks::inverseParam(long(n), numThreads());
+        if (n>IndexType(p.serialN) && p.threads>1) {
+            tasks::lauumUpperTasks(n, A, rs, cs, IndexType(p.nb), p.threads);
+            return;
+        }
+    }
+#endif
+    lauum_impl::rec(n, A, rs, cs);
 }
 
 } // namespace ulmBLAS

@@ -3,6 +3,9 @@
 
 #include <ulmblas/lapack/islapacktype.h>
 #include <ulmblas/lapack/trtri.h>
+#include <ulmblas/lapack/threads.h>
+#include <ulmblas/lapack/tasks/inversetasks.h>
+#include <ulmblas/lapack/tasks/param.h>
 #include <ulmblas/level3/trlmm.h>
 #include <ulmblas/level3/trumm.h>
 
@@ -85,6 +88,16 @@ trtri(bool         lower,
     //  inv(U^T))
     const IndexType rs = lower ? incRowA : incColA;
     const IndexType cs = lower ? incColA : incRowA;
+#ifdef _OPENMP
+    if (!omp_in_parallel()) {
+        const tasks::Param p = tasks::inverseParam(long(n), numThreads());
+        if (n>IndexType(p.serialN) && p.threads>1) {
+            tasks::trtriLowerTasks(unitDiag, n, A, rs, cs, IndexType(p.nb),
+                                   p.threads);
+            return 0;
+        }
+    }
+#endif
     trtri_impl::rec(unitDiag, n, A, rs, cs);
     return 0;
 }
