@@ -23,7 +23,9 @@
 #             passes if the program exits with status 0, its output contains
 #             no failure markers and shows that all routines were tested.
 #   header    the generated headers can be used from C (IDs T0501, T0502),
-#             a client in the style of the CBLAS standard compiles (T0503).
+#             a client in the style of the CBLAS standard compiles (T0503),
+#             the LAPACK templates reject integer element types (T0504: a
+#             C++ file that must not compile, with CXX).
 #   example   the C++ examples of examples/ build and run with the flags of
 #             the configuration and exit with status 0 (IDs T0520-T0529).
 #   registry  self-tests of the registry validation (IDs T0510-T0515), run
@@ -153,7 +155,8 @@ T0032 C c_zblat3"
 header_tests="
 T0501 cblas.h
 T0502 clapack.h
-T0503 cblas_client.c"
+T0503 cblas_client.c
+T0504 lapack_int.fail.cc"
 
 example_tests="
 T0520 gemm"
@@ -616,6 +619,24 @@ run_headers()
 
     while read id header; do
         name=header/$header
+        #  *.fail.cc: C++ that must not compile (static_assert with the
+        #  message of ulmblas/lapack/islapacktype.h, at least twice)
+        case $header in
+            *.fail.cc)
+                log=$TEST_BUILD/$config/header_test.log
+                if $CXX -I.. -c -o "$TEST_BUILD/$config/header_fail.o" \
+                        "header/$header" > "$log" 2>&1; then
+                    report FAIL "$id" "$config" "$name" "compiles, but must not"
+                elif [ `grep -c 'need a floating-point' "$log"` -ge 2 ]; then
+                    report PASS "$id" "$config" "$name"
+                else
+                    report FAIL "$id" "$config" "$name" \
+                        "fails without the expected static_assert, see $log"
+                fi
+                rm -f "$TEST_BUILD/$config/header_fail.o"
+                continue
+                ;;
+        esac
         if [ -z "$CC" ] || ! command -v `echo $CC | awk '{print $1}'` \
                                 > /dev/null 2>&1
         then

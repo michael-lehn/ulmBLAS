@@ -52,6 +52,7 @@ PROBE_LOG      = $(BUILD)/netlib-tools.log
 RUN_TESTS      = TEST_BUILD='$(BUILD)' CONFIGS='$(CONFIGS)' \
                  TESTS='$(TESTS)' VERBOSE='$(VERBOSE)' STRICT='$(STRICT)' \
                  CC=$(call shell_quote,$(CC) $(CPPFLAGS) $(ULMBLAS_CFLAGS) $(CFLAGS)) \
+                 CXX=$(call shell_quote,$(CXX) $(CXXSTD) $(CPPFLAGS)) \
                  $(SHELL) run-tests.sh
 
 .PHONY : all check check-numeric check-netlib check-reference-lapack \

@@ -1,6 +1,7 @@
 #ifndef ULMBLAS_LAPACK_POTRF_TCC
 #define ULMBLAS_LAPACK_POTRF_TCC 1
 
+#include <ulmblas/lapack/islapacktype.h>
 #include <ulmblas/lapack/potrf.h>
 #include <ulmblas/lapack/potrf2.h>
 
@@ -21,6 +22,8 @@ potrf(bool         lower,
       IndexType    incRowA,
       IndexType    incColA)
 {
+    ULMBLAS_LAPACK_REQUIRE_FLOATING_POINT(T);
+
     if (n<=0) {
         return 0;
     }

@@ -2,6 +2,7 @@
 #define ULMBLAS_LAPACK_GETRF_TCC 1
 
 #include <algorithm>
+#include <ulmblas/lapack/islapacktype.h>
 #include <ulmblas/lapack/buffer.h>
 #include <ulmblas/lapack/getrf.h>
 #include <ulmblas/lapack/getrf2.h>
@@ -25,6 +26,8 @@ getrf(IndexType    m,
       PivIndex     *piv,
       IndexType    incPiv)
 {
+    ULMBLAS_LAPACK_REQUIRE_FLOATING_POINT(T);
+
     if (m<=0 || n<=0) {
         return 0;
     }

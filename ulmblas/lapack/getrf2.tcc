@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <utility>
+#include <ulmblas/lapack/islapacktype.h>
 #include <ulmblas/lapack/buffer.h>
 #include <ulmblas/lapack/getf2.h>
 #include <ulmblas/lapack/getrf2.h>
@@ -95,6 +96,8 @@ getrf2(IndexType    m,
        PivIndex     *piv,
        IndexType    incPiv)
 {
+    ULMBLAS_LAPACK_REQUIRE_FLOATING_POINT(T);
+
     const IndexType kmin = std::min(m, n);
     if (kmin<=0) {
         return 0;

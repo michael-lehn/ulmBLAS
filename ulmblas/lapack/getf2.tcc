@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <complex>
+#include <ulmblas/lapack/islapacktype.h>
 #include <ulmblas/lapack/getf2.h>
 #include <ulmblas/lapack/safemin.h>
 #include <ulmblas/level1/iamax.h>
@@ -23,6 +24,8 @@ getf2(IndexType    m,
       PivIndex     *piv,
       IndexType    incPiv)
 {
+    ULMBLAS_LAPACK_REQUIRE_FLOATING_POINT(T);
+
     typedef decltype(std::real(T())) Real;
     const Real sMin = safeMin<Real>();
 

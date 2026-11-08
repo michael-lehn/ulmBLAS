@@ -3,6 +3,7 @@
 
 #include <complex>
 #include <type_traits>
+#include <ulmblas/lapack/islapacktype.h>
 #include <ulmblas/lapack/potf2.h>
 #include <ulmblas/lapack/potrf2.h>
 #include <ulmblas/lapack/unitstride.h>
@@ -81,6 +82,8 @@ potrf2(IndexType    n,
        IndexType    incRowA,
        IndexType    incColA)
 {
+    ULMBLAS_LAPACK_REQUIRE_FLOATING_POINT(T);
+
     if (n<=0) {
         return 0;
     }

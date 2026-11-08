@@ -4,6 +4,7 @@
 #include <cmath>
 #include <complex>
 #include <ulmblas/auxiliary/conjugate.h>
+#include <ulmblas/lapack/islapacktype.h>
 #include <ulmblas/lapack/potf2.h>
 
 namespace ulmBLAS {
@@ -137,6 +138,8 @@ potf2(IndexType    n,
       IndexType    incRowA,
       IndexType    incColA)
 {
+    ULMBLAS_LAPACK_REQUIRE_FLOATING_POINT(T);
+
     if (incRowA==1) {
         return potf2_impl::crout(n, A, incColA);
     }
