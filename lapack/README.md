@@ -341,8 +341,47 @@ What I tried for `dpotrf` in place (all optional parameters):
 
 ![DPOTRF, tiles packed once](plots/potrf-prepack.svg)
 
-- **Conclusion:** `prepack` paid off only in place with a big stride.  It
-  did not pay off with `incRow = 1` or with a copy.
+- **Conclusion:** `prepack` paid off in place with `incRow = 42` for n >=
+  200 (1.1-1.4x).  It did not pay off with `incRow = 1` or with a copy.
+
+From which `incRow` on does `prepack` pay off (in place)?  `incRow` = 1,
+2, ..., 50, 60, ..., 100, n = 500, 1000, 2000, 4000, 3 rounds.  1 means
+exactly as fast as without `prepack`; above 1 `prepack` helps.
+
+![DPOTRF in place, prepack over incRow](plots/potrf-ppsweep.svg)
+
+Same data, points and a smoothed curve:
+
+![DPOTRF in place, prepack over incRow, smoothed](plots/potrf-ppsweep-smooth.svg)
+
+Same data as a heat map (gray: 1, blue: `prepack` faster, orange: slower):
+
+![DPOTRF in place, prepack heat map](plots/potrf-ppsweep-heat.svg)
+
+GFLOP/s (solid without, dashed with `prepack`):
+
+![DPOTRF in place, GFLOP/s with and without prepack](plots/potrf-ppsweep-gflops.svg)
+
+| incRow | n = 500 | 1000 | 2000 | 4000 |
+|---:|---:|---:|---:|---:|
+| 1 | 0.99 | 0.95 | 0.98 | 0.98 |
+| 2 | 1.07 | 0.97 | 1.01 | 1.14 |
+| 4 | 1.13 | 1.01 | 1.14 | 1.16 |
+| 8 | 1.17 | 1.13 | 1.31 | 1.19 |
+| 16 | 1.28 | 1.11 | 1.22 | 1.34 |
+| 42 | 1.31 | 1.18 | 1.25 | 1.22 |
+| 100 | 1.19 | 1.08 | 1.29 | 1.20 |
+
+(time without / time with `prepack`.)
+
+- `incRow = 1`: 2-5% slower.
+- From `incRow` 2-4 on faster (n = 4000 already at 2, n = 1000 only
+  from 4).  From 8 on 1.1-1.4x (n = 1000 less: 1.03-1.23).
+- `incRow` 16, 32, 48, 80 (multiples of 16): everything is slower, but
+  `prepack` still helps.
+- **Conclusion:** `prepack` paid off for `incRow >= 4` (n = 4000: >= 2),
+  clearly (1.1-1.4x) for `incRow >= 8`.  It did not pay off for
+  `incRow = 1`.
 
 - `outer = s`: group s tile columns.  The rest of the matrix gets one
   update per group instead of one per tile column, so it is read and
@@ -417,6 +456,7 @@ Tensor slice: `X(i,:,:)` of an `n1 x n x n` tensor (column-major), i.e.
 
 Data: [stride sweep](results/2026-11-07-icelake-stride-sweep),
 [prepack](results/2026-11-07-icelake-prepack),
+[prepack over incRow](results/2026-11-08-icelake-prepack-sweep),
 [outer](results/2026-11-07-icelake-outer),
 [window/strip](results/2026-11-07-icelake-window-strip),
 [tensor slice](results/2026-11-07-icelake-tensor-slice),
