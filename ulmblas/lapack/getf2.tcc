@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <complex>
 #include <ulmblas/lapack/getf2.h>
 #include <ulmblas/lapack/safemin.h>
 #include <ulmblas/level1/iamax.h>
@@ -22,7 +23,8 @@ getf2(IndexType    m,
       PivIndex     *piv,
       IndexType    incPiv)
 {
-    const T sMin = safeMin<T>();
+    typedef decltype(std::real(T())) Real;
+    const Real sMin = safeMin<Real>();
 
     IndexType info = 0;
 
