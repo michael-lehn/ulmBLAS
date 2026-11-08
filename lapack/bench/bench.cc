@@ -22,6 +22,11 @@
 //            --window W       with --outer: trailing updates every W blocks
 //            --strip 1        with --outer: factor the block on contiguous tiles
 //            --strip 2        the same, without packed tiles (less memory)
+//            --layout L       colmajor (default) or rowmajor (A(i,j) =
+//                             A[i*n + j]); ulmlapack: C++ interface with
+//                             incRow = n, incCol = 1; OpenBLAS: LAPACKE with
+//                             LAPACK_ROW_MAJOR (copies to column major,
+//                             factors, copies back)
 //
 //  Matrices: m = n, ldA = n, column major.  With --inc-row R > 1 the matrix
 //  is stored with row stride R and column stride R*n (every R-th row of a
@@ -40,6 +45,7 @@
 //  Output (one line per n):
 //      routine lib n threads nb ib pt serial_n median min max samples
 //      gflops(median) check backward_error inc_row variant
+//  (variant with prefix "rm-" for --layout rowmajor)
 //
 
 #include <algorithm>
@@ -78,6 +84,8 @@ void dgemv_(const char *trans, const int *m, const int *n,
             const double *alpha, const double *A, const int *ldA,
             const double *x, const int *incx, const double *beta,
             double *y, const int *incy, std::size_t len);
+int  LAPACKE_dgetrf(int layout, int m, int n, double *A, int ldA, int *ipiv);
+int  LAPACKE_dpotrf(int layout, char uplo, int n, double *A, int ldA);
 int  openblas_get_num_threads(void);
 char *openblas_get_config(void);
 char *openblas_get_corename(void);
@@ -101,6 +109,7 @@ struct Options
     std::string raw;
     long        incRow     = 1;
     std::string variant    = "inplace";
+    bool        rowMajor   = false;
 #ifdef BENCH_ULMBLAS
     ulmlapack_param p;
 #endif
@@ -187,10 +196,11 @@ int
 factor(bool lu, int n, double *A, int *ipiv, const Options &opt)
 {
 #ifdef BENCH_ULMBLAS
-    if (opt.incRow!=1 || opt.variant!="inplace") {
+    if (opt.incRow!=1 || opt.variant!="inplace" || opt.rowMajor) {
         static std::vector<ulmlapack::Index> piv;
         piv.resize(n);
-        const long ir = opt.incRow, ic = opt.incRow*n;
+        const long ir = opt.rowMajor ? long(n) : opt.incRow;
+        const long ic = opt.rowMajor ? 1L : opt.incRow*n;
         if (!lu) {
             return (int) (opt.variant=="colmajor"
                           ? ulmlapack::potrf_colmajor(true, n, A, ir, ic, &opt.p)
@@ -211,8 +221,12 @@ factor(bool lu, int n, double *A, int *ipiv, const Options &opt)
     return lu ? ulmlapack_dgetrf_param(n, n, A, n, ipiv, &opt.p)
               : ulmlapack_dpotrf_param('L', n, A, n, &opt.p);
 #else
-    (void) opt;
     int info;
+    if (opt.rowMajor) {
+        const int rowMajor = 101;                   // LAPACK_ROW_MAJOR
+        return lu ? LAPACKE_dgetrf(rowMajor, n, n, A, n, ipiv)
+                  : LAPACKE_dpotrf(rowMajor, 'L', n, A, n);
+    }
     if (lu) {
         dgetrf_(&n, &n, A, &n, ipiv, &info);
     } else {
@@ -229,16 +243,26 @@ run(bool lu, int n, const Options &opt, FILE *raw)
     std::uniform_real_distribution<double> u(-1, 1);
     const std::size_t nn = std::size_t(n)*n;
     const long        R  = opt.incRow;
-    std::vector<double> A0(nn), A(R==1 ? nn : 0);
+    //  A(i,j) = work[i*rs + j*cs]: column major (R = 1), every R-th row of
+    //  a column-major matrix (R > 1), or row major
+    const std::size_t rs = opt.rowMajor ? std::size_t(n) : std::size_t(R);
+    const std::size_t cs = opt.rowMajor ? 1 : std::size_t(R)*n;
+    const bool        cm = rs==1 && cs==std::size_t(n);
+    std::vector<double> A0(nn), A(cm ? nn : 0);
     std::vector<int>    ipiv(n);
-    //  strided storage (R > 1): A(i,j) = W[i*R + j*R*n]; not initialized,
-    //  the gaps are never touched
-    const std::size_t extent = (R==1) ? 0 : std::size_t(R)*nn;
+    //  other storage: not initialized, the gaps are never touched
+    const std::size_t extent = cm ? 0 : opt.rowMajor ? nn : std::size_t(R)*nn;
     std::unique_ptr<double[]> W(extent ? new double[extent] : 0);
-    double *work = (R==1) ? A.data() : W.get();
+    double *work = cm ? A.data() : W.get();
     auto fresh = [&]() {
-        if (R==1) {
+        if (cm) {
             std::memcpy(A.data(), A0.data(), nn*sizeof(double));
+        } else if (opt.rowMajor) {
+            for (int i=0; i<n; ++i) {
+                for (int j=0; j<n; ++j) {
+                    W[std::size_t(i)*n+j] = A0[i+std::size_t(j)*n];
+                }
+            }
         } else {
             for (int j=0; j<n; ++j) {
                 double       *w = &W[std::size_t(j)*R*n];
@@ -264,6 +288,7 @@ run(bool lu, int n, const Options &opt, FILE *raw)
         fresh();
         factor(lu, n, work, ipiv.data(), opt);
     }
+    const std::string label = (opt.rowMajor ? "rm-" : "") + opt.variant;
     std::vector<double> t;
     double spent = 0, chk = -1;
     int info0 = 0;
@@ -281,8 +306,7 @@ run(bool lu, int n, const Options &opt, FILE *raw)
             std::vector<double> F(nn);
             for (int j=0; j<n; ++j) {
                 for (int i=0; i<n; ++i) {
-                    F[i+std::size_t(j)*n] = work[std::size_t(i)*R
-                                                 +std::size_t(j)*R*n];
+                    F[i+std::size_t(j)*n] = work[i*rs+j*cs];
                 }
             }
             chk = info ? 1e300 : check(lu, n, A0.data(), F.data(), ipiv.data());
@@ -291,7 +315,7 @@ run(bool lu, int n, const Options &opt, FILE *raw)
     if (raw) {
         for (std::size_t s=0; s<t.size(); ++s) {
             std::fprintf(raw, "%s %s %d %zu %.9e %ld %s\n", lu ? "getrf" : "potrf",
-                         LIBNAME, n, s, t[s], R, opt.variant.c_str());
+                         LIBNAME, n, s, t[s], R, label.c_str());
         }
     }
     std::vector<double> ts(t);
@@ -327,7 +351,7 @@ run(bool lu, int n, const Options &opt, FILE *raw)
     const bool pp = false;
     const int  so = 0;
 #endif
-    std::printf(" %.3g %ld %s%s", chk, R, opt.variant.c_str(), pp ? "+pp" : "");
+    std::printf(" %.3g %ld %s%s", chk, R, label.c_str(), pp ? "+pp" : "");
     if (so>1) {
 #ifdef BENCH_ULMBLAS
         std::printf("+outer%d", so);
@@ -386,6 +410,7 @@ main(int argc, char **argv)
         else if (a=="--raw")         opt.raw        = v;
         else if (a=="--inc-row")     opt.incRow     = std::atol(v);
         else if (a=="--variant")     opt.variant    = v;
+        else if (a=="--layout")      opt.rowMajor   = !std::strcmp(v, "rowmajor");
 #ifdef BENCH_ULMBLAS
         else if (a=="--nb")          opt.p.nb            = std::atoi(v);
         else if (a=="--ib")          opt.p.ib            = std::atoi(v);
@@ -402,6 +427,10 @@ main(int argc, char **argv)
             std::fprintf(stderr, "unknown option %s\n", a.c_str());
             return 2;
         }
+    }
+    if (opt.rowMajor && opt.incRow!=1) {
+        std::fprintf(stderr, "--layout rowmajor: --inc-row 1 only\n");
+        return 2;
     }
     if (opt.incRow<1) {
         std::fprintf(stderr, "--inc-row must be >= 1\n");

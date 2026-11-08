@@ -3,6 +3,7 @@
 - [Differences to PLASMA](#differences-to-plasma)
 - [How it works](#how-it-works)
 - [Benchmark: Ice Lake, 32 threads](#benchmark-ice-lake-32-threads)
+- [dgetrf and dpotrf for row major](#dgetrf-and-dpotrf-for-row-major)
 - [Strides and copies: Ice Lake](#strides-and-copies-ice-lake)
 - [Large strides without a copy (Cholesky)](#large-strides-without-a-copy-cholesky)
 - [Tests](#tests)
@@ -227,6 +228,56 @@ Numbers per size: [`summary-getrf.dat`](results/2026-11-06-icelake-32threads/sum
 [`summary-potrf.dat`](results/2026-11-06-icelake-32threads/summary-potrf.dat).
 Raw data and all samples: [`results/2026-11-06-icelake-32threads`](results/2026-11-06-icelake-32threads).
 Tuning runs: [`results/tuning`](results/tuning).
+
+## dgetrf and dpotrf for row major
+
+A row-major matrix (C/C++), `A(i,j) = A[i*n + j]`.  Same machine and
+settings as above, 3 rounds, n = 50, 100, ..., 4000.
+
+- ulmBLAS: in place, C++ interface with `incRow = n`, `incCol = 1`.
+- OpenBLAS, row major: `LAPACKE_dgetrf`/`LAPACKE_dpotrf` with
+  `LAPACK_ROW_MAJOR`.  That's what OpenBLAS offers for row major: LAPACKE
+  copies the matrix to column major, factors, and copies back.
+- OpenBLAS, column major: the plain `dgetrf_`/`dpotrf_` on a column-major
+  matrix (no copy).  This is the baseline.
+- Dashed: ulmBLAS column major, for reference.
+
+![DGETRF, row major, GFLOP/s](plots/getrf-rowmajor-gflops.svg)
+
+![DPOTRF, row major, GFLOP/s](plots/potrf-rowmajor-gflops.svg)
+
+Speedup plots: 1 means exactly as fast as OpenBLAS with a column-major
+matrix; 2 means twice as fast.
+
+![DGETRF, row major, speedup](plots/getrf-rowmajor-speedup.svg)
+
+![DPOTRF, row major, speedup](plots/potrf-rowmajor-speedup.svg)
+
+| n | 100 | 500 | 1000 | 2000 | 4000 |
+|---|---:|---:|---:|---:|---:|
+| LU, ulmBLAS row major | 0.49 | 0.97 | 1.53 | 1.79 | 0.95 |
+| LU, OpenBLAS row major (LAPACKE) | 0.82 | 0.77 | 0.75 | 0.59 | 0.48 |
+| Cholesky, ulmBLAS row major | 0.38 | 1.87 | 2.11 | 1.92 | 1.58 |
+| Cholesky, OpenBLAS row major (LAPACKE) | 0.70 | 0.47 | 0.67 | 0.40 | 0.32 |
+
+(speedup over OpenBLAS column major.)
+
+- LAPACKE's copies are expensive: row major costs OpenBLAS up to half
+  (LU) or two thirds (Cholesky) of its speed at n = 4000.
+- ulmBLAS row major: Cholesky is almost as fast as column major (about
+  0.9 of it from n = 200 on).  LU reaches 0.9-1.0 of column major up to
+  n = 2700, then it drops to about 0.6-0.7 (open: why).
+- n <= 100: ulmBLAS row major is slow (0.34-0.58), the serial small-matrix
+  path doesn't like the row stride.
+- **Conclusion:** working in place on row major paid off: from n = 200
+  on faster than OpenBLAS's row-major path (LAPACKE): LU 1.2-3x, Cholesky
+  2.4-5x.  Cholesky even beats OpenBLAS on column major (1.6-2.1x).  It
+  did not pay off for
+  tiny matrices (n <= 100).
+
+Data: [`results/2026-11-08-icelake-rowmajor`](results/2026-11-08-icelake-rowmajor)
+(`cluster/rowmajor.sbatch`, `scripts/summarize-rowmajor.py`,
+`scripts/plot-rowmajor.gp`).
 
 ## Strides and copies: Ice Lake
 
