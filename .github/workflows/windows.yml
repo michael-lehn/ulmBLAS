@@ -6,7 +6,7 @@ name: windows
 
 on:
   push:
-    branches: [windows]
+    branches: [windows, windows-lapack]
   workflow_dispatch:
 
 jobs:
