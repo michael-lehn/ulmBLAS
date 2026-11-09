@@ -74,7 +74,7 @@ jobs:
           grep 'gemm_strided$' exports.txt
           echo "imports:"; grep "DLL Name" objdump.txt | sort -u
           test "$(grep -c '_64_$' exports.txt)" = 171
-          test "$(grep -c 'gemm_strided$' exports.txt)" = 4
+          test "$(grep -c 'gemm_strided$' exports.txt)" = 8
           ! grep "DLL Name" objdump.txt | grep -v -i -E "KERNEL32|api-ms-win-crt|ucrtbase|msvcrt"
       - name: ILP64 and Windows x64 ABI
         if: env.RUN == '1'
