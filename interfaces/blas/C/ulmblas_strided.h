@@ -6,7 +6,8 @@
  *
  *      C <- alpha op(A) op(B) + beta C
  *
- *  for float, double, complex float and complex double.  Every matrix is
+ *  for float, double, complex float and complex double, and for the
+ *  integer types int8_t, int16_t, int32_t and int64_t.  Every matrix is
  *  described by a pointer and two strides: element (i,j) of the m x n
  *  matrix X is
  *
@@ -40,6 +41,11 @@
  *  - A and B are only read: their elements may overlap, so zero or
  *    otherwise "overlapping" strides are allowed for A and B (e.g. a row
  *    vector repeated as the rows of a matrix with incRow = 0).
+ *
+ *  Integers: the products and sums wrap around modulo 2^bits (two's
+ *  complement), as Julia's Int arithmetic.  Use the same function for
+ *  unsigned integers of the same size: the bits are the same.  There are no
+ *  tuned micro kernels for integers yet; the generic one is used.
  *
  *  Semantics as in BLAS: for beta = 0, C is not read (NaN or Inf in C do
  *  not propagate); for alpha = 0 or k = 0, A and B are not read and C is
@@ -119,6 +125,70 @@ ulmblas_zgemm_strided(int64_t       m,
                       double        *C,
                       int64_t       incRowC,
                       int64_t       incColC);
+
+void
+ulmblas_i8gemm_strided(int64_t       m,
+                       int64_t       n,
+                       int64_t       k,
+                       int8_t        alpha,
+                       const int8_t  *A,
+                       int64_t       incRowA,
+                       int64_t       incColA,
+                       const int8_t  *B,
+                       int64_t       incRowB,
+                       int64_t       incColB,
+                       int8_t        beta,
+                       int8_t        *C,
+                       int64_t       incRowC,
+                       int64_t       incColC);
+
+void
+ulmblas_i16gemm_strided(int64_t       m,
+                        int64_t       n,
+                        int64_t       k,
+                        int16_t       alpha,
+                        const int16_t *A,
+                        int64_t       incRowA,
+                        int64_t       incColA,
+                        const int16_t *B,
+                        int64_t       incRowB,
+                        int64_t       incColB,
+                        int16_t       beta,
+                        int16_t       *C,
+                        int64_t       incRowC,
+                        int64_t       incColC);
+
+void
+ulmblas_i32gemm_strided(int64_t       m,
+                        int64_t       n,
+                        int64_t       k,
+                        int32_t       alpha,
+                        const int32_t *A,
+                        int64_t       incRowA,
+                        int64_t       incColA,
+                        const int32_t *B,
+                        int64_t       incRowB,
+                        int64_t       incColB,
+                        int32_t       beta,
+                        int32_t       *C,
+                        int64_t       incRowC,
+                        int64_t       incColC);
+
+void
+ulmblas_i64gemm_strided(int64_t       m,
+                        int64_t       n,
+                        int64_t       k,
+                        int64_t       alpha,
+                        const int64_t *A,
+                        int64_t       incRowA,
+                        int64_t       incColA,
+                        const int64_t *B,
+                        int64_t       incRowB,
+                        int64_t       incColB,
+                        int64_t       beta,
+                        int64_t       *C,
+                        int64_t       incRowC,
+                        int64_t       incColC);
 
 #ifdef __cplusplus
 } // extern "C"

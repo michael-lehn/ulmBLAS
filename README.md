@@ -284,9 +284,11 @@ c++ -std=c++11 -O3 -I. examples/gemm.cc -o gemm   # add ARCHFLAGS for the
 ```
 
 The same GEMM with arbitrary strides is available from C for the four
-BLAS types ([ulmblas_strided.h](interfaces/blas/C/ulmblas_strided.h), in
+BLAS types and for 8, 16, 32 and 64 bit integers
+([ulmblas_strided.h](interfaces/blas/C/ulmblas_strided.h), in
 `libcblas.a`): no transposition argument, transposed operands are passed
-with swapped strides, and strides may be negative or zero.
+with swapped strides, and strides may be negative or zero.  Integers
+wrap around, as in Julia.
 
 ```c
 #include <ulmblas_strided.h>
@@ -304,8 +306,10 @@ ulmblas_dgemm_strided(2, 2, 3,                    /* m, n, k */
                       C, 2, 1);                   /* C = [ 7 5 ; 16 11 ] */
 ```
 
-For element types other than the four BLAS types you declare block sizes
-with a specialization of `ulmBLAS::BlockSize`; the example does this for
+Element types other than the four BLAS types get the generic micro
+kernel and block sizes that are only a guess (`GenericBlockSize` in
+[blocksize.h](ulmblas/config/blocksize.h)).  Better ones you declare with
+a specialization of `ulmBLAS::BlockSize`; the example does this for
 `long double`.
 
 Note that this is a low-level C++ interface: plain pointers and strides,

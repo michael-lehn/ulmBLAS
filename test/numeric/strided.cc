@@ -8,6 +8,7 @@
 //  not elements of C must not change (bitwise).
 //
 #include <cstdint>
+#include <type_traits>
 #include <vector>
 #include <ulmblas_strided.h>
 #include <ulmblas/ulmblas.h>
@@ -408,6 +409,144 @@ testGerStrided(Context &ctx)
     }
 }
 
+//
+//  Integer GEMM (ulmblas_i{8,16,32,64}gemm_strided): exact result with
+//  wraparound, compared with a plain loop in the unsigned type.  Values
+//  over the whole range, so products and sums overflow.
+//
+void
+gemmInt(std::int64_t m, std::int64_t n, std::int64_t k, std::int8_t alpha,
+        const std::int8_t *A, std::int64_t rA, std::int64_t cA,
+        const std::int8_t *B, std::int64_t rB, std::int64_t cB,
+        std::int8_t beta, std::int8_t *C, std::int64_t rC, std::int64_t cC)
+{
+    ulmblas_i8gemm_strided(m, n, k, alpha, A, rA, cA, B, rB, cB, beta,
+                           C, rC, cC);
+}
+
+void
+gemmInt(std::int64_t m, std::int64_t n, std::int64_t k, std::int16_t alpha,
+        const std::int16_t *A, std::int64_t rA, std::int64_t cA,
+        const std::int16_t *B, std::int64_t rB, std::int64_t cB,
+        std::int16_t beta, std::int16_t *C, std::int64_t rC, std::int64_t cC)
+{
+    ulmblas_i16gemm_strided(m, n, k, alpha, A, rA, cA, B, rB, cB, beta,
+                            C, rC, cC);
+}
+
+void
+gemmInt(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
+        const std::int32_t *A, std::int64_t rA, std::int64_t cA,
+        const std::int32_t *B, std::int64_t rB, std::int64_t cB,
+        std::int32_t beta, std::int32_t *C, std::int64_t rC, std::int64_t cC)
+{
+    ulmblas_i32gemm_strided(m, n, k, alpha, A, rA, cA, B, rB, cB, beta,
+                            C, rC, cC);
+}
+
+void
+gemmInt(std::int64_t m, std::int64_t n, std::int64_t k, std::int64_t alpha,
+        const std::int64_t *A, std::int64_t rA, std::int64_t cA,
+        const std::int64_t *B, std::int64_t rB, std::int64_t cB,
+        std::int64_t beta, std::int64_t *C, std::int64_t rC, std::int64_t cC)
+{
+    ulmblas_i64gemm_strided(m, n, k, alpha, A, rA, cA, B, rB, cB, beta,
+                            C, rC, cC);
+}
+
+//  an r x c operand in a buffer of its own: (offset, row stride, col stride)
+struct IntOperand
+{
+    std::int64_t off, rs, cs, size;
+};
+
+IntOperand
+intOperand(int layout, std::int64_t r, std::int64_t c)
+{
+    r = r>0 ? r : 1;
+    c = c>0 ? c : 1;
+    switch (layout) {
+        case 0:  return { 0, 1, r+2, (r+2)*c };               // col major
+        case 1:  return { 0, c+1, 1, (c+1)*r };               // row major
+        case 2:  return { 2*(r-1), -2, 2*r+1, (2*r+1)*c };    // negative
+        default: return { 0, 0, 1, c };                       // zero row stride
+    }
+}
+
+template <typename T>
+bool
+intCase(Context &ctx, std::uint64_t &seed, std::int64_t m, std::int64_t n,
+        std::int64_t k, int lA, int lB, int lC, T alpha, T beta)
+{
+    typedef typename std::make_unsigned<T>::type U;
+    auto next = [&seed]() -> U {
+        seed = seed*6364136223846793005ULL + 1442695040888963407ULL;
+        return U(seed >> 17);
+    };
+    const IntOperand a = intOperand(lA, m, k), b = intOperand(lB, k, n);
+    const IntOperand c = intOperand(lC==3 ? 0 : lC, m, n);
+    std::vector<T> A(std::size_t(a.size)), B(std::size_t(b.size)),
+                   C(std::size_t(c.size));
+    for (T &x : A) x = T(next());
+    for (T &x : B) x = T(next());
+    for (T &x : C) x = T(next());
+    const std::vector<T> C0 = C;
+
+    gemmInt(m, n, k, alpha, A.data()+a.off, a.rs, a.cs, B.data()+b.off,
+            b.rs, b.cs, beta, C.data()+c.off, c.rs, c.cs);
+
+    std::vector<char> inside(C.size(), 0);
+    bool ok = true;
+    for (std::int64_t j=0; j<n; ++j) {
+        for (std::int64_t i=0; i<m; ++i) {
+            U s = 0;
+            for (std::int64_t l=0; l<k; ++l) {
+                s = U(s + U(U(A[std::size_t(a.off+i*a.rs+l*a.cs)])
+                            * U(B[std::size_t(b.off+l*b.rs+j*b.cs)])));
+            }
+            const std::size_t q = std::size_t(c.off+i*c.rs+j*c.cs);
+            U ref = U(U(alpha)*s);
+            if (beta!=0) {
+                ref = U(ref + U(U(beta)*U(C0[q])));
+            }
+            ok = ok && U(C[q])==ref;
+            inside[q] = 1;
+        }
+    }
+    for (std::size_t q=0; q<C.size(); ++q) {
+        ok = ok && (inside[q] || C[q]==C0[q]);
+    }
+    return ctx.check(ok, "i%dgemm_strided m=%lld n=%lld k=%lld layouts %d %d "
+                     "%d alpha=%lld beta=%lld", int(8*sizeof(T)),
+                     (long long)m, (long long)n, (long long)k, lA, lB, lC,
+                     (long long)alpha, (long long)beta);
+}
+
+template <typename T>
+void
+testInt(Context &ctx)
+{
+    std::uint64_t seed = 0x1d2c3b4a + sizeof(T);
+    const std::int64_t size[][3] = { {1, 1, 1}, {7, 5, 3}, {13, 17, 29},
+                                     {70, 53, 131}, {301, 263, 517},
+                                     {0, 5, 3}, {4, 0, 3}, {4, 5, 0} };
+    const T ab[][2] = { {T(1), T(0)}, {T(-3), T(5)}, {T(0), T(7)} };
+    int i = 0;
+    for (const auto &s : size) {
+        for (int lA=0; lA<4; ++lA) {
+            for (int lB=0; lB<4; ++lB) {
+                const int lC = (lA+lB) % 3;
+                const auto &x = ab[(i++) % 3];
+                if (!intCase<T>(ctx, seed, s[0], s[1], s[2], lA, lB, lC,
+                                x[0], x[1]))
+                {
+                    return;
+                }
+            }
+        }
+    }
+}
+
 } // namespace
 
 ULMBLAS_TEST(T0800, "strided/sgemm all layouts")   { testSizes<float>(ctx); }
@@ -431,4 +570,10 @@ ULMBLAS_TEST(T0806, "strided/ulmBLAS::ger, neither stride of A is 1") {
     testGerStrided<double>(ctx);
     testGerStrided<cfloat>(ctx);
     testGerStrided<cdouble>(ctx);
+}
+ULMBLAS_TEST(T0807, "strided/i8, i16, i32, i64 gemm: exact with wraparound") {
+    testInt<std::int8_t>(ctx);
+    testInt<std::int16_t>(ctx);
+    testInt<std::int32_t>(ctx);
+    testInt<std::int64_t>(ctx);
 }

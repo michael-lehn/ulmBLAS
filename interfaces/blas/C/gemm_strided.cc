@@ -4,10 +4,42 @@
 //  each matrix.  Names with the prefix of the configuration (ULMBLAS(x)):
 //  ulmblas_dgemm_strided in libcblas.a.
 //
+//  The integer functions compute with the unsigned type of the same size:
+//  the result is the same bit pattern as with signed wraparound (Julia's
+//  Int), without the undefined behaviour of signed overflow in C++.
+//
 #include <complex>
 #include <cstddef>
 #include <cstdint>
+#include <type_traits>
 #include <ulmblas/ulmblas.h>
+
+namespace {
+
+template <typename T, typename U>
+void
+gemmUnsigned(std::int64_t m, std::int64_t n, std::int64_t k,
+             T alpha,
+             const T *A, std::int64_t incRowA, std::int64_t incColA,
+             const T *B, std::int64_t incRowB, std::int64_t incColB,
+             T beta,
+             T *C, std::int64_t incRowC, std::int64_t incColC)
+{
+    //  U*U is int for 8 and 16 bit: compute in its unsigned type W (the low
+    //  bits are the same), so that signed overflow cannot occur
+    typedef typename std::make_unsigned<decltype(U(0)*U(0))>::type W;
+
+    ulmBLAS::gemm<std::ptrdiff_t>(m, n, k,
+                                  static_cast<W>(static_cast<U>(alpha)),
+                                  false, reinterpret_cast<const U *>(A),
+                                  incRowA, incColA,
+                                  false, reinterpret_cast<const U *>(B),
+                                  incRowB, incColB,
+                                  static_cast<W>(static_cast<U>(beta)),
+                                  reinterpret_cast<U *>(C), incRowC, incColC);
+}
+
+} // namespace
 
 extern "C" {
 
@@ -127,6 +159,94 @@ ULMBLAS(zgemm_strided)(std::int64_t  m,
                                   conjB!=0, B, incRowB, incColB,
                                   beta,
                                   C, incRowC, incColC);
+}
+
+void
+ULMBLAS(i8gemm_strided)(std::int64_t  m,
+                       std::int64_t  n,
+                       std::int64_t  k,
+                       std::int8_t   alpha,
+                       const std::int8_t *A,
+                       std::int64_t  incRowA,
+                       std::int64_t  incColA,
+                       const std::int8_t *B,
+                       std::int64_t  incRowB,
+                       std::int64_t  incColB,
+                       std::int8_t   beta,
+                       std::int8_t   *C,
+                       std::int64_t  incRowC,
+                       std::int64_t  incColC)
+{
+    gemmUnsigned<std::int8_t, std::uint8_t>(m, n, k, alpha,
+                                            A, incRowA, incColA,
+                                            B, incRowB, incColB,
+                                            beta, C, incRowC, incColC);
+}
+
+void
+ULMBLAS(i16gemm_strided)(std::int64_t  m,
+                        std::int64_t  n,
+                        std::int64_t  k,
+                        std::int16_t  alpha,
+                        const std::int16_t *A,
+                        std::int64_t  incRowA,
+                        std::int64_t  incColA,
+                        const std::int16_t *B,
+                        std::int64_t  incRowB,
+                        std::int64_t  incColB,
+                        std::int16_t  beta,
+                        std::int16_t  *C,
+                        std::int64_t  incRowC,
+                        std::int64_t  incColC)
+{
+    gemmUnsigned<std::int16_t, std::uint16_t>(m, n, k, alpha,
+                                              A, incRowA, incColA,
+                                              B, incRowB, incColB,
+                                              beta, C, incRowC, incColC);
+}
+
+void
+ULMBLAS(i32gemm_strided)(std::int64_t  m,
+                        std::int64_t  n,
+                        std::int64_t  k,
+                        std::int32_t  alpha,
+                        const std::int32_t *A,
+                        std::int64_t  incRowA,
+                        std::int64_t  incColA,
+                        const std::int32_t *B,
+                        std::int64_t  incRowB,
+                        std::int64_t  incColB,
+                        std::int32_t  beta,
+                        std::int32_t  *C,
+                        std::int64_t  incRowC,
+                        std::int64_t  incColC)
+{
+    gemmUnsigned<std::int32_t, std::uint32_t>(m, n, k, alpha,
+                                              A, incRowA, incColA,
+                                              B, incRowB, incColB,
+                                              beta, C, incRowC, incColC);
+}
+
+void
+ULMBLAS(i64gemm_strided)(std::int64_t  m,
+                        std::int64_t  n,
+                        std::int64_t  k,
+                        std::int64_t  alpha,
+                        const std::int64_t *A,
+                        std::int64_t  incRowA,
+                        std::int64_t  incColA,
+                        const std::int64_t *B,
+                        std::int64_t  incRowB,
+                        std::int64_t  incColB,
+                        std::int64_t  beta,
+                        std::int64_t  *C,
+                        std::int64_t  incRowC,
+                        std::int64_t  incColC)
+{
+    gemmUnsigned<std::int64_t, std::uint64_t>(m, n, k, alpha,
+                                              A, incRowA, incColA,
+                                              B, incRowB, incColB,
+                                              beta, C, incRowC, incColC);
 }
 
 } // extern "C"

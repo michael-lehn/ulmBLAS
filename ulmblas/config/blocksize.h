@@ -8,6 +8,20 @@
 
 namespace ulmBLAS {
 
+//
+//  Block sizes for element types without tuned kernels (e.g. _Float16,
+//  integers): the reference micro kernel with MR = NR = 4.  The values are
+//  a guess, not measured.
+//
+struct GenericBlockSize
+{
+    static constexpr int MC = 64;
+    static constexpr int KC = 256;
+    static constexpr int NC = 1024;
+    static constexpr int MR = 4;
+    static constexpr int NR = 4;
+};
+
 #if defined(USE_TESTPARAM)
 
 template <typename T>
@@ -55,21 +69,21 @@ struct BlockSize
         : std::is_same<double, T>::value               ? 288
         : std::is_same<std::complex<float>, T>::value  ? 384
         : std::is_same<std::complex<double>, T>::value ? 192
-        : -1;
+        : GenericBlockSize::MC;
 
     static constexpr int KC
         = std::is_same<float, T>::value                ? 384
         : std::is_same<double, T>::value               ? 256
         : std::is_same<std::complex<float>, T>::value  ? 384
         : std::is_same<std::complex<double>, T>::value ? 192
-        : -1;
+        : GenericBlockSize::KC;
 
     static constexpr int NC
         = std::is_same<float, T>::value                ? 4096
         : std::is_same<double, T>::value               ? 4080
         : std::is_same<std::complex<float>, T>::value  ? 4096
         : std::is_same<std::complex<double>, T>::value ? 4096
-        : -1;
+        : GenericBlockSize::NC;
 
 
     static constexpr int MR
@@ -77,14 +91,14 @@ struct BlockSize
         : std::is_same<double, T>::value               ? 6
         : std::is_same<std::complex<float>, T>::value  ? 4
         : std::is_same<std::complex<double>, T>::value ? 2
-        : -1;
+        : GenericBlockSize::MR;
 
     static constexpr int NR
         = std::is_same<float, T>::value                ? 4
         : std::is_same<double, T>::value               ? 8
         : std::is_same<std::complex<float>, T>::value  ? 2
         : std::is_same<std::complex<double>, T>::value ? 2
-        : -1;
+        : GenericBlockSize::NR;
 
     //  gepack_A packs PACK_A_PANELS panels of A together if the columns of A
     //  are at least PACK_A_GROUP_DISTANCE bytes apart (measured for double on
@@ -139,21 +153,21 @@ struct BlockSize
         : std::is_same<double, T>::value               ? 384
         : std::is_same<std::complex<float>, T>::value  ? 384
         : std::is_same<std::complex<double>, T>::value ? 384
-        : -1;
+        : GenericBlockSize::MC;
 
     static constexpr int KC
         = std::is_same<float, T>::value                ? 2048
         : std::is_same<double, T>::value               ? 1024
         : std::is_same<std::complex<float>, T>::value  ? 1024
         : std::is_same<std::complex<double>, T>::value ? 1024
-        : -1;
+        : GenericBlockSize::KC;
 
     static constexpr int NC
         = std::is_same<float, T>::value                ? 1024
         : std::is_same<double, T>::value               ? 1024
         : std::is_same<std::complex<float>, T>::value  ? 1024
         : std::is_same<std::complex<double>, T>::value ? 1024
-        : -1;
+        : GenericBlockSize::NC;
 
 
     static constexpr int MR
@@ -161,14 +175,14 @@ struct BlockSize
         : std::is_same<double, T>::value               ? 32
         : std::is_same<std::complex<float>, T>::value  ? 32
         : std::is_same<std::complex<double>, T>::value ? 16
-        : -1;
+        : GenericBlockSize::MR;
 
     static constexpr int NR
         = std::is_same<float, T>::value                ? 32
         : std::is_same<double, T>::value               ? 16
         : std::is_same<std::complex<float>, T>::value  ? 16
         : std::is_same<std::complex<double>, T>::value ? 16
-        : -1;
+        : GenericBlockSize::NR;
 
     //  gepack_A packs PACK_A_PANELS panels of A together if the columns of A
     //  are at least PACK_A_GROUP_DISTANCE bytes apart.  The SME packing
@@ -213,21 +227,21 @@ struct BlockSize
         : std::is_same<double, T>::value               ? 960
         : std::is_same<std::complex<float>, T>::value  ? 384
         : std::is_same<std::complex<double>, T>::value ? 192
-        : -1;
+        : GenericBlockSize::MC;
 
     static constexpr int KC
         = std::is_same<float, T>::value                ? 1024
         : std::is_same<double, T>::value               ? 1024
         : std::is_same<std::complex<float>, T>::value  ? 1024
         : std::is_same<std::complex<double>, T>::value ? 512
-        : -1;
+        : GenericBlockSize::KC;
 
     static constexpr int NC
         = std::is_same<float, T>::value                ? 4080
         : std::is_same<double, T>::value               ? 4080
         : std::is_same<std::complex<float>, T>::value  ? 4080
         : std::is_same<std::complex<double>, T>::value ? 4080
-        : -1;
+        : GenericBlockSize::NC;
 
 
     static constexpr int MR
@@ -235,14 +249,14 @@ struct BlockSize
         : std::is_same<double, T>::value               ? 6
         : std::is_same<std::complex<float>, T>::value  ? 4
         : std::is_same<std::complex<double>, T>::value ? 4
-        : -1;
+        : GenericBlockSize::MR;
 
     static constexpr int NR
         = std::is_same<float, T>::value                ? 12
         : std::is_same<double, T>::value               ? 8
         : std::is_same<std::complex<float>, T>::value  ? 6
         : std::is_same<std::complex<double>, T>::value ? 3
-        : -1;
+        : GenericBlockSize::NR;
 
     //  gepack_A packs PACK_A_PANELS panels of A together if the columns of A
     //  are at least PACK_A_GROUP_DISTANCE bytes apart (measured for double on
@@ -271,21 +285,21 @@ struct BlockSize
         : std::is_same<double, T>::value               ? 384
         : std::is_same<std::complex<float>, T>::value  ? 384
         : std::is_same<std::complex<double>, T>::value ? 192
-        : -1;
+        : GenericBlockSize::MC;
 
     static constexpr int KC
         = std::is_same<float, T>::value                ? 384
         : std::is_same<double, T>::value               ? 384
         : std::is_same<std::complex<float>, T>::value  ? 384
         : std::is_same<std::complex<double>, T>::value ? 192
-        : -1;
+        : GenericBlockSize::KC;
 
     static constexpr int NC
         = std::is_same<float, T>::value                ? 4096
         : std::is_same<double, T>::value               ? 4096
         : std::is_same<std::complex<float>, T>::value  ? 4096
         : std::is_same<std::complex<double>, T>::value ? 4096
-        : -1;
+        : GenericBlockSize::NC;
 
 
     static constexpr int MR
@@ -293,14 +307,14 @@ struct BlockSize
         : std::is_same<double, T>::value               ? 4
         : std::is_same<std::complex<float>, T>::value  ? 4
         : std::is_same<std::complex<double>, T>::value ? 2
-        : -1;
+        : GenericBlockSize::MR;
 
     static constexpr int NR
         = std::is_same<float, T>::value                ? 4
         : std::is_same<double, T>::value               ? 4
         : std::is_same<std::complex<float>, T>::value  ? 2
         : std::is_same<std::complex<double>, T>::value ? 2
-        : -1;
+        : GenericBlockSize::NR;
 
     //  gepack_A packs PACK_A_PANELS panels of A together if the columns of A
     //  are at least PACK_A_GROUP_DISTANCE bytes apart (measured for double on
@@ -329,21 +343,21 @@ struct BlockSize
         : std::is_same<double, T>::value               ? 384
         : std::is_same<std::complex<float>, T>::value  ? 384
         : std::is_same<std::complex<double>, T>::value ? 192
-        : -1;
+        : GenericBlockSize::MC;
 
     static constexpr int KC
         = std::is_same<float, T>::value                ? 384
         : std::is_same<double, T>::value               ? 384
         : std::is_same<std::complex<float>, T>::value  ? 384
         : std::is_same<std::complex<double>, T>::value ? 192
-        : -1;
+        : GenericBlockSize::KC;
 
     static constexpr int NC
         = std::is_same<float, T>::value                ? 4096
         : std::is_same<double, T>::value               ? 4096
         : std::is_same<std::complex<float>, T>::value  ? 4096
         : std::is_same<std::complex<double>, T>::value ? 4096
-        : -1;
+        : GenericBlockSize::NC;
 
 
     static constexpr int MR
@@ -351,14 +365,14 @@ struct BlockSize
         : std::is_same<double, T>::value               ? 4
         : std::is_same<std::complex<float>, T>::value  ? 4
         : std::is_same<std::complex<double>, T>::value ? 2
-        : -1;
+        : GenericBlockSize::MR;
 
     static constexpr int NR
         = std::is_same<float, T>::value                ? 4
         : std::is_same<double, T>::value               ? 4
         : std::is_same<std::complex<float>, T>::value  ? 2
         : std::is_same<std::complex<double>, T>::value ? 2
-        : -1;
+        : GenericBlockSize::NR;
 
     //  gepack_A packs PACK_A_PANELS panels of A together if the columns of A
     //  are at least PACK_A_GROUP_DISTANCE bytes apart (not measured for this
