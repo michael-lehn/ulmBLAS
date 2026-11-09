@@ -399,16 +399,24 @@ testGetrfC(Context &ctx)
     const CIndex size[][2] = { {1, 1}, {9, 4}, {4, 9}, {60, 60}, {130, 101} };
     for (const auto &s : size) {
         const CIndex m = s[0], n = s[1], ld = m+2, k = std::min(m, n);
-        std::vector<T> A(static_cast<std::size_t>(ld*n)), B;
+        //  Both calls use the same storage (the SSE dot kernels sum in an
+        //  order that depends on the alignment).  The values are compared
+        //  with a tolerance: with -mfma the compiler may contract a*b+c in
+        //  the library and in this test in different places.
+        std::vector<T> A(static_cast<std::size_t>(ld*n)), A0, B;
         for (T &x : A) x = random.value<T>();
-        B = A;
+        A0 = A;
         std::vector<CIndex> pa(static_cast<std::size_t>(k)), pb(static_cast<std::size_t>(k));
-        const CIndex ia = cGetrf(CblasColMajor, m, n, A.data(), ld, pa.data());
-        const Index  ib = ulmBLAS::getrf(Index(m), Index(n), B.data(), Index(1),
+        const Index  ib = ulmBLAS::getrf(Index(m), Index(n), A.data(), Index(1),
                                          Index(ld), pb.data(), Index(1));
+        B = A;
+        A = A0;
+        const CIndex ia = cGetrf(CblasColMajor, m, n, A.data(), ld, pa.data());
+        const double tol = 1000.0 * double(k) * double(eps<T>());
         bool same = ia==CIndex(ib) && pa==pb;
         for (std::size_t q=0; same && q<A.size(); ++q) {
-            same = sameBits(A[q], B[q]);
+            const cdouble a = toCdouble(A[q]), b = toCdouble(B[q]);
+            same = std::abs(a-b) <= tol * (1.0 + std::abs(b));
         }
         if (!ctx.check(same, "C ?getrf m=%d n=%d: differs from ulmBLAS::getrf",
                        int(m), int(n)))
