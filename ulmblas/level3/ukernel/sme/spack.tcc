@@ -20,6 +20,7 @@
 //
 #include <arm_sme.h>
 #include <cstdint>
+#include <ulmblas/level3/ukernel/sme/fpsr.h>
 
 namespace ulmBLAS { namespace sme {
 
@@ -86,6 +87,8 @@ pack_MRxk(IndexType      k,
           IndexType      incColA,
           float          *buffer)
 {
+    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+
     constexpr IndexType MR = sme::BlockSizeUGemm<float>::MR;
 
     static_assert(MR==32, "SME packing of A requires MR = 32");
@@ -117,6 +120,8 @@ pack_kxNR(IndexType      k,
           IndexType      incColB,
           float          *buffer)
 {
+    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+
     constexpr IndexType NR = sme::BlockSizeUGemm<float>::NR;
 
     static_assert(NR==32, "SME packing of B requires NR = 32");
@@ -144,6 +149,8 @@ pack_MRxk_partial(IndexType      mr,
                   IndexType      incColA,
                   float          *buffer)
 {
+    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+
     if (incRowA==IndexType(1)) {
         sme::spack_copy(mr, k, A, incColA, buffer);
         return true;
@@ -168,6 +175,8 @@ pack_kxNR_partial(IndexType      nr,
                   IndexType      incColB,
                   float          *buffer)
 {
+    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+
     if (incColB==IndexType(1)) {
         sme::spack_copy(nr, k, B, incRowB, buffer);
         return true;

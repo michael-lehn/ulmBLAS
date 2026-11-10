@@ -31,6 +31,7 @@
 //
 #include <arm_sme.h>
 #include <cstdint>
+#include <ulmblas/level3/ukernel/sme/fpsr.h>
 
 namespace ulmBLAS { namespace sme {
 
@@ -147,6 +148,7 @@ sgemm_32x32(long kc, float alpha, const float *A, const float *B,
         __builtin_prefetch(C + c*ldC + 32, 1, 2);
         __builtin_prefetch(C + c*ldC + 63, 1, 2);
     }
+    const FpsrRestore fpsr;  // see sme/fpsr.h
     sgemm_32x32_streaming(kc, alpha, A, B, beta, C, ldC, mr, nr);
 }
 

@@ -30,6 +30,7 @@
 #include <arm_sme.h>
 #include <complex>
 #include <cstdint>
+#include <ulmblas/level3/ukernel/sme/fpsr.h>
 
 namespace ulmBLAS { namespace sme {
 
@@ -123,6 +124,7 @@ cgemm_32x16(long kc, const std::complex<float> &alpha,
         __builtin_prefetch(C_ + 2*c*ldC + 96, 1, 2);
         __builtin_prefetch(C_ + 2*c*ldC + 127, 1, 2);
     }
+    const FpsrRestore fpsr;  // see sme/fpsr.h
     cgemm_32x16_streaming(kc, alpha.real(), alpha.imag(),
                           reinterpret_cast<const float *>(A),
                           reinterpret_cast<const float *>(B),

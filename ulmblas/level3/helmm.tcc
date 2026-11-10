@@ -9,6 +9,7 @@
 #include <ulmblas/level3/pack/gepack.h>
 #include <ulmblas/level3/pack/helpack.h>
 #include <ulmblas/level3/helmm.h>
+#include <ulmblas/level3/fpsrscope.h>
 
 namespace ulmBLAS {
 
@@ -29,6 +30,8 @@ helmm(IndexType    m,
       IndexType    incRowC,
       IndexType    incColC)
 {
+    const FpsrScope fpsrScope;  // see level3/fpsrscope.h
+
     typedef decltype(Alpha(0)*TA(0)*TB(0))  T;
 
     constexpr IndexType MC = BlockSize<T>::MC;

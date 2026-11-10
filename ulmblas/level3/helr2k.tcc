@@ -10,6 +10,7 @@
 #include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level3/pack/gepack.h>
 #include <ulmblas/level3/helr2k.h>
+#include <ulmblas/level3/fpsrscope.h>
 
 namespace ulmBLAS {
 
@@ -30,6 +31,8 @@ helr2k(IndexType    n,
        IndexType    incRowC,
        IndexType    incColC)
 {
+    const FpsrScope fpsrScope;  // see level3/fpsrscope.h
+
     typedef decltype(Alpha(0)*TA(0))  T;
 
     constexpr IndexType MC = BlockSize<T>::MC;

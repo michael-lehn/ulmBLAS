@@ -400,6 +400,49 @@ Alternatives (none implemented):
   kernel: no new kernel, but MR extra kernel calls per diagonal block.
 - Accept and document the deviation, as BLIS and OpenBLAS do.
 
+Issue #0031: SME kernels leave all floating-point exception flags raised
+Type: BUG
+Status: RESOLVED
+Covered by tests: T0359 (numeric, regression test)
+
+Entering and leaving streaming mode (`SMSTART SM`, `SMSTOP SM`) sets FPSR
+to `0x0800009F`: the cumulative flags invalid, division by zero,
+overflow, underflow, inexact and input denormal, and QC.  The architecture
+requires this (Arm ARM, pseudocode `ResetSVEState`); measured on an Apple
+M5 (macOS 26.6), also when FPSR is cleared inside streaming mode (the exit
+sets it again).  The SME kernels and packing routines
+(`ulmblas/level3/ukernel/sme/`) enter streaming mode once per micro tile
+and panel, so every level 3 call of the SME configuration above the direct
+path (m*n*k > 8192 for dgemm) returned with all flags raised.  The results
+were correct, but callers that test the flags saw exceptions that did not
+occur: NumPy built against ulmBLAS warned "divide by zero encountered in
+matmul" (and invalid value, overflow) on every matmul with n >= 21, and
+`fetestexcept` after `cblas_dgemm` reported all exceptions.  Fixed
+(`sme/fpsr.h`, `level3/fpsrscope.h`): FPSR is saved in ordinary mode at
+the beginning of each level 3 driver and restored at its end if a
+streaming routine ran; the callers of the streaming routines have guards
+that only take over if no driver does.  Restoring after each micro tile
+and panel instead made dgemm 7 to 9% slower for n = 32 (each `MSR FPSR`
+waits for the floating-point operations in flight); once per call costs
+nothing measurable.  A call that ran streaming routines therefore reports
+no flags at all, also none of its ordinary code; calls without (the
+direct NEON path of gemm for small m*n*k, the configurations without SME)
+report them as before.
+
+The streaming routines report no flags of their own, as Apple Accelerate
+(macOS 26.6: no flag from dgemm for overflow or Inf * 0, n = 8, 64 and
+300, called through NumPy); the NEON and portable kernels still report
+them.  Reporting them was tried and dropped: the outer products (FMOPA)
+are ZA-targeting operations that raise no flags (Arm SME supplement,
+"ZA-targeting floating-point behaviors"; on the M5 neither inexact nor
+overflow nor invalid), only the SVE instructions of the alpha/beta update
+and of the complex kernels do; FPSR was `0x0800009F` again after the
+thread had been interrupted in streaming mode with live Z registers or ZA
+(about every second run of 1 ms of integer SVE instructions), so flags
+read in streaming mode can be wrong; and reading FPSR in streaming mode
+waits for the SME unit (dgemm with alpha = 2 up to 26% slower for n = 32,
+zgemm and cgemm 5 to 15%).
+
 ## Design questions
 
 Issue #0002: alpha = 0 with NaN or Inf in operands that reference BLAS does not reference

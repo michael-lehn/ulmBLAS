@@ -24,6 +24,7 @@
 #include <arm_sme.h>
 #include <complex>
 #include <cstdint>
+#include <ulmblas/level3/ukernel/sme/fpsr.h>
 
 namespace ulmBLAS { namespace sme {
 
@@ -139,6 +140,8 @@ pack_MRxk(IndexType                     k,
           IndexType                     incColA,
           std::complex<double>          *buffer)
 {
+    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+
     constexpr IndexType MR = sme::BlockSizeUGemm<std::complex<double> >::MR;
 
     static_assert(MR==16, "SME packing of complex A requires MR = 16");
@@ -173,6 +176,8 @@ pack_kxNR(IndexType                     k,
           IndexType                     incColB,
           std::complex<double>          *buffer)
 {
+    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+
     constexpr IndexType NR = sme::BlockSizeUGemm<std::complex<double> >::NR;
 
     static_assert(NR==16, "SME packing of complex B requires NR = 16");
@@ -202,6 +207,8 @@ pack_MRxk_partial(IndexType                     mr,
                   IndexType                     incColA,
                   std::complex<double>          *buffer)
 {
+    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+
     const double *a = reinterpret_cast<const double *>(A);
     double       *b = reinterpret_cast<double *>(buffer);
     if (incRowA==IndexType(1)) {
@@ -228,6 +235,8 @@ pack_kxNR_partial(IndexType                     nr,
                   IndexType                     incColB,
                   std::complex<double>          *buffer)
 {
+    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+
     const double *b   = reinterpret_cast<const double *>(B);
     double       *buf = reinterpret_cast<double *>(buffer);
     if (incColB==IndexType(1)) {

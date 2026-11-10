@@ -9,6 +9,7 @@
 #include <ulmblas/level3/mkernel/mgemm.h>
 #include <ulmblas/level3/pack/gepack.h>
 #include <ulmblas/level3/ukernel/ugemm.h>
+#include <ulmblas/level3/fpsrscope.h>
 
 //
 //  With the OpenBLAS-derived kernel (ULMBLAS_BLIS_DGEMM_PANEL, see
@@ -42,6 +43,8 @@ gemm(IndexType m, IndexType n, IndexType k, const Alpha &alpha, bool conjA,
      IndexType incRowB, IndexType incColB, const Beta &beta, TC *C,
      IndexType incRowC, IndexType incColC)
 {
+    const FpsrScope fpsrScope;  // see level3/fpsrscope.h
+
     typedef decltype(Alpha(0) * TA(0) * TB(0)) T;
 
     constexpr IndexType MC = BlockSize<T>::MC;
