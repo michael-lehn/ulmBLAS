@@ -1,0 +1,143 @@
+diff --git a/recipe/conda_build_config.yaml b/recipe/conda_build_config.yaml
+index 61d429f..ca472bf 100644
+--- a/recipe/conda_build_config.yaml
++++ b/recipe/conda_build_config.yaml
+@@ -8,6 +8,7 @@ blas_impl:
+ - openblas                 # [win]
+ - mkl                      # [x86_64 and not osx]
+ - blis                     # [x86_64 or aarch64 or osx]
++- ulmblas                  # [linux64 or aarch64 or (osx and arm64) or win64]
+ - accelerate               # [osx]
+ - newaccelerate            # [osx]
+ - nvpl                     # [linux and aarch64]
+@@ -25,6 +26,10 @@ blas_impl_lib:
+ - libblis.4.dylib          # [osx]
+ - libblis.4.dll            # [win64]
+ 
++- libulmblas.so.0          # [linux64 or aarch64]
++- libulmblas.0.dylib       # [osx and arm64]
++- libulmblas.dll           # [win64]
++
+ - libvecLibFort-ng.dylib   # [osx]
+ - libblas_reexport.dylib   # [osx]
+ 
+@@ -44,6 +49,10 @@ lapack_impl_lib:
+ - notapplicable            # [osx]
+ - notapplicable            # [win64]
+ 
++- notapplicable            # [linux64 or aarch64]
++- notapplicable            # [osx and arm64]
++- notapplicable            # [win64]
++
+ - libvecLibFort-ng.dylib   # [osx]
+ - libblas_reexport.dylib   # [osx]
+ 
+@@ -59,6 +68,8 @@ MACOSX_SDK_VERSION:
+ - 11.0                     # [osx]
+ # blis
+ - 11.0                     # [osx]
++# ulmblas
++- 11.0                     # [osx and arm64]
+ # accelerate
+ - 11.0                     # [osx]
+ # newaccelerate
+diff --git a/recipe/meta.yaml b/recipe/meta.yaml
+index 9fa77d0..d940ff5 100644
+--- a/recipe/meta.yaml
++++ b/recipe/meta.yaml
+@@ -12,6 +12,7 @@
+ 
+ # versions of pinned blas implementation flavours
+ {% set blis_version = "2.1" %}
++{% set ulmblas_version = "0.4" %}
+ {% set mkl_version = "2026.1" %}
+ {% set openblas_version = "0.3.34" %}
+ {% set nvpl_version = "26.10.*" %}
+@@ -96,6 +97,7 @@ outputs:
+         - {{ stdlib('c') }}           # [blas_impl in ('accelerate', 'newaccelerate')]
+       host:
+         - blis {{ blis_version }}               # [blas_impl == 'blis']
++        - libulmblas {{ ulmblas_version }}      # [blas_impl == 'ulmblas']
+         # from https://github.com/conda-forge/intel_repack-feedstock/
+         - libopenblas {{ openblas_version }}    # [blas_impl == 'openblas']
+         - mkl-devel  {{ mkl_version }}          # [blas_impl == 'mkl']
+@@ -104,6 +106,7 @@ outputs:
+         - libnvpl-blas0                       # [(blas_impl or '').startswith('nvpl')]
+       run:
+         - {{ pin_compatible("blis", max_pin="x.x.x") }}         # [blas_impl == 'blis']
++        - {{ pin_compatible("libulmblas", max_pin="x.x") }}     # [blas_impl == 'ulmblas']
+         - {{ pin_compatible("mkl", max_pin="x") }}              # [blas_impl == 'mkl']
+         - {{ pin_compatible("libopenblas", max_pin="x.x.x") }}  # [blas_impl == 'openblas']
+         - {{ pin_compatible("libnvpl-blas0", max_pin="x.x.x") }}  # [(blas_impl or '').startswith('nvpl')]
+@@ -111,8 +114,8 @@ outputs:
+       run_constrained:
+         # cannot pin exactly due to https://github.com/conda/conda-build/issues/5572
+         - libcblas   {{ version }}   {{ build_num }}*_{{ blas_impl }}
+-        - liblapack  {{ version }}   {{ build_num }}*_{{ blas_impl }}   # [blas_impl != 'blis']
+-        - liblapacke {{ version }}   {{ build_num }}*_{{ blas_impl }}   # [blas_impl != 'blis']
++        - liblapack  {{ version }}   {{ build_num }}*_{{ blas_impl }}   # [blas_impl not in ('blis', 'ulmblas')]
++        - liblapacke {{ version }}   {{ build_num }}*_{{ blas_impl }}   # [blas_impl not in ('blis', 'ulmblas')]
+         - blas {{ blas_major }}.{{ blas_minor }}   {{ blas_impl }}
+         # for run_constrained across all flavours, see comment at the top
+         - mkl <{{ mkl_next }}                   # [blas_impl != 'mkl']
+@@ -155,8 +158,8 @@ outputs:
+         - {{ pin_subpackage("libblas", exact=True) }}
+       run_constrained:
+         # cannot pin exactly due to https://github.com/conda/conda-build/issues/5572
+-        - liblapack  {{ version }}   {{ build_num }}*_{{ blas_impl }}   # [blas_impl != 'blis']
+-        - liblapacke {{ version }}   {{ build_num }}*_{{ blas_impl }}   # [blas_impl != 'blis']
++        - liblapack  {{ version }}   {{ build_num }}*_{{ blas_impl }}   # [blas_impl not in ('blis', 'ulmblas')]
++        - liblapacke {{ version }}   {{ build_num }}*_{{ blas_impl }}   # [blas_impl not in ('blis', 'ulmblas')]
+         - blas {{ blas_major }}.{{ blas_minor }}   {{ blas_impl }}
+     files:
+       - lib/libcblas.so                          # [linux]
+@@ -174,7 +177,7 @@ outputs:
+     script: install_pkg.sh      # [unix]
+     script: install_pkg.bat     # [win]
+     build:
+-      skip: true  # [blas_impl == 'blis']
++      skip: true  # [blas_impl in ('blis', 'ulmblas')]
+       string: {{ build_num }}_h{{ PKG_HASH }}_{{ blas_impl }}
+       run_exports:
+         - {{ pin_subpackage("liblapack", max_pin="x.x") }}
+@@ -210,7 +213,7 @@ outputs:
+     script: install_pkg.sh      # [unix]
+     script: install_pkg.bat     # [win]
+     build:
+-      skip: true  # [blas_impl == 'blis']
++      skip: true  # [blas_impl in ('blis', 'ulmblas')]
+       string: {{ build_num }}_h{{ PKG_HASH }}_{{ blas_impl }}
+       run_exports:
+         - {{ pin_subpackage("liblapacke", max_pin="x.x") }}
+@@ -247,6 +250,7 @@ outputs:
+     requirements:
+       host:
+         - blis      {{ blis_version }}      # [blas_impl == "blis"]
++        - libulmblas {{ ulmblas_version }}  # [blas_impl == "ulmblas"]
+         - mkl-devel {{ mkl_version }}       # [blas_impl == "mkl"]
+         - openblas  {{ openblas_version }}  # [blas_impl == "openblas"]
+         - _nvpl_dev_mutex {{ nvpl_version }}  # [(blas_impl or '').startswith('nvpl')]
+@@ -254,6 +258,7 @@ outputs:
+         - libnvpl-blas-dev                    # [(blas_impl or '').startswith('nvpl')]
+       run:
+         - blis      {{ blis_version }}      # [blas_impl == "blis"]
++        - libulmblas {{ ulmblas_version }}  # [blas_impl == "ulmblas"]
+         - mkl-devel {{ mkl_version }}       # [blas_impl == "mkl"]
+         - openblas  {{ openblas_version }}  # [blas_impl == "openblas"]
+         - _nvpl_dev_mutex {{ nvpl_version }}  # [(blas_impl or '').startswith('nvpl')]
+@@ -261,11 +266,11 @@ outputs:
+         - libnvpl-blas-dev                    # [(blas_impl or '').startswith('nvpl')]
+         - {{ pin_subpackage("libblas", exact=True) }}
+         - {{ pin_subpackage("libcblas", exact=True) }}
+-        - {{ pin_subpackage("liblapack", exact=True) }}      # [blas_impl != 'blis']
+-        - {{ pin_subpackage("liblapacke", exact=True) }}     # [blas_impl != 'blis']
++        - {{ pin_subpackage("liblapack", exact=True) }}      # [blas_impl not in ('blis', 'ulmblas')]
++        - {{ pin_subpackage("liblapacke", exact=True) }}     # [blas_impl not in ('blis', 'ulmblas')]
+         # netlib variants don't have the same build number
+-        - liblapack  {{ version }}   *_netlib                # [blas_impl == 'blis']
+-        - liblapacke {{ version }}   *_netlib                # [blas_impl == 'blis']
++        - liblapack  {{ version }}   *_netlib                # [blas_impl in ('blis', 'ulmblas')]
++        - liblapacke {{ version }}   *_netlib                # [blas_impl in ('blis', 'ulmblas')]
+     test:
+       commands:
+         - test -f $PREFIX/lib/pkgconfig/blas.pc                     # [unix and blas_impl == "openblas"]
