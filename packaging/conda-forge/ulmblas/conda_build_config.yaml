@@ -1,12 +1,3 @@
-# Windows: the MinGW-w64 (UCRT) compilers; the library only has a C
-# interface and depends only on system DLLs, so it works with MSVC programs
-c_compiler:      # [win]
-  - gcc          # [win]
-cxx_compiler:    # [win]
-  - gxx          # [win]
-c_stdlib:        # [win]
-  - m2w64-ucrt   # [win]
-
 # macOS: the SME2 backend needs the SME support routines of libSystem
 # (macOS 14 and later) at link time; it is only loaded on Apple M4 and
 # later (macOS 15), the NEON backend and the front run on macOS 11

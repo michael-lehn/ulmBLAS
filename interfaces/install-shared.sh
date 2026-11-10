@@ -65,6 +65,9 @@ case $PLATFORM in
 esac
 
 cd "$TOP" || exit 1
+#  the makefiles take BUILD_DIR and OUTDIR from the environment, where
+#  build tools may have set them for themselves (rattler-build: BUILD_DIR)
+unset BUILD_DIR OUTDIR
 $MAKE $TARGET || exit 1
 for l in $LIB; do
     cp -fP "$l" "$PREFIX/lib/" || exit 1
