@@ -12,6 +12,18 @@ extern "C" {
 //
 #if defined(ULMBLAS_REPLACEABLE_XERBLA)
 #define ULMBLAS_XERBLA_ATTRIBUTE __attribute__((weak))
+
+typedef void (*ulmblas_cblas_xerbla_t)(int, const char *, const char *, ...);
+
+static ulmblas_cblas_xerbla_t cblas_xerbla_replacement = nullptr;
+
+//  the handler of the program, passed by the dispatching library (see
+//  ../F77/xerbla.cc)
+void
+ulmblas_set_cblas_xerbla(ulmblas_cblas_xerbla_t handler)
+{
+    cblas_xerbla_replacement = handler;
+}
 #else
 #define ULMBLAS_XERBLA_ATTRIBUTE
 #endif
@@ -32,6 +44,14 @@ ULMBLAS_XERBLA_ATTRIBUTE void
 CBLAS(xerbla)(int info, const char *rout, const char *form, ...)
 {
     extern int RowMajorStrg;
+
+#if defined(ULMBLAS_REPLACEABLE_XERBLA)
+    //  the interface passes no arguments after form
+    if (cblas_xerbla_replacement) {
+	cblas_xerbla_replacement(info, rout, form);
+	return;
+    }
+#endif
 
     if (RowMajorStrg) {
 	//  gemmtr first: its name contains "gemm" (row major swaps only A

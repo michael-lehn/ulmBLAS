@@ -1,8 +1,11 @@
 #! /bin/sh
 #
-#  check-shared.sh LIBDIR INCDIR BUILDDIR: the Netlib BLAS test programs of
-#  test/F77 and test/C, linked against the shared library libulmblas
-#  (interfaces/blas/shared) in LIBDIR instead of the static libraries.
+#  check-shared.sh LIBDIR INCDIR BUILDDIR [LIBNAME [f77]]: the Netlib BLAS
+#  test programs of test/F77 and test/C, linked against the shared library
+#  lib$LIBNAME (default ulmblas, interfaces/blas/shared) in LIBDIR instead
+#  of the static libraries.  With "f77" the CBLAS programs of levels 2 and
+#  3 are skipped: their error handler reads RowMajorStrg, which the
+#  dispatching library (interfaces/blas/dispatch) does not export.
 #  INCDIR holds the generated cblas.h, BUILDDIR receives the programs and
 #  their output.  The outputs are judged as by run-tests.sh.  Used by
 #  "make check-shared"; needs FC and CC (environment, default gfortran and
@@ -25,7 +28,9 @@ if echo | $FC -fallow-argument-mismatch -x f77 -c - -o /dev/null \
         >/dev/null 2>&1; then
     FFLAGS_NETLIB="$FFLAGS_NETLIB -fallow-argument-mismatch"
 fi
-LINK="-L$LIBDIR -lulmblas -Wl,-rpath,$LIBDIR"
+LIBNAME=${4:-ulmblas}
+ONLY_F77=${5:-}
+LINK="-L$LIBDIR -l$LIBNAME -Wl,-rpath,$LIBDIR"
 
 n_pass=0
 n_fail=0
@@ -106,6 +111,9 @@ CFLAGS_NETLIB="-w -Wno-incompatible-pointer-types -DADD_ \
 for t in s d c z; do
     for level in 1 2 3; do
         p=c_${t}blat$level
+        if [ "$ONLY_F77" = f77 ] && [ $level != 1 ]; then
+            continue
+        fi
         objects="$B/$p.o $B/c_${t}blas$level.o"
         ok=yes
         $FC $FFLAGS $FFLAGS_NETLIB -c -o "$B/$p.o" C/$p.f || ok=no

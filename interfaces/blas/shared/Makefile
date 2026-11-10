@@ -25,6 +25,10 @@ include $(TOPDIR)/make.inc
 
 OUTDIR     ?= $(TOPDIR)
 BUILD_DIR  ?= build.shared
+#  SHARED_NAME: the library is lib$(SHARED_NAME).so / .dylib (the backends
+#  of the dispatching library on macOS are built with other names, see
+#  ../dispatch)
+SHARED_NAME ?= ulmblas
 
 SHARED_INDEX  = int
 SHARED_SUFFIX = _
@@ -32,15 +36,15 @@ SHARED_SUFFIX = _
 EXPORTS = $(BUILD_DIR)/exports.txt
 
 ifeq ($(shell uname -s),Darwin)
-SHARED_LIB   = $(OUTDIR)/libulmblas.dylib
-SHARED_LINK  = -dynamiclib -install_name @rpath/libulmblas.dylib \
+SHARED_LIB   = $(OUTDIR)/lib$(SHARED_NAME).dylib
+SHARED_LINK  = -dynamiclib -install_name @rpath/lib$(SHARED_NAME).dylib \
                -Wl,-force_load,$(BUILD_DIR)/libsharedblas.a \
                -Wl,-force_load,$(BUILD_DIR)/libcblas.a \
                -Wl,-exported_symbols_list,$(EXPORTS)
 SYMBOL_PREFIX = _
 else
-SHARED_LIB   = $(OUTDIR)/libulmblas.so
-SHARED_LINK  = -shared -Wl,-soname,libulmblas.so \
+SHARED_LIB   = $(OUTDIR)/lib$(SHARED_NAME).so
+SHARED_LINK  = -shared -Wl,-soname,lib$(SHARED_NAME).so \
                -Wl,--whole-archive $(BUILD_DIR)/libsharedblas.a \
                $(BUILD_DIR)/libcblas.a -Wl,--no-whole-archive \
                -static-libstdc++ -static-libgcc -Wl,--no-undefined \

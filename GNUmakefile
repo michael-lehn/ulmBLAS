@@ -11,7 +11,7 @@ TOPDIR = .
 include $(TOPDIR)/make.inc
 
 .PHONY : all cblas atlblas clapack atllapack f77blas f77lapack refblas lbt shared \
-         check-shared \
+         check-shared shared-dispatch \
          check check-numeric check-netlib check-reference-lapack \
          check-reference-lapack-lin \
          check-conformance \
@@ -52,6 +52,11 @@ lbt : tool-ar
 
 shared : tool-ar
 	$(MAKE) -C interfaces/blas/shared
+
+#  macOS on Apple Silicon: libulmblas.dylib selects libulmblas_neon.dylib
+#  or libulmblas_sme.dylib at load time
+shared-dispatch : tool-ar
+	$(MAKE) -C interfaces/blas/dispatch
 
 #  The Netlib test programs (test/F77, test/C) against libulmblas (needs FC)
 check-shared : shared
@@ -127,6 +132,7 @@ clean :
 	$(MAKE) -C refblas clean
 	$(MAKE) -C interfaces/blas/lbt clean
 	$(MAKE) -C interfaces/blas/shared clean
+	$(MAKE) -C interfaces/blas/dispatch clean
 	$(MAKE) -C test clean
 	$(MAKE) -C bench clean
 
@@ -145,6 +151,8 @@ help :
 	@echo '                   Fortran 77 interface, libulmblas_lbt.so / .dylib'
 	@echo '  shared           shared library with the standard interfaces: Fortran 77'
 	@echo '                   (LP64, dgemm_) and CBLAS, libulmblas.so / .dylib'
+	@echo '  shared-dispatch  macOS, Apple Silicon: libulmblas.dylib selects the NEON or'
+	@echo '                   SME2 backend (libulmblas_neon / _sme.dylib) at load time'
 	@echo '  check-shared     Netlib test programs against libulmblas (needs FC)'
 	@echo '  check            build and run all tests'
 	@echo '  check-numeric    only the C++ tests (no Fortran compiler needed)'
