@@ -1,0 +1,108 @@
+#  The conda package libulmblas (packaging/conda-forge/ulmblas) on the four
+#  platforms of conda-forge, built with rattler-build and conda-forge's
+#  pinning from this checkout (not from a release tarball), with the test
+#  of the recipe.  On Linux and macOS also: conda-forge's NumPy with
+#  libblas/libcblas pointing to libulmblas (what the ulmblas variant of the
+#  blas-feedstock does) and NumPy's test suite.
+name: conda
+
+on:
+  push:
+    branches: [master, feature/packaging]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  package:
+    name: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { platform: linux-64,      os: ubuntu-24.04 }
+          - { platform: linux-aarch64, os: ubuntu-24.04-arm }
+          - { platform: osx-arm64,     os: macos-15 }
+          - { platform: win-64,        os: windows-2022 }
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: tools (rattler-build, conda-forge pinning)
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: tools
+          create-args: rattler-build conda-forge-pinning python
+          init-shell: bash
+
+      - name: CPU
+        run: |
+          case "$RUNNER_OS" in
+            Linux)   grep -m1 "model name" /proc/cpuinfo;
+                     grep -o -w -m1 -E "avx512f" /proc/cpuinfo || echo "no AVX-512" ;;
+            macOS)   sysctl -n machdep.cpu.brand_string ;;
+            Windows) wmic cpu get name || true ;;
+          esac
+
+      - name: recipe with this checkout as source
+        run: |
+          mkdir -p $RUNNER_TEMP/ci-recipe
+          cp packaging/conda-forge/ulmblas/* $RUNNER_TEMP/ci-recipe/
+          python - "$PWD" "$RUNNER_TEMP/ci-recipe/recipe.yaml" << 'EOF'
+          import re, sys
+          p = sys.argv[2]
+          s = open(p).read()
+          src = sys.argv[1].replace("\\", "/")
+          s = re.sub(r"source:\n(  .*\n)+",
+                     "source:\n  path: %s\n  use_gitignore: true\n" % src, s, count=1)
+          open(p, "w").write(s)
+          EOF
+          mkdir -p $RUNNER_TEMP/ci-pin
+          cp "$CONDA_PREFIX/conda_build_config.yaml" $RUNNER_TEMP/ci-pin/
+
+      - name: build and test the package
+        run: |
+          rattler-build build --recipe $RUNNER_TEMP/ci-recipe/recipe.yaml \
+            --variant-config $RUNNER_TEMP/ci-pin/conda_build_config.yaml \
+            --output-dir $RUNNER_TEMP/ci-out
+
+      - name: conda-forge NumPy on libulmblas
+        if: runner.os != 'Windows'
+        run: |
+          micromamba create -y -p $RUNNER_TEMP/np -c "file://$RUNNER_TEMP/ci-out" -c conda-forge \
+            python=3.13 numpy "libblas=*=*netlib" libulmblas pytest hypothesis
+          L=$RUNNER_TEMP/np/lib
+          if [ "$RUNNER_OS" = macOS ]; then
+            for p in libblas libcblas; do
+              ln -sf libulmblas.0.dylib $L/$p.3.dylib; ln -sf libulmblas.0.dylib $L/$p.dylib
+            done
+            lib=$L/libblas.3.dylib
+          else
+            for p in libblas libcblas; do
+              ln -sf libulmblas.so.0 $L/$p.so.3; ln -sf libulmblas.so.0 $L/$p.so
+            done
+            lib=$L/libblas.so.3
+          fi
+          $RUNNER_TEMP/np/bin/python - "$lib" << 'EOF'
+          import ctypes, sys, time
+          import numpy as np
+          f = ctypes.CDLL(sys.argv[1]).ulmblas_backend
+          f.restype = ctypes.c_char_p
+          a = np.random.rand(1000, 1000); b = np.random.rand(1000, 1000)
+          a @ b
+          t = time.perf_counter(); [a @ b for _ in range(5)]
+          t = (time.perf_counter() - t) / 5
+          print("numpy", np.__version__, "backend", f().decode(),
+                "a @ b, n = 1000: %.0f GFLOP/s" % (2e9 / t / 1e9))
+          s = a + 1000 * np.eye(1000)
+          assert np.allclose(s @ np.linalg.solve(s, b), b)
+          EOF
+          mkdir -p $RUNNER_TEMP/np-t && cd $RUNNER_TEMP/np-t
+          $RUNNER_TEMP/np/bin/python -m pytest -q -p no:cacheprovider --pyargs numpy -m "not slow"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libulmblas-${{ matrix.platform }}
+          path: ${{ runner.temp }}/ci-out/**/*.conda
