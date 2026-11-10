@@ -37,7 +37,13 @@ VERSION=${VERSION:-0}
 #  the libraries (BIN: DLLs on Windows, beside the programs; LIB: all
 #  others, links included)
 BIN=
-case `uname -s`-`uname -m` in
+#  ULMBLAS_PLATFORM (e.g. Linux-x86_64): the target platform when cross
+#  compiling (conda-forge: from $target_platform); default: this machine
+PLATFORM=${ULMBLAS_PLATFORM:-`uname -s`-`uname -m`}
+#  ULMBLAS_INCLUDEDIR: where cblas.h goes (default PREFIX/include; conda:
+#  PREFIX/include/ulmblas, beside the cblas.h of other packages)
+INCDIR=${ULMBLAS_INCLUDEDIR:-$PREFIX/include}
+case $PLATFORM in
     Darwin-arm64)
         SO=dylib; TARGET=shared-dispatch
         LIB="libulmblas.0.dylib libulmblas.dylib libulmblas_neon.dylib
@@ -50,7 +56,7 @@ case `uname -s`-`uname -m` in
         SO=dll; TARGET=shared-dispatch
         BIN="libulmblas.dll libulmblas_sse3.dll libulmblas_avx2.dll
              libulmblas_avx512.dll"
-        LIB=libulmblas.dll.a ;;
+        LIB="libulmblas.dll.a ulmblas.lib" ;;
     Darwin-*)
         echo "error: on macOS only Apple Silicon is supported" >&2; exit 2 ;;
     *)  #  one backend: the micro kernels of ARCHFLAGS (default of make.inc)
@@ -72,11 +78,11 @@ fi
 #  cblas.h: generated in the build of the (first) library
 H=`ls interfaces/blas/dispatch/build.dispatch/*/cblas.h \
        interfaces/blas/shared/build.shared/cblas.h 2> /dev/null | head -1`
-cp -f "$H" "$PREFIX/include/" || exit 1
+mkdir -p "$INCDIR" && cp -f "$H" "$INCDIR/" || exit 1
 
 cat > "$PREFIX/lib/pkgconfig/ulmblas.pc" << EOF
 libdir=$PREFIX/lib
-includedir=$PREFIX/include
+includedir=$INCDIR
 
 Name: ulmblas
 Description: ulmBLAS (Fortran 77 LP64 and CBLAS interface)
@@ -90,7 +96,7 @@ if [ "$SO" = dll ]; then
     echo "LAPACK on Windows: not yet built by this script" >&2
     exit 0
 fi
-if ! command -v "$FC" > /dev/null 2>&1; then
+if [ "$FC" = none ] || ! command -v "$FC" > /dev/null 2>&1; then
     echo "no Fortran compiler ($FC): libulmlapack not built" >&2
     exit 0
 fi

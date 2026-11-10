@@ -9,8 +9,9 @@
 #      Linux, x86-64          libulmblas.so.0 (and libulmblas.so); backends
 #                             libulmblas_sse3, libulmblas_avx2,
 #                             libulmblas_avx512
-#      Windows, x86-64        libulmblas.dll, import library
-#      (MinGW-w64)            libulmblas.dll.a; the same backends (.dll)
+#      Windows, x86-64        libulmblas.dll, import libraries
+#      (MinGW-w64)            libulmblas.dll.a (MinGW) and ulmblas.lib (MSVC);
+#                             the same backends (.dll)
 #
 #  The backends are the shared library of ../shared built with other
 #  ARCHFLAGS; all libraries belong in the same directory.  libulmblas
@@ -31,6 +32,7 @@ include $(TOPDIR)/make.inc
 OUTDIR     ?= $(TOPDIR)
 BUILD_DIR  ?= build.dispatch
 NM         ?= nm
+DLLTOOL    ?= dlltool
 
 TARGET_MACHINE := $(shell $(CXX) -dumpmachine)
 
@@ -44,6 +46,8 @@ DISPATCH_LIB   = $(OUTDIR)/libulmblas.dll
 DISPATCH_ALIAS =
 DISPATCH_LINK  = -shared -Wl,--out-implib,$(OUTDIR)/libulmblas.dll.a \
                  -static -static-libgcc
+#  import library for MSVC (link.exe), from the export list
+DISPATCH_IMPLIB = $(OUTDIR)/ulmblas.lib
 SYMBOL_PREFIX  =
 else ifneq (,$(findstring apple-darwin,$(TARGET_MACHINE)))
 FORMAT         = macho-arm64
@@ -80,7 +84,7 @@ BACKEND_LIBS = $(foreach b,$(BACKENDS),$(OUTDIR)/libulmblas_$(b)$(SO))
 .DELETE_ON_ERROR :
 .PHONY : all clean FORCE
 
-all : $(DISPATCH_LIB) $(BACKEND_LIBS)
+all : $(DISPATCH_LIB) $(BACKEND_LIBS) $(DISPATCH_IMPLIB)
 
 #  one backend: the library of ../shared with the backend's ARCHFLAGS
 $(OUTDIR)/libulmblas_%$(SO) : FORCE
@@ -136,7 +140,16 @@ $(DISPATCH_LIB) : $(BUILD_DIR)/dispatch.o $(BUILD_DIR)/trampolines.o \
 	      $(BUILD_DIR)/trampolines.o $(DISPATCH_LINK)
 	$(if $(DISPATCH_ALIAS),ln -sf $(notdir $@) $(DISPATCH_ALIAS))
 
+#  Windows: the exports of libulmblas.dll as a .def file, and from it the
+#  import library ulmblas.lib (for MSVC; MinGW uses libulmblas.dll.a)
+$(BUILD_DIR)/exports.def : $(BUILD_DIR)/functions.txt
+	{ echo LIBRARY libulmblas.dll; echo EXPORTS; \
+	  sed 's/^/    /' $<; echo '    ulmblas_backend'; } > $@
+
+$(OUTDIR)/ulmblas.lib : $(BUILD_DIR)/exports.def $(DISPATCH_LIB)
+	$(DLLTOOL) -d $< -D libulmblas.dll -l $@
+
 clean :
 	$(RM) -r $(BUILD_DIR) $(DISPATCH_LIB) $(DISPATCH_ALIAS) $(BACKEND_LIBS) \
-	      $(OUTDIR)/libulmblas.dll.a \
+	      $(OUTDIR)/libulmblas.dll.a $(DISPATCH_IMPLIB) \
 	      $(foreach b,$(BACKENDS),$(OUTDIR)/libulmblas_$(b).dll.a)
