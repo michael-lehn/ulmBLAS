@@ -22,7 +22,14 @@ CBLAS(xerbla)(int info, const char *rout, const char *form, ...)
     extern int RowMajorStrg;
 
     if (RowMajorStrg) {
-	if (std::strstr(rout, "gemm")) {
+	//  gemmtr first: its name contains "gemm" (row major swaps only A
+	//  and B, as the reference)
+	if (std::strstr(rout, "gemmtr")) {
+	    if (info == 11)
+		info = 9;
+	    else if (info == 9)
+		info = 11;
+	} else if (std::strstr(rout, "gemm")) {
 	    if (info == 5)
 		info = 4;
 	    else if (info == 4)

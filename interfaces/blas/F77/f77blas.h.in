@@ -1174,6 +1174,66 @@ F77BLAS(zgemm)(const char               *transA_,
                const ULMBLAS_INDEX_TYPE *ldC_);
 
 void
+F77BLAS(sgemmtr)(const char               *upLo_,
+                 const char               *transA_,
+                 const char               *transB_,
+                 const ULMBLAS_INDEX_TYPE *n_,
+                 const ULMBLAS_INDEX_TYPE *k_,
+                 const float              *alpha_,
+                 const float              *A,
+                 const ULMBLAS_INDEX_TYPE *ldA_,
+                 const float              *B,
+                 const ULMBLAS_INDEX_TYPE *ldB_,
+                 const float              *beta_,
+                 float                    *C,
+                 const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(dgemmtr)(const char               *upLo_,
+                 const char               *transA_,
+                 const char               *transB_,
+                 const ULMBLAS_INDEX_TYPE *n_,
+                 const ULMBLAS_INDEX_TYPE *k_,
+                 const double             *alpha_,
+                 const double             *A,
+                 const ULMBLAS_INDEX_TYPE *ldA_,
+                 const double             *B,
+                 const ULMBLAS_INDEX_TYPE *ldB_,
+                 const double             *beta_,
+                 double                   *C,
+                 const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(cgemmtr)(const char               *upLo_,
+                 const char               *transA_,
+                 const char               *transB_,
+                 const ULMBLAS_INDEX_TYPE *n_,
+                 const ULMBLAS_INDEX_TYPE *k_,
+                 const float              *alpha_,
+                 const float              *A_,
+                 const ULMBLAS_INDEX_TYPE *ldA_,
+                 const float              *B_,
+                 const ULMBLAS_INDEX_TYPE *ldB_,
+                 const float              *beta_,
+                 float                    *C_,
+                 const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
+F77BLAS(zgemmtr)(const char               *upLo_,
+                 const char               *transA_,
+                 const char               *transB_,
+                 const ULMBLAS_INDEX_TYPE *n_,
+                 const ULMBLAS_INDEX_TYPE *k_,
+                 const double             *alpha_,
+                 const double             *A_,
+                 const ULMBLAS_INDEX_TYPE *ldA_,
+                 const double             *B_,
+                 const ULMBLAS_INDEX_TYPE *ldB_,
+                 const double             *beta_,
+                 double                   *C_,
+                 const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
 F77BLAS(ssymm)(const char               *side_,
                const char               *upLo_,
                const ULMBLAS_INDEX_TYPE *m_,

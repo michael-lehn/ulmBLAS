@@ -167,8 +167,8 @@ part of the default set and are run with `CONFIGS=...` (see the
 - **Reference-LAPACK test programs** (`make check-reference-lapack`, not
   part of `make check`): downloads Reference-LAPACK 3.12.1 (SHA-256
   checked), builds its unmodified BLAS and CBLAS test programs against the
-  libraries of the default configuration and runs them.  `?gemmtr`, which
-  ulmBLAS does not provide, is disabled in the input files.  The programs
+  libraries of the default configuration and runs them, including the
+  tests of `?gemmtr`.  The programs
   `cblat1` and `zblat1` of 3.12.1 report infinite results of `scnrm2` and
   `dznrm2` as failures; they are also run with the reference BLAS of the
   tarball and reported as REF if exactly the same cases fail.

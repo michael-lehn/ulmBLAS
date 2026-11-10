@@ -1292,6 +1292,70 @@ CBLAS(zgemm)(enum CBLAS_ORDER      order,
              ULMBLAS_INDEX_TYPE    ldC);
 
 void
+CBLAS(sgemmtr)(enum CBLAS_ORDER      order,
+               enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  transA,
+               enum CBLAS_TRANSPOSE  transB,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
+               float                 alpha,
+               const float           *A,
+               ULMBLAS_INDEX_TYPE    ldA,
+               const float           *B,
+               ULMBLAS_INDEX_TYPE    ldB,
+               float                 beta,
+               float                 *C,
+               ULMBLAS_INDEX_TYPE    ldC);
+
+void
+CBLAS(dgemmtr)(enum CBLAS_ORDER      order,
+               enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  transA,
+               enum CBLAS_TRANSPOSE  transB,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
+               double                alpha,
+               const double          *A,
+               ULMBLAS_INDEX_TYPE    ldA,
+               const double          *B,
+               ULMBLAS_INDEX_TYPE    ldB,
+               double                beta,
+               double                *C,
+               ULMBLAS_INDEX_TYPE    ldC);
+
+void
+CBLAS(cgemmtr)(enum CBLAS_ORDER      order,
+               enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  transA,
+               enum CBLAS_TRANSPOSE  transB,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
+               const void            *alpha,
+               const void            *A,
+               ULMBLAS_INDEX_TYPE    ldA,
+               const void            *B,
+               ULMBLAS_INDEX_TYPE    ldB,
+               const void            *beta,
+               void                  *C,
+               ULMBLAS_INDEX_TYPE    ldC);
+
+void
+CBLAS(zgemmtr)(enum CBLAS_ORDER      order,
+               enum CBLAS_UPLO       upLo,
+               enum CBLAS_TRANSPOSE  transA,
+               enum CBLAS_TRANSPOSE  transB,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
+               const void            *alpha,
+               const void            *A,
+               ULMBLAS_INDEX_TYPE    ldA,
+               const void            *B,
+               ULMBLAS_INDEX_TYPE    ldB,
+               const void            *beta,
+               void                  *C,
+               ULMBLAS_INDEX_TYPE    ldC);
+
+void
 CBLAS(dsymm)(enum CBLAS_ORDER   order,
              enum CBLAS_SIDE    side,
              enum CBLAS_UPLO    upLo,
@@ -2819,6 +2883,66 @@ ULMBLAS(zgemm)(enum CBLAS_TRANSPOSE  transA,
                const double          *beta,
                double                *C,
                ULMBLAS_INDEX_TYPE    ldC);
+
+void
+ULMBLAS(sgemmtr)(enum CBLAS_UPLO       upLo,
+                 enum CBLAS_TRANSPOSE  transA,
+                 enum CBLAS_TRANSPOSE  transB,
+                 ULMBLAS_INDEX_TYPE    n,
+                 ULMBLAS_INDEX_TYPE    k,
+                 float                 alpha,
+                 const float           *A,
+                 ULMBLAS_INDEX_TYPE    ldA,
+                 const float           *B,
+                 ULMBLAS_INDEX_TYPE    ldB,
+                 float                 beta,
+                 float                 *C,
+                 ULMBLAS_INDEX_TYPE    ldC);
+
+void
+ULMBLAS(dgemmtr)(enum CBLAS_UPLO       upLo,
+                 enum CBLAS_TRANSPOSE  transA,
+                 enum CBLAS_TRANSPOSE  transB,
+                 ULMBLAS_INDEX_TYPE    n,
+                 ULMBLAS_INDEX_TYPE    k,
+                 double                alpha,
+                 const double          *A,
+                 ULMBLAS_INDEX_TYPE    ldA,
+                 const double          *B,
+                 ULMBLAS_INDEX_TYPE    ldB,
+                 double                beta,
+                 double                *C,
+                 ULMBLAS_INDEX_TYPE    ldC);
+
+void
+ULMBLAS(cgemmtr)(enum CBLAS_UPLO       upLo,
+                 enum CBLAS_TRANSPOSE  transA,
+                 enum CBLAS_TRANSPOSE  transB,
+                 ULMBLAS_INDEX_TYPE    n,
+                 ULMBLAS_INDEX_TYPE    k,
+                 const void            *alpha,
+                 const void            *A,
+                 ULMBLAS_INDEX_TYPE    ldA,
+                 const void            *B,
+                 ULMBLAS_INDEX_TYPE    ldB,
+                 const void            *beta,
+                 void                  *C,
+                 ULMBLAS_INDEX_TYPE    ldC);
+
+void
+ULMBLAS(zgemmtr)(enum CBLAS_UPLO       upLo,
+                 enum CBLAS_TRANSPOSE  transA,
+                 enum CBLAS_TRANSPOSE  transB,
+                 ULMBLAS_INDEX_TYPE    n,
+                 ULMBLAS_INDEX_TYPE    k,
+                 const void            *alpha,
+                 const void            *A,
+                 ULMBLAS_INDEX_TYPE    ldA,
+                 const void            *B,
+                 ULMBLAS_INDEX_TYPE    ldB,
+                 const void            *beta,
+                 void                  *C,
+                 ULMBLAS_INDEX_TYPE    ldC);
 
 void
 ULMBLAS(dsymm)(enum CBLAS_SIDE    side,

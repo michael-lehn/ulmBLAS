@@ -799,6 +799,36 @@ gemm(CBLAS_ORDER o, CBLAS_TRANSPOSE ta, CBLAS_TRANSPOSE tb, int m, int n, int k,
     cblas_zgemm(o, ta, tb, m, n, k, rp(&a), rp(A), ldA, rp(B), ldB, rp(&b),
                 rp(C), ldC);
 }
+inline void
+gemmtr(CBLAS_ORDER o, CBLAS_UPLO ul, CBLAS_TRANSPOSE ta, CBLAS_TRANSPOSE tb,
+       int n, int k, float a, const float *A, int ldA, const float *B, int ldB,
+       float b, float *C, int ldC)
+{
+    cblas_sgemmtr(o, ul, ta, tb, n, k, a, A, ldA, B, ldB, b, C, ldC);
+}
+inline void
+gemmtr(CBLAS_ORDER o, CBLAS_UPLO ul, CBLAS_TRANSPOSE ta, CBLAS_TRANSPOSE tb,
+       int n, int k, double a, const double *A, int ldA, const double *B,
+       int ldB, double b, double *C, int ldC)
+{
+    cblas_dgemmtr(o, ul, ta, tb, n, k, a, A, ldA, B, ldB, b, C, ldC);
+}
+inline void
+gemmtr(CBLAS_ORDER o, CBLAS_UPLO ul, CBLAS_TRANSPOSE ta, CBLAS_TRANSPOSE tb,
+       int n, int k, cfloat a, const cfloat *A, int ldA, const cfloat *B,
+       int ldB, cfloat b, cfloat *C, int ldC)
+{
+    cblas_cgemmtr(o, ul, ta, tb, n, k, rp(&a), rp(A), ldA, rp(B), ldB, rp(&b),
+                  rp(C), ldC);
+}
+inline void
+gemmtr(CBLAS_ORDER o, CBLAS_UPLO ul, CBLAS_TRANSPOSE ta, CBLAS_TRANSPOSE tb,
+       int n, int k, cdouble a, const cdouble *A, int ldA, const cdouble *B,
+       int ldB, cdouble b, cdouble *C, int ldC)
+{
+    cblas_zgemmtr(o, ul, ta, tb, n, k, rp(&a), rp(A), ldA, rp(B), ldB, rp(&b),
+                  rp(C), ldC);
+}
 
 inline void
 symm(CBLAS_ORDER o, CBLAS_SIDE s, CBLAS_UPLO u, int m, int n, float a,

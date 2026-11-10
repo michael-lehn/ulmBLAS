@@ -269,9 +269,13 @@ arguments as `void *`, the type names `CBLAS_LAYOUT`, `CBLAS_TRANSPOSE`,
 ..., `CBLAS_INDEX`); `CBLAS_INDEX` is the index type of the build, so the
 binary interface does not depend on the header.
 
-Not provided: `lsame` and `xerbla_array` (auxiliary routines that LAPACK
-contains itself), `?gemmtr` (LAPACK 3.12), the routines of the
-Reference-LAPACK development version (`?axpby`, skew-symmetric routines).
+`?gemmtr` (BLAS of LAPACK 3.12, the triangle of a product; LAPACK 3.12
+calls it in `?lasyf`) is provided by both interfaces
+(`ulmblas/level3/gemmtr.tcc`: the part outside the diagonal blocks by
+`gemm`, the diagonal blocks by `gemm` into a buffer).  Not provided:
+`lsame` and `xerbla_array` (auxiliary routines that LAPACK contains
+itself), the routines of the Reference-LAPACK development version
+(`?axpby`, skew-symmetric routines).
 The index type of all interfaces is `ULMBLAS_INDEX_TYPE` (default `int`,
 64-bit types on request, see [INSTALL.md](INSTALL.md#index-type)), except
 the strided GEMM, which always takes `int64_t`; the

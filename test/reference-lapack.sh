@@ -13,8 +13,7 @@
 #  LDFLAGS, LDLIBS, FLIBS; LAPACK_TARBALL: use this file instead of
 #  downloading it.
 #
-#  xGEMMTR (new in LAPACK 3.12, not part of ulmBLAS) is disabled in the input
-#  files of the level 3 programs; stubs that abort satisfy the linker.  The
+#  The level 3 programs test xGEMMTR (new in LAPACK 3.12) as well.  The
 #  programs cblat1 and zblat1 of 3.12.1 report SCNRM2 and DZNRM2 as failed
 #  for results that are correctly infinite (fixed in the development
 #  version of LAPACK).  They are also run with the reference BLAS of the
@@ -76,7 +75,7 @@ cd "$BUILD" || exit 2
 rm -rf run ref && mkdir run ref || exit 2
 
 #
-#  Support files: name mangling of the CBLAS test programs, xGEMMTR stubs
+#  Support file: name mangling of the CBLAS test programs
 #
 cat > cblas_mangling.h <<'EOF'
 #ifndef F77_HEADER_INCLUDED
@@ -84,20 +83,6 @@ cat > cblas_mangling.h <<'EOF'
 #define F77_GLOBAL(lcname,UCNAME)  lcname##_
 #endif
 EOF
-cat > gemmtr_stub.c <<'EOF'
-#include <stdio.h>
-#include <stdlib.h>
-static void none(const char *f) { fprintf(stderr, "%s called\n", f); abort(); }
-void sgemmtr_(void) { none("sgemmtr"); }
-void dgemmtr_(void) { none("dgemmtr"); }
-void cgemmtr_(void) { none("cgemmtr"); }
-void zgemmtr_(void) { none("zgemmtr"); }
-void cblas_sgemmtr(void) { none("cblas_sgemmtr"); }
-void cblas_dgemmtr(void) { none("cblas_dgemmtr"); }
-void cblas_cgemmtr(void) { none("cblas_cgemmtr"); }
-void cblas_zgemmtr(void) { none("cblas_zgemmtr"); }
-EOF
-$CC $CFLAGS -c -o gemmtr_stub.o gemmtr_stub.c || exit 2
 
 #  -fallow-argument-mismatch: needed by gfortran 10 or newer for some
 #  programs (as for the Netlib suites of make check)
@@ -144,12 +129,11 @@ verdict()
 status=0
 : > result.txt
 for t in s d c z; do
-    T=`echo $t | tr 'a-z' 'A-Z'`
     for l in 1 2 3; do
         # Fortran 77 interface
         p=${t}blat$l
         if ! link run/$p $SRC/BLAS/TESTING/$p.f $LIBDIR/libf77blas.a \
-                gemmtr_stub.o > run/$p.build 2>&1; then
+                > run/$p.build 2>&1; then
             echo "FAIL  F77 $p (build, see $BUILD/run/$p.build)" \
                 | tee -a result.txt
             status=1; continue
@@ -164,8 +148,7 @@ for t in s d c z; do
                 ref=ref/$p.out
             fi
         else
-            sed "s/^\(${T}GEMMTR *\)T/\1F/" $SRC/BLAS/TESTING/$p.in \
-                > run/$p.in
+            cp $SRC/BLAS/TESTING/$p.in run/$p.in
             (cd run && ./$p < $p.in > $p.log 2>&1); rc=$?
             out=run/$p.out
         fi
@@ -185,7 +168,7 @@ for t in s d c z; do
         objs=run/c_${t}blas$l.o
         [ $l != 1 ] && objs="$objs run/c_${t}${l}chke.o run/auxiliary.o run/c_xerbla.o"
         if ! link run/$p $SRC/CBLAS/testing/$p.f $objs $LIBDIR/libcblas.a \
-                $LIBDIR/libf77blas.a gemmtr_stub.o > run/$p.build 2>&1; then
+                $LIBDIR/libf77blas.a > run/$p.build 2>&1; then
             echo "FAIL  C   $p (build, see $BUILD/run/$p.build)" \
                 | tee -a result.txt
             status=1; continue
@@ -193,8 +176,7 @@ for t in s d c z; do
         if [ $l = 1 ]; then
             (cd run && ./$p > $p.out 2>&1); rc=$?
         else
-            sed "s/^\(cblas_${t}gemmtr *\)T/\1F/" \
-                $SRC/CBLAS/testing/${t}in$l > run/${t}in$l
+            cp $SRC/CBLAS/testing/${t}in$l run/${t}in$l
             (cd run && ./$p < ${t}in$l > $p.out 2>&1); rc=$?
         fi
         r=`verdict $l run/$p.out $rc`

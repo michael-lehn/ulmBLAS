@@ -3,6 +3,7 @@
 
 #include <ulmblas/config/simd.h>
 #include <ulmblas/level3/gemm.h>
+#include <ulmblas/level3/gemmtr.h>
 #include <ulmblas/level3/helmm.h>
 #include <ulmblas/level3/helr2k.h>
 #include <ulmblas/level3/helrk.h>
