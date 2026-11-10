@@ -40,14 +40,17 @@ if [ ! -x "$VENV/bin/python" ]; then
               exit 1; }
     fi
 fi
-"$VENV/bin/python" -m pip --version > /dev/null || exit 1
+#  a current pip in the environment: older ones (Debian 12: 23.0) pass
+#  repeated --config-settings not on to the build
+"$VENV/bin/python" -m pip install -q --upgrade pip || exit 1
 
 #  --no-binary: build from source (a wheel brings its own BLAS);
 #  --no-cache-dir: never reuse a wheel built earlier against another BLAS
 PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH} \
 "$VENV/bin/python" -m pip install --no-cache-dir --force-reinstall \
     --no-binary numpy "$SPEC" \
-    -Csetup-args=-Dblas=ulmblas -Csetup-args=-Dlapack=$LAPACK || exit 1
+    --config-settings=setup-args=-Dblas=ulmblas \
+    --config-settings=setup-args=-Dlapack=$LAPACK || exit 1
 
 "$VENV/bin/python" - "$LAPACK" << 'EOF' || exit 1
 import sys

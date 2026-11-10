@@ -268,8 +268,10 @@ $HOME/venv-ulmblas/bin/python -c 'import numpy; numpy.show_config()'
   (`-Dblas=ulmblas -Dlapack=ulmlapack`); it needs `python3` (PYTHON) and
   `pkg-config`.  The NumPy wheels from PyPI bring their own BLAS
   (Accelerate on macOS, OpenBLAS elsewhere), so NumPy has to be built.
-  Tested: NumPy 2.5.4, Python 3.15, macOS 26 on an M5; the NumPy test
-  suite passes.
+  Tested (the NumPy test suite passes): NumPy 2.5.4, Python 3.15, macOS
+  26 on an M5; NumPy 2.4.6, Python 3.11, Debian 12 on x86-64 (there the
+  environment uses the system's pip if `python3-venv` is missing; for the
+  f2py tests install `meson` in it).
 
 ## Test
 
