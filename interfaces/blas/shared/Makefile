@@ -93,7 +93,7 @@ EXPORT_PATTERN = '^$(SYMBOL_PREFIX)([a-z0-9]+_|cblas_[a-z0-9_]+|ulmblas_[a-z0-9_
 
 $(EXPORTS) : $(BUILD_DIR)/libsharedblas.a $(BUILD_DIR)/libcblas.a \
              $(SHARED_OBJECTS)
-	nm -g $^ | awk 'NF==3 && $$2 ~ /^[TDBS]$$/ {print $$3}' \
+	nm -g $^ | awk 'NF==3 && $$2 ~ /^[TDBRSVW]$$/ {print $$3}' \
 	    | grep -E $(EXPORT_PATTERN) | grep -v '_sub_$$' | sort -u > $@.tmp
 	@if [ "$(SYMBOL_PREFIX)" = "" ]; then \
 	    { echo '{ global:'; sed 's/$$/;/' $@.tmp; echo 'local: *; };'; } > $@; \
