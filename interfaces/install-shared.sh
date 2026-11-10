@@ -3,11 +3,14 @@
 #  install-shared.sh PREFIX: builds the shared libraries of ulmBLAS and
 #  installs them for other programs (e.g. NumPy, interfaces/python/numpy.sh):
 #
-#      PREFIX/lib/libulmblas.dylib (.so)   BLAS: Fortran 77 interface (LP64)
-#                                          and CBLAS.  On macOS with Apple
-#                                          Silicon the front that selects
-#                                          libulmblas_sme or libulmblas_neon
-#                                          (also installed) at load time
+#      PREFIX/lib/libulmblas.0.dylib (.so.0, Windows: bin/libulmblas.dll
+#                                          and lib/libulmblas.dll.a)
+#                                          BLAS: Fortran 77 interface (LP64)
+#                                          and CBLAS; on Apple Silicon and
+#                                          x86-64 the front that selects a
+#                                          backend (also installed:
+#                                          libulmblas_sme/_neon, _avx512/
+#                                          _avx2/_sse3) for the CPU
 #      PREFIX/lib/libulmlapack.dylib (.so) Reference-LAPACK 3.12.1 on top of
 #                                          libulmblas (needs CMake and a
 #                                          Fortran compiler, FC)
@@ -31,19 +34,45 @@ fi
 VERSION=$(git -C "$TOP" describe --tags --abbrev=0 2> /dev/null | sed 's/^v//')
 VERSION=${VERSION:-0}
 
+#  the libraries (BIN: DLLs on Windows, beside the programs; LIB: all
+#  others, links included)
+BIN=
 case `uname -s`-`uname -m` in
-    Darwin-arm64) SO=dylib; TARGET=shared-dispatch;
-                  LIBS="libulmblas libulmblas_neon libulmblas_sme" ;;
-    Darwin-*)     SO=dylib; TARGET=shared; LIBS=libulmblas ;;
-    *)            SO=so;    TARGET=shared; LIBS=libulmblas ;;
+    Darwin-arm64)
+        SO=dylib; TARGET=shared-dispatch
+        LIB="libulmblas.0.dylib libulmblas.dylib libulmblas_neon.dylib
+             libulmblas_sme.dylib" ;;
+    Linux-x86_64)
+        SO=so; TARGET=shared-dispatch
+        LIB="libulmblas.so.0 libulmblas.so libulmblas_sse3.so
+             libulmblas_avx2.so libulmblas_avx512.so" ;;
+    MINGW*-x86_64|MSYS*-x86_64)
+        SO=dll; TARGET=shared-dispatch
+        BIN="libulmblas.dll libulmblas_sse3.dll libulmblas_avx2.dll
+             libulmblas_avx512.dll"
+        LIB=libulmblas.dll.a ;;
+    Darwin-*)
+        echo "error: on macOS only Apple Silicon is supported" >&2; exit 2 ;;
+    *)  #  one backend: the micro kernels of ARCHFLAGS (default of make.inc)
+        SO=so; TARGET="shared SHARED_VERSION=0"
+        LIB="libulmblas.so.0 libulmblas.so" ;;
 esac
 
 cd "$TOP" || exit 1
 $MAKE $TARGET || exit 1
-for l in $LIBS; do
-    cp -f "$l.$SO" "$PREFIX/lib/" || exit 1
+for l in $LIB; do
+    cp -fP "$l" "$PREFIX/lib/" || exit 1
 done
-cp -f interfaces/blas/shared/build.shared/cblas.h "$PREFIX/include/" || exit 1
+if [ -n "$BIN" ]; then
+    mkdir -p "$PREFIX/bin" || exit 1
+    for l in $BIN; do
+        cp -f "$l" "$PREFIX/bin/" || exit 1
+    done
+fi
+#  cblas.h: generated in the build of the (first) library
+H=`ls interfaces/blas/dispatch/build.dispatch/*/cblas.h \
+       interfaces/blas/shared/build.shared/cblas.h 2> /dev/null | head -1`
+cp -f "$H" "$PREFIX/include/" || exit 1
 
 cat > "$PREFIX/lib/pkgconfig/ulmblas.pc" << EOF
 libdir=$PREFIX/lib
@@ -57,6 +86,10 @@ Cflags: -I\${includedir}
 EOF
 echo "installed libulmblas in $PREFIX/lib"
 
+if [ "$SO" = dll ]; then
+    echo "LAPACK on Windows: not yet built by this script" >&2
+    exit 0
+fi
 if ! command -v "$FC" > /dev/null 2>&1; then
     echo "no Fortran compiler ($FC): libulmlapack not built" >&2
     exit 0
