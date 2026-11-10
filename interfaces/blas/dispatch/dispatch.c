@@ -235,6 +235,17 @@ ulmblas_dispatch_resolve(void)
 
 #else
 
+#if !defined(__APPLE__)
+/*  ELF: weak references to the handlers of the program.  An executable
+ *  exports only the symbols that the shared libraries it is linked with
+ *  refer to; these references make the linker export the program's
+ *  xerbla_ and cblas_xerbla, and the dynamic loader binds them (to NULL
+ *  if there are none).  dlsym(RTLD_DEFAULT) alone would not find them.
+ *  On macOS all symbols of the program are visible to dlsym.  */
+extern void xerbla_(void) __attribute__((weak));
+extern void cblas_xerbla(void) __attribute__((weak));
+#endif
+
 static void
 set_handler(void *handle, const char *setter, void *handler)
 {
@@ -270,15 +281,20 @@ ulmblas_dispatch_init(void)
     /*  Error handlers defined by the program (or a library loaded before
      *  this one), searched before the backend is loaded; this library
      *  does not export the handlers, so it does not find itself.  */
+#if defined(__APPLE__)
     void *f77_xerbla = dlsym(RTLD_DEFAULT, "xerbla_");
-    void *cblas_xerbla = dlsym(RTLD_DEFAULT, "cblas_xerbla");
+    void *c_xerbla = dlsym(RTLD_DEFAULT, "cblas_xerbla");
+#else
+    void *f77_xerbla = (void *)&xerbla_;
+    void *c_xerbla = (void *)&cblas_xerbla;
+#endif
 
     void *handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
     if (!handle) {
 	fail("cannot load the backend", dlerror());
     }
     set_handler(handle, "ulmblas_set_f77_xerbla", f77_xerbla);
-    set_handler(handle, "ulmblas_set_cblas_xerbla", cblas_xerbla);
+    set_handler(handle, "ulmblas_set_cblas_xerbla", c_xerbla);
     for (int i = 0; i < ULMBLAS_DISPATCH_COUNT; ++i) {
 	void *f = dlsym(handle, ulmblas_dispatch_names[i]);
 	if (!f) {
