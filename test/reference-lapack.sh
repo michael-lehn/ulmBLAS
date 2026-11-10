@@ -25,8 +25,6 @@
 set -u
 
 VERSION=3.12.1
-URL=https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v$VERSION.tar.gz
-SHA256=2ca6407a001a474d4d4d35f3a61550156050c48016d949f0da0529c0aa052422
 
 LIBDIR=$(cd "$1" && pwd) || exit 2
 BUILD=$2
@@ -43,33 +41,10 @@ mkdir -p "$BUILD" && BUILD=$(cd "$BUILD" && pwd) || exit 2
 SRC=$BUILD/lapack-$VERSION
 TARBALL=${LAPACK_TARBALL:-$BUILD/lapack-$VERSION.tar.gz}
 
-sha256()
-{
-    if command -v sha256sum > /dev/null 2>&1; then
-        sha256sum "$1" | awk '{print $1}'
-    else
-        shasum -a 256 "$1" | awk '{print $1}'
-    fi
-}
 
-if [ ! -d "$SRC" ]; then
-    if [ ! -f "$TARBALL" ]; then
-        echo "downloading $URL"
-        if command -v curl > /dev/null 2>&1; then
-            curl -fsSL -o "$TARBALL.tmp" "$URL"
-        else
-            wget -q -O "$TARBALL.tmp" "$URL"
-        fi || { echo "error: download failed" >&2; exit 2; }
-        mv "$TARBALL.tmp" "$TARBALL"
-    fi
-    if [ "`sha256 "$TARBALL"`" != "$SHA256" ]; then
-        echo "error: checksum of $TARBALL does not match" >&2
-        exit 2
-    fi
-    (cd "$BUILD" && gzip -dc "$TARBALL" | tar -xf - \
-        lapack-$VERSION/BLAS lapack-$VERSION/CBLAS lapack-$VERSION/LICENSE) \
-        || exit 2
-fi
+LAPACK_PARTS="lapack-$VERSION/BLAS lapack-$VERSION/CBLAS lapack-$VERSION/LICENSE" \
+LAPACK_TARBALL=$TARBALL \
+    sh "`dirname "$0"`/../interfaces/lapack/reference/fetch.sh" "$BUILD" || exit 2
 
 cd "$BUILD" || exit 2
 rm -rf run ref && mkdir run ref || exit 2
