@@ -109,26 +109,58 @@ static const struct backend backends[] = {{"sme", cpu_sme},
 
 #elif defined(__x86_64__)
 
-/*  __builtin_cpu_supports also checks that the operating system saves the
- *  vector registers (XGETBV) */
+/*  CPUID and XGETBV directly (<cpuid.h> of GCC and clang), so that no
+ *  runtime library is needed (__builtin_cpu_supports needs libgcc or
+ *  compiler-rt).  AVX and AVX-512 also need the operating system to save
+ *  the registers: XCR0 bits 1, 2 (SSE, AVX) and 5, 6, 7 (AVX-512 opmask,
+ *  upper halves of zmm0-15, zmm16-31).  */
+#include <cpuid.h>
+
+static unsigned
+cpuid_reg(unsigned leaf, unsigned subleaf, int reg)
+{
+    unsigned r[4] = {0, 0, 0, 0};
+    if ((unsigned)__get_cpuid_max(0, 0) < leaf) {
+	return 0;
+    }
+    __cpuid_count(leaf, subleaf, r[0], r[1], r[2], r[3]);
+    return r[reg]; /* 0 eax, 1 ebx, 2 ecx, 3 edx */
+}
+
+static unsigned long long
+xcr0(void)
+{
+    unsigned lo, hi;
+    __asm__ volatile("xgetbv" : "=a"(lo), "=d"(hi) : "c"(0));
+    return ((unsigned long long)hi << 32) | lo;
+}
+
 static int
 cpu_sse3(void)
 {
-    __builtin_cpu_init();
-    return __builtin_cpu_supports("sse3");
+    return (cpuid_reg(1, 0, 2) & (1u << 0)) != 0;
+}
+
+/*  OSXSAVE (ecx 27) and AVX (ecx 28), the OS saves the ymm registers */
+static int
+os_avx(void)
+{
+    const unsigned ecx = cpuid_reg(1, 0, 2);
+    return (ecx & (1u << 27)) && (ecx & (1u << 28)) && (xcr0() & 0x6) == 0x6;
 }
 
 static int
 cpu_avx2(void)
 {
-    return cpu_sse3() && __builtin_cpu_supports("avx2") &&
-           __builtin_cpu_supports("fma");
+    return cpu_sse3() && os_avx() && (cpuid_reg(1, 0, 2) & (1u << 12)) /* FMA */
+           && (cpuid_reg(7, 0, 1) & (1u << 5)); /* AVX2 */
 }
 
 static int
 cpu_avx512(void)
 {
-    return cpu_avx2() && __builtin_cpu_supports("avx512f");
+    return cpu_avx2() && (cpuid_reg(7, 0, 1) & (1u << 16)) /* AVX512F */
+           && (xcr0() & 0xe6) == 0xe6;
 }
 
 static const struct backend backends[] = {
