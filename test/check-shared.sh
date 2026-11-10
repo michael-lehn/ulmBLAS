@@ -30,7 +30,13 @@ if echo | $FC -fallow-argument-mismatch -x f77 -c - -o /dev/null \
 fi
 LIBNAME=${4:-ulmblas}
 ONLY_F77=${5:-}
-LINK="-L$LIBDIR -l$LIBNAME -Wl,-rpath,$LIBDIR"
+case `uname -s` in
+    MINGW*|MSYS*)
+        #  Windows: the import library at link time, the DLLs by PATH
+        LINK="-L$LIBDIR -l$LIBNAME"
+        PATH="$LIBDIR:$PATH"; export PATH ;;
+    *)  LINK="-L$LIBDIR -l$LIBNAME -Wl,-rpath,$LIBDIR" ;;
+esac
 
 n_pass=0
 n_fail=0

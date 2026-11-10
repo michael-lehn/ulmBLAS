@@ -1,0 +1,79 @@
+#  Windows x86-64 with MinGW-w64 (MSYS2 UCRT64): the dispatching library
+#  libulmblas.dll with the backends libulmblas_sse3/_avx2/_avx512.dll
+#  (make shared-dispatch), its exports and imports, and the Netlib test
+#  programs against each backend the CPU supports and against the front
+#  (whose table is filled at the first call, see
+#  interfaces/blas/dispatch/dispatch.c).
+name: windows-shared
+
+on:
+  push:
+    branches: [master, feature/packaging]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, windows-2025]
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            make
+            diffutils
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-gcc-fortran
+      - name: CPU
+        run: |
+          grep -m1 "model name" /proc/cpuinfo
+          grep -m1 '^flags' /proc/cpuinfo | tr ' ' '\n' | grep -x -E "avx2|fma|avx512f" | tr '\n' ' '; echo
+          gcc --version | head -1
+      - name: build (make shared-dispatch)
+        run: |
+          make -j4 shared-dispatch
+          ls -l *.dll *.dll.a *.lib
+      - name: exports and imports
+        run: |
+          objdump -p libulmblas.dll > objdump.txt
+          sed -n '/\[Ordinal\/Name Pointer\] Table/,/^$/p' objdump.txt | awk 'NF{print $NF}' | sort > exports.txt
+          echo "exports: $(wc -l < exports.txt)"
+          grep -x -E "dgemm_|cblas_dgemm|ulmblas_backend|ulmblas_dgemm_strided" exports.txt
+          ! grep -x -E "ulmblas_dispatch_resolve|ulmblas_dispatch_table|xerbla_" exports.txt
+          for d in libulmblas*.dll; do
+              echo "$d imports:"; objdump -p $d | grep "DLL Name" | sort -u
+              ! objdump -p $d | grep "DLL Name" | grep -v -i -E "KERNEL32|api-ms-win-crt|ucrtbase|msvcrt"
+          done
+      - name: Netlib tests against the backends and the front
+        run: |
+          I=interfaces/blas/dispatch/build.dispatch/sse3
+          cpuflags=" $(grep -m1 '^flags' /proc/cpuinfo | cut -d: -f2) "
+          for b in sse3 avx2 avx512; do
+              case $b in
+              avx2)   need="avx2 fma";;
+              avx512) need="avx2 fma avx512f";;
+              *)      need="pni";;
+              esac
+              ok=1
+              for f in $need; do case "$cpuflags" in *" $f "*) ;; *) ok=0;; esac; done
+              if [ $ok = 1 ]; then
+                  sh test/check-shared.sh . $I test/build/shared-$b ulmblas_$b
+              else
+                  echo "CPU lacks $need: backend $b not run"
+              fi
+          done
+          printf '#include <stdio.h>\nconst char *ulmblas_backend(void);\nint main(void){puts(ulmblas_backend());return 0;}\n' > backend.c
+          gcc backend.c -L. -lulmblas -o backend.exe
+          echo "front selects: $(PATH=.:$PATH ./backend.exe)"
+          sh test/check-shared.sh . $I test/build/shared-front ulmblas f77
+          ULMBLAS_BACKEND=sse3 sh test/check-shared.sh . $I test/build/shared-front-sse3 ulmblas f77
