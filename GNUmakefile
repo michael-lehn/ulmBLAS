@@ -67,11 +67,14 @@ install-shared :
 	MAKE="$(MAKE)" FC="$(if $(filter default,$(origin FC)),gfortran,$(FC))" \
 	    $(SHELL) interfaces/install-shared.sh "$(PREFIX)"
 
-#  The Netlib test programs (test/F77, test/C) against libulmblas (needs FC)
-check-shared : shared
-	FC="$(FC)" CC="$(CC)" $(SHELL) test/check-shared.sh . \
-	         interfaces/blas/shared/build.shared \
-	         test/build/shared
+#  The Netlib test programs (test/F77, test/C) against libulmblas (needs FC),
+#  built in its own directory: in the top directory libulmblas.dylib (.so)
+#  may be the link of make shared-dispatch to the dispatching library
+check-shared : tool-ar
+	$(MAKE) -C interfaces/blas/shared OUTDIR=$(abspath test/build/shared-lib) \
+	        BUILD_DIR=$(abspath test/build/shared-lib/build)
+	FC="$(FC)" CC="$(CC)" $(SHELL) test/check-shared.sh test/build/shared-lib \
+	         test/build/shared-lib/build test/build/shared
 
 #
 #  Tests (see test/Makefile)
