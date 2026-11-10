@@ -30,7 +30,7 @@ class Ulmblas < Formula
 
   def install
     ENV["LAPACK_TARBALL"] = resource("lapack").cached_download
-    ENV["FC"] = Formula["gcc"].opt_bin/"gfortran"
+    ENV["FC"] = formula_opt_bin("gcc")/"gfortran"
     ENV["MAKE"] = "make -j#{ENV.make_jobs}"
     ENV["ULMBLAS_INCLUDEDIR"] = include/"ulmblas"
     system "sh", "interfaces/install-shared.sh", prefix
