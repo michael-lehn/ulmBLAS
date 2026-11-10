@@ -9,6 +9,14 @@ libulmblas.so
 libulmblas.dylib
 libulmblas_neon.dylib
 libulmblas_sme.dylib
+# the shared libraries with version, the backends of the dispatching
+# library, Windows DLLs and import libraries
+/libulmblas.0.dylib
+/libulmblas.so.0
+/libulmblas_*.so
+/libulmblas*.dll
+/libulmblas*.dll.a
+/ulmblas.lib
 libulmlapack.so
 libulmlapack.dylib
 /build/
