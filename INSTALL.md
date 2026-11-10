@@ -234,6 +234,43 @@ BLAS.lbt_forward("/path/to/libulmblas_lbt.so"; clear=false)
 BLAS.set_num_threads(n)           # ulmBLAS too
 ```
 
+## Shared libraries for NumPy and other programs
+
+```sh
+make install-shared PREFIX=$HOME/ulmblas
+sh interfaces/python/numpy.sh $HOME/ulmblas $HOME/venv-ulmblas
+$HOME/venv-ulmblas/bin/python -c 'import numpy; numpy.show_config()'
+```
+
+`make install-shared` builds and installs in `PREFIX`:
+
+| File | Content |
+| --- | --- |
+| `lib/libulmblas.dylib` (Linux: `.so`) | BLAS: Fortran 77 interface (32-bit integers, `dgemm_`) and CBLAS (`cblas_dgemm`) |
+| `lib/libulmblas_sme.dylib`, `lib/libulmblas_neon.dylib` | only macOS on Apple Silicon, see below |
+| `lib/libulmlapack.dylib` (`.so`) | Reference-LAPACK 3.12.1, unmodified, on top of `libulmblas` (needs CMake and `gfortran`, FC; skipped without them) |
+| `include/cblas.h` | |
+| `lib/pkgconfig/ulmblas.pc`, `ulmlapack.pc` | for the build systems of other programs (NumPy: meson) |
+
+- On Apple Silicon `libulmblas.dylib` is a small front: when it is loaded
+  it selects `libulmblas_sme` (M4 and later: SME2 with 64-bit floating
+  point) or `libulmblas_neon` (M1 to M3).  `ULMBLAS_BACKEND=neon` (or
+  `sme`) overrides the choice; `ulmblas_backend()` returns the name of the
+  backend in use.  Elsewhere `libulmblas` is the library itself, with the
+  micro kernels of `ARCHFLAGS`.
+- The libraries have their own names, so they are never confused with a
+  `libblas` or `liblapack` of the system; programs find them through the
+  run path recorded by `pkg-config` (`-Wl,-rpath`).
+- `libulmlapack` needs the Fortran runtime of the compiler that built it
+  (`libgfortran`).
+- `interfaces/python/numpy.sh PREFIX VENV [VERSION]` creates a virtual
+  environment and builds NumPy from source against these libraries
+  (`-Dblas=ulmblas -Dlapack=ulmlapack`); it needs `python3` (PYTHON) and
+  `pkg-config`.  The NumPy wheels from PyPI bring their own BLAS
+  (Accelerate on macOS, OpenBLAS elsewhere), so NumPy has to be built.
+  Tested: NumPy 2.5.4, Python 3.15, macOS 26 on an M5; the NumPy test
+  suite passes.
+
 ## Test
 
 Test the libraries (`make` rebuilds them for every test configuration

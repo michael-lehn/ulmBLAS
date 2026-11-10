@@ -273,8 +273,9 @@ binary interface does not depend on the header.
 calls it in `?lasyf`) is provided by both interfaces
 (`ulmblas/level3/gemmtr.tcc`: the part outside the diagonal blocks by
 `gemm`, the diagonal blocks by `gemm` into a buffer).  Not provided:
-`lsame` and `xerbla_array` (auxiliary routines that LAPACK contains
-itself), the routines of the Reference-LAPACK development version
+`lsame` (only in the shared library, `make shared`, which LAPACK uses
+without its own) and `xerbla_array` (auxiliary routines that LAPACK
+contains itself), the routines of the Reference-LAPACK development version
 (`?axpby`, skew-symmetric routines).
 The index type of all interfaces is `ULMBLAS_INDEX_TYPE` (default `int`,
 64-bit types on request, see [INSTALL.md](INSTALL.md#index-type)), except

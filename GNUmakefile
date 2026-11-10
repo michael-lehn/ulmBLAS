@@ -11,6 +11,7 @@ TOPDIR = .
 include $(TOPDIR)/make.inc
 
 .PHONY : all cblas atlblas clapack atllapack f77blas f77lapack refblas lbt shared \
+         install-shared \
          check-shared shared-dispatch \
          check check-numeric check-netlib check-reference-lapack \
          check-reference-lapack-lin \
@@ -57,6 +58,14 @@ shared : tool-ar
 #  or libulmblas_sme.dylib at load time
 shared-dispatch : tool-ar
 	$(MAKE) -C interfaces/blas/dispatch
+
+#  Build and install the shared libraries (libulmblas, libulmlapack if a
+#  Fortran compiler is found), cblas.h and pkg-config files in PREFIX, e.g.
+#  for NumPy (interfaces/python/numpy.sh)
+install-shared :
+	@test -n "$(PREFIX)" || { echo "usage: make install-shared PREFIX=dir"; exit 2; }
+	MAKE="$(MAKE)" FC="$(if $(filter default,$(origin FC)),gfortran,$(FC))" \
+	    $(SHELL) interfaces/install-shared.sh "$(PREFIX)"
 
 #  The Netlib test programs (test/F77, test/C) against libulmblas (needs FC)
 check-shared : shared
