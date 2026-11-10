@@ -1,0 +1,506 @@
+From c1a24aef830228588cee12d3fb60b3191d1a8b43 Mon Sep 17 00:00:00 2001
+From: Michael Lehn <michael.lehn@uni-ulm.de>
+Date: Tue, 10 Nov 2026 23:11:31 +0100
+Subject: [PATCH 2/2] MNT: Re-rendered with conda-smithy 2026.11.6
+
+---
+ .azure-pipelines/azure-pipelines-osx.yml      | 28 ++++++----
+ .ci_support/linux_64_blas_implulmblas.yaml    | 48 +++++++++++++++++
+ .../linux_aarch64_blas_implulmblas.yaml       | 48 +++++++++++++++++
+ .ci_support/osx_arm64_blas_implulmblas.yaml   | 51 +++++++++++++++++++
+ .ci_support/win_64_blas_implulmblas.yaml      | 38 ++++++++++++++
+ .github/workflows/conda-build.yml             | 36 +++++++++++++
+ .scripts/run_osx_build.sh                     | 12 ++++-
+ .scripts/run_win_build.bat                    | 24 +++++++--
+ README.md                                     |  7 +++
+ 9 files changed, 276 insertions(+), 16 deletions(-)
+ create mode 100644 .ci_support/linux_64_blas_implulmblas.yaml
+ create mode 100644 .ci_support/linux_aarch64_blas_implulmblas.yaml
+ create mode 100644 .ci_support/osx_arm64_blas_implulmblas.yaml
+ create mode 100644 .ci_support/win_64_blas_implulmblas.yaml
+
+diff --git a/.azure-pipelines/azure-pipelines-osx.yml b/.azure-pipelines/azure-pipelines-osx.yml
+index 6c2d2c3..f6180b2 100644
+--- a/.azure-pipelines/azure-pipelines-osx.yml
++++ b/.azure-pipelines/azure-pipelines-osx.yml
+@@ -5,89 +5,99 @@
+ jobs:
+ - job: osx
+   pool:
+-    vmImage: $(VMIMAGE)
++    vmImage: $(vm_image)
+   strategy:
+     matrix:
+       osx_64_blas_implaccelerate:
+         CONFIG: osx_64_blas_implaccelerate
+         UPLOAD_PACKAGES: 'True'
+-        VMIMAGE: macOS-15
+         build_workspace_dir: ~/miniforge3/conda-bld
+         free_disk_space: skip
+         pagefile_size: 0
+         resize_partitions: false
+         store_build_artifacts: false
+         tools_install_dir: ~/miniforge3
++        vm_image: macOS-15
+       osx_64_blas_implblis:
+         CONFIG: osx_64_blas_implblis
+         UPLOAD_PACKAGES: 'True'
+-        VMIMAGE: macOS-15
+         build_workspace_dir: ~/miniforge3/conda-bld
+         free_disk_space: skip
+         pagefile_size: 0
+         resize_partitions: false
+         store_build_artifacts: false
+         tools_install_dir: ~/miniforge3
++        vm_image: macOS-15
+       osx_64_blas_implnewaccelerate:
+         CONFIG: osx_64_blas_implnewaccelerate
+         UPLOAD_PACKAGES: 'True'
+-        VMIMAGE: macOS-15
+         build_workspace_dir: ~/miniforge3/conda-bld
+         free_disk_space: skip
+         pagefile_size: 0
+         resize_partitions: false
+         store_build_artifacts: false
+         tools_install_dir: ~/miniforge3
++        vm_image: macOS-15
+       osx_64_blas_implopenblas:
+         CONFIG: osx_64_blas_implopenblas
+         UPLOAD_PACKAGES: 'True'
+-        VMIMAGE: macOS-15
+         build_workspace_dir: ~/miniforge3/conda-bld
+         free_disk_space: skip
+         pagefile_size: 0
+         resize_partitions: false
+         store_build_artifacts: false
+         tools_install_dir: ~/miniforge3
++        vm_image: macOS-15
+       osx_arm64_blas_implaccelerate:
+         CONFIG: osx_arm64_blas_implaccelerate
+         UPLOAD_PACKAGES: 'True'
+-        VMIMAGE: macOS-15-arm64
+         build_workspace_dir: ~/miniforge3/conda-bld
+         free_disk_space: skip
+         pagefile_size: 0
+         resize_partitions: false
+         store_build_artifacts: false
+         tools_install_dir: ~/miniforge3
++        vm_image: macOS-15-arm64
+       osx_arm64_blas_implblis:
+         CONFIG: osx_arm64_blas_implblis
+         UPLOAD_PACKAGES: 'True'
+-        VMIMAGE: macOS-15-arm64
+         build_workspace_dir: ~/miniforge3/conda-bld
+         free_disk_space: skip
+         pagefile_size: 0
+         resize_partitions: false
+         store_build_artifacts: false
+         tools_install_dir: ~/miniforge3
++        vm_image: macOS-15-arm64
+       osx_arm64_blas_implnewaccelerate:
+         CONFIG: osx_arm64_blas_implnewaccelerate
+         UPLOAD_PACKAGES: 'True'
+-        VMIMAGE: macOS-15-arm64
+         build_workspace_dir: ~/miniforge3/conda-bld
+         free_disk_space: skip
+         pagefile_size: 0
+         resize_partitions: false
+         store_build_artifacts: false
+         tools_install_dir: ~/miniforge3
++        vm_image: macOS-15-arm64
+       osx_arm64_blas_implopenblas:
+         CONFIG: osx_arm64_blas_implopenblas
+         UPLOAD_PACKAGES: 'True'
+-        VMIMAGE: macOS-15-arm64
+         build_workspace_dir: ~/miniforge3/conda-bld
+         free_disk_space: skip
+         pagefile_size: 0
+         resize_partitions: false
+         store_build_artifacts: false
+         tools_install_dir: ~/miniforge3
++        vm_image: macOS-15-arm64
++      osx_arm64_blas_implulmblas:
++        CONFIG: osx_arm64_blas_implulmblas
++        UPLOAD_PACKAGES: 'True'
++        build_workspace_dir: ~/miniforge3/conda-bld
++        free_disk_space: skip
++        pagefile_size: 0
++        resize_partitions: false
++        store_build_artifacts: false
++        tools_install_dir: ~/miniforge3
++        vm_image: macOS-15-arm64
+   timeoutInMinutes: 360
+   variables: {}
+ 
+diff --git a/.ci_support/linux_64_blas_implulmblas.yaml b/.ci_support/linux_64_blas_implulmblas.yaml
+new file mode 100644
+index 0000000..8c06f76
+--- /dev/null
++++ b/.ci_support/linux_64_blas_implulmblas.yaml
+@@ -0,0 +1,48 @@
++DOCKER_PLATFORM:
++- linux/amd64
++blas_default_impl:
++- openblas
++blas_impl:
++- ulmblas
++blas_impl_lib:
++- libulmblas.so.0
++c_compiler:
++- gcc
++c_compiler_version:
++- '15'
++c_stdlib:
++- sysroot
++c_stdlib_version:
++- '2.17'
++channel_sources:
++- conda-forge
++channel_targets:
++- conda-forge main
++docker_image:
++- quay.io/condaforge/linux-anvil-x86_64:alma10
++fortran_compiler:
++- gfortran
++fortran_compiler_version:
++- '15'
++lapack_impl_lib:
++- notapplicable
++libblas:
++- 3.9.* *netlib
++libcblas:
++- 3.9.* *netlib
++liblapack:
++- 3.9.* *netlib
++liblapacke:
++- 3.9.* *netlib
++numpy:
++- '2'
++openblas:
++- 0.3.*
++target_platform:
++- linux-64
++zip_keys:
++- - blas_impl
++  - blas_impl_lib
++  - lapack_impl_lib
++- - c_compiler_version
++  - fortran_compiler_version
+diff --git a/.ci_support/linux_aarch64_blas_implulmblas.yaml b/.ci_support/linux_aarch64_blas_implulmblas.yaml
+new file mode 100644
+index 0000000..5ffea56
+--- /dev/null
++++ b/.ci_support/linux_aarch64_blas_implulmblas.yaml
+@@ -0,0 +1,48 @@
++DOCKER_PLATFORM:
++- linux/aarch64
++blas_default_impl:
++- openblas
++blas_impl:
++- ulmblas
++blas_impl_lib:
++- libulmblas.so.0
++c_compiler:
++- gcc
++c_compiler_version:
++- '15'
++c_stdlib:
++- sysroot
++c_stdlib_version:
++- '2.17'
++channel_sources:
++- conda-forge
++channel_targets:
++- conda-forge main
++docker_image:
++- quay.io/condaforge/linux-anvil-aarch64:alma10
++fortran_compiler:
++- gfortran
++fortran_compiler_version:
++- '15'
++lapack_impl_lib:
++- notapplicable
++libblas:
++- 3.9.* *netlib
++libcblas:
++- 3.9.* *netlib
++liblapack:
++- 3.9.* *netlib
++liblapacke:
++- 3.9.* *netlib
++numpy:
++- '2'
++openblas:
++- 0.3.*
++target_platform:
++- linux-aarch64
++zip_keys:
++- - blas_impl
++  - blas_impl_lib
++  - lapack_impl_lib
++- - c_compiler_version
++  - fortran_compiler_version
+diff --git a/.ci_support/osx_arm64_blas_implulmblas.yaml b/.ci_support/osx_arm64_blas_implulmblas.yaml
+new file mode 100644
+index 0000000..0ad28e6
+--- /dev/null
++++ b/.ci_support/osx_arm64_blas_implulmblas.yaml
+@@ -0,0 +1,51 @@
++MACOSX_SDK_VERSION:
++- '11.0'
++blas_default_impl:
++- openblas
++blas_impl:
++- ulmblas
++blas_impl_lib:
++- libulmblas.0.dylib
++c_compiler:
++- clang
++c_compiler_version:
++- '21'
++c_stdlib:
++- macosx_deployment_target
++c_stdlib_version:
++- '11.0'
++channel_sources:
++- conda-forge
++channel_targets:
++- conda-forge main
++fortran_compiler:
++- gfortran
++fortran_compiler_version:
++- '15'
++lapack_impl_lib:
++- notapplicable
++libblas:
++- 3.9.* *netlib
++libcblas:
++- 3.9.* *netlib
++liblapack:
++- 3.9.* *netlib
++liblapacke:
++- 3.9.* *netlib
++llvm_openmp:
++- '21'
++macos_machine:
++- arm64-apple-darwin20.0.0
++numpy:
++- '2'
++openblas:
++- 0.3.*
++target_platform:
++- osx-arm64
++zip_keys:
++- - blas_impl
++  - blas_impl_lib
++  - lapack_impl_lib
++  - MACOSX_SDK_VERSION
++- - c_compiler_version
++  - fortran_compiler_version
+diff --git a/.ci_support/win_64_blas_implulmblas.yaml b/.ci_support/win_64_blas_implulmblas.yaml
+new file mode 100644
+index 0000000..7172729
+--- /dev/null
++++ b/.ci_support/win_64_blas_implulmblas.yaml
+@@ -0,0 +1,38 @@
++blas_default_impl:
++- mkl
++blas_impl:
++- ulmblas
++blas_impl_lib:
++- libulmblas.dll
++c_compiler:
++- clang
++c_stdlib:
++- vs
++channel_sources:
++- conda-forge
++channel_targets:
++- conda-forge main
++fortran_compiler:
++- flang
++fortran_compiler_version:
++- '21'
++lapack_impl_lib:
++- notapplicable
++libblas:
++- 3.9.* *netlib
++libcblas:
++- 3.9.* *netlib
++liblapack:
++- 3.9.* *netlib
++liblapacke:
++- 3.9.* *netlib
++numpy:
++- '2'
++openblas:
++- 0.3.*
++target_platform:
++- win-64
++zip_keys:
++- - blas_impl
++  - blas_impl_lib
++  - lapack_impl_lib
+diff --git a/.github/workflows/conda-build.yml b/.github/workflows/conda-build.yml
+index 08e3e78..1b48fd9 100644
+--- a/.github/workflows/conda-build.yml
++++ b/.github/workflows/conda-build.yml
+@@ -58,6 +58,18 @@ jobs:
+             resize_partitions: False
+             runs_on: ['ubuntu-latest']
+             tools_install_dir: ~/miniforge3
++          - CONFIG: linux_64_blas_implulmblas
++            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma10
++            STORE_BUILD_ARTIFACTS: False
++            UPLOAD_PACKAGES: True
++            build_workspace_dir: build_artifacts
++            docker_run_args: 
++            free_disk_space: skip
++            os: ubuntu
++            pagefile_size: 0
++            resize_partitions: False
++            runs_on: ['ubuntu-latest']
++            tools_install_dir: ~/miniforge3
+           - CONFIG: linux_aarch64_blas_implblis
+             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma10
+             STORE_BUILD_ARTIFACTS: False
+@@ -94,6 +106,18 @@ jobs:
+             resize_partitions: False
+             runs_on: ['ubuntu-24.04-arm']
+             tools_install_dir: ~/miniforge3
++          - CONFIG: linux_aarch64_blas_implulmblas
++            DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64:alma10
++            STORE_BUILD_ARTIFACTS: False
++            UPLOAD_PACKAGES: True
++            build_workspace_dir: build_artifacts
++            docker_run_args: 
++            free_disk_space: skip
++            os: ubuntu
++            pagefile_size: 0
++            resize_partitions: False
++            runs_on: ['ubuntu-24.04-arm']
++            tools_install_dir: ~/miniforge3
+           - CONFIG: linux_ppc64le_
+             DOCKER_IMAGE: quay.io/condaforge/linux-anvil-x86_64:alma10
+             STORE_BUILD_ARTIFACTS: False
+@@ -154,6 +178,18 @@ jobs:
+             resize_partitions: False
+             runs_on: ['windows-2022']
+             tools_install_dir: D:\Miniforge
++          - CONFIG: win_64_blas_implulmblas
++            STORE_BUILD_ARTIFACTS: False
++            UPLOAD_PACKAGES: True
++            build_platform: win-64
++            build_workspace_dir: D:\\bld\\
++            docker_run_args: 
++            free_disk_space: skip
++            os: windows
++            pagefile_size: 0
++            resize_partitions: False
++            runs_on: ['windows-2022']
++            tools_install_dir: D:\Miniforge
+           - CONFIG: win_arm64_
+             STORE_BUILD_ARTIFACTS: False
+             UPLOAD_PACKAGES: True
+diff --git a/.scripts/run_osx_build.sh b/.scripts/run_osx_build.sh
+index 9a08751..2769e63 100755
+--- a/.scripts/run_osx_build.sh
++++ b/.scripts/run_osx_build.sh
+@@ -28,20 +28,28 @@ export RATTLER_CACHE_DIR="${CONDA_BLD_PATH}/pkg_cache"
+ ( endgroup "Configuring build environment" ) 2> /dev/null
+ 
+ arch=$(uname -m)
++MICROMAMBA_VERSION="2.10.0-0"
++MINIFORGE_VERSION="26.9.4-2"
+ if [[ "${arch}" == "x86_64" ]]; then
+   arch="64"
++  MICROMAMBA_SHA256="8421462a1ef1df9f7acd114f9e2a24c1332ce4f4e29f44465b4acb44e2755172"
++  MINIFORGE_SHA256="30e82ce68875fc50b917a3a541ea0516272866584187f7ea980ce8eaf715807d"
++else
++  # arch is already correct
++  MICROMAMBA_SHA256="c547639f5caf742236641c362746abb4a3505774753ecd08fe341643670c4c01"
++  MINIFORGE_SHA256="fb567612b76f4ef46de326f04425dbe381b6afc6a66c545f5043255a5ef34258"
+ fi
+ 
+ ( startgroup "Provisioning base env with micromamba" ) 2> /dev/null
+ 
+ MAMBA_ROOT_PREFIX="${MINIFORGE_HOME}-micromamba-$(date +%s)"
+-MICROMAMBA_VERSION="2.9.0-0"
+ MICROMAMBA_URL="https://github.com/mamba-org/micromamba-releases/releases/download/${MICROMAMBA_VERSION}/micromamba-osx-${arch}"
+ MICROMAMBA_TMPDIR=$(mktemp -d)
+ MICROMAMBA_EXE=${MICROMAMBA_TMPDIR}/micromamba
+ 
+ echo "Downloading micromamba ${MICROMAMBA_VERSION}"
+-curl -L -o "${MICROMAMBA_EXE}" "${MICROMAMBA_URL}"
++curl --fail --retry 5 --retry-delay 5 -L -o "${MICROMAMBA_EXE}" "${MICROMAMBA_URL}"
++echo "${MICROMAMBA_SHA256} *${MICROMAMBA_EXE}" | shasum -a 256 -c
+ chmod +x "${MICROMAMBA_EXE}"
+ 
+ echo Creating environment
+diff --git a/.scripts/run_win_build.bat b/.scripts/run_win_build.bat
+index bb04aa4..2bb22a7 100755
+--- a/.scripts/run_win_build.bat
++++ b/.scripts/run_win_build.bat
+@@ -22,22 +22,36 @@ set RECIPE_ROOT=%FEEDSTOCK_ROOT%\recipe
+ set CI_SUPPORT=%FEEDSTOCK_ROOT%\.ci_support
+ set CONFIG_FILE=%CI_SUPPORT%\%CONFIG%.yaml
+ 
+-set "arch=64"
+-if "%PROCESSOR_ARCHITECTURE%"=="ARM64" set "arch=arm64"
++set "MICROMAMBA_VERSION=2.10.0-0"
++set "MINIFORGE_VERSION=26.9.4-2"
++if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
++    set "short_arch=64"
++    set "full_arch=x86_64"
++    set "MICROMAMBA_SHA256=f8b4284bd4eb1134122eaf93b3ea6c7be567e596de5829e1a6f478e34e41974a"
++    set "MINIFORGE_SHA256=9d83983669bc5d3b5dd4c631454bf953c3caf4ac78b9c9ada9971e5b021d83c3"
++) else (
++    set "short_arch=arm64"
++    set "full_arch=arm64"
++    set "MICROMAMBA_SHA256=1fcb3463c684d02366a3d447c153d00922decb16999eef7fb4634d0942a9093e"
++    set "MINIFORGE_SHA256=4cbb52ff0239488723f5e7ed0f362d393fc471a733dcd5ee9b03c74f188010c4"
++)
+ 
+ call :start_group "Provisioning base env with micromamba"
+ 
+ set "MAMBA_ROOT_PREFIX=%MINIFORGE_HOME%-micromamba-%RANDOM%"
+-set "MICROMAMBA_VERSION=2.9.0-0"
+-set "MICROMAMBA_URL=https://github.com/mamba-org/micromamba-releases/releases/download/%MICROMAMBA_VERSION%/micromamba-win-%arch%"
++set "MICROMAMBA_URL=https://github.com/mamba-org/micromamba-releases/releases/download/%MICROMAMBA_VERSION%/micromamba-win-%short_arch%"
+ set "MICROMAMBA_TMPDIR=%TMP%\micromamba-%RANDOM%"
+ set "MICROMAMBA_EXE=%MICROMAMBA_TMPDIR%\micromamba.exe"
+ 
+-echo Downloading micromamba %MICROMAMBA_VERSION%
++echo Downloading micromamba %MICROMAMBA_VERSION% from %MICROMAMBA_URL%
+ if not exist "%MICROMAMBA_TMPDIR%" mkdir "%MICROMAMBA_TMPDIR%"
+ powershell -ExecutionPolicy Bypass -Command "(New-Object Net.WebClient).DownloadFile('%MICROMAMBA_URL%', '%MICROMAMBA_EXE%')"
+ if !errorlevel! neq 0 exit /b !errorlevel!
+ 
++if "%MICROMAMBA_SHA256%"=="" exit /b 1
++powershell -ExecutionPolicy Bypass -Command "$h = Get-FileHash '%MICROMAMBA_EXE%' -ErrorAction Stop; if ($h.Hash -ne $env:MICROMAMBA_SHA256) { Write-Error "SHA256 mismatch:`n  Expected: $env:MICROMAMBA_SHA256`n  Actual:   $($h.Hash)"; exit 1 }"
++if !errorlevel! neq 0 exit /b !errorlevel!
++
+ echo Creating environment
+ call "%MICROMAMBA_EXE%" create --yes --root-prefix "%MAMBA_ROOT_PREFIX%" --prefix "%MINIFORGE_HOME%" ^
+     --channel conda-forge ^
+diff --git a/README.md b/README.md
+index 00723a6..f6f455e 100644
+--- a/README.md
++++ b/README.md
+@@ -89,6 +89,13 @@ Current build status
+                   <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/blas-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_arm64_blas_implopenblas" alt="variant">
+                 </a>
+               </td>
++            </tr><tr>
++              <td>osx_arm64_blas_implulmblas</td>
++              <td>
++                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=3701&branchName=main">
++                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/blas-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_arm64_blas_implulmblas" alt="variant">
++                </a>
++              </td>
+             </tr>
+           </tbody>
+         </table>
+-- 
+2.56.0
+

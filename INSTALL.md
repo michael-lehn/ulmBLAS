@@ -236,6 +236,17 @@ BLAS.set_num_threads(n)           # ulmBLAS too
 
 ## Shared libraries for NumPy and other programs
 
+Ready-made packages (once published, see
+[packaging/README.md](packaging/README.md)):
+
+```sh
+conda install -c conda-forge numpy "libblas=*=*ulmblas"   # NumPy, SciPy, ... on ulmBLAS
+conda install -c conda-forge libulmblas                   # the library alone
+brew install michael-lehn/ulmblas/ulmblas                  # macOS (Apple Silicon), Linux
+```
+
+From the sources:
+
 ```sh
 make install-shared PREFIX=$HOME/ulmblas
 sh interfaces/python/numpy.sh $HOME/ulmblas $HOME/venv-ulmblas
@@ -246,18 +257,29 @@ $HOME/venv-ulmblas/bin/python -c 'import numpy; numpy.show_config()'
 
 | File | Content |
 | --- | --- |
-| `lib/libulmblas.dylib` (Linux: `.so`) | BLAS: Fortran 77 interface (32-bit integers, `dgemm_`) and CBLAS (`cblas_dgemm`) |
-| `lib/libulmblas_sme.dylib`, `lib/libulmblas_neon.dylib` | only macOS on Apple Silicon, see below |
-| `lib/libulmlapack.dylib` (`.so`) | Reference-LAPACK 3.12.1, unmodified, on top of `libulmblas` (needs CMake and `gfortran`, FC; skipped without them) |
-| `include/cblas.h` | |
+| `lib/libulmblas.0.dylib`, Linux `lib/libulmblas.so.0`, Windows `bin/libulmblas.dll` (with `lib/libulmblas.dll.a`, `lib/ulmblas.lib`); and the link `libulmblas.dylib` (`.so`) | BLAS: Fortran 77 interface (32-bit integers, `dgemm_`) and CBLAS (`cblas_dgemm`) |
+| `lib/libulmblas_sme.dylib`, `lib/libulmblas_neon.dylib` (Apple Silicon); `libulmblas_avx512`, `_avx2`, `_sse3` (`.so`, `.dll`; x86-64) | the backends, see below |
+| `lib/libulmlapack.dylib` (`.so`) | Reference-LAPACK 3.12.1, unmodified, on top of `libulmblas` (needs CMake and `gfortran`, FC; skipped without them, and on Windows) |
+| `include/cblas.h` (`ULMBLAS_INCLUDEDIR` puts it elsewhere) | |
 | `lib/pkgconfig/ulmblas.pc`, `ulmlapack.pc` | for the build systems of other programs (NumPy: meson) |
 
-- On Apple Silicon `libulmblas.dylib` is a small front: when it is loaded
-  it selects `libulmblas_sme` (M4 and later: SME2 with 64-bit floating
-  point) or `libulmblas_neon` (M1 to M3).  `ULMBLAS_BACKEND=neon` (or
-  `sme`) overrides the choice; `ulmblas_backend()` returns the name of the
-  backend in use.  Elsewhere `libulmblas` is the library itself, with the
-  micro kernels of `ARCHFLAGS`.
+- On Apple Silicon and on x86-64 (Linux, Windows) `libulmblas` is a small
+  front that selects a backend for the CPU when it is loaded (Windows: at
+  the first call), the first of the list the CPU supports:
+
+  | Platform | Backends |
+  | --- | --- |
+  | macOS, Apple Silicon | `sme` (M4 and later: SME2 with 64-bit floating point), `neon` |
+  | x86-64 | `avx512` (AVX-512F, with the vendored OpenBLAS SKYLAKEX DGEMM kernel), `avx2` (AVX2 and FMA), `sse3` |
+
+  `ULMBLAS_BACKEND=name` overrides the choice; `ulmblas_backend()` returns
+  the name of the backend in use.  The backends must be in the directory
+  of the front.  Elsewhere (e.g. Linux on AArch64) `libulmblas` is the
+  library itself, with the micro kernels of `ARCHFLAGS`.  Intel Macs are
+  not supported.
+- Other names for the front (`libblas.so.3`, `libcblas.so.3`, as conda
+  and Linux distributions use them) work as links in the same directory:
+  the backends are searched in the directory of the file that was loaded.
 - The libraries have their own names, so they are never confused with a
   `libblas` or `liblapack` of the system; programs find them through the
   run path recorded by `pkg-config` (`-Wl,-rpath`).
@@ -272,6 +294,15 @@ $HOME/venv-ulmblas/bin/python -c 'import numpy; numpy.show_config()'
   26 on an M5; NumPy 2.4.6, Python 3.11, Debian 12 on x86-64 (there the
   environment uses the system's pip if `python3-venv` is missing; for the
   f2py tests install `meson` in it).
+- A NumPy (or SciPy) that links the generic `libblas.so.3` (conda-forge,
+  Debian and other distributions) uses ulmBLAS without being rebuilt when
+  `libblas.so.3` resolves to `libulmblas.so.0`, e.g. through a directory
+  in `LD_LIBRARY_PATH` with the links `libblas.so.3`, `libcblas.so.3` and
+  the backends.  Tested: conda-forge NumPy 2.5.4 and SciPy 1.18.1 on an
+  M5 (NumPy test suite and `scipy.linalg` pass), Debian's NumPy 1.24 and
+  SciPy 1.10 on x86-64 (`numpy.linalg`, `scipy.linalg`: one slow test,
+  `test_orth_memory_efficiency`, fails marginally; the reference BLAS
+  passes it with 90% of the tolerance, see packaging/README.md).
 
 ## Test
 

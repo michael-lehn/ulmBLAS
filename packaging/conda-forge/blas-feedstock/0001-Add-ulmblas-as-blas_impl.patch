@@ -1,3 +1,13 @@
+From 9b9e81bbb7b11d20fbd179fa059d651b239142d4 Mon Sep 17 00:00:00 2001
+From: Michael Lehn <michael.lehn@uni-ulm.de>
+Date: Tue, 10 Nov 2026 23:06:45 +0100
+Subject: [PATCH 1/2] Add ulmblas as blas_impl
+
+---
+ recipe/conda_build_config.yaml | 11 +++++++++++
+ recipe/meta.yaml               | 27 ++++++++++++++++-----------
+ 2 files changed, 27 insertions(+), 11 deletions(-)
+
 diff --git a/recipe/conda_build_config.yaml b/recipe/conda_build_config.yaml
 index 61d429f..ca472bf 100644
 --- a/recipe/conda_build_config.yaml
@@ -42,9 +52,17 @@ index 61d429f..ca472bf 100644
  - 11.0                     # [osx]
  # newaccelerate
 diff --git a/recipe/meta.yaml b/recipe/meta.yaml
-index 9fa77d0..d940ff5 100644
+index 9fa77d0..3f06033 100644
 --- a/recipe/meta.yaml
 +++ b/recipe/meta.yaml
+@@ -1,6 +1,6 @@
+ {% set version = "3.11.0" %}
+ # if build_num is reset to 0 (for new version), update increment for blas_minor below
+-{% set build_num = 12 %}
++{% set build_num = 13 %}
+ 
+ {% set version_major = version.split(".")[0] %}
+ {% set version_minor = version.split(".")[1] %}
 @@ -12,6 +12,7 @@
  
  # versions of pinned blas implementation flavours
@@ -141,3 +159,6 @@ index 9fa77d0..d940ff5 100644
      test:
        commands:
          - test -f $PREFIX/lib/pkgconfig/blas.pc                     # [unix and blas_impl == "openblas"]
+-- 
+2.56.0
+
