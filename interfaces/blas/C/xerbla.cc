@@ -4,6 +4,18 @@
 
 extern "C" {
 
+//
+//  In the shared library (interfaces/blas/shared) the error handler is a
+//  weak definition, so that a program can replace it (the Netlib test
+//  programs do): on macOS calls inside a library are otherwise bound to
+//  its own definition.
+//
+#if defined(ULMBLAS_REPLACEABLE_XERBLA)
+#define ULMBLAS_XERBLA_ATTRIBUTE __attribute__((weak))
+#else
+#define ULMBLAS_XERBLA_ATTRIBUTE
+#endif
+
 void
 ULMBLAS(xerbla)(int info, const char *rout, const char *form, ...)
 {
@@ -16,7 +28,7 @@ ULMBLAS(xerbla)(int info, const char *rout, const char *form, ...)
 //  cblas_xerbla of the reference CBLAS, the position in the call of the
 //  CBLAS function is printed.
 //
-void
+ULMBLAS_XERBLA_ATTRIBUTE void
 CBLAS(xerbla)(int info, const char *rout, const char *form, ...)
 {
     extern int RowMajorStrg;

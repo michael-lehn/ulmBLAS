@@ -10,7 +10,8 @@ TOPDIR = .
 
 include $(TOPDIR)/make.inc
 
-.PHONY : all cblas atlblas clapack atllapack f77blas f77lapack refblas lbt \
+.PHONY : all cblas atlblas clapack atllapack f77blas f77lapack refblas lbt shared \
+         check-shared \
          check check-numeric check-netlib check-reference-lapack \
          check-reference-lapack-lin \
          check-conformance \
@@ -48,6 +49,15 @@ refblas : tool-ar tool-fc
 
 lbt : tool-ar
 	$(MAKE) -C interfaces/blas/lbt
+
+shared : tool-ar
+	$(MAKE) -C interfaces/blas/shared
+
+#  The Netlib test programs (test/F77, test/C) against libulmblas (needs FC)
+check-shared : shared
+	FC="$(FC)" CC="$(CC)" $(SHELL) test/check-shared.sh . \
+	         interfaces/blas/shared/build.shared \
+	         test/build/shared
 
 #
 #  Tests (see test/Makefile)
@@ -116,6 +126,7 @@ clean :
 	$(MAKE) -C interfaces/lapack/F77 clean
 	$(MAKE) -C refblas clean
 	$(MAKE) -C interfaces/blas/lbt clean
+	$(MAKE) -C interfaces/blas/shared clean
 	$(MAKE) -C test clean
 	$(MAKE) -C bench clean
 
@@ -132,6 +143,9 @@ help :
 	@echo '  refblas          Netlib reference BLAS: librefblas.a (needs FC)'
 	@echo '  lbt              shared library for Julia (libblastrampoline): ILP64'
 	@echo '                   Fortran 77 interface, libulmblas_lbt.so / .dylib'
+	@echo '  shared           shared library with the standard interfaces: Fortran 77'
+	@echo '                   (LP64, dgemm_) and CBLAS, libulmblas.so / .dylib'
+	@echo '  check-shared     Netlib test programs against libulmblas (needs FC)'
 	@echo '  check            build and run all tests'
 	@echo '  check-numeric    only the C++ tests (no Fortran compiler needed)'
 	@echo '  check-netlib     only the Netlib BLAS test suites (needs FC and CC)'
