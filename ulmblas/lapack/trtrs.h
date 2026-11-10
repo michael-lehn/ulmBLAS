@@ -11,19 +11,10 @@ namespace ulmBLAS {
 //  B is not changed, as LAPACK's ?trtrs).  Any strides.
 //
 template <typename IndexType, typename T>
-    IndexType
-    trtrs(bool         lower,
-          bool         trans,
-          bool         conj,
-          bool         unitDiag,
-          IndexType    n,
-          IndexType    nrhs,
-          const T      *A,
-          IndexType    incRowA,
-          IndexType    incColA,
-          T            *B,
-          IndexType    incRowB,
-          IndexType    incColB);
+IndexType
+trtrs(bool lower, bool trans, bool conj, bool unitDiag, IndexType n,
+      IndexType nrhs, const T *A, IndexType incRowA, IndexType incColA, T *B,
+      IndexType incRowB, IndexType incColB);
 
 } // namespace ulmBLAS
 

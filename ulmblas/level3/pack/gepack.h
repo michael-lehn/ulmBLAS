@@ -4,24 +4,14 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename TA, typename Buffer>
-    void
-    gepack_A(IndexType   mc,
-             IndexType   kc,
-             bool        conj,
-             const TA    *A,
-             IndexType   incRowA,
-             IndexType   incColA,
-             Buffer      *buffer);
+void
+gepack_A(IndexType mc, IndexType kc, bool conj, const TA *A, IndexType incRowA,
+         IndexType incColA, Buffer *buffer);
 
 template <typename IndexType, typename TB, typename Buffer>
-    void
-    gepack_B(IndexType   kc,
-             IndexType   nc,
-             bool        conj,
-             const TB    *B,
-             IndexType   incRowB,
-             IndexType   incColB,
-             Buffer      *buffer);
+void
+gepack_B(IndexType kc, IndexType nc, bool conj, const TB *B, IndexType incRowB,
+         IndexType incColB, Buffer *buffer);
 
 } // namespace ulmBLAS
 

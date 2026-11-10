@@ -4,399 +4,340 @@
 #include <interfaces/blas/C/xerbla.h>
 #include <ulmblas/ulmblas.h>
 
-//#define SCATTER
+// #define SCATTER
 
 #ifdef SCATTER
-#define   SCATTER_INCROWA   2
-#define   SCATTER_INCCOLA   3
-#define   SCATTER_INCX      4
-#define   SCATTER_INCY      5
+#define SCATTER_INCROWA 2
+#define SCATTER_INCCOLA 3
+#define SCATTER_INCX 4
+#define SCATTER_INCY 5
 #endif
-
 
 extern "C" {
 
 void
-ULMBLAS(sgemv)(enum CBLAS_TRANSPOSE  transA,
-               ULMBLAS_INDEX_TYPE    m,
-               ULMBLAS_INDEX_TYPE    n,
-               float                 alpha,
-               const float           *A,
-               ULMBLAS_INDEX_TYPE    ldA,
-               const float           *x,
-               ULMBLAS_INDEX_TYPE    incX,
-               float                 beta,
-               float                 *y,
-               ULMBLAS_INDEX_TYPE    incY)
+ULMBLAS(sgemv)(enum CBLAS_TRANSPOSE transA, ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n, float alpha, const float *A,
+               ULMBLAS_INDEX_TYPE ldA, const float *x, ULMBLAS_INDEX_TYPE incX,
+               float beta, float *y, ULMBLAS_INDEX_TYPE incY)
 {
-//
-//  Start the operations.
-//
-    if (transA==CblasNoTrans || transA==AtlasConj) {
-        if (incX<0) {
-            x -= incX*(n-1);
-        }
-        if (incY<0) {
-            y -= incY*(m-1);
-        }
-        ulmBLAS::gemv<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, x, incX,
-                                      beta, y, incY);
+    //
+    //  Start the operations.
+    //
+    if (transA == CblasNoTrans || transA == AtlasConj) {
+	if (incX < 0) {
+	    x -= incX * (n - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (m - 1);
+	}
+	ulmBLAS::gemv<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, x, incX, beta, y,
+	                              incY);
     } else {
-        if (incX<0) {
-            x -= incX*(m-1);
-        }
-        if (incY<0) {
-            y -= incY*(n-1);
-        }
-        ulmBLAS::gemv<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, x, incX,
-                                      beta, y, incY);
+	if (incX < 0) {
+	    x -= incX * (m - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (n - 1);
+	}
+	ulmBLAS::gemv<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, x, incX, beta, y,
+	                              incY);
     }
 }
 
 void
-ULMBLAS(dgemv)(enum CBLAS_TRANSPOSE  transA,
-               ULMBLAS_INDEX_TYPE    m,
-               ULMBLAS_INDEX_TYPE    n,
-               double                alpha,
-               const double          *A,
-               ULMBLAS_INDEX_TYPE    ldA,
-               const double          *x,
-               ULMBLAS_INDEX_TYPE    incX,
-               double                beta,
-               double                *y,
-               ULMBLAS_INDEX_TYPE    incY)
+ULMBLAS(dgemv)(enum CBLAS_TRANSPOSE transA, ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n, double alpha, const double *A,
+               ULMBLAS_INDEX_TYPE ldA, const double *x, ULMBLAS_INDEX_TYPE incX,
+               double beta, double *y, ULMBLAS_INDEX_TYPE incY)
 {
 #ifndef SCATTER
-//
-//  Start the operations.
-//
-    if (transA==CblasNoTrans || transA==AtlasConj) {
-        if (incX<0) {
-            x -= incX*(n-1);
-        }
-        if (incY<0) {
-            y -= incY*(m-1);
-        }
-        ulmBLAS::gemv<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, x, incX,
-                                      beta, y, incY);
+    //
+    //  Start the operations.
+    //
+    if (transA == CblasNoTrans || transA == AtlasConj) {
+	if (incX < 0) {
+	    x -= incX * (n - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (m - 1);
+	}
+	ulmBLAS::gemv<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, x, incX, beta, y,
+	                              incY);
     } else {
-        if (incX<0) {
-            x -= incX*(m-1);
-        }
-        if (incY<0) {
-            y -= incY*(n-1);
-        }
-        ulmBLAS::gemv<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, x, incX,
-                                      beta, y, incY);
+	if (incX < 0) {
+	    x -= incX * (m - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (n - 1);
+	}
+	ulmBLAS::gemv<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, x, incX, beta, y,
+	                              incY);
     }
 #else
-    if (transA==CblasNoTrans || transA==AtlasConj) {
-//
-//      Scatter operands
-//
-        double *A_ = new double[ldA*n*SCATTER_INCROWA*SCATTER_INCCOLA];
-        double *x_ = new double[n*incX*SCATTER_INCX];
-        double *y_ = new double[m*incY*SCATTER_INCY];
+    if (transA == CblasNoTrans || transA == AtlasConj) {
+	//
+	//      Scatter operands
+	//
+	double *A_ = new double[ldA * n * SCATTER_INCROWA * SCATTER_INCCOLA];
+	double *x_ = new double[n * incX * SCATTER_INCX];
+	double *y_ = new double[m * incY * SCATTER_INCY];
 
-        ulmBLAS::gecopy<std::ptrdiff_t>(m, n,
-                                        A, 1, ldA,
-                                        A_, SCATTER_INCROWA,
-                                        ldA*SCATTER_INCCOLA);
-        ulmBLAS::copy<std::ptrdiff_t>(n, x, incX, x_, incX*SCATTER_INCX);
-        ulmBLAS::copy<std::ptrdiff_t>(m, y, incY, y_, incY*SCATTER_INCY);
+	ulmBLAS::gecopy<std::ptrdiff_t>(m, n, A, 1, ldA, A_, SCATTER_INCROWA,
+	                                ldA * SCATTER_INCCOLA);
+	ulmBLAS::copy<std::ptrdiff_t>(n, x, incX, x_, incX * SCATTER_INCX);
+	ulmBLAS::copy<std::ptrdiff_t>(m, y, incY, y_, incY * SCATTER_INCY);
 
-//
-//      Start the operations.
-//
-        ulmBLAS::gemv<std::ptrdiff_t>(m, n, alpha,
-                                      A_, SCATTER_INCROWA, ldA*SCATTER_INCCOLA,
-                                      x_, incX*SCATTER_INCX,
-                                      beta,
-                                      y_, incY*SCATTER_INCY);
-        ulmBLAS::copy<std::ptrdiff_t>(m, y_, incY*SCATTER_INCY, y, incY);
+	//
+	//      Start the operations.
+	//
+	ulmBLAS::gemv<std::ptrdiff_t>(
+	    m, n, alpha, A_, SCATTER_INCROWA, ldA * SCATTER_INCCOLA, x_,
+	    incX * SCATTER_INCX, beta, y_, incY * SCATTER_INCY);
+	ulmBLAS::copy<std::ptrdiff_t>(m, y_, incY * SCATTER_INCY, y, incY);
 
-//
-//      Gather result
-//
-        delete [] A_;
-        delete [] x_;
-        delete [] y_;
+	//
+	//      Gather result
+	//
+	delete[] A_;
+	delete[] x_;
+	delete[] y_;
     } else {
-//
-//      Scatter operands
-//
-        double *A_ = new double[ldA*n*SCATTER_INCROWA*SCATTER_INCCOLA];
-        double *x_ = new double[m*incX*SCATTER_INCX];
-        double *y_ = new double[n*incY*SCATTER_INCY];
+	//
+	//      Scatter operands
+	//
+	double *A_ = new double[ldA * n * SCATTER_INCROWA * SCATTER_INCCOLA];
+	double *x_ = new double[m * incX * SCATTER_INCX];
+	double *y_ = new double[n * incY * SCATTER_INCY];
 
-        ulmBLAS::gecopy<std::ptrdiff_t>(m, n,
-                                        A, 1, ldA,
-                                        A_, SCATTER_INCROWA,
-                                        ldA*SCATTER_INCCOLA);
-        ulmBLAS::copy<std::ptrdiff_t>(n, x, incX, x_, incX*SCATTER_INCX);
-        ulmBLAS::copy<std::ptrdiff_t>(m, y, incY, y_, incY*SCATTER_INCY);
+	ulmBLAS::gecopy<std::ptrdiff_t>(m, n, A, 1, ldA, A_, SCATTER_INCROWA,
+	                                ldA * SCATTER_INCCOLA);
+	ulmBLAS::copy<std::ptrdiff_t>(n, x, incX, x_, incX * SCATTER_INCX);
+	ulmBLAS::copy<std::ptrdiff_t>(m, y, incY, y_, incY * SCATTER_INCY);
 
-//
-//      Start the operations.
-//
-        ulmBLAS::gemv<std::ptrdiff_t>(n, m, alpha,
-                                      A_, ldA*SCATTER_INCCOLA, SCATTER_INCROWA,
-                                      x_, incX*SCATTER_INCX,
-                                      beta,
-                                      y_, incY*SCATTER_INCY);
-        ulmBLAS::copy<std::ptrdiff_t>(m, y_, incY*SCATTER_INCY, y, incY);
+	//
+	//      Start the operations.
+	//
+	ulmBLAS::gemv<std::ptrdiff_t>(n, m, alpha, A_, ldA * SCATTER_INCCOLA,
+	                              SCATTER_INCROWA, x_, incX * SCATTER_INCX,
+	                              beta, y_, incY * SCATTER_INCY);
+	ulmBLAS::copy<std::ptrdiff_t>(m, y_, incY * SCATTER_INCY, y, incY);
 
-//
-//      Gather result
-//
-        delete [] A_;
-        delete [] x_;
-        delete [] y_;
+	//
+	//      Gather result
+	//
+	delete[] A_;
+	delete[] x_;
+	delete[] y_;
     }
 #endif
 }
 
 void
-ULMBLAS(cgemv)(enum CBLAS_TRANSPOSE  transA_,
-               ULMBLAS_INDEX_TYPE    m,
-               ULMBLAS_INDEX_TYPE    n,
-               const float           *alpha_,
-               const float           *A_,
-               ULMBLAS_INDEX_TYPE    ldA,
-               const float           *x_,
-               ULMBLAS_INDEX_TYPE    incX,
-               const float           *beta_,
-               float                 *y_,
-               ULMBLAS_INDEX_TYPE    incY)
+ULMBLAS(cgemv)(enum CBLAS_TRANSPOSE transA_, ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n, const float *alpha_, const float *A_,
+               ULMBLAS_INDEX_TYPE ldA, const float *x_, ULMBLAS_INDEX_TYPE incX,
+               const float *beta_, float *y_, ULMBLAS_INDEX_TYPE incY)
 {
-    bool transA = (transA_==CblasTrans || transA_==CblasConjTrans);
-    bool conjA  = (transA_==AtlasConj || transA_==CblasConjTrans);
+    bool transA = (transA_ == CblasTrans || transA_ == CblasConjTrans);
+    bool conjA = (transA_ == AtlasConj || transA_ == CblasConjTrans);
 
     typedef std::complex<float> fcomplex;
-    fcomplex       alpha = fcomplex(alpha_[0], alpha_[1]);
-    fcomplex       beta  = fcomplex(beta_[0], beta_[1]);
-    const fcomplex *A    = reinterpret_cast<const fcomplex *>(A_);
-    const fcomplex *x    = reinterpret_cast<const fcomplex *>(x_);
-    fcomplex       *y    = reinterpret_cast<fcomplex *>(y_);
+    fcomplex alpha = fcomplex(alpha_[0], alpha_[1]);
+    fcomplex beta = fcomplex(beta_[0], beta_[1]);
+    const fcomplex *A = reinterpret_cast<const fcomplex *>(A_);
+    const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
+    fcomplex *y = reinterpret_cast<fcomplex *>(y_);
 
-//
-//  Start the operations.
-//
+    //
+    //  Start the operations.
+    //
     if (!transA) {
-        if (incX<0) {
-            x -= incX*(n-1);
-        }
-        if (incY<0) {
-            y -= incY*(m-1);
-        }
-        ulmBLAS::gemv<std::ptrdiff_t>(m, n, alpha, conjA, A, 1, ldA, x, incX,
-                                      beta, y, incY);
+	if (incX < 0) {
+	    x -= incX * (n - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (m - 1);
+	}
+	ulmBLAS::gemv<std::ptrdiff_t>(m, n, alpha, conjA, A, 1, ldA, x, incX,
+	                              beta, y, incY);
     } else {
-        if (incX<0) {
-            x -= incX*(m-1);
-        }
-        if (incY<0) {
-            y -= incY*(n-1);
-        }
-        ulmBLAS::gemv<std::ptrdiff_t>(n, m, alpha, conjA, A, ldA, 1, x, incX,
-                                      beta, y, incY);
+	if (incX < 0) {
+	    x -= incX * (m - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (n - 1);
+	}
+	ulmBLAS::gemv<std::ptrdiff_t>(n, m, alpha, conjA, A, ldA, 1, x, incX,
+	                              beta, y, incY);
     }
 }
 
 void
-ULMBLAS(zgemv)(enum CBLAS_TRANSPOSE  transA_,
-               ULMBLAS_INDEX_TYPE    m,
-               ULMBLAS_INDEX_TYPE    n,
-               const double          *alpha_,
-               const double          *A_,
-               ULMBLAS_INDEX_TYPE    ldA,
-               const double          *x_,
-               ULMBLAS_INDEX_TYPE    incX,
-               const double          *beta_,
-               double                *y_,
-               ULMBLAS_INDEX_TYPE    incY)
+ULMBLAS(zgemv)(enum CBLAS_TRANSPOSE transA_, ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n, const double *alpha_, const double *A_,
+               ULMBLAS_INDEX_TYPE ldA, const double *x_,
+               ULMBLAS_INDEX_TYPE incX, const double *beta_, double *y_,
+               ULMBLAS_INDEX_TYPE incY)
 {
-    bool transA = (transA_==CblasTrans || transA_==CblasConjTrans);
-    bool conjA  = (transA_==AtlasConj || transA_==CblasConjTrans);
+    bool transA = (transA_ == CblasTrans || transA_ == CblasConjTrans);
+    bool conjA = (transA_ == AtlasConj || transA_ == CblasConjTrans);
 
     typedef std::complex<double> dcomplex;
-    dcomplex       alpha = dcomplex(alpha_[0], alpha_[1]);
-    dcomplex       beta  = dcomplex(beta_[0], beta_[1]);
-    const dcomplex *A    = reinterpret_cast<const dcomplex *>(A_);
-    const dcomplex *x    = reinterpret_cast<const dcomplex *>(x_);
-    dcomplex       *y    = reinterpret_cast<dcomplex *>(y_);
+    dcomplex alpha = dcomplex(alpha_[0], alpha_[1]);
+    dcomplex beta = dcomplex(beta_[0], beta_[1]);
+    const dcomplex *A = reinterpret_cast<const dcomplex *>(A_);
+    const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
+    dcomplex *y = reinterpret_cast<dcomplex *>(y_);
 
-//
-//  Start the operations.
-//
+    //
+    //  Start the operations.
+    //
     if (!transA) {
-        if (incX<0) {
-            x -= incX*(n-1);
-        }
-        if (incY<0) {
-            y -= incY*(m-1);
-        }
-        ulmBLAS::gemv<std::ptrdiff_t>(m, n, alpha, conjA, A, 1, ldA, x, incX,
-                                      beta, y, incY);
+	if (incX < 0) {
+	    x -= incX * (n - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (m - 1);
+	}
+	ulmBLAS::gemv<std::ptrdiff_t>(m, n, alpha, conjA, A, 1, ldA, x, incX,
+	                              beta, y, incY);
     } else {
-        if (incX<0) {
-            x -= incX*(m-1);
-        }
-        if (incY<0) {
-            y -= incY*(n-1);
-        }
-        ulmBLAS::gemv<std::ptrdiff_t>(n, m, alpha, conjA, A, ldA, 1, x, incX,
-                                      beta, y, incY);
+	if (incX < 0) {
+	    x -= incX * (m - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (n - 1);
+	}
+	ulmBLAS::gemv<std::ptrdiff_t>(n, m, alpha, conjA, A, ldA, 1, x, incX,
+	                              beta, y, incY);
     }
 }
 
 void
-CBLAS(sgemv)(enum CBLAS_ORDER      order,
-             enum CBLAS_TRANSPOSE  transA,
-             ULMBLAS_INDEX_TYPE    m,
-             ULMBLAS_INDEX_TYPE    n,
-             float                 alpha,
-             const float           *A,
-             ULMBLAS_INDEX_TYPE    ldA,
-             const float           *x,
-             ULMBLAS_INDEX_TYPE    incX,
-             float                 beta,
-             float                 *y,
-             ULMBLAS_INDEX_TYPE    incY)
+CBLAS(sgemv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
+             ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n, float alpha,
+             const float *A, ULMBLAS_INDEX_TYPE ldA, const float *x,
+             ULMBLAS_INDEX_TYPE incX, float beta, float *y,
+             ULMBLAS_INDEX_TYPE incY)
 {
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (transA!=CblasNoTrans && transA!=AtlasConj
-            && transA!=CblasTrans && transA!=CblasConjTrans)
-    {
-        info = 2;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (transA != CblasNoTrans && transA != AtlasConj &&
+               transA != CblasTrans && transA != CblasConjTrans) {
+	info = 2;
     } else {
-        if (order==CblasColMajor) {
-            if (m<0) {
-                info = 3;
-            } else if (n<0) {
-                info = 4;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-                info = 7;
-            }
-        } else {
-            if (n<0) {
-                info = 3;
-            } else if (m<0) {
-                info = 4;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-                info = 7;
-            }
-        }
+	if (order == CblasColMajor) {
+	    if (m < 0) {
+		info = 3;
+	    } else if (n < 0) {
+		info = 4;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+		info = 7;
+	    }
+	} else {
+	    if (n < 0) {
+		info = 3;
+	    } else if (m < 0) {
+		info = 4;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+		info = 7;
+	    }
+	}
     }
-    if (info==0) {
-        if (incX==0) {
-            info = 9;
-        } else if (incY==0) {
-            info = 12;
-        }
-    }
-
-    if (info!=0) {
-        extern int RowMajorStrg;
-
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_sgemv", "... bla bla ...");
-        return;
+    if (info == 0) {
+	if (incX == 0) {
+	    info = 9;
+	} else if (incY == 0) {
+	    info = 12;
+	}
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(sgemv)(transA, m, n, alpha, A, ldA, x, incX, beta, y, incY);
+    if (info != 0) {
+	extern int RowMajorStrg;
+
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_sgemv", "... bla bla ...");
+	return;
+    }
+
+    if (order == CblasColMajor) {
+	ULMBLAS(sgemv)(transA, m, n, alpha, A, ldA, x, incX, beta, y, incY);
     } else {
-        transA = transpose(transA);
-        ULMBLAS(sgemv)(transA, n, m, alpha, A, ldA, x, incX, beta, y, incY);
+	transA = transpose(transA);
+	ULMBLAS(sgemv)(transA, n, m, alpha, A, ldA, x, incX, beta, y, incY);
     }
 }
 
 void
-CBLAS(dgemv)(enum CBLAS_ORDER      order,
-             enum CBLAS_TRANSPOSE  transA,
-             ULMBLAS_INDEX_TYPE    m,
-             ULMBLAS_INDEX_TYPE    n,
-             double                alpha,
-             const double          *A,
-             ULMBLAS_INDEX_TYPE    ldA,
-             const double          *x,
-             ULMBLAS_INDEX_TYPE    incX,
-             double                beta,
-             double                *y,
-             ULMBLAS_INDEX_TYPE    incY)
+CBLAS(dgemv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
+             ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n, double alpha,
+             const double *A, ULMBLAS_INDEX_TYPE ldA, const double *x,
+             ULMBLAS_INDEX_TYPE incX, double beta, double *y,
+             ULMBLAS_INDEX_TYPE incY)
 {
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (transA!=CblasNoTrans && transA!=AtlasConj
-            && transA!=CblasTrans && transA!=CblasConjTrans)
-    {
-        info = 2;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (transA != CblasNoTrans && transA != AtlasConj &&
+               transA != CblasTrans && transA != CblasConjTrans) {
+	info = 2;
     } else {
-        if (order==CblasColMajor) {
-            if (m<0) {
-                info = 3;
-            } else if (n<0) {
-                info = 4;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-                info = 7;
-            }
-        } else {
-            if (n<0) {
-                info = 3;
-            } else if (m<0) {
-                info = 4;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-                info = 7;
-            }
-        }
+	if (order == CblasColMajor) {
+	    if (m < 0) {
+		info = 3;
+	    } else if (n < 0) {
+		info = 4;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+		info = 7;
+	    }
+	} else {
+	    if (n < 0) {
+		info = 3;
+	    } else if (m < 0) {
+		info = 4;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+		info = 7;
+	    }
+	}
     }
-    if (info==0) {
-        if (incX==0) {
-            info = 9;
-        } else if (incY==0) {
-            info = 12;
-        }
-    }
-
-    if (info!=0) {
-        extern int RowMajorStrg;
-
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_dgemv", "... bla bla ...");
-        return;
+    if (info == 0) {
+	if (incX == 0) {
+	    info = 9;
+	} else if (incY == 0) {
+	    info = 12;
+	}
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(dgemv)(transA, m, n, alpha, A, ldA, x, incX, beta, y, incY);
+    if (info != 0) {
+	extern int RowMajorStrg;
+
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_dgemv", "... bla bla ...");
+	return;
+    }
+
+    if (order == CblasColMajor) {
+	ULMBLAS(dgemv)(transA, m, n, alpha, A, ldA, x, incX, beta, y, incY);
     } else {
-        transA = transpose(transA);
-        ULMBLAS(dgemv)(transA, n, m, alpha, A, ldA, x, incX, beta, y, incY);
+	transA = transpose(transA);
+	ULMBLAS(dgemv)(transA, n, m, alpha, A, ldA, x, incX, beta, y, incY);
     }
 }
 
 void
-CBLAS(cgemv)(enum CBLAS_ORDER      order,
-             enum CBLAS_TRANSPOSE  transA,
-             ULMBLAS_INDEX_TYPE    m,
-             ULMBLAS_INDEX_TYPE    n,
-             const void            *alpha_v,
-             const void            *A_v,
-             ULMBLAS_INDEX_TYPE    ldA,
-             const void            *x_v,
-             ULMBLAS_INDEX_TYPE    incX,
-             const void            *beta_v,
-             void                  *y_v,
-             ULMBLAS_INDEX_TYPE    incY)
+CBLAS(cgemv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
+             ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n, const void *alpha_v,
+             const void *A_v, ULMBLAS_INDEX_TYPE ldA, const void *x_v,
+             ULMBLAS_INDEX_TYPE incX, const void *beta_v, void *y_v,
+             ULMBLAS_INDEX_TYPE incY)
 {
     const float *alpha = static_cast<const float *>(alpha_v);
     const float *A = static_cast<const float *>(A_v);
@@ -404,72 +345,64 @@ CBLAS(cgemv)(enum CBLAS_ORDER      order,
     const float *beta = static_cast<const float *>(beta_v);
     float *y = static_cast<float *>(y_v);
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (transA!=CblasNoTrans && transA!=AtlasConj
-            && transA!=CblasTrans && transA!=CblasConjTrans)
-    {
-        info = 2;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (transA != CblasNoTrans && transA != AtlasConj &&
+               transA != CblasTrans && transA != CblasConjTrans) {
+	info = 2;
     } else {
-        if (order==CblasColMajor) {
-            if (m<0) {
-                info = 3;
-            } else if (n<0) {
-                info = 4;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-                info = 7;
-            }
-        } else {
-            if (n<0) {
-                info = 3;
-            } else if (m<0) {
-                info = 4;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-                info = 7;
-            }
-        }
+	if (order == CblasColMajor) {
+	    if (m < 0) {
+		info = 3;
+	    } else if (n < 0) {
+		info = 4;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+		info = 7;
+	    }
+	} else {
+	    if (n < 0) {
+		info = 3;
+	    } else if (m < 0) {
+		info = 4;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+		info = 7;
+	    }
+	}
     }
-    if (info==0) {
-        if (incX==0) {
-            info = 9;
-        } else if (incY==0) {
-            info = 12;
-        }
-    }
-
-    if (info!=0) {
-        extern int RowMajorStrg;
-
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_cgemv", "... bla bla ...");
-        return;
+    if (info == 0) {
+	if (incX == 0) {
+	    info = 9;
+	} else if (incY == 0) {
+	    info = 12;
+	}
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(cgemv)(transA, m, n, alpha, A, ldA, x, incX, beta, y, incY);
+    if (info != 0) {
+	extern int RowMajorStrg;
+
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_cgemv", "... bla bla ...");
+	return;
+    }
+
+    if (order == CblasColMajor) {
+	ULMBLAS(cgemv)(transA, m, n, alpha, A, ldA, x, incX, beta, y, incY);
     } else {
-        transA = transpose(transA);
-        ULMBLAS(cgemv)(transA, n, m, alpha, A, ldA, x, incX, beta, y, incY);
+	transA = transpose(transA);
+	ULMBLAS(cgemv)(transA, n, m, alpha, A, ldA, x, incX, beta, y, incY);
     }
 }
 
 void
-CBLAS(zgemv)(enum CBLAS_ORDER      order,
-             enum CBLAS_TRANSPOSE  transA,
-             ULMBLAS_INDEX_TYPE    m,
-             ULMBLAS_INDEX_TYPE    n,
-             const void            *alpha_v,
-             const void            *A_v,
-             ULMBLAS_INDEX_TYPE    ldA,
-             const void            *x_v,
-             ULMBLAS_INDEX_TYPE    incX,
-             const void            *beta_v,
-             void                  *y_v,
-             ULMBLAS_INDEX_TYPE    incY)
+CBLAS(zgemv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
+             ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n, const void *alpha_v,
+             const void *A_v, ULMBLAS_INDEX_TYPE ldA, const void *x_v,
+             ULMBLAS_INDEX_TYPE incX, const void *beta_v, void *y_v,
+             ULMBLAS_INDEX_TYPE incY)
 {
     const double *alpha = static_cast<const double *>(alpha_v);
     const double *A = static_cast<const double *>(A_v);
@@ -477,56 +410,55 @@ CBLAS(zgemv)(enum CBLAS_ORDER      order,
     const double *beta = static_cast<const double *>(beta_v);
     double *y = static_cast<double *>(y_v);
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (transA!=CblasNoTrans && transA!=AtlasConj
-            && transA!=CblasTrans && transA!=CblasConjTrans)
-    {
-        info = 2;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (transA != CblasNoTrans && transA != AtlasConj &&
+               transA != CblasTrans && transA != CblasConjTrans) {
+	info = 2;
     } else {
-        if (order==CblasColMajor) {
-            if (m<0) {
-                info = 3;
-            } else if (n<0) {
-                info = 4;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-                info = 7;
-            }
-        } else {
-            if (n<0) {
-                info = 3;
-            } else if (m<0) {
-                info = 4;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-                info = 7;
-            }
-        }
+	if (order == CblasColMajor) {
+	    if (m < 0) {
+		info = 3;
+	    } else if (n < 0) {
+		info = 4;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+		info = 7;
+	    }
+	} else {
+	    if (n < 0) {
+		info = 3;
+	    } else if (m < 0) {
+		info = 4;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+		info = 7;
+	    }
+	}
     }
-    if (info==0) {
-        if (incX==0) {
-            info = 9;
-        } else if (incY==0) {
-            info = 12;
-        }
-    }
-
-    if (info!=0) {
-        extern int RowMajorStrg;
-
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_zgemv", "... bla bla ...");
-        return;
+    if (info == 0) {
+	if (incX == 0) {
+	    info = 9;
+	} else if (incY == 0) {
+	    info = 12;
+	}
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(zgemv)(transA, m, n, alpha, A, ldA, x, incX, beta, y, incY);
+    if (info != 0) {
+	extern int RowMajorStrg;
+
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_zgemv", "... bla bla ...");
+	return;
+    }
+
+    if (order == CblasColMajor) {
+	ULMBLAS(zgemv)(transA, m, n, alpha, A, ldA, x, incX, beta, y, incY);
     } else {
-        transA = transpose(transA);
-        ULMBLAS(zgemv)(transA, n, m, alpha, A, ldA, x, incX, beta, y, incY);
+	transA = transpose(transA);
+	ULMBLAS(zgemv)(transA, n, m, alpha, A, ldA, x, incX, beta, y, incY);
     }
 }
 

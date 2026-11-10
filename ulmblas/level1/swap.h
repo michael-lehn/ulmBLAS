@@ -4,12 +4,8 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename VX, typename VY>
-    void
-    swap(IndexType      n,
-         VX             *x,
-         IndexType      incX,
-         VY             *y,
-         IndexType      incY);
+void
+swap(IndexType n, VX *x, IndexType incX, VY *y, IndexType incY);
 
 } // namespace ulmBLAS
 

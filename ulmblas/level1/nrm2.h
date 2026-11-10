@@ -6,30 +6,20 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename VX>
-    VX
-    nrm2(IndexType  n,
-         const VX   *x,
-         IndexType  incX);
+VX
+nrm2(IndexType n, const VX *x, IndexType incX);
 
 template <typename IndexType, typename VX>
-    VX
-    nrm2(IndexType                n,
-         const std::complex<VX>   *x,
-         IndexType                incX);
+VX
+nrm2(IndexType n, const std::complex<VX> *x, IndexType incX);
 
 template <typename IndexType, typename VX, typename Result>
-    void
-    nrm2(IndexType  n,
-         const VX   *x,
-         IndexType  incX,
-         Result     &result);
+void
+nrm2(IndexType n, const VX *x, IndexType incX, Result &result);
 
 template <typename IndexType, typename VX, typename Result>
-    void
-    nrm2(IndexType                n,
-         const std::complex<VX>   *x,
-         IndexType                incX,
-         Result                   &result);
+void
+nrm2(IndexType n, const std::complex<VX> *x, IndexType incX, Result &result);
 
 } // namespace ulmBLAS
 

@@ -6,7 +6,8 @@
 #include <ulmblas/level1extensions/kernel/ref/dotaxpy.h>
 #include <ulmblas/level1extensions/kernel/sse/dotaxpy.h>
 
-namespace ulmBLAS { namespace sse {
+namespace ulmBLAS {
+namespace sse {
 
 //
 //  Fuse the computations:
@@ -24,28 +25,19 @@ namespace ulmBLAS { namespace sse {
 
 template <typename IndexType>
 void
-dotaxpy(IndexType      n,
-        bool           conjX,
-        bool           conjXt,
-        bool           conjY,
-        const double   &alpha,
-        const double   *x,
-        IndexType      incX,
-        const double   *y,
-        IndexType      incY,
-        double         *z,
-        IndexType      incZ,
-        double         &rho)
+dotaxpy(IndexType n, bool conjX, bool conjXt, bool conjY, const double &alpha,
+        const double *x, IndexType incX, const double *y, IndexType incY,
+        double *z, IndexType incZ, double &rho)
 {
-    if (n<=0) {
-        rho = 0;
-        return;
+    if (n <= 0) {
+	rho = 0;
+	return;
     }
 
-    if (incX!=1 || incY!=1 || incZ!=1 || conjX || conjXt || conjY) {
-        ref::dotaxpy(n, conjX, conjXt, conjY, alpha, x, incX, y, incY,
-                     z, incZ, rho);
-        return;
+    if (incX != 1 || incY != 1 || incZ != 1 || conjX || conjXt || conjY) {
+	ref::dotaxpy(n, conjX, conjXt, conjY, alpha, x, incX, y, incY, z, incZ,
+	             rho);
+	return;
     }
 
     bool xAligned = isAligned(x, 16);
@@ -55,74 +47,75 @@ dotaxpy(IndexType      n,
     double rho_ = 0;
 
     if (!xAligned && !yAligned && !zAligned) {
-        z[0] += alpha*x[0];
-        rho_  = x[0]*y[0];
-        ++x;
-        ++y;
-        ++z;
-        --n;
-        xAligned = yAligned = zAligned = true;
+	z[0] += alpha * x[0];
+	rho_ = x[0] * y[0];
+	++x;
+	++y;
+	++z;
+	--n;
+	xAligned = yAligned = zAligned = true;
     }
     if (xAligned && yAligned && zAligned) {
-        IndexType nb = n / 4;
-        IndexType nl = n % 4;
+	IndexType nb = n / 4;
+	IndexType nl = n % 4;
 
-        __m128d x12, x34;
-        __m128d y12, y34;
-        __m128d z12, z34;
-        __m128d alpha11;
-        __m128d rho12, rho34;
+	__m128d x12, x34;
+	__m128d y12, y34;
+	__m128d z12, z34;
+	__m128d alpha11;
+	__m128d rho12, rho34;
 
-        alignas(16) double  rho12_[2], rho34_[2];
+	alignas(16) double rho12_[2], rho34_[2];
 
-        alpha11 = _mm_loaddup_pd(&alpha);
-        rho12   = _mm_setzero_pd();
-        rho34   = _mm_setzero_pd();
+	alpha11 = _mm_loaddup_pd(&alpha);
+	rho12 = _mm_setzero_pd();
+	rho34 = _mm_setzero_pd();
 
-        for (IndexType i=0; i<nb; ++i) {
-            x12 = _mm_load_pd(x);
-            y12 = _mm_load_pd(y);
-            z12 = _mm_load_pd(z);
+	for (IndexType i = 0; i < nb; ++i) {
+	    x12 = _mm_load_pd(x);
+	    y12 = _mm_load_pd(y);
+	    z12 = _mm_load_pd(z);
 
-            x34 = _mm_load_pd(x+2);
-            y34 = _mm_load_pd(y+2);
-            z34 = _mm_load_pd(z+2);
+	    x34 = _mm_load_pd(x + 2);
+	    y34 = _mm_load_pd(y + 2);
+	    z34 = _mm_load_pd(z + 2);
 
-            y12 = y12 * x12;
-            x12 = alpha11 * x12;
-            z12 = z12 + x12;
+	    y12 = y12 * x12;
+	    x12 = alpha11 * x12;
+	    z12 = z12 + x12;
 
-            _mm_store_pd(z, z12);
-            rho12 = rho12 + y12;
+	    _mm_store_pd(z, z12);
+	    rho12 = rho12 + y12;
 
-            y34 = y34 * x34;
-            x34 = alpha11 * x34;
-            z34 = z34 + x34;
+	    y34 = y34 * x34;
+	    x34 = alpha11 * x34;
+	    z34 = z34 + x34;
 
-            _mm_store_pd(z+2, z34);
-            rho34 = rho34 + y34;
+	    _mm_store_pd(z + 2, z34);
+	    rho34 = rho34 + y34;
 
-            x += 4;
-            y += 4;
-            z += 4;
-        }
-        _mm_store_pd(rho12_, rho12);
-        _mm_store_pd(rho34_, rho34);
+	    x += 4;
+	    y += 4;
+	    z += 4;
+	}
+	_mm_store_pd(rho12_, rho12);
+	_mm_store_pd(rho34_, rho34);
 
-        rho = rho_ + rho12_[0] + rho12_[1] + rho34_[0] + rho34_[1];
+	rho = rho_ + rho12_[0] + rho12_[1] + rho34_[0] + rho34_[1];
 
-        for (IndexType i=0; i<nl; ++i) {
-            z[i] += alpha*x[i];
-            rho  += x[i] * y[i];
-        }
+	for (IndexType i = 0; i < nl; ++i) {
+	    z[i] += alpha * x[i];
+	    rho += x[i] * y[i];
+	}
     } else {
-        rho = 0;
-        ref::dotaxpy(n, false, false, false, alpha, x, incX, y, incY,
-                     z, incZ, rho);
-        rho += rho_;
+	rho = 0;
+	ref::dotaxpy(n, false, false, false, alpha, x, incX, y, incY, z, incZ,
+	             rho);
+	rho += rho_;
     }
 }
 
-} } // namespace sse, ulmBLAS
+} // namespace sse
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL1EXTENSIONS_KERNEL_SSE_DOTAXPY_TCC 1

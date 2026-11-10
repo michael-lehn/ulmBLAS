@@ -6,22 +6,14 @@
 
 namespace ulmBLAS {
 
-template <typename IndexType, typename Alpha0, typename Alpha1,
-          typename VX0, typename VX1, typename VY>
+template <typename IndexType, typename Alpha0, typename Alpha1, typename VX0,
+          typename VX1, typename VY>
 void
-axpy2v(IndexType      n,
-       const Alpha0   &alpha0,
-       const Alpha1   &alpha1,
-       const VX0      *x0,
-       IndexType      incX0,
-       const VX1      *x1,
-       IndexType      incX1,
-       VY             *y,
-       IndexType      incY)
+axpy2v(IndexType n, const Alpha0 &alpha0, const Alpha1 &alpha1, const VX0 *x0,
+       IndexType incX0, const VX1 *x1, IndexType incX1, VY *y, IndexType incY)
 {
-    SELECT_AXPY2V_KERNEL::axpy2v(n, alpha0, alpha1,
-                                 x0, incX0, x1, incX1,
-                                 y, incY);
+    SELECT_AXPY2V_KERNEL::axpy2v(n, alpha0, alpha1, x0, incX0, x1, incX1, y,
+                                 incY);
 }
 
 } // namespace ulmBLAS

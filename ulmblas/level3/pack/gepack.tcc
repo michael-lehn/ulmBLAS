@@ -16,46 +16,42 @@ namespace ulmBLAS {
 //
 template <int P, typename IndexType, typename TA, typename Buffer>
 static void
-pack_MRxk(IndexType   k,
-          bool        conj,
-          const TA    *A,
-          IndexType   incRowA,
-          IndexType   incColA,
-          Buffer      *buffer)
+pack_MRxk(IndexType k, bool conj, const TA *A, IndexType incRowA,
+          IndexType incColA, Buffer *buffer)
 {
     constexpr IndexType MR = BlockSizeUGemm<Buffer>::MR;
-    const IndexType ld = k*MR;
+    const IndexType ld = k * MR;
 
-    if (!conj && incRowA==1) {
-        for (IndexType j=0; j<k; ++j) {
-            for (IndexType p=0; p<P; ++p) {
-                for (IndexType i=0; i<MR; ++i) {
-                    buffer[p*ld+i] = A[p*MR+i];
-                }
-            }
-            buffer += MR;
-            A      += incColA;
-        }
+    if (!conj && incRowA == 1) {
+	for (IndexType j = 0; j < k; ++j) {
+	    for (IndexType p = 0; p < P; ++p) {
+		for (IndexType i = 0; i < MR; ++i) {
+		    buffer[p * ld + i] = A[p * MR + i];
+		}
+	    }
+	    buffer += MR;
+	    A += incColA;
+	}
     } else if (!conj) {
-        for (IndexType j=0; j<k; ++j) {
-            for (IndexType p=0; p<P; ++p) {
-                for (IndexType i=0; i<MR; ++i) {
-                    buffer[p*ld+i] = A[(p*MR+i)*incRowA];
-                }
-            }
-            buffer += MR;
-            A      += incColA;
-        }
+	for (IndexType j = 0; j < k; ++j) {
+	    for (IndexType p = 0; p < P; ++p) {
+		for (IndexType i = 0; i < MR; ++i) {
+		    buffer[p * ld + i] = A[(p * MR + i) * incRowA];
+		}
+	    }
+	    buffer += MR;
+	    A += incColA;
+	}
     } else {
-        for (IndexType j=0; j<k; ++j) {
-            for (IndexType p=0; p<P; ++p) {
-                for (IndexType i=0; i<MR; ++i) {
-                    buffer[p*ld+i] = conjugate(A[(p*MR+i)*incRowA]);
-                }
-            }
-            buffer += MR;
-            A      += incColA;
-        }
+	for (IndexType j = 0; j < k; ++j) {
+	    for (IndexType p = 0; p < P; ++p) {
+		for (IndexType i = 0; i < MR; ++i) {
+		    buffer[p * ld + i] = conjugate(A[(p * MR + i) * incRowA]);
+		}
+	    }
+	    buffer += MR;
+	    A += incColA;
+	}
     }
 }
 
@@ -67,24 +63,19 @@ pack_MRxk(IndexType   k,
 //
 template <typename IndexType, typename TA, typename Buffer>
 static bool
-pack_MRxk_partial(IndexType, IndexType, bool, const TA *, IndexType,
-                  IndexType, Buffer *)
+pack_MRxk_partial(IndexType, IndexType, bool, const TA *, IndexType, IndexType,
+                  Buffer *)
 {
     return false;
 }
 
 template <typename IndexType, typename TA, typename Buffer>
 void
-gepack_A(IndexType   mc,
-         IndexType   kc,
-         bool        conj,
-         const TA    *A,
-         IndexType   incRowA,
-         IndexType   incColA,
-         Buffer      *buffer)
+gepack_A(IndexType mc, IndexType kc, bool conj, const TA *A, IndexType incRowA,
+         IndexType incColA, Buffer *buffer)
 {
-    constexpr IndexType MR  = BlockSizeUGemm<Buffer>::MR;
-    const IndexType mp  = mc / MR;
+    constexpr IndexType MR = BlockSizeUGemm<Buffer>::MR;
+    const IndexType mp = mc / MR;
     const IndexType mr_ = mc % MR;
 
     // P panels are packed together if the columns of A are at least D bytes
@@ -94,65 +85,61 @@ gepack_A(IndexType   mc,
     // the columns of A are far apart (measured on an Apple M5 and an Intel
     // Core i5-12500 with 8 KiB: up to 12% faster for m >= 1024 and small n,
     // but up to 7% slower for small matrices that are in the cache).
-    constexpr int   P     = BlockSize<Buffer>::PACK_A_PANELS;
-    constexpr int   D     = BlockSize<Buffer>::PACK_A_GROUP_DISTANCE;
-    const IndexType dist  = (incColA<0) ? -incColA : incColA;
-    const bool      group = dist*IndexType(sizeof(TA)) >= D;
+    constexpr int P = BlockSize<Buffer>::PACK_A_PANELS;
+    constexpr int D = BlockSize<Buffer>::PACK_A_GROUP_DISTANCE;
+    const IndexType dist = (incColA < 0) ? -incColA : incColA;
+    const bool group = dist * IndexType(sizeof(TA)) >= D;
 
-    IndexType p=0;
-    for (; group && p+P<=mp; p+=P) {
-        pack_MRxk<P>(kc, conj, A, incRowA, incColA, buffer);
-        buffer += P*kc*MR;
-        A      += P*MR*incRowA;
+    IndexType p = 0;
+    for (; group && p + P <= mp; p += P) {
+	pack_MRxk<P>(kc, conj, A, incRowA, incColA, buffer);
+	buffer += P * kc * MR;
+	A += P * MR * incRowA;
     }
-    for (; p<mp; ++p) {
-        pack_MRxk<1>(kc, conj, A, incRowA, incColA, buffer);
-        buffer += kc*MR;
-        A      += MR*incRowA;
+    for (; p < mp; ++p) {
+	pack_MRxk<1>(kc, conj, A, incRowA, incColA, buffer);
+	buffer += kc * MR;
+	A += MR * incRowA;
     }
-    if (mr_>0 && !pack_MRxk_partial(mr_, kc, conj, A, incRowA, incColA,
-                                    buffer))
-    {
-        for (IndexType j=0; j<kc; ++j) {
-            for (IndexType i=0; i<mr_; ++i) {
-                buffer[i] = (!conj) ? A[i*incRowA] : conjugate(A[i*incRowA]);
-            }
-            for (IndexType i=mr_; i<MR; ++i) {
-                buffer[i] = Buffer(0);
-            }
-            buffer += MR;
-            A      += incColA;
-        }
+    if (mr_ > 0 &&
+        !pack_MRxk_partial(mr_, kc, conj, A, incRowA, incColA, buffer)) {
+	for (IndexType j = 0; j < kc; ++j) {
+	    for (IndexType i = 0; i < mr_; ++i) {
+		buffer[i] =
+		    (!conj) ? A[i * incRowA] : conjugate(A[i * incRowA]);
+	    }
+	    for (IndexType i = mr_; i < MR; ++i) {
+		buffer[i] = Buffer(0);
+	    }
+	    buffer += MR;
+	    A += incColA;
+	}
     }
 }
 
 template <typename IndexType, typename TB, typename Buffer>
 static void
-pack_kxNR(IndexType   k,
-          bool        conj,
-          const TB    *B,
-          IndexType   incRowB,
-          IndexType   incColB,
-          Buffer      *buffer)
+pack_kxNR(IndexType k, bool conj, const TB *B, IndexType incRowB,
+          IndexType incColB, Buffer *buffer)
 {
     constexpr IndexType NR = BlockSizeUGemm<Buffer>::NR;
 
     if (!conj) {
-        for (IndexType i=0; i<k; ++i) {
-            for (IndexType j=0; j<NR; ++j) {
-                buffer[j] = B[j*incColB];
-            }
-            buffer += NR;
-            B      += incRowB;
-        }
+	for (IndexType i = 0; i < k; ++i) {
+	    for (IndexType j = 0; j < NR; ++j) {
+		buffer[j] = B[j * incColB];
+	    }
+	    buffer += NR;
+	    B += incRowB;
+	}
     } else {
-        for (IndexType i=0; i<k; ++i) {
-            for (IndexType j=0; j<NR; ++j) {
-                buffer[j] = conjugate(B[j*incColB]);
-            }
-            buffer += NR;
-            B      += incRowB;
-        }
+	for (IndexType i = 0; i < k; ++i) {
+	    for (IndexType j = 0; j < NR; ++j) {
+		buffer[j] = conjugate(B[j * incColB]);
+	    }
+	    buffer += NR;
+	    B += incRowB;
+	}
     }
 }
 
@@ -161,44 +148,39 @@ pack_kxNR(IndexType   k,
 //
 template <typename IndexType, typename TB, typename Buffer>
 static bool
-pack_kxNR_partial(IndexType, IndexType, bool, const TB *, IndexType,
-                  IndexType, Buffer *)
+pack_kxNR_partial(IndexType, IndexType, bool, const TB *, IndexType, IndexType,
+                  Buffer *)
 {
     return false;
 }
 
 template <typename IndexType, typename TB, typename Buffer>
 void
-gepack_B(IndexType   kc,
-         IndexType   nc,
-         bool        conj,
-         const TB    *B,
-         IndexType   incRowB,
-         IndexType   incColB,
-         Buffer      *buffer)
+gepack_B(IndexType kc, IndexType nc, bool conj, const TB *B, IndexType incRowB,
+         IndexType incColB, Buffer *buffer)
 {
-    constexpr IndexType NR  = BlockSizeUGemm<Buffer>::NR;
-    const IndexType np  = nc / NR;
+    constexpr IndexType NR = BlockSizeUGemm<Buffer>::NR;
+    const IndexType np = nc / NR;
     const IndexType nr_ = nc % NR;
 
-    for (IndexType j=0; j<np; ++j) {
-        pack_kxNR(kc, conj, B, incRowB, incColB, buffer);
-        buffer += kc*NR;
-        B      += NR*incColB;
+    for (IndexType j = 0; j < np; ++j) {
+	pack_kxNR(kc, conj, B, incRowB, incColB, buffer);
+	buffer += kc * NR;
+	B += NR * incColB;
     }
-    if (nr_>0 && !pack_kxNR_partial(nr_, kc, conj, B, incRowB, incColB,
-                                    buffer))
-    {
-        for (IndexType i=0; i<kc; ++i) {
-            for (IndexType j=0; j<nr_; ++j) {
-                buffer[j] = (!conj) ? B[j*incColB] : conjugate(B[j*incColB]);
-            }
-            for (IndexType j=nr_; j<NR; ++j) {
-                buffer[j] = Buffer(0);
-            }
-            buffer += NR;
-            B      += incRowB;
-        }
+    if (nr_ > 0 &&
+        !pack_kxNR_partial(nr_, kc, conj, B, incRowB, incColB, buffer)) {
+	for (IndexType i = 0; i < kc; ++i) {
+	    for (IndexType j = 0; j < nr_; ++j) {
+		buffer[j] =
+		    (!conj) ? B[j * incColB] : conjugate(B[j * incColB]);
+	    }
+	    for (IndexType j = nr_; j < NR; ++j) {
+		buffer[j] = Buffer(0);
+	    }
+	    buffer += NR;
+	    B += incRowB;
+	}
     }
 }
 

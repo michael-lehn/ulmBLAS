@@ -9,243 +9,214 @@
 extern "C" {
 
 void
-ULMBLAS(cher2k)(enum CBLAS_UPLO       upLo,
-                enum CBLAS_TRANSPOSE  trans,
-                ULMBLAS_INDEX_TYPE    n,
-                ULMBLAS_INDEX_TYPE    k,
-                const float           *alpha_,
-                const float           *A_,
-                ULMBLAS_INDEX_TYPE    ldA,
-                const float           *B_,
-                ULMBLAS_INDEX_TYPE    ldB,
-                float                 beta,
-                float                 *C_,
-                ULMBLAS_INDEX_TYPE    ldC)
+ULMBLAS(cher2k)(enum CBLAS_UPLO upLo, enum CBLAS_TRANSPOSE trans,
+                ULMBLAS_INDEX_TYPE n, ULMBLAS_INDEX_TYPE k, const float *alpha_,
+                const float *A_, ULMBLAS_INDEX_TYPE ldA, const float *B_,
+                ULMBLAS_INDEX_TYPE ldB, float beta, float *C_,
+                ULMBLAS_INDEX_TYPE ldC)
 {
     typedef std::complex<float> fcomplex;
 
-    fcomplex   alpha(alpha_[0], alpha_[1]);
+    fcomplex alpha(alpha_[0], alpha_[1]);
 
     const fcomplex *A = reinterpret_cast<const fcomplex *>(A_);
     const fcomplex *B = reinterpret_cast<const fcomplex *>(B_);
-    fcomplex       *C = reinterpret_cast<fcomplex *>(C_);
+    fcomplex *C = reinterpret_cast<fcomplex *>(C_);
 
-//
-//  Start the operations.
-//
-    if (trans==CblasNoTrans) {
-        if (upLo==CblasLower) {
-            ulmBLAS::helr2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
-                                            beta, C, 1, ldC);
-        } else {
-            ulmBLAS::heur2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
-                                            beta, C, 1, ldC);
-        }
+    //
+    //  Start the operations.
+    //
+    if (trans == CblasNoTrans) {
+	if (upLo == CblasLower) {
+	    ulmBLAS::helr2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
+	                                    beta, C, 1, ldC);
+	} else {
+	    ulmBLAS::heur2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
+	                                    beta, C, 1, ldC);
+	}
     } else {
-        alpha = ulmBLAS::conjugate(alpha);
-        if (upLo==CblasLower) {
-            ulmBLAS::heur2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
-                                            beta, C, ldC, 1);
-        } else {
-            ulmBLAS::helr2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
-                                            beta, C, ldC, 1);
-        }
+	alpha = ulmBLAS::conjugate(alpha);
+	if (upLo == CblasLower) {
+	    ulmBLAS::heur2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
+	                                    beta, C, ldC, 1);
+	} else {
+	    ulmBLAS::helr2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
+	                                    beta, C, ldC, 1);
+	}
     }
 }
 
 void
-ULMBLAS(zher2k)(enum CBLAS_UPLO       upLo,
-                enum CBLAS_TRANSPOSE  trans,
-                ULMBLAS_INDEX_TYPE    n,
-                ULMBLAS_INDEX_TYPE    k,
-                const double          *alpha_,
-                const double          *A_,
-                ULMBLAS_INDEX_TYPE    ldA,
-                const double          *B_,
-                ULMBLAS_INDEX_TYPE    ldB,
-                double                beta,
-                double                *C_,
-                ULMBLAS_INDEX_TYPE    ldC)
+ULMBLAS(zher2k)(enum CBLAS_UPLO upLo, enum CBLAS_TRANSPOSE trans,
+                ULMBLAS_INDEX_TYPE n, ULMBLAS_INDEX_TYPE k,
+                const double *alpha_, const double *A_, ULMBLAS_INDEX_TYPE ldA,
+                const double *B_, ULMBLAS_INDEX_TYPE ldB, double beta,
+                double *C_, ULMBLAS_INDEX_TYPE ldC)
 {
     typedef std::complex<double> dcomplex;
 
-    dcomplex   alpha(alpha_[0], alpha_[1]);
+    dcomplex alpha(alpha_[0], alpha_[1]);
 
     const dcomplex *A = reinterpret_cast<const dcomplex *>(A_);
     const dcomplex *B = reinterpret_cast<const dcomplex *>(B_);
-    dcomplex       *C = reinterpret_cast<dcomplex *>(C_);
+    dcomplex *C = reinterpret_cast<dcomplex *>(C_);
 
-//
-//  Start the operations.
-//
-    if (trans==CblasNoTrans) {
-        if (upLo==CblasLower) {
-            ulmBLAS::helr2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
-                                            beta, C, 1, ldC);
-        } else {
-            ulmBLAS::heur2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
-                                            beta, C, 1, ldC);
-        }
+    //
+    //  Start the operations.
+    //
+    if (trans == CblasNoTrans) {
+	if (upLo == CblasLower) {
+	    ulmBLAS::helr2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
+	                                    beta, C, 1, ldC);
+	} else {
+	    ulmBLAS::heur2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
+	                                    beta, C, 1, ldC);
+	}
     } else {
-        alpha = ulmBLAS::conjugate(alpha);
-        if (upLo==CblasLower) {
-            ulmBLAS::heur2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
-                                            beta, C, ldC, 1);
-        } else {
-            ulmBLAS::helr2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
-                                            beta, C, ldC, 1);
-        }
+	alpha = ulmBLAS::conjugate(alpha);
+	if (upLo == CblasLower) {
+	    ulmBLAS::heur2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
+	                                    beta, C, ldC, 1);
+	} else {
+	    ulmBLAS::helr2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
+	                                    beta, C, ldC, 1);
+	}
     }
 }
 
-
 void
-CBLAS(cher2k)(enum CBLAS_ORDER      order,
-              enum CBLAS_UPLO       upLo,
-              enum CBLAS_TRANSPOSE  trans,
-              ULMBLAS_INDEX_TYPE    n,
-              ULMBLAS_INDEX_TYPE    k,
-              const void            *alpha_v,
-              const void            *A_v,
-              ULMBLAS_INDEX_TYPE    ldA,
-              const void            *B_v,
-              ULMBLAS_INDEX_TYPE    ldB,
-              float                 beta,
-              void                  *C_v,
-              ULMBLAS_INDEX_TYPE    ldC)
+CBLAS(cher2k)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
+              enum CBLAS_TRANSPOSE trans, ULMBLAS_INDEX_TYPE n,
+              ULMBLAS_INDEX_TYPE k, const void *alpha_v, const void *A_v,
+              ULMBLAS_INDEX_TYPE ldA, const void *B_v, ULMBLAS_INDEX_TYPE ldB,
+              float beta, void *C_v, ULMBLAS_INDEX_TYPE ldC)
 {
     const float *alpha = static_cast<const float *>(alpha_v);
     const float *A = static_cast<const float *>(A_v);
     const float *B = static_cast<const float *>(B_v);
     float *C = static_cast<float *>(C_v);
 
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
+    //
+    //  Set  numRowsA and numRowsB as the number of rows of A and B
+    //
     ULMBLAS_INDEX_TYPE numRowsA;
     ULMBLAS_INDEX_TYPE numRowsB;
 
-    if (order==CblasColMajor) {
-        numRowsA = (trans==CblasNoTrans) ? n : k;
-        numRowsB = (trans==CblasNoTrans) ? n : k;
+    if (order == CblasColMajor) {
+	numRowsA = (trans == CblasNoTrans) ? n : k;
+	numRowsB = (trans == CblasNoTrans) ? n : k;
     } else {
-        numRowsA = (trans==CblasNoTrans) ? k : n;
-        numRowsB = (trans==CblasNoTrans) ? k : n;
+	numRowsA = (trans == CblasNoTrans) ? k : n;
+	numRowsB = (trans == CblasNoTrans) ? k : n;
     }
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
 
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (upLo!=CblasLower && upLo!=CblasUpper) {
-        info = 2;
-    } else if (trans!=CblasNoTrans && trans!=CblasConjTrans) {
-        info = 3;
-    } else if (n<0) {
-        info = 4;
-    } else if (k<0) {
-        info = 5;
-    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-        info = 8;
-    } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
-        info = 10;
-    } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-        info = 13;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (upLo != CblasLower && upLo != CblasUpper) {
+	info = 2;
+    } else if (trans != CblasNoTrans && trans != CblasConjTrans) {
+	info = 3;
+    } else if (n < 0) {
+	info = 4;
+    } else if (k < 0) {
+	info = 5;
+    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+	info = 8;
+    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsB)) {
+	info = 10;
+    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+	info = 13;
     }
 
-    if (info!=0) {
-        extern int RowMajorStrg;
+    if (info != 0) {
+	extern int RowMajorStrg;
 
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_cher2k", "");
-        return;
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_cher2k", "");
+	return;
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(cher2k)(upLo, trans, n, k, alpha, A, ldA, B, ldB, beta, C, ldC);
+    if (order == CblasColMajor) {
+	ULMBLAS(cher2k)(upLo, trans, n, k, alpha, A, ldA, B, ldB, beta, C, ldC);
     } else {
-        upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
-        trans = (trans==CblasConjTrans) ? CblasNoTrans : CblasConjTrans;
-        float alpha_[2] = { alpha[0], -alpha[1] };
-        ULMBLAS(cher2k)(upLo, trans, n, k, alpha_, A, ldA, B, ldB, beta, C, ldC);
+	upLo = (upLo == CblasUpper) ? CblasLower : CblasUpper;
+	trans = (trans == CblasConjTrans) ? CblasNoTrans : CblasConjTrans;
+	float alpha_[2] = {alpha[0], -alpha[1]};
+	ULMBLAS(cher2k)(upLo, trans, n, k, alpha_, A, ldA, B, ldB, beta, C,
+	                ldC);
     }
 }
 
 void
-CBLAS(zher2k)(enum CBLAS_ORDER      order,
-              enum CBLAS_UPLO       upLo,
-              enum CBLAS_TRANSPOSE  trans,
-              ULMBLAS_INDEX_TYPE    n,
-              ULMBLAS_INDEX_TYPE    k,
-              const void            *alpha_v,
-              const void            *A_v,
-              ULMBLAS_INDEX_TYPE    ldA,
-              const void            *B_v,
-              ULMBLAS_INDEX_TYPE    ldB,
-              double                beta,
-              void                  *C_v,
-              ULMBLAS_INDEX_TYPE    ldC)
+CBLAS(zher2k)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
+              enum CBLAS_TRANSPOSE trans, ULMBLAS_INDEX_TYPE n,
+              ULMBLAS_INDEX_TYPE k, const void *alpha_v, const void *A_v,
+              ULMBLAS_INDEX_TYPE ldA, const void *B_v, ULMBLAS_INDEX_TYPE ldB,
+              double beta, void *C_v, ULMBLAS_INDEX_TYPE ldC)
 {
     const double *alpha = static_cast<const double *>(alpha_v);
     const double *A = static_cast<const double *>(A_v);
     const double *B = static_cast<const double *>(B_v);
     double *C = static_cast<double *>(C_v);
 
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
+    //
+    //  Set  numRowsA and numRowsB as the number of rows of A and B
+    //
     ULMBLAS_INDEX_TYPE numRowsA;
     ULMBLAS_INDEX_TYPE numRowsB;
 
-    if (order==CblasColMajor) {
-        numRowsA = (trans==CblasNoTrans) ? n : k;
-        numRowsB = (trans==CblasNoTrans) ? n : k;
+    if (order == CblasColMajor) {
+	numRowsA = (trans == CblasNoTrans) ? n : k;
+	numRowsB = (trans == CblasNoTrans) ? n : k;
     } else {
-        numRowsA = (trans==CblasNoTrans) ? k : n;
-        numRowsB = (trans==CblasNoTrans) ? k : n;
+	numRowsA = (trans == CblasNoTrans) ? k : n;
+	numRowsB = (trans == CblasNoTrans) ? k : n;
     }
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
 
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (upLo!=CblasLower && upLo!=CblasUpper) {
-        info = 2;
-    } else if (trans!=CblasNoTrans && trans!=CblasConjTrans) {
-        info = 3;
-    } else if (n<0) {
-        info = 4;
-    } else if (k<0) {
-        info = 5;
-    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-        info = 8;
-    } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
-        info = 10;
-    } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-        info = 13;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (upLo != CblasLower && upLo != CblasUpper) {
+	info = 2;
+    } else if (trans != CblasNoTrans && trans != CblasConjTrans) {
+	info = 3;
+    } else if (n < 0) {
+	info = 4;
+    } else if (k < 0) {
+	info = 5;
+    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+	info = 8;
+    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsB)) {
+	info = 10;
+    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+	info = 13;
     }
 
-    if (info!=0) {
-        extern int RowMajorStrg;
+    if (info != 0) {
+	extern int RowMajorStrg;
 
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_zher2k", "");
-        return;
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_zher2k", "");
+	return;
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(zher2k)(upLo, trans, n, k, alpha, A, ldA, B, ldB, beta, C, ldC);
+    if (order == CblasColMajor) {
+	ULMBLAS(zher2k)(upLo, trans, n, k, alpha, A, ldA, B, ldB, beta, C, ldC);
     } else {
-        upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
-        trans = (trans==CblasConjTrans) ? CblasNoTrans : CblasConjTrans;
-        double alpha_[2] = { alpha[0], -alpha[1] };
-        ULMBLAS(zher2k)(upLo, trans, n, k, alpha_, A, ldA, B, ldB, beta, C, ldC);
+	upLo = (upLo == CblasUpper) ? CblasLower : CblasUpper;
+	trans = (trans == CblasConjTrans) ? CblasNoTrans : CblasConjTrans;
+	double alpha_[2] = {alpha[0], -alpha[1]};
+	ULMBLAS(zher2k)(upLo, trans, n, k, alpha_, A, ldA, B, ldB, beta, C,
+	                ldC);
     }
 }
 

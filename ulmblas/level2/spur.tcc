@@ -8,19 +8,15 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TX, typename TA>
 void
-spur(IndexType    n,
-     const Alpha  &alpha,
-     const TX     *x,
-     IndexType    incX,
-     TA           *A)
+spur(IndexType n, const Alpha &alpha, const TX *x, IndexType incX, TA *A)
 {
-    if (n==0 || alpha==Alpha(0)) {
-        return;
+    if (n == 0 || alpha == Alpha(0)) {
+	return;
     }
 
-    for (IndexType j=0; j<n; ++j) {
-        axpy(j+1, alpha*x[j*incX], x, incX, A, IndexType(1));
-        A += j+1;
+    for (IndexType j = 0; j < n; ++j) {
+	axpy(j + 1, alpha * x[j * incX], x, incX, A, IndexType(1));
+	A += j + 1;
     }
 }
 

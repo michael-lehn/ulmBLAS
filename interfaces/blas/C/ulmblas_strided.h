@@ -59,136 +59,58 @@ extern "C" {
 #endif
 
 void
-ulmblas_sgemm_strided(int64_t       m,
-                      int64_t       n,
-                      int64_t       k,
-                      float         alpha,
-                      const float   *A,
-                      int64_t       incRowA,
-                      int64_t       incColA,
-                      const float   *B,
-                      int64_t       incRowB,
-                      int64_t       incColB,
-                      float         beta,
-                      float         *C,
-                      int64_t       incRowC,
-                      int64_t       incColC);
+ulmblas_sgemm_strided(int64_t m, int64_t n, int64_t k, float alpha,
+                      const float *A, int64_t incRowA, int64_t incColA,
+                      const float *B, int64_t incRowB, int64_t incColB,
+                      float beta, float *C, int64_t incRowC, int64_t incColC);
 
 void
-ulmblas_dgemm_strided(int64_t       m,
-                      int64_t       n,
-                      int64_t       k,
-                      double        alpha,
-                      const double  *A,
-                      int64_t       incRowA,
-                      int64_t       incColA,
-                      const double  *B,
-                      int64_t       incRowB,
-                      int64_t       incColB,
-                      double        beta,
-                      double        *C,
-                      int64_t       incRowC,
-                      int64_t       incColC);
+ulmblas_dgemm_strided(int64_t m, int64_t n, int64_t k, double alpha,
+                      const double *A, int64_t incRowA, int64_t incColA,
+                      const double *B, int64_t incRowB, int64_t incColB,
+                      double beta, double *C, int64_t incRowC, int64_t incColC);
 
 void
-ulmblas_cgemm_strided(int64_t       m,
-                      int64_t       n,
-                      int64_t       k,
-                      const float   *alpha,
-                      int           conjA,
-                      const float   *A,
-                      int64_t       incRowA,
-                      int64_t       incColA,
-                      int           conjB,
-                      const float   *B,
-                      int64_t       incRowB,
-                      int64_t       incColB,
-                      const float   *beta,
-                      float         *C,
-                      int64_t       incRowC,
-                      int64_t       incColC);
+ulmblas_cgemm_strided(int64_t m, int64_t n, int64_t k, const float *alpha,
+                      int conjA, const float *A, int64_t incRowA,
+                      int64_t incColA, int conjB, const float *B,
+                      int64_t incRowB, int64_t incColB, const float *beta,
+                      float *C, int64_t incRowC, int64_t incColC);
 
 void
-ulmblas_zgemm_strided(int64_t       m,
-                      int64_t       n,
-                      int64_t       k,
-                      const double  *alpha,
-                      int           conjA,
-                      const double  *A,
-                      int64_t       incRowA,
-                      int64_t       incColA,
-                      int           conjB,
-                      const double  *B,
-                      int64_t       incRowB,
-                      int64_t       incColB,
-                      const double  *beta,
-                      double        *C,
-                      int64_t       incRowC,
-                      int64_t       incColC);
+ulmblas_zgemm_strided(int64_t m, int64_t n, int64_t k, const double *alpha,
+                      int conjA, const double *A, int64_t incRowA,
+                      int64_t incColA, int conjB, const double *B,
+                      int64_t incRowB, int64_t incColB, const double *beta,
+                      double *C, int64_t incRowC, int64_t incColC);
 
 void
-ulmblas_i8gemm_strided(int64_t       m,
-                       int64_t       n,
-                       int64_t       k,
-                       int8_t        alpha,
-                       const int8_t  *A,
-                       int64_t       incRowA,
-                       int64_t       incColA,
-                       const int8_t  *B,
-                       int64_t       incRowB,
-                       int64_t       incColB,
-                       int8_t        beta,
-                       int8_t        *C,
-                       int64_t       incRowC,
-                       int64_t       incColC);
+ulmblas_i8gemm_strided(int64_t m, int64_t n, int64_t k, int8_t alpha,
+                       const int8_t *A, int64_t incRowA, int64_t incColA,
+                       const int8_t *B, int64_t incRowB, int64_t incColB,
+                       int8_t beta, int8_t *C, int64_t incRowC,
+                       int64_t incColC);
 
 void
-ulmblas_i16gemm_strided(int64_t       m,
-                        int64_t       n,
-                        int64_t       k,
-                        int16_t       alpha,
-                        const int16_t *A,
-                        int64_t       incRowA,
-                        int64_t       incColA,
-                        const int16_t *B,
-                        int64_t       incRowB,
-                        int64_t       incColB,
-                        int16_t       beta,
-                        int16_t       *C,
-                        int64_t       incRowC,
-                        int64_t       incColC);
+ulmblas_i16gemm_strided(int64_t m, int64_t n, int64_t k, int16_t alpha,
+                        const int16_t *A, int64_t incRowA, int64_t incColA,
+                        const int16_t *B, int64_t incRowB, int64_t incColB,
+                        int16_t beta, int16_t *C, int64_t incRowC,
+                        int64_t incColC);
 
 void
-ulmblas_i32gemm_strided(int64_t       m,
-                        int64_t       n,
-                        int64_t       k,
-                        int32_t       alpha,
-                        const int32_t *A,
-                        int64_t       incRowA,
-                        int64_t       incColA,
-                        const int32_t *B,
-                        int64_t       incRowB,
-                        int64_t       incColB,
-                        int32_t       beta,
-                        int32_t       *C,
-                        int64_t       incRowC,
-                        int64_t       incColC);
+ulmblas_i32gemm_strided(int64_t m, int64_t n, int64_t k, int32_t alpha,
+                        const int32_t *A, int64_t incRowA, int64_t incColA,
+                        const int32_t *B, int64_t incRowB, int64_t incColB,
+                        int32_t beta, int32_t *C, int64_t incRowC,
+                        int64_t incColC);
 
 void
-ulmblas_i64gemm_strided(int64_t       m,
-                        int64_t       n,
-                        int64_t       k,
-                        int64_t       alpha,
-                        const int64_t *A,
-                        int64_t       incRowA,
-                        int64_t       incColA,
-                        const int64_t *B,
-                        int64_t       incRowB,
-                        int64_t       incColB,
-                        int64_t       beta,
-                        int64_t       *C,
-                        int64_t       incRowC,
-                        int64_t       incColC);
+ulmblas_i64gemm_strided(int64_t m, int64_t n, int64_t k, int64_t alpha,
+                        const int64_t *A, int64_t incRowA, int64_t incColA,
+                        const int64_t *B, int64_t incRowB, int64_t incColB,
+                        int64_t beta, int64_t *C, int64_t incRowC,
+                        int64_t incColC);
 
 #ifdef __cplusplus
 } // extern "C"

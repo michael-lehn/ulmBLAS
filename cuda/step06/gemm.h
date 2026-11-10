@@ -20,25 +20,23 @@
 #define CULMBLAS_STEP06_WARPS_N 2
 #endif
 
-namespace cULMblas { namespace step06 {
+namespace cULMblas {
+namespace step06 {
 
-constexpr int TileM      = 8;           // a WMMA operation for double:
-constexpr int TileN      = 8;           // C(8 x 8) += A(8 x 4) B(4 x 8)
-constexpr int TileK      = 4;
-constexpr int WarpsM     = CULMBLAS_STEP06_WARPS_M;     // warps per block
-constexpr int WarpsN     = CULMBLAS_STEP06_WARPS_N;
-constexpr int BlockRows  = WarpsM*TileM;                // of C
-constexpr int BlockCols  = WarpsN*TileN;                // of C
+constexpr int TileM = 8; // a WMMA operation for double:
+constexpr int TileN = 8; // C(8 x 8) += A(8 x 4) B(4 x 8)
+constexpr int TileK = 4;
+constexpr int WarpsM = CULMBLAS_STEP06_WARPS_M; // warps per block
+constexpr int WarpsN = CULMBLAS_STEP06_WARPS_N;
+constexpr int BlockRows = WarpsM * TileM; // of C
+constexpr int BlockCols = WarpsN * TileN; // of C
 
 void
-gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
-     double alpha,
-     const double *A, std::ptrdiff_t ldA,
-     const double *B, std::ptrdiff_t ldB,
-     double beta,
-     double *C, std::ptrdiff_t ldC,
-     cudaStream_t stream = 0);
+gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k, double alpha,
+     const double *A, std::ptrdiff_t ldA, const double *B, std::ptrdiff_t ldB,
+     double beta, double *C, std::ptrdiff_t ldC, cudaStream_t stream = 0);
 
-} } // namespace step06, cULMblas
+} // namespace step06
+} // namespace cULMblas
 
 #endif // CULMBLAS_STEP06_GEMM_H

@@ -9,38 +9,34 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TX, typename TA>
 void
-helr(IndexType    n,
-     const Alpha  &alpha,
-     bool         conjX,
-     const TX     *x,
-     IndexType    incX,
-     TA           *A,
-     IndexType    incRowA,
-     IndexType    incColA)
+helr(IndexType n, const Alpha &alpha, bool conjX, const TX *x, IndexType incX,
+     TA *A, IndexType incRowA, IndexType incColA)
 {
-//
-//  Simple reference implementation
-//
-    if (n==0 || alpha==Alpha(0)) {
-        return;
+    //
+    //  Simple reference implementation
+    //
+    if (n == 0 || alpha == Alpha(0)) {
+	return;
     }
 
     if (!conjX) {
-        for (IndexType j=0; j<n; ++j) {
-            for (IndexType i=j; i<n; ++i) {
-                A[i*incRowA+j*incColA] += alpha*x[i*incX]*conjugate(x[j*incX]);
-            }
-        }
+	for (IndexType j = 0; j < n; ++j) {
+	    for (IndexType i = j; i < n; ++i) {
+		A[i * incRowA + j * incColA] +=
+		    alpha * x[i * incX] * conjugate(x[j * incX]);
+	    }
+	}
     } else {
-        for (IndexType j=0; j<n; ++j) {
-            for (IndexType i=j; i<n; ++i) {
-                A[i*incRowA+j*incColA] += alpha*conjugate(x[i*incX])*x[j*incX];
-            }
-        }
+	for (IndexType j = 0; j < n; ++j) {
+	    for (IndexType i = j; i < n; ++i) {
+		A[i * incRowA + j * incColA] +=
+		    alpha * conjugate(x[i * incX]) * x[j * incX];
+	    }
+	}
     }
 
-    for (IndexType i=0; i<n; ++i) {
-        A[i*(incRowA+incColA)] = real(A[i*(incRowA+incColA)]);
+    for (IndexType i = 0; i < n; ++i) {
+	A[i * (incRowA + incColA)] = real(A[i * (incRowA + incColA)]);
     }
 }
 

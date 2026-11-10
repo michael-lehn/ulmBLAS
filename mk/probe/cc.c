@@ -4,8 +4,8 @@
 int
 main(void)
 {
-    double *x = (double *)malloc(2*sizeof(double));
-    int    ok;
+    double *x = (double *)malloc(2 * sizeof(double));
+    int ok;
 
     x[0] = 1;
     x[1] = 2;

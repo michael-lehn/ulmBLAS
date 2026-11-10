@@ -5,8 +5,7 @@
 extern "C" {
 
 void
-F77BLAS(scabs1_sub)(const float   *z_,
-                    float         *result_)
+F77BLAS(scabs1_sub)(const float *z_, float *result_)
 {
     typedef std::complex<float> fcomplex;
     const fcomplex *z = reinterpret_cast<const fcomplex *>(z_);
@@ -15,8 +14,7 @@ F77BLAS(scabs1_sub)(const float   *z_,
 }
 
 void
-F77BLAS(dcabs1_sub)(const double  *z_,
-                    double        *result_)
+F77BLAS(dcabs1_sub)(const double *z_, double *result_)
 {
     typedef std::complex<double> dcomplex;
     const dcomplex *z = reinterpret_cast<const dcomplex *>(z_);

@@ -4,18 +4,10 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TA, typename TB>
-    void
-    trusm(IndexType    m,
-          IndexType    n,
-          const Alpha  &alpha,
-          bool         conjA,
-          bool         unitDiag,
-          const TA     *A,
-          IndexType    incRowA,
-          IndexType    incColA,
-          TB           *B,
-          IndexType    incRowB,
-          IndexType    incColB);
+void
+trusm(IndexType m, IndexType n, const Alpha &alpha, bool conjA, bool unitDiag,
+      const TA *A, IndexType incRowA, IndexType incColA, TB *B,
+      IndexType incRowB, IndexType incColB);
 
 } // namespace ulmBLAS
 

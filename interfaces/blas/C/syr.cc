@@ -6,135 +6,115 @@
 extern "C" {
 
 void
-ULMBLAS(ssyr)(enum CBLAS_UPLO    upLo,
-              ULMBLAS_INDEX_TYPE n,
-              float              alpha,
-              const float        *x,
-              ULMBLAS_INDEX_TYPE incX,
-              float              *A,
+ULMBLAS(ssyr)(enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n, float alpha,
+              const float *x, ULMBLAS_INDEX_TYPE incX, float *A,
               ULMBLAS_INDEX_TYPE ldA)
 {
-//
-//  Start the operations.
-//
-    if (incX<0) {
-        x -= incX*(n-1);
+    //
+    //  Start the operations.
+    //
+    if (incX < 0) {
+	x -= incX * (n - 1);
     }
-    if (upLo==CblasLower) {
-        ulmBLAS::sylr<std::ptrdiff_t>(n, alpha, x, incX, A, 1, ldA);
+    if (upLo == CblasLower) {
+	ulmBLAS::sylr<std::ptrdiff_t>(n, alpha, x, incX, A, 1, ldA);
     } else {
-        ulmBLAS::sylr<std::ptrdiff_t>(n, alpha, x, incX, A, ldA, 1);
+	ulmBLAS::sylr<std::ptrdiff_t>(n, alpha, x, incX, A, ldA, 1);
     }
 }
 
 void
-ULMBLAS(dsyr)(enum CBLAS_UPLO    upLo,
-              ULMBLAS_INDEX_TYPE n,
-              double             alpha,
-              const double       *x,
-              ULMBLAS_INDEX_TYPE incX,
-              double             *A,
+ULMBLAS(dsyr)(enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n, double alpha,
+              const double *x, ULMBLAS_INDEX_TYPE incX, double *A,
               ULMBLAS_INDEX_TYPE ldA)
 {
-//
-//  Start the operations.
-//
-    if (incX<0) {
-        x -= incX*(n-1);
+    //
+    //  Start the operations.
+    //
+    if (incX < 0) {
+	x -= incX * (n - 1);
     }
-    if (upLo==CblasLower) {
-        ulmBLAS::sylr<std::ptrdiff_t>(n, alpha, x, incX, A, 1, ldA);
+    if (upLo == CblasLower) {
+	ulmBLAS::sylr<std::ptrdiff_t>(n, alpha, x, incX, A, 1, ldA);
     } else {
-        ulmBLAS::sylr<std::ptrdiff_t>(n, alpha, x, incX, A, ldA, 1);
+	ulmBLAS::sylr<std::ptrdiff_t>(n, alpha, x, incX, A, ldA, 1);
     }
 }
 
 void
-CBLAS(ssyr)(enum CBLAS_ORDER   order,
-            enum CBLAS_UPLO    upLo,
-            ULMBLAS_INDEX_TYPE n,
-            float              alpha,
-            const float        *x,
-            ULMBLAS_INDEX_TYPE incX,
-            float              *A,
+CBLAS(ssyr)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
+            float alpha, const float *x, ULMBLAS_INDEX_TYPE incX, float *A,
             ULMBLAS_INDEX_TYPE ldA)
 {
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
 
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (upLo!=CblasUpper && upLo!=CblasLower) {
-        info = 2;
-    } else if (n<0) {
-        info = 3;
-    } else if (incX==0) {
-        info = 6;
-    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-        info = 8;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (upLo != CblasUpper && upLo != CblasLower) {
+	info = 2;
+    } else if (n < 0) {
+	info = 3;
+    } else if (incX == 0) {
+	info = 6;
+    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+	info = 8;
     }
 
-    if (info!=0) {
-        extern int RowMajorStrg;
+    if (info != 0) {
+	extern int RowMajorStrg;
 
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_ssyr", "... bla bla ...");
-        return;
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_ssyr", "... bla bla ...");
+	return;
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(ssyr)(upLo, n, alpha, x, incX, A, ldA);
+    if (order == CblasColMajor) {
+	ULMBLAS(ssyr)(upLo, n, alpha, x, incX, A, ldA);
     } else {
-        upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
-        ULMBLAS(ssyr)(upLo, n, alpha, x, incX, A, ldA);
+	upLo = (upLo == CblasUpper) ? CblasLower : CblasUpper;
+	ULMBLAS(ssyr)(upLo, n, alpha, x, incX, A, ldA);
     }
-
 }
 
 void
-CBLAS(dsyr)(enum CBLAS_ORDER   order,
-            enum CBLAS_UPLO    upLo,
-            ULMBLAS_INDEX_TYPE n,
-            double             alpha,
-            const double       *x,
-            ULMBLAS_INDEX_TYPE incX,
-            double             *A,
+CBLAS(dsyr)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
+            double alpha, const double *x, ULMBLAS_INDEX_TYPE incX, double *A,
             ULMBLAS_INDEX_TYPE ldA)
 {
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
 
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (upLo!=CblasUpper && upLo!=CblasLower) {
-        info = 2;
-    } else if (n<0) {
-        info = 3;
-    } else if (incX==0) {
-        info = 6;
-    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-        info = 8;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (upLo != CblasUpper && upLo != CblasLower) {
+	info = 2;
+    } else if (n < 0) {
+	info = 3;
+    } else if (incX == 0) {
+	info = 6;
+    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+	info = 8;
     }
 
-    if (info!=0) {
-        extern int RowMajorStrg;
+    if (info != 0) {
+	extern int RowMajorStrg;
 
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_dsyr", "... bla bla ...");
-        return;
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_dsyr", "... bla bla ...");
+	return;
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(dsyr)(upLo, n, alpha, x, incX, A, ldA);
+    if (order == CblasColMajor) {
+	ULMBLAS(dsyr)(upLo, n, alpha, x, incX, A, ldA);
     } else {
-        upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
-        ULMBLAS(dsyr)(upLo, n, alpha, x, incX, A, ldA);
+	upLo = (upLo == CblasUpper) ? CblasLower : CblasUpper;
+	ULMBLAS(dsyr)(upLo, n, alpha, x, incX, A, ldA);
     }
-
 }
 
 } // extern "C"

@@ -18,21 +18,21 @@ template <typename IndexType, typename T>
 void
 trti2(bool unitDiag, IndexType n, T *A, IndexType rs, IndexType cs)
 {
-    for (IndexType j=n-1; j>=0; --j) {
-        T ajj = T(-1);
-        if (!unitDiag) {
-            A[j*(rs+cs)] = T(1)/A[j*(rs+cs)];
-            ajj = -A[j*(rs+cs)];
-        }
-        //  x = A(j+1:n, j) := X(j+1:n, j+1:n) x ajj, bottom up
-        T *x = &A[j*cs];
-        for (IndexType i=n-1; i>j; --i) {
-            T s = unitDiag ? x[i*rs] : A[i*(rs+cs)]*x[i*rs];
-            for (IndexType l=j+1; l<i; ++l) {
-                s += A[i*rs+l*cs]*x[l*rs];
-            }
-            x[i*rs] = s*ajj;
-        }
+    for (IndexType j = n - 1; j >= 0; --j) {
+	T ajj = T(-1);
+	if (!unitDiag) {
+	    A[j * (rs + cs)] = T(1) / A[j * (rs + cs)];
+	    ajj = -A[j * (rs + cs)];
+	}
+	//  x = A(j+1:n, j) := X(j+1:n, j+1:n) x ajj, bottom up
+	T *x = &A[j * cs];
+	for (IndexType i = n - 1; i > j; --i) {
+	    T s = unitDiag ? x[i * rs] : A[i * (rs + cs)] * x[i * rs];
+	    for (IndexType l = j + 1; l < i; ++l) {
+		s += A[i * rs + l * cs] * x[l * rs];
+	    }
+	    x[i * rs] = s * ajj;
+	}
     }
 }
 
@@ -45,13 +45,13 @@ template <typename IndexType, typename T>
 void
 rec(bool unitDiag, IndexType n, T *A, IndexType rs, IndexType cs)
 {
-    if (n<=ULMBLAS_TRTRI_BASE) {
-        trti2(unitDiag, n, A, rs, cs);
-        return;
+    if (n <= ULMBLAS_TRTRI_BASE) {
+	trti2(unitDiag, n, A, rs, cs);
+	return;
     }
-    const IndexType n1 = n/2, n2 = n-n1;
-    T *A21 = &A[n1*rs];
-    T *A22 = &A[n1*(rs+cs)];
+    const IndexType n1 = n / 2, n2 = n - n1;
+    T *A21 = &A[n1 * rs];
+    T *A22 = &A[n1 * (rs + cs)];
 
     rec(unitDiag, n1, A, rs, cs);
     rec(unitDiag, n2, A22, rs, cs);
@@ -65,24 +65,20 @@ rec(bool unitDiag, IndexType n, T *A, IndexType rs, IndexType cs)
 
 template <typename IndexType, typename T>
 IndexType
-trtri(bool         lower,
-      bool         unitDiag,
-      IndexType    n,
-      T            *A,
-      IndexType    incRowA,
-      IndexType    incColA)
+trtri(bool lower, bool unitDiag, IndexType n, T *A, IndexType incRowA,
+      IndexType incColA)
 {
     ULMBLAS_LAPACK_REQUIRE_FLOATING_POINT(T);
 
-    if (n<=0) {
-        return 0;
+    if (n <= 0) {
+	return 0;
     }
     if (!unitDiag) {
-        for (IndexType i=0; i<n; ++i) {
-            if (A[i*(incRowA+incColA)]==T(0)) {
-                return i+1;
-            }
-        }
+	for (IndexType i = 0; i < n; ++i) {
+	    if (A[i * (incRowA + incColA)] == T(0)) {
+		return i + 1;
+	    }
+	}
     }
     //  upper: the lower triangle of the transposed view (inv(U)^T =
     //  inv(U^T))
@@ -90,12 +86,12 @@ trtri(bool         lower,
     const IndexType cs = lower ? incColA : incRowA;
 #ifdef _OPENMP
     if (!omp_in_parallel()) {
-        const tasks::Param p = tasks::inverseParam(long(n), numThreads());
-        if (n>IndexType(p.serialN) && p.threads>1) {
-            tasks::trtriLowerTasks(unitDiag, n, A, rs, cs, IndexType(p.nb),
-                                   p.threads);
-            return 0;
-        }
+	const tasks::Param p = tasks::inverseParam(long(n), numThreads());
+	if (n > IndexType(p.serialN) && p.threads > 1) {
+	    tasks::trtriLowerTasks(unitDiag, n, A, rs, cs, IndexType(p.nb),
+	                           p.threads);
+	    return 0;
+	}
     }
 #endif
     trtri_impl::rec(unitDiag, n, A, rs, cs);

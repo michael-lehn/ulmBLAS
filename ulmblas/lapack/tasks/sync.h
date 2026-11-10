@@ -8,7 +8,8 @@
 #include <atomic>
 #include <chrono>
 
-namespace ulmBLAS { namespace tasks {
+namespace ulmBLAS {
+namespace tasks {
 
 //
 //  Fences at the start and end of every task body (workaround for LLVM's
@@ -70,37 +71,38 @@ seconds()
 //
 class SpinBarrier
 {
-    public:
-        explicit SpinBarrier(int n = 1) : count_(0), sense_(0), n_(n) {}
+  public:
+    explicit SpinBarrier(int n = 1) : count_(0), sense_(0), n_(n) {}
 
-        void
-        reset(int n)
-        {
-            n_ = n;
-            count_.store(0);
-            sense_.store(0);
-        }
+    void
+    reset(int n)
+    {
+	n_ = n;
+	count_.store(0);
+	sense_.store(0);
+    }
 
-        void
-        wait(int &localSense)
-        {
-            localSense = 1-localSense;
-            if (count_.fetch_add(1, std::memory_order_acq_rel)==n_-1) {
-                count_.store(0, std::memory_order_relaxed);
-                sense_.store(localSense, std::memory_order_release);
-            } else {
-                while (sense_.load(std::memory_order_acquire)!=localSense) {
-                    cpuRelax();
-                }
-            }
-        }
+    void
+    wait(int &localSense)
+    {
+	localSense = 1 - localSense;
+	if (count_.fetch_add(1, std::memory_order_acq_rel) == n_ - 1) {
+	    count_.store(0, std::memory_order_relaxed);
+	    sense_.store(localSense, std::memory_order_release);
+	} else {
+	    while (sense_.load(std::memory_order_acquire) != localSense) {
+		cpuRelax();
+	    }
+	}
+    }
 
-    private:
-        alignas(64) std::atomic<int>  count_;
-        alignas(64) std::atomic<int>  sense_;
-        int                           n_;
+  private:
+    alignas(64) std::atomic<int> count_;
+    alignas(64) std::atomic<int> sense_;
+    int n_;
 };
 
-} } // namespace tasks, ulmBLAS
+} // namespace tasks
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LAPACK_TASKS_SYNC_H

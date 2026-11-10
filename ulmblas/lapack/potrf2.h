@@ -16,11 +16,8 @@ namespace ulmBLAS {
 //  is not positive definite.
 //
 template <typename IndexType, typename T>
-    IndexType
-    potrf2(IndexType    n,
-           T            *A,
-           IndexType    incRowA,
-           IndexType    incColA);
+IndexType
+potrf2(IndexType n, T *A, IndexType incRowA, IndexType incColA);
 
 } // namespace ulmBLAS
 

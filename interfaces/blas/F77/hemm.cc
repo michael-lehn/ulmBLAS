@@ -9,27 +9,21 @@
 extern "C" {
 
 void
-F77BLAS(chemm)(const char               *side_,
-               const char               *upLo_,
-               const ULMBLAS_INDEX_TYPE *m_,
-               const ULMBLAS_INDEX_TYPE *n_,
-               const float              *alpha_,
-               const float              *A_,
-               const ULMBLAS_INDEX_TYPE *ldA_,
-               const float              *B_,
-               const ULMBLAS_INDEX_TYPE *ldB_,
-               const float              *beta_,
-               float                    *C_,
+F77BLAS(chemm)(const char *side_, const char *upLo_,
+               const ULMBLAS_INDEX_TYPE *m_, const ULMBLAS_INDEX_TYPE *n_,
+               const float *alpha_, const float *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_, const float *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_, const float *beta_, float *C_,
                const ULMBLAS_INDEX_TYPE *ldC_)
 {
     typedef std::complex<float> fcomplex;
-//
-//  Dereference scalar parameters
-//
-    bool left              = (toupper(*side_) == 'L');
-    bool lower             = (toupper(*upLo_) == 'L');
-    ULMBLAS_INDEX_TYPE m   = *m_;
-    ULMBLAS_INDEX_TYPE n   = *n_;
+    //
+    //  Dereference scalar parameters
+    //
+    bool left = (toupper(*side_) == 'L');
+    bool lower = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE m = *m_;
+    ULMBLAS_INDEX_TYPE n = *n_;
     ULMBLAS_INDEX_TYPE ldA = *ldA_;
     ULMBLAS_INDEX_TYPE ldB = *ldB_;
     ULMBLAS_INDEX_TYPE ldC = *ldC_;
@@ -39,84 +33,77 @@ F77BLAS(chemm)(const char               *side_,
 
     const fcomplex *A = reinterpret_cast<const fcomplex *>(A_);
     const fcomplex *B = reinterpret_cast<const fcomplex *>(B_);
-    fcomplex       *C = reinterpret_cast<fcomplex *>(C_);
+    fcomplex *C = reinterpret_cast<fcomplex *>(C_);
 
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
+    //
+    //  Set  numRowsA and numRowsB as the number of rows of A and B
+    //
     ULMBLAS_INDEX_TYPE numRowsA = (left) ? m : n;
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     ULMBLAS_INDEX_TYPE info = 0;
 
-    if (toupper(*side_)!='L' && toupper(*side_)!='R') {
-        info = 1;
-    } else if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
-        info = 2;
-    } else if (m<0) {
-        info = 3;
-    } else if (n<0) {
-        info = 4;
-    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-        info = 7;
-    } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-        info = 9;
-    } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-        info = 12;
+    if (toupper(*side_) != 'L' && toupper(*side_) != 'R') {
+	info = 1;
+    } else if (toupper(*upLo_) != 'L' && toupper(*upLo_) != 'U') {
+	info = 2;
+    } else if (m < 0) {
+	info = 3;
+    } else if (n < 0) {
+	info = 4;
+    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+	info = 7;
+    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+	info = 9;
+    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+	info = 12;
     }
 
-    if (info!=0) {
-        F77BLAS(xerbla)("CHEMM ", &info, 6);
-        return;
+    if (info != 0) {
+	F77BLAS(xerbla)("CHEMM ", &info, 6);
+	return;
     }
 
-//
-//  Start the operations.
-//
+    //
+    //  Start the operations.
+    //
     if (left) {
-        if (lower) {
-            ulmBLAS::helmm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
-                                           beta, C, 1, ldC);
-        } else {
-            ulmBLAS::heumm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
-                                           beta, C, 1, ldC);
-        }
+	if (lower) {
+	    ulmBLAS::helmm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
+	                                   beta, C, 1, ldC);
+	} else {
+	    ulmBLAS::heumm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
+	                                   beta, C, 1, ldC);
+	}
     } else {
-        if (lower) {
-            ulmBLAS::heumm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
-                                           beta, C, ldC, 1);
-        } else {
-            ulmBLAS::helmm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
-                                           beta, C, ldC, 1);
-        }
+	if (lower) {
+	    ulmBLAS::heumm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
+	                                   beta, C, ldC, 1);
+	} else {
+	    ulmBLAS::helmm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
+	                                   beta, C, ldC, 1);
+	}
     }
 }
 
-
 void
-F77BLAS(zhemm)(const char               *side_,
-               const char               *upLo_,
-               const ULMBLAS_INDEX_TYPE *m_,
-               const ULMBLAS_INDEX_TYPE *n_,
-               const double             *alpha_,
-               const double             *A_,
-               const ULMBLAS_INDEX_TYPE *ldA_,
-               const double             *B_,
-               const ULMBLAS_INDEX_TYPE *ldB_,
-               const double             *beta_,
-               double                   *C_,
+F77BLAS(zhemm)(const char *side_, const char *upLo_,
+               const ULMBLAS_INDEX_TYPE *m_, const ULMBLAS_INDEX_TYPE *n_,
+               const double *alpha_, const double *A_,
+               const ULMBLAS_INDEX_TYPE *ldA_, const double *B_,
+               const ULMBLAS_INDEX_TYPE *ldB_, const double *beta_, double *C_,
                const ULMBLAS_INDEX_TYPE *ldC_)
 {
     typedef std::complex<double> dcomplex;
-//
-//  Dereference scalar parameters
-//
-    bool left              = (toupper(*side_) == 'L');
-    bool lower             = (toupper(*upLo_) == 'L');
-    ULMBLAS_INDEX_TYPE m   = *m_;
-    ULMBLAS_INDEX_TYPE n   = *n_;
+    //
+    //  Dereference scalar parameters
+    //
+    bool left = (toupper(*side_) == 'L');
+    bool lower = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE m = *m_;
+    ULMBLAS_INDEX_TYPE n = *n_;
     ULMBLAS_INDEX_TYPE ldA = *ldA_;
     ULMBLAS_INDEX_TYPE ldB = *ldB_;
     ULMBLAS_INDEX_TYPE ldC = *ldC_;
@@ -126,58 +113,58 @@ F77BLAS(zhemm)(const char               *side_,
 
     const dcomplex *A = reinterpret_cast<const dcomplex *>(A_);
     const dcomplex *B = reinterpret_cast<const dcomplex *>(B_);
-    dcomplex       *C = reinterpret_cast<dcomplex *>(C_);
+    dcomplex *C = reinterpret_cast<dcomplex *>(C_);
 
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
+    //
+    //  Set  numRowsA and numRowsB as the number of rows of A and B
+    //
     ULMBLAS_INDEX_TYPE numRowsA = (left) ? m : n;
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     ULMBLAS_INDEX_TYPE info = 0;
 
-    if (toupper(*side_)!='L' && toupper(*side_)!='R') {
-        info = 1;
-    } else if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
-        info = 2;
-    } else if (m<0) {
-        info = 3;
-    } else if (n<0) {
-        info = 4;
-    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-        info = 7;
-    } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-        info = 9;
-    } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-        info = 12;
+    if (toupper(*side_) != 'L' && toupper(*side_) != 'R') {
+	info = 1;
+    } else if (toupper(*upLo_) != 'L' && toupper(*upLo_) != 'U') {
+	info = 2;
+    } else if (m < 0) {
+	info = 3;
+    } else if (n < 0) {
+	info = 4;
+    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+	info = 7;
+    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+	info = 9;
+    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+	info = 12;
     }
 
-    if (info!=0) {
-        F77BLAS(xerbla)("ZHEMM ", &info, 6);
-        return;
+    if (info != 0) {
+	F77BLAS(xerbla)("ZHEMM ", &info, 6);
+	return;
     }
 
-//
-//  Start the operations.
-//
+    //
+    //  Start the operations.
+    //
     if (left) {
-        if (lower) {
-            ulmBLAS::helmm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
-                                           beta, C, 1, ldC);
-        } else {
-            ulmBLAS::heumm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
-                                           beta, C, 1, ldC);
-        }
+	if (lower) {
+	    ulmBLAS::helmm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
+	                                   beta, C, 1, ldC);
+	} else {
+	    ulmBLAS::heumm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
+	                                   beta, C, 1, ldC);
+	}
     } else {
-        if (lower) {
-            ulmBLAS::heumm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
-                                           beta, C, ldC, 1);
-        } else {
-            ulmBLAS::helmm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
-                                           beta, C, ldC, 1);
-        }
+	if (lower) {
+	    ulmBLAS::heumm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
+	                                   beta, C, ldC, 1);
+	} else {
+	    ulmBLAS::helmm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
+	                                   beta, C, ldC, 1);
+	}
     }
 }
 

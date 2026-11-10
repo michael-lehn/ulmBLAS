@@ -12,42 +12,29 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename T, typename Beta, typename TC>
 void
-usylrk(IndexType    mr,
-       IndexType    nr,
-       IndexType    kc,
-       IndexType    ic,
-       IndexType    jc,
-       const T      &alpha,
-       const T      *A,
-       const T      *B,
-       const Beta   &beta,
-       TC           *C,
-       IndexType    incRowC,
-       IndexType    incColC,
-       const T      *nextA,
-       const T      *nextB)
+usylrk(IndexType mr, IndexType nr, IndexType kc, IndexType ic, IndexType jc,
+       const T &alpha, const T *A, const T *B, const Beta &beta, TC *C,
+       IndexType incRowC, IndexType incColC, const T *nextA, const T *nextB)
 {
     constexpr IndexType MR = BlockSizeUGemm<T>::MR;
     constexpr IndexType NR = BlockSizeUGemm<T>::NR;
 
-    T   C_[MR*NR];
+    T C_[MR * NR];
 
     ugemm(kc, alpha, A, B, T(0), C_, IndexType(1), MR, nextA, nextB);
 
-    if (jc<ic) {
-        gescal(mr, ic-jc, beta, C, incRowC, incColC);
-        geaxpy(mr, ic-jc, Beta(1), C_, IndexType(1), MR, C, incRowC, incColC);
-        trlscal(mr, nr-(ic-jc), false, beta,
-                &C[(ic-jc)*incColC], incRowC, incColC);
-        trlaxpy(mr, nr-(ic-jc), false, Beta(1),
-                &C_[(ic-jc)*MR], IndexType(1), MR,
-                &C[(ic-jc)*incColC], incRowC, incColC);
+    if (jc < ic) {
+	gescal(mr, ic - jc, beta, C, incRowC, incColC);
+	geaxpy(mr, ic - jc, Beta(1), C_, IndexType(1), MR, C, incRowC, incColC);
+	trlscal(mr, nr - (ic - jc), false, beta, &C[(ic - jc) * incColC],
+	        incRowC, incColC);
+	trlaxpy(mr, nr - (ic - jc), false, Beta(1), &C_[(ic - jc) * MR],
+	        IndexType(1), MR, &C[(ic - jc) * incColC], incRowC, incColC);
     } else {
-        trlscal(mr-(jc-ic), nr, false, beta,
-                &C[(jc-ic)*incRowC], incRowC, incColC);
-        trlaxpy(mr-(jc-ic), nr, false, Beta(1),
-                &C_[jc-ic], IndexType(1), MR,
-                &C[(jc-ic)*incRowC], incRowC, incColC);
+	trlscal(mr - (jc - ic), nr, false, beta, &C[(jc - ic) * incRowC],
+	        incRowC, incColC);
+	trlaxpy(mr - (jc - ic), nr, false, Beta(1), &C_[jc - ic], IndexType(1),
+	        MR, &C[(jc - ic) * incRowC], incRowC, incColC);
     }
 }
 

@@ -44,7 +44,8 @@
 //  The kernels of the level 3 functions are the only code of ulmBLAS that
 //  runs in streaming mode.
 //
-namespace ulmBLAS { namespace sme {
+namespace ulmBLAS {
+namespace sme {
 
 __attribute__((always_inline)) inline std::uint64_t
 fpsr_get()
@@ -70,7 +71,7 @@ struct FpsrState
 inline FpsrState &
 fpsr_state()
 {
-    static thread_local FpsrState state = { false, false };
+    static thread_local FpsrState state = {false, false};
     return state;
 }
 
@@ -80,39 +81,40 @@ fpsr_state()
 //  destruction if a streaming routine ran (see above).
 class FpsrRestore
 {
-    public:
-        explicit
-        FpsrRestore(bool streams = true)
-            : state(fpsr_state()), outermost(!state.active), fpsr(0)
-        {
-            if (outermost) {
-                fpsr           = fpsr_get();
-                state.active   = true;
-                state.streamed = false;
-            }
-            state.streamed = state.streamed || streams;
-        }
+  public:
+    explicit FpsrRestore(bool streams = true)
+        : state(fpsr_state()), outermost(!state.active), fpsr(0)
+    {
+	if (outermost) {
+	    fpsr = fpsr_get();
+	    state.active = true;
+	    state.streamed = false;
+	}
+	state.streamed = state.streamed || streams;
+    }
 
-        ~FpsrRestore()
-        {
-            if (outermost) {
-                if (state.streamed) {
-                    fpsr_set(fpsr);
-                }
-                state.active   = false;
-                state.streamed = false;
-            }
-        }
+    ~FpsrRestore()
+    {
+	if (outermost) {
+	    if (state.streamed) {
+		fpsr_set(fpsr);
+	    }
+	    state.active = false;
+	    state.streamed = false;
+	}
+    }
 
-        FpsrRestore(const FpsrRestore &) = delete;
-        FpsrRestore &operator=(const FpsrRestore &) = delete;
+    FpsrRestore(const FpsrRestore &) = delete;
+    FpsrRestore &
+    operator=(const FpsrRestore &) = delete;
 
-    private:
-        FpsrState      &state;
-        const bool     outermost;
-        std::uint64_t  fpsr;
+  private:
+    FpsrState &state;
+    const bool outermost;
+    std::uint64_t fpsr;
 };
 
-} } // namespace sme, ulmBLAS
+} // namespace sme
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL3_UKERNEL_SME_FPSR_H

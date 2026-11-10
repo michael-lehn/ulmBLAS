@@ -5,28 +5,19 @@
 extern "C" {
 
 void
-ULMBLAS(srotg)(float *a,
-               float *b,
-               float *c,
-               float *s)
+ULMBLAS(srotg)(float *a, float *b, float *c, float *s)
 {
     ulmBLAS::rotg(*a, *b, *c, *s);
 }
 
 void
-ULMBLAS(drotg)(double *a,
-               double *b,
-               double *c,
-               double *s)
+ULMBLAS(drotg)(double *a, double *b, double *c, double *s)
 {
     ulmBLAS::rotg(*a, *b, *c, *s);
 }
 
 void
-ULMBLAS(crotg)(float *a_,
-               float *b_,
-               float *c,
-               float *s_)
+ULMBLAS(crotg)(float *a_, float *b_, float *c, float *s_)
 {
     typedef std::complex<float> fcomplex;
     fcomplex *a = reinterpret_cast<fcomplex *>(a_);
@@ -37,10 +28,7 @@ ULMBLAS(crotg)(float *a_,
 }
 
 void
-ULMBLAS(zrotg)(double *a_,
-               double *b_,
-               double *c,
-               double *s_)
+ULMBLAS(zrotg)(double *a_, double *b_, double *c, double *s_)
 {
     typedef std::complex<double> dcomplex;
     dcomplex *a = reinterpret_cast<dcomplex *>(a_);
@@ -51,28 +39,19 @@ ULMBLAS(zrotg)(double *a_,
 }
 
 void
-CBLAS(srotg)(float *a,
-             float *b,
-             float *c,
-             float *s)
+CBLAS(srotg)(float *a, float *b, float *c, float *s)
 {
     ulmBLAS::rotg(*a, *b, *c, *s);
 }
 
 void
-CBLAS(drotg)(double *a,
-             double *b,
-             double *c,
-             double *s)
+CBLAS(drotg)(double *a, double *b, double *c, double *s)
 {
     ulmBLAS::rotg(*a, *b, *c, *s);
 }
 
 void
-CBLAS(crotg)(void  *a_v,
-             void  *b_v,
-             float *c,
-             void  *s_v)
+CBLAS(crotg)(void *a_v, void *b_v, float *c, void *s_v)
 {
     float *a = static_cast<float *>(a_v);
     float *b = static_cast<float *>(b_v);
@@ -82,10 +61,7 @@ CBLAS(crotg)(void  *a_v,
 }
 
 void
-CBLAS(zrotg)(void   *a_v,
-             void   *b_v,
-             double *c,
-             void   *s_v)
+CBLAS(zrotg)(void *a_v, void *b_v, double *c, void *s_v)
 {
     double *a = static_cast<double *>(a_v);
     double *b = static_cast<double *>(b_v);

@@ -16,21 +16,13 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TA, typename TB>
 void
-trlsm(IndexType    m,
-      IndexType    n,
-      const Alpha  &alpha,
-      bool         conjA,
-      bool         unitDiag,
-      const TA     *A,
-      IndexType    incRowA,
-      IndexType    incColA,
-      TB           *B,
-      IndexType    incRowB,
-      IndexType    incColB)
+trlsm(IndexType m, IndexType n, const Alpha &alpha, bool conjA, bool unitDiag,
+      const TA *A, IndexType incRowA, IndexType incColA, TB *B,
+      IndexType incRowB, IndexType incColB)
 {
-    const FpsrScope fpsrScope;  // see level3/fpsrscope.h
+    const FpsrScope fpsrScope; // see level3/fpsrscope.h
 
-    typedef decltype(Alpha(0)*TA(0)*TB(0))  T;
+    typedef decltype(Alpha(0) * TA(0) * TB(0)) T;
 
     constexpr IndexType MC = BlockSize<T>::MC;
     constexpr IndexType NC = BlockSize<T>::NC;
@@ -38,56 +30,55 @@ trlsm(IndexType    m,
     constexpr IndexType MR = BlockSizeUGemm<T>::MR;
     constexpr IndexType NR = BlockSizeUGemm<T>::NR;
 
-    const IndexType mb = (m+MC-1) / MC;
-    const IndexType nb = (n+NC-1) / NC;
+    const IndexType mb = (m + MC - 1) / MC;
+    const IndexType nb = (n + NC - 1) / NC;
 
     const IndexType mc_ = m % MC;
     const IndexType nc_ = n % NC;
 
     static MemoryPool<T> memoryPool;
 
-    if (alpha==Alpha(0)) {
-        gescal(m, n, Alpha(0), B, incRowB, incColB);
-        return;
+    if (alpha == Alpha(0)) {
+	gescal(m, n, Alpha(0), B, incRowB, incColB);
+	return;
     }
 
-    T  *A_ = memoryPool.allocate(MC*MC+MR);
-    T  *B_ = memoryPool.allocate(MC*NC+NR);
+    T *A_ = memoryPool.allocate(MC * MC + MR);
+    T *B_ = memoryPool.allocate(MC * NC + NR);
 
-    for (IndexType j=0; j<nb; ++j) {
-        IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;
+    for (IndexType j = 0; j < nb; ++j) {
+	IndexType nc = (j != nb - 1 || nc_ == 0) ? NC : nc_;
 
-        for (IndexType i=0; i<mb; ++i) {
-            IndexType mc  = (i!=mb-1 || mc_==0) ? MC : mc_;
-            Alpha  alpha_ = (i==0) ? alpha : Alpha(1);
+	for (IndexType i = 0; i < mb; ++i) {
+	    IndexType mc = (i != mb - 1 || mc_ == 0) ? MC : mc_;
+	    Alpha alpha_ = (i == 0) ? alpha : Alpha(1);
 
-            gepack_B(mc, nc, false,
-                     &B[i*MC*incRowB+j*NC*incColB], incRowB, incColB,
-                     B_);
+	    gepack_B(mc, nc, false, &B[i * MC * incRowB + j * NC * incColB],
+	             incRowB, incColB, B_);
 
-            //std::cerr << "-- trlsm ----------" << std::endl;
-            //printMatrix(mc, mc, &A[i*MC*(incRowA+incColA)], incRowA, incColA);
+	    // std::cerr << "-- trlsm ----------" << std::endl;
+	    // printMatrix(mc, mc, &A[i*MC*(incRowA+incColA)], incRowA,
+	    // incColA);
 
-            trlspack(mc, conjA, unitDiag,
-                     &A[i*MC*(incRowA+incColA)], incRowA, incColA,
-                     A_);
+	    trlspack(mc, conjA, unitDiag, &A[i * MC * (incRowA + incColA)],
+	             incRowA, incColA, A_);
 
-            //printMatrix(MR, (MC*MC/MR), A_, 1, MR);
+	    // printMatrix(MR, (MC*MC/MR), A_, 1, MR);
 
-            mtrlsm(mc, nc, alpha_, A_, B_,
-                   &B[i*MC*incRowB+j*NC*incColB], incRowB, incColB);
+	    mtrlsm(mc, nc, alpha_, A_, B_,
+	           &B[i * MC * incRowB + j * NC * incColB], incRowB, incColB);
 
-            for (IndexType l=i+1; l<mb; ++l) {
-                mc  = (l!=mb-1 || mc_==0) ? MC : mc_;
+	    for (IndexType l = i + 1; l < mb; ++l) {
+		mc = (l != mb - 1 || mc_ == 0) ? MC : mc_;
 
-                gepack_A(mc, MC, conjA,
-                         &A[l*MC*incRowA+i*MC*incColA], incRowA, incColA,
-                         A_);
+		gepack_A(mc, MC, conjA, &A[l * MC * incRowA + i * MC * incColA],
+		         incRowA, incColA, A_);
 
-                mgemm(mc, nc, MC, T(-1), A_, B_, alpha_,
-                      &B[l*MC*incRowB+j*NC*incColB], incRowB, incColB);
-            }
-        }
+		mgemm(mc, nc, MC, T(-1), A_, B_, alpha_,
+		      &B[l * MC * incRowB + j * NC * incColB], incRowB,
+		      incColB);
+	    }
+	}
     }
 
     memoryPool.release(A_);

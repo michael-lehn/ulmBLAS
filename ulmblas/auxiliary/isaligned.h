@@ -4,8 +4,8 @@
 namespace ulmBLAS {
 
 template <typename T, typename IndexType>
-    bool
-    isAligned(const T *address, IndexType bytes);
+bool
+isAligned(const T *address, IndexType bytes);
 
 } // namespace ulmBLAS
 

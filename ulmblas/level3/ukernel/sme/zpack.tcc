@@ -26,44 +26,44 @@
 #include <cstdint>
 #include <ulmblas/level3/ukernel/sme/fpsr.h>
 
-namespace ulmBLAS { namespace sme {
+namespace ulmBLAS {
+namespace sme {
 
 //
 //  For each k: the m2 <= 32 doubles at X (then X + incX) into 32 doubles
 //  of the buffer, the doubles m2 to 31 zero.
 //
-__arm_locally_streaming
-inline void
+__arm_locally_streaming inline void
 zpack_copy(long m2, long k, const double *X, long incX, double *buffer,
            bool conj)
 {
-    const svcount_t   pc = svptrue_c64();
-    const svcount_t   pm = svwhilelt_c64_s64(int64_t(0), int64_t(m2), 4);
-    const svfloat64_t s  = svdupq_f64(1.0, -1.0);
+    const svcount_t pc = svptrue_c64();
+    const svcount_t pm = svwhilelt_c64_s64(int64_t(0), int64_t(m2), 4);
+    const svfloat64_t s = svdupq_f64(1.0, -1.0);
     //  the active doubles of the 4 vectors: the padding (zero from the
     //  predicated loads) is not multiplied, so it stays +0
-    const svbool_t    p0 = svwhilelt_b64_s64(int64_t(0),  int64_t(m2));
-    const svbool_t    p1 = svwhilelt_b64_s64(int64_t(8),  int64_t(m2));
-    const svbool_t    p2 = svwhilelt_b64_s64(int64_t(16), int64_t(m2));
-    const svbool_t    p3 = svwhilelt_b64_s64(int64_t(24), int64_t(m2));
+    const svbool_t p0 = svwhilelt_b64_s64(int64_t(0), int64_t(m2));
+    const svbool_t p1 = svwhilelt_b64_s64(int64_t(8), int64_t(m2));
+    const svbool_t p2 = svwhilelt_b64_s64(int64_t(16), int64_t(m2));
+    const svbool_t p3 = svwhilelt_b64_s64(int64_t(24), int64_t(m2));
 
     if (!conj) {
-        for (long l=0; l<k; ++l) {
-            svst1_f64_x4(pc, buffer, svld1_f64_x4(pm, X));
-            buffer += 32;
-            X      += incX;
-        }
-        return;
+	for (long l = 0; l < k; ++l) {
+	    svst1_f64_x4(pc, buffer, svld1_f64_x4(pm, X));
+	    buffer += 32;
+	    X += incX;
+	}
+	return;
     }
-    for (long l=0; l<k; ++l) {
-        svfloat64x4_t x = svld1_f64_x4(pm, X);
-        svst1_f64_x4(pc, buffer,
-                     svcreate4(svmul_m(p0, svget4(x, 0), s),
-                               svmul_m(p1, svget4(x, 1), s),
-                               svmul_m(p2, svget4(x, 2), s),
-                               svmul_m(p3, svget4(x, 3), s)));
-        buffer += 32;
-        X      += incX;
+    for (long l = 0; l < k; ++l) {
+	svfloat64x4_t x = svld1_f64_x4(pm, X);
+	svst1_f64_x4(pc, buffer,
+	             svcreate4(svmul_m(p0, svget4(x, 0), s),
+	                       svmul_m(p1, svget4(x, 1), s),
+	                       svmul_m(p2, svget4(x, 2), s),
+	                       svmul_m(p3, svget4(x, 3), s)));
+	buffer += 32;
+	X += incX;
     }
 }
 
@@ -73,17 +73,19 @@ zpack_copy(long m2, long k, const double *X, long incX, double *buffer,
 //  doubles a0 to a3 of the 4 vectors (the padding stays +0).
 //
 inline void
-zpack_store_k(long r, double *buffer, svfloat64_t s, svbool_t a0,
-              svbool_t a1, svbool_t a2, svbool_t a3)
-    __arm_streaming __arm_in("za")
+zpack_store_k(long r, double *buffer, svfloat64_t s, svbool_t a0, svbool_t a1,
+              svbool_t a2, svbool_t a3) __arm_streaming __arm_in("za")
 {
-    const svbool_t    p = svptrue_b64();
+    const svbool_t p = svptrue_b64();
     const svfloat64_t z = svdup_f64(0.0);
 
-    svst1_f64(p, buffer,      svmul_m(a0, svread_ver_za128_f64_m(z, p, 0, r), s));
-    svst1_f64(p, buffer + 8,  svmul_m(a1, svread_ver_za128_f64_m(z, p, 1, r), s));
-    svst1_f64(p, buffer + 16, svmul_m(a2, svread_ver_za128_f64_m(z, p, 2, r), s));
-    svst1_f64(p, buffer + 24, svmul_m(a3, svread_ver_za128_f64_m(z, p, 3, r), s));
+    svst1_f64(p, buffer, svmul_m(a0, svread_ver_za128_f64_m(z, p, 0, r), s));
+    svst1_f64(p, buffer + 8,
+              svmul_m(a1, svread_ver_za128_f64_m(z, p, 1, r), s));
+    svst1_f64(p, buffer + 16,
+              svmul_m(a2, svread_ver_za128_f64_m(z, p, 2, r), s));
+    svst1_f64(p, buffer + 24,
+              svmul_m(a3, svread_ver_za128_f64_m(z, p, 3, r), s));
 }
 
 //
@@ -92,37 +94,39 @@ zpack_store_k(long r, double *buffer, svfloat64_t s, svbool_t a0,
 //  the elements mn to 15 zero).  Row 4*t+c is loaded into the horizontal
 //  slice c of tile t; the slices of the rows mn to 15 stay zero.
 //
-__arm_new("za") __arm_locally_streaming
-inline void
-zpack_transpose(long mn, long k, const double *X, long incX, double *buffer,
-                bool conj)
+__arm_new("za") __arm_locally_streaming inline void zpack_transpose(
+    long mn, long k, const double *X, long incX, double *buffer, bool conj)
 {
     const svfloat64_t s = conj ? svdupq_f64(1.0, -1.0) : svdup_f64(1.0);
     //  the doubles of the rows < mn in the 4 vectors of a k
-    const svbool_t    a0 = svwhilelt_b64_s64(int64_t(0),  int64_t(2*mn));
-    const svbool_t    a1 = svwhilelt_b64_s64(int64_t(8),  int64_t(2*mn));
-    const svbool_t    a2 = svwhilelt_b64_s64(int64_t(16), int64_t(2*mn));
-    const svbool_t    a3 = svwhilelt_b64_s64(int64_t(24), int64_t(2*mn));
+    const svbool_t a0 = svwhilelt_b64_s64(int64_t(0), int64_t(2 * mn));
+    const svbool_t a1 = svwhilelt_b64_s64(int64_t(8), int64_t(2 * mn));
+    const svbool_t a2 = svwhilelt_b64_s64(int64_t(16), int64_t(2 * mn));
+    const svbool_t a3 = svwhilelt_b64_s64(int64_t(24), int64_t(2 * mn));
 
     svzero_za();
-    for (long j=0; j<k; j+=4) {
-        //  the 128-bit elements j, ..., min(j+4, k)-1 of the rows (one
-        //  predicate bit per 128-bit element: the one of its first
-        //  doubleword); inactive elements are set to zero
-        const long     n  = (k-j<4) ? k-j : 4;
-        const svbool_t pk = svwhilelt_b64_s64(int64_t(0), int64_t(2*n));
-        const double   *Xj = X + 2*j;
+    for (long j = 0; j < k; j += 4) {
+	//  the 128-bit elements j, ..., min(j+4, k)-1 of the rows (one
+	//  predicate bit per 128-bit element: the one of its first
+	//  doubleword); inactive elements are set to zero
+	const long n = (k - j < 4) ? k - j : 4;
+	const svbool_t pk = svwhilelt_b64_s64(int64_t(0), int64_t(2 * n));
+	const double *Xj = X + 2 * j;
 
-        for (long c=0; c<4; ++c) {
-            if (c   <mn) svld1_hor_za128(0, c, pk, Xj + (c   )*incX);
-            if (c+ 4<mn) svld1_hor_za128(1, c, pk, Xj + (c+ 4)*incX);
-            if (c+ 8<mn) svld1_hor_za128(2, c, pk, Xj + (c+ 8)*incX);
-            if (c+12<mn) svld1_hor_za128(3, c, pk, Xj + (c+12)*incX);
-        }
-        for (long r=0; r<n; ++r) {
-            zpack_store_k(r, buffer + 32*r, s, a0, a1, a2, a3);
-        }
-        buffer += 32*n;
+	for (long c = 0; c < 4; ++c) {
+	    if (c < mn)
+		svld1_hor_za128(0, c, pk, Xj + (c)*incX);
+	    if (c + 4 < mn)
+		svld1_hor_za128(1, c, pk, Xj + (c + 4) * incX);
+	    if (c + 8 < mn)
+		svld1_hor_za128(2, c, pk, Xj + (c + 8) * incX);
+	    if (c + 12 < mn)
+		svld1_hor_za128(3, c, pk, Xj + (c + 12) * incX);
+	}
+	for (long r = 0; r < n; ++r) {
+	    zpack_store_k(r, buffer + 32 * r, s, a0, a1, a2, a3);
+	}
+	buffer += 32 * n;
     }
 }
 
@@ -133,34 +137,30 @@ zpack_transpose(long mn, long k, const double *X, long incX, double *buffer,
 //
 template <int P, typename IndexType>
 static void
-pack_MRxk(IndexType                     k,
-          bool                          conj,
-          const std::complex<double>    *A,
-          IndexType                     incRowA,
-          IndexType                     incColA,
-          std::complex<double>          *buffer)
+pack_MRxk(IndexType k, bool conj, const std::complex<double> *A,
+          IndexType incRowA, IndexType incColA, std::complex<double> *buffer)
 {
-    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+    const sme::FpsrRestore fpsr; // see sme/fpsr.h
 
-    constexpr IndexType MR = sme::BlockSizeUGemm<std::complex<double> >::MR;
+    constexpr IndexType MR = sme::BlockSizeUGemm<std::complex<double>>::MR;
 
-    static_assert(MR==16, "SME packing of complex A requires MR = 16");
+    static_assert(MR == 16, "SME packing of complex A requires MR = 16");
 
-    if (incRowA!=IndexType(1) && incColA!=IndexType(1)) {
-        pack_MRxk<P, IndexType, std::complex<double>, std::complex<double> >(
-            k, conj, A, incRowA, incColA, buffer);
-        return;
+    if (incRowA != IndexType(1) && incColA != IndexType(1)) {
+	pack_MRxk<P, IndexType, std::complex<double>, std::complex<double>>(
+	    k, conj, A, incRowA, incColA, buffer);
+	return;
     }
     const double *a = reinterpret_cast<const double *>(A);
-    double       *b = reinterpret_cast<double *>(buffer);
-    for (IndexType p=0; p<P; ++p) {
-        if (incRowA==IndexType(1)) {
-            sme::zpack_copy(2*MR, k, a + 2*p*MR, 2*incColA, b + 2*p*k*MR,
-                            conj);
-        } else {
-            sme::zpack_transpose(MR, k, a + 2*p*MR*incRowA, 2*incRowA,
-                                 b + 2*p*k*MR, conj);
-        }
+    double *b = reinterpret_cast<double *>(buffer);
+    for (IndexType p = 0; p < P; ++p) {
+	if (incRowA == IndexType(1)) {
+	    sme::zpack_copy(2 * MR, k, a + 2 * p * MR, 2 * incColA,
+	                    b + 2 * p * k * MR, conj);
+	} else {
+	    sme::zpack_transpose(MR, k, a + 2 * p * MR * incRowA, 2 * incRowA,
+	                         b + 2 * p * k * MR, conj);
+	}
     }
 }
 
@@ -169,28 +169,24 @@ pack_MRxk(IndexType                     k,
 //
 template <typename IndexType>
 static void
-pack_kxNR(IndexType                     k,
-          bool                          conj,
-          const std::complex<double>    *B,
-          IndexType                     incRowB,
-          IndexType                     incColB,
-          std::complex<double>          *buffer)
+pack_kxNR(IndexType k, bool conj, const std::complex<double> *B,
+          IndexType incRowB, IndexType incColB, std::complex<double> *buffer)
 {
-    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+    const sme::FpsrRestore fpsr; // see sme/fpsr.h
 
-    constexpr IndexType NR = sme::BlockSizeUGemm<std::complex<double> >::NR;
+    constexpr IndexType NR = sme::BlockSizeUGemm<std::complex<double>>::NR;
 
-    static_assert(NR==16, "SME packing of complex B requires NR = 16");
+    static_assert(NR == 16, "SME packing of complex B requires NR = 16");
 
-    const double *b   = reinterpret_cast<const double *>(B);
-    double       *buf = reinterpret_cast<double *>(buffer);
-    if (incColB==IndexType(1)) {
-        sme::zpack_copy(2*NR, k, b, 2*incRowB, buf, conj);
-    } else if (incRowB==IndexType(1)) {
-        sme::zpack_transpose(NR, k, b, 2*incColB, buf, conj);
+    const double *b = reinterpret_cast<const double *>(B);
+    double *buf = reinterpret_cast<double *>(buffer);
+    if (incColB == IndexType(1)) {
+	sme::zpack_copy(2 * NR, k, b, 2 * incRowB, buf, conj);
+    } else if (incRowB == IndexType(1)) {
+	sme::zpack_transpose(NR, k, b, 2 * incColB, buf, conj);
     } else {
-        pack_kxNR<IndexType, std::complex<double>, std::complex<double> >(
-            k, conj, B, incRowB, incColB, buffer);
+	pack_kxNR<IndexType, std::complex<double>, std::complex<double>>(
+	    k, conj, B, incRowB, incColB, buffer);
     }
 }
 
@@ -199,25 +195,21 @@ pack_kxNR(IndexType                     k,
 //
 template <typename IndexType>
 static bool
-pack_MRxk_partial(IndexType                     mr,
-                  IndexType                     k,
-                  bool                          conj,
-                  const std::complex<double>    *A,
-                  IndexType                     incRowA,
-                  IndexType                     incColA,
-                  std::complex<double>          *buffer)
+pack_MRxk_partial(IndexType mr, IndexType k, bool conj,
+                  const std::complex<double> *A, IndexType incRowA,
+                  IndexType incColA, std::complex<double> *buffer)
 {
-    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+    const sme::FpsrRestore fpsr; // see sme/fpsr.h
 
     const double *a = reinterpret_cast<const double *>(A);
-    double       *b = reinterpret_cast<double *>(buffer);
-    if (incRowA==IndexType(1)) {
-        sme::zpack_copy(2*mr, k, a, 2*incColA, b, conj);
-        return true;
+    double *b = reinterpret_cast<double *>(buffer);
+    if (incRowA == IndexType(1)) {
+	sme::zpack_copy(2 * mr, k, a, 2 * incColA, b, conj);
+	return true;
     }
-    if (incColA==IndexType(1)) {
-        sme::zpack_transpose(mr, k, a, 2*incRowA, b, conj);
-        return true;
+    if (incColA == IndexType(1)) {
+	sme::zpack_transpose(mr, k, a, 2 * incRowA, b, conj);
+	return true;
     }
     return false;
 }
@@ -227,25 +219,21 @@ pack_MRxk_partial(IndexType                     mr,
 //
 template <typename IndexType>
 static bool
-pack_kxNR_partial(IndexType                     nr,
-                  IndexType                     k,
-                  bool                          conj,
-                  const std::complex<double>    *B,
-                  IndexType                     incRowB,
-                  IndexType                     incColB,
-                  std::complex<double>          *buffer)
+pack_kxNR_partial(IndexType nr, IndexType k, bool conj,
+                  const std::complex<double> *B, IndexType incRowB,
+                  IndexType incColB, std::complex<double> *buffer)
 {
-    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+    const sme::FpsrRestore fpsr; // see sme/fpsr.h
 
-    const double *b   = reinterpret_cast<const double *>(B);
-    double       *buf = reinterpret_cast<double *>(buffer);
-    if (incColB==IndexType(1)) {
-        sme::zpack_copy(2*nr, k, b, 2*incRowB, buf, conj);
-        return true;
+    const double *b = reinterpret_cast<const double *>(B);
+    double *buf = reinterpret_cast<double *>(buffer);
+    if (incColB == IndexType(1)) {
+	sme::zpack_copy(2 * nr, k, b, 2 * incRowB, buf, conj);
+	return true;
     }
-    if (incRowB==IndexType(1)) {
-        sme::zpack_transpose(nr, k, b, 2*incColB, buf, conj);
-        return true;
+    if (incRowB == IndexType(1)) {
+	sme::zpack_transpose(nr, k, b, 2 * incColB, buf, conj);
+	return true;
     }
     return false;
 }

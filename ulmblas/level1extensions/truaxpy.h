@@ -4,17 +4,10 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename MX, typename MY>
-    void
-    truaxpy(IndexType    m,
-            IndexType    n,
-            bool         unit,
-            const Alpha  &alpha,
-            MX           *X,
-            IndexType    incRowX,
-            IndexType    incColX,
-            MY           *Y,
-            IndexType    incRowY,
-            IndexType    incColY);
+void
+truaxpy(IndexType m, IndexType n, bool unit, const Alpha &alpha, MX *X,
+        IndexType incRowX, IndexType incColX, MY *Y, IndexType incRowY,
+        IndexType incColY);
 
 } // namespace ulmBLAS
 

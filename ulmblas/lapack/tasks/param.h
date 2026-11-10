@@ -9,15 +9,16 @@
 
 #include <algorithm>
 
-namespace ulmBLAS { namespace tasks {
+namespace ulmBLAS {
+namespace tasks {
 
 struct Param
 {
-    long    nb;             // tile size
-    long    ib;             // getrf: inner block of a panel
-    int     panelThreads;   // getrf: max. threads of a panel (1: serial)
-    int     threads;        // threads of the parallel region
-    long    serialN;        // min(m,n) <= serialN: serial recursive algorithm
+    long nb;          // tile size
+    long ib;          // getrf: inner block of a panel
+    int panelThreads; // getrf: max. threads of a panel (1: serial)
+    int threads;      // threads of the parallel region
+    long serialN;     // min(m,n) <= serialN: serial recursive algorithm
 };
 
 //  threads: the number of threads available (omp_get_max_threads())
@@ -25,17 +26,20 @@ inline Param
 potrfParam(long n, int threads)
 {
     Param p;
-    p.nb           = (n<250) ? 32 : (n<600) ? 48 : (n<900) ? 64
-                   : (n<2200) ? 96 : 128;
-    p.ib           = 0;
+    p.nb = (n < 250)    ? 32
+           : (n < 600)  ? 48
+           : (n < 900)  ? 64
+           : (n < 2200) ? 96
+                        : 128;
+    p.ib = 0;
     p.panelThreads = 1;
-    p.serialN      = 100;
+    p.serialN = 100;
     //  about one thread per 64 rows (at least 4): more threads only add
     //  idle time and synchronization for small and medium n
-    p.threads = std::max(1, std::min(threads, std::max(4, int(n/64))));
+    p.threads = std::max(1, std::min(threads, std::max(4, int(n / 64))));
     //  more threads than tiles of the trailing matrix do not help
-    const long nt    = (n+p.nb-1)/p.nb;
-    const long tiles = nt*(nt+1)/2;
+    const long nt = (n + p.nb - 1) / p.nb;
+    const long tiles = nt * (nt + 1) / 2;
     p.threads = int(std::max(1L, std::min(long(p.threads), tiles)));
     return p;
 }
@@ -45,13 +49,13 @@ getrfParam(long m, long n, int threads)
 {
     const long kmin = std::min(m, n);
     Param p;
-    p.nb           = (kmin<600) ? 48 : (kmin<900) ? 64 : (kmin<2800) ? 96 : 128;
-    p.ib           = 16;
-    p.serialN      = 150;
-    p.threads = std::max(1, std::min(threads, std::max(4, int(kmin/64))));
-    const long mt  = (m+p.nb-1)/p.nb;
-    const long nt  = (n+p.nb-1)/p.nb;
-    p.threads      = int(std::max(1L, std::min(long(p.threads), mt*nt)));
+    p.nb = (kmin < 600) ? 48 : (kmin < 900) ? 64 : (kmin < 2800) ? 96 : 128;
+    p.ib = 16;
+    p.serialN = 150;
+    p.threads = std::max(1, std::min(threads, std::max(4, int(kmin / 64))));
+    const long mt = (m + p.nb - 1) / p.nb;
+    const long nt = (n + p.nb - 1) / p.nb;
+    p.threads = int(std::max(1L, std::min(long(p.threads), mt * nt)));
     p.panelThreads = std::min(8, p.threads);
     return p;
 }
@@ -71,19 +75,21 @@ inline Param
 solveParam(long n, long nrhs, int threads)
 {
     Param p;
-    p.nb           = (n<1000) ? 64 : 128;
-    p.ib           = 0;
+    p.nb = (n < 1000) ? 64 : 128;
+    p.ib = 0;
     p.panelThreads = 1;
-    p.serialN      = 255;
-    const double work = double(n)*double(n)*double(nrhs);
-    if (work<double(1L<<25)) {
-        threads = 1;
+    p.serialN = 255;
+    const double work = double(n) * double(n) * double(nrhs);
+    if (work < double(1L << 25)) {
+	threads = 1;
     }
-    const long mt = (n+p.nb-1)/p.nb, nt = (nrhs+p.nb-1)/p.nb;
-    p.threads = int(std::max(1L, std::min(long(threads), mt*nt*mt/2+1)));
+    const long mt = (n + p.nb - 1) / p.nb, nt = (nrhs + p.nb - 1) / p.nb;
+    p.threads =
+        int(std::max(1L, std::min(long(threads), mt * nt * mt / 2 + 1)));
     return p;
 }
 
-} } // namespace tasks, ulmBLAS
+} // namespace tasks
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LAPACK_TASKS_PARAM_H

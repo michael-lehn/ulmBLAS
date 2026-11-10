@@ -21,16 +21,16 @@
 
 namespace {
 
-int          xerblaCalls;
-int          xerblaInfo;
-int          xerblaRowMajor;
-std::string  xerblaRoutine;
+int xerblaCalls;
+int xerblaInfo;
+int xerblaRowMajor;
+std::string xerblaRoutine;
 
 void
 resetXerbla()
 {
-    xerblaCalls    = 0;
-    xerblaInfo     = 0;
+    xerblaCalls = 0;
+    xerblaInfo = 0;
     xerblaRowMajor = -1;
     xerblaRoutine.clear();
 }
@@ -39,43 +39,47 @@ resetXerbla()
 //  Operands A, X, Y, B, C of real type T (complex operands use pairs of T)
 //  and the scalars alpha and beta (real and complex).
 //
-template <typename T>
-struct Buffers
+template <typename T> struct Buffers
 {
-    Buffers()
-        : ral(2), rbe(3)
+    Buffers() : ral(2), rbe(3)
     {
-        T *p[5];
-        for (int k=0; k<5; ++k) {
-            data[k].resize(size);
-            for (int i=0; i<size; ++i) {
-                data[k][i] = T(1) + T(k) + T(0.001)*T(i%997);
-            }
-            p[k] = &data[k][offset];
-        }
-        A = p[0]; X = p[1]; Y = p[2]; B = p[3]; C = p[4];
-        al[0] = 2; al[1] = 1;
-        be[0] = 3; be[1] = -1;
+	T *p[5];
+	for (int k = 0; k < 5; ++k) {
+	    data[k].resize(size);
+	    for (int i = 0; i < size; ++i) {
+		data[k][i] = T(1) + T(k) + T(0.001) * T(i % 997);
+	    }
+	    p[k] = &data[k][offset];
+	}
+	A = p[0];
+	X = p[1];
+	Y = p[2];
+	B = p[3];
+	C = p[4];
+	al[0] = 2;
+	al[1] = 1;
+	be[0] = 3;
+	be[1] = -1;
     }
 
-    static const int  size = 4096, offset = 1024;
+    static const int size = 4096, offset = 1024;
 
-    std::vector<T>  data[5];
-    T               *A, *X, *Y, *B, *C;
-    T               ral, rbe;
-    T               al[2], be[2];
+    std::vector<T> data[5];
+    T *A, *X, *Y, *B, *C;
+    T ral, rbe;
+    T al[2], be[2];
 };
 
 template <typename T>
 bool
 unchanged(const Buffers<T> &b, const std::vector<T> (&before)[5])
 {
-    for (int k=0; k<5; ++k) {
-        for (std::size_t i=0; i<before[k].size(); ++i) {
-            if (!test::sameBits(b.data[k][i], before[k][i])) {
-                return false;
-            }
-        }
+    for (int k = 0; k < 5; ++k) {
+	for (std::size_t i = 0; i < before[k].size(); ++i) {
+	    if (!test::sameBits(b.data[k][i], before[k][i])) {
+		return false;
+	    }
+	}
     }
     return true;
 }
@@ -83,24 +87,24 @@ unchanged(const Buffers<T> &b, const std::vector<T> (&before)[5])
 bool
 checkCase(test::Context &ctx, const char *name, int info, bool same)
 {
-    return ctx.check(xerblaCalls==1 && xerblaInfo==info
-                     && xerblaRoutine==name && same,
+    return ctx.check(xerblaCalls == 1 && xerblaInfo == info &&
+                         xerblaRoutine == name && same,
                      "%s: xerbla called %d times, info %d (expected %d), "
-                     "routine '%s'; operands %s", name, xerblaCalls,
-                     xerblaInfo, info, xerblaRoutine.c_str(),
+                     "routine '%s'; operands %s",
+                     name, xerblaCalls, xerblaInfo, info, xerblaRoutine.c_str(),
                      same ? "unchanged" : "MODIFIED (computation continued)");
 }
 
-#define ERRCASE(T, NAME, INFO, CALL)                                        \
-    {                                                                       \
-        Buffers<T>      b;                                                  \
-        std::vector<T>  before[5];                                          \
-        for (int k=0; k<5; ++k) {                                           \
-            before[k] = b.data[k];                                          \
-        }                                                                   \
-        resetXerbla();                                                      \
-        CALL;                                                               \
-        checkCase(ctx, NAME, INFO, unchanged(b, before));                   \
+#define ERRCASE(T, NAME, INFO, CALL)                                           \
+    {                                                                          \
+	Buffers<T> b;                                                          \
+	std::vector<T> before[5];                                              \
+	for (int k = 0; k < 5; ++k) {                                          \
+	    before[k] = b.data[k];                                             \
+	}                                                                      \
+	resetXerbla();                                                         \
+	CALL;                                                                  \
+	checkCase(ctx, NAME, INFO, unchanged(b, before));                      \
     }
 
 } // namespace
@@ -111,9 +115,9 @@ cblas_xerbla(int info, const char *rout, const char *, ...)
     extern int RowMajorStrg;
 
     ++xerblaCalls;
-    xerblaInfo     = info;
+    xerblaInfo = info;
     xerblaRowMajor = RowMajorStrg;
-    xerblaRoutine  = rout;
+    xerblaRoutine = rout;
 }
 
 ULMBLAS_TEST(T0700, "errors/cblas_dsyr with n=4, ldA=1")
@@ -125,105 +129,283 @@ ULMBLAS_TEST(T0700, "errors/cblas_dsyr with n=4, ldA=1")
 ULMBLAS_TEST(T0701, "errors/invalid arguments of all checking CBLAS functions")
 {
     // float
-    ERRCASE(float, "cblas_sgemv",  7, cblas_sgemv(CblasColMajor, CblasNoTrans, 4, 4, b.ral, b.A, 1, b.X, 1, b.rbe, b.Y, 1));
-    ERRCASE(float, "cblas_sgbmv",  9, cblas_sgbmv(CblasColMajor, CblasNoTrans, 4, 4, 1, 1, b.ral, b.A, 1, b.X, 1, b.rbe, b.Y, 1));
-    ERRCASE(float, "cblas_ssymv",  6, cblas_ssymv(CblasColMajor, CblasUpper, 4, b.ral, b.A, 1, b.X, 1, b.rbe, b.Y, 1));
-    ERRCASE(float, "cblas_ssbmv",  7, cblas_ssbmv(CblasColMajor, CblasUpper, 4, 1, b.ral, b.A, 1, b.X, 1, b.rbe, b.Y, 1));
-    ERRCASE(float, "cblas_sspmv",  7, cblas_sspmv(CblasColMajor, CblasUpper, 4, b.ral, b.A, b.X, 0, b.rbe, b.Y, 1));
-    ERRCASE(float, "cblas_sger", 10, cblas_sger(CblasColMajor, 4, 4, b.ral, b.X, 1, b.Y, 1, b.A, 1));
-    ERRCASE(float, "cblas_ssyr",  8, cblas_ssyr(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.A, 1));
-    ERRCASE(float, "cblas_ssyr2", 10, cblas_ssyr2(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.Y, 1, b.A, 1));
-    ERRCASE(float, "cblas_sspr",  6, cblas_sspr(CblasColMajor, CblasUpper, 4, b.ral, b.X, 0, b.A));
-    ERRCASE(float, "cblas_sspr2",  8, cblas_sspr2(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.Y, 0, b.A));
-    ERRCASE(float, "cblas_ssymm",  8, cblas_ssymm(CblasColMajor, CblasLeft, CblasUpper, 4, 4, b.ral, b.A, 1, b.B, 4, b.rbe, b.C, 4));
-    ERRCASE(float, "cblas_ssyrk",  8, cblas_ssyrk(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral, b.A, 1, b.rbe, b.C, 4));
-    ERRCASE(float, "cblas_ssyr2k",  8, cblas_ssyr2k(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral, b.A, 1, b.B, 4, b.rbe, b.C, 4));
-    ERRCASE(float, "cblas_strmv",  7, cblas_strmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, 1, b.X, 1));
-    ERRCASE(float, "cblas_stbmv",  8, cblas_stbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 1, b.A, 1, b.X, 1));
-    ERRCASE(float, "cblas_stpmv",  8, cblas_stpmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, b.X, 0));
-    ERRCASE(float, "cblas_strsv",  7, cblas_strsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, 1, b.X, 1));
-    ERRCASE(float, "cblas_stbsv",  8, cblas_stbsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 1, b.A, 1, b.X, 1));
-    ERRCASE(float, "cblas_stpsv",  8, cblas_stpsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, b.X, 0));
-    ERRCASE(float, "cblas_sgemm",  9, cblas_sgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4, b.ral, b.A, 1, b.B, 4, b.rbe, b.C, 4));
-    ERRCASE(float, "cblas_strmm", 10, cblas_strmm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 4, b.ral, b.A, 1, b.B, 4));
-    ERRCASE(float, "cblas_strsm", 10, cblas_strsm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 4, b.ral, b.A, 1, b.B, 4));
+    ERRCASE(float, "cblas_sgemv", 7,
+            cblas_sgemv(CblasColMajor, CblasNoTrans, 4, 4, b.ral, b.A, 1, b.X,
+                        1, b.rbe, b.Y, 1));
+    ERRCASE(float, "cblas_sgbmv", 9,
+            cblas_sgbmv(CblasColMajor, CblasNoTrans, 4, 4, 1, 1, b.ral, b.A, 1,
+                        b.X, 1, b.rbe, b.Y, 1));
+    ERRCASE(float, "cblas_ssymv", 6,
+            cblas_ssymv(CblasColMajor, CblasUpper, 4, b.ral, b.A, 1, b.X, 1,
+                        b.rbe, b.Y, 1));
+    ERRCASE(float, "cblas_ssbmv", 7,
+            cblas_ssbmv(CblasColMajor, CblasUpper, 4, 1, b.ral, b.A, 1, b.X, 1,
+                        b.rbe, b.Y, 1));
+    ERRCASE(float, "cblas_sspmv", 7,
+            cblas_sspmv(CblasColMajor, CblasUpper, 4, b.ral, b.A, b.X, 0, b.rbe,
+                        b.Y, 1));
+    ERRCASE(float, "cblas_sger", 10,
+            cblas_sger(CblasColMajor, 4, 4, b.ral, b.X, 1, b.Y, 1, b.A, 1));
+    ERRCASE(float, "cblas_ssyr", 8,
+            cblas_ssyr(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.A, 1));
+    ERRCASE(float, "cblas_ssyr2", 10,
+            cblas_ssyr2(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.Y, 1,
+                        b.A, 1));
+    ERRCASE(float, "cblas_sspr", 6,
+            cblas_sspr(CblasColMajor, CblasUpper, 4, b.ral, b.X, 0, b.A));
+    ERRCASE(
+        float, "cblas_sspr2", 8,
+        cblas_sspr2(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.Y, 0, b.A));
+    ERRCASE(float, "cblas_ssymm", 8,
+            cblas_ssymm(CblasColMajor, CblasLeft, CblasUpper, 4, 4, b.ral, b.A,
+                        1, b.B, 4, b.rbe, b.C, 4));
+    ERRCASE(float, "cblas_ssyrk", 8,
+            cblas_ssyrk(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral,
+                        b.A, 1, b.rbe, b.C, 4));
+    ERRCASE(float, "cblas_ssyr2k", 8,
+            cblas_ssyr2k(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral,
+                         b.A, 1, b.B, 4, b.rbe, b.C, 4));
+    ERRCASE(float, "cblas_strmv", 7,
+            cblas_strmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, 1, b.X, 1));
+    ERRCASE(float, "cblas_stbmv", 8,
+            cblas_stbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, 1, b.A, 1, b.X, 1));
+    ERRCASE(float, "cblas_stpmv", 8,
+            cblas_stpmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, b.X, 0));
+    ERRCASE(float, "cblas_strsv", 7,
+            cblas_strsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, 1, b.X, 1));
+    ERRCASE(float, "cblas_stbsv", 8,
+            cblas_stbsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, 1, b.A, 1, b.X, 1));
+    ERRCASE(float, "cblas_stpsv", 8,
+            cblas_stpsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, b.X, 0));
+    ERRCASE(float, "cblas_sgemm", 9,
+            cblas_sgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4,
+                        b.ral, b.A, 1, b.B, 4, b.rbe, b.C, 4));
+    ERRCASE(float, "cblas_strmm", 10,
+            cblas_strmm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans,
+                        CblasNonUnit, 4, 4, b.ral, b.A, 1, b.B, 4));
+    ERRCASE(float, "cblas_strsm", 10,
+            cblas_strsm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans,
+                        CblasNonUnit, 4, 4, b.ral, b.A, 1, b.B, 4));
     // double
-    ERRCASE(double, "cblas_dgemv",  7, cblas_dgemv(CblasColMajor, CblasNoTrans, 4, 4, b.ral, b.A, 1, b.X, 1, b.rbe, b.Y, 1));
-    ERRCASE(double, "cblas_dgbmv",  9, cblas_dgbmv(CblasColMajor, CblasNoTrans, 4, 4, 1, 1, b.ral, b.A, 1, b.X, 1, b.rbe, b.Y, 1));
-    ERRCASE(double, "cblas_dsymv",  6, cblas_dsymv(CblasColMajor, CblasUpper, 4, b.ral, b.A, 1, b.X, 1, b.rbe, b.Y, 1));
-    ERRCASE(double, "cblas_dsbmv",  7, cblas_dsbmv(CblasColMajor, CblasUpper, 4, 1, b.ral, b.A, 1, b.X, 1, b.rbe, b.Y, 1));
-    ERRCASE(double, "cblas_dspmv",  7, cblas_dspmv(CblasColMajor, CblasUpper, 4, b.ral, b.A, b.X, 0, b.rbe, b.Y, 1));
-    ERRCASE(double, "cblas_dger", 10, cblas_dger(CblasColMajor, 4, 4, b.ral, b.X, 1, b.Y, 1, b.A, 1));
-    ERRCASE(double, "cblas_dsyr",  8, cblas_dsyr(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.A, 1));
-    ERRCASE(double, "cblas_dsyr2", 10, cblas_dsyr2(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.Y, 1, b.A, 1));
-    ERRCASE(double, "cblas_dspr",  6, cblas_dspr(CblasColMajor, CblasUpper, 4, b.ral, b.X, 0, b.A));
-    ERRCASE(double, "cblas_dspr2",  8, cblas_dspr2(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.Y, 0, b.A));
-    ERRCASE(double, "cblas_dsymm",  8, cblas_dsymm(CblasColMajor, CblasLeft, CblasUpper, 4, 4, b.ral, b.A, 1, b.B, 4, b.rbe, b.C, 4));
-    ERRCASE(double, "cblas_dsyrk",  8, cblas_dsyrk(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral, b.A, 1, b.rbe, b.C, 4));
-    ERRCASE(double, "cblas_dsyr2k",  8, cblas_dsyr2k(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral, b.A, 1, b.B, 4, b.rbe, b.C, 4));
-    ERRCASE(double, "cblas_dtrmv",  7, cblas_dtrmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, 1, b.X, 1));
-    ERRCASE(double, "cblas_dtbmv",  8, cblas_dtbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 1, b.A, 1, b.X, 1));
-    ERRCASE(double, "cblas_dtpmv",  8, cblas_dtpmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, b.X, 0));
-    ERRCASE(double, "cblas_dtrsv",  7, cblas_dtrsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, 1, b.X, 1));
-    ERRCASE(double, "cblas_dtbsv",  8, cblas_dtbsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 1, b.A, 1, b.X, 1));
-    ERRCASE(double, "cblas_dtpsv",  8, cblas_dtpsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, b.X, 0));
-    ERRCASE(double, "cblas_dgemm",  9, cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4, b.ral, b.A, 1, b.B, 4, b.rbe, b.C, 4));
-    ERRCASE(double, "cblas_dtrmm", 10, cblas_dtrmm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 4, b.ral, b.A, 1, b.B, 4));
-    ERRCASE(double, "cblas_dtrsm", 10, cblas_dtrsm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 4, b.ral, b.A, 1, b.B, 4));
+    ERRCASE(double, "cblas_dgemv", 7,
+            cblas_dgemv(CblasColMajor, CblasNoTrans, 4, 4, b.ral, b.A, 1, b.X,
+                        1, b.rbe, b.Y, 1));
+    ERRCASE(double, "cblas_dgbmv", 9,
+            cblas_dgbmv(CblasColMajor, CblasNoTrans, 4, 4, 1, 1, b.ral, b.A, 1,
+                        b.X, 1, b.rbe, b.Y, 1));
+    ERRCASE(double, "cblas_dsymv", 6,
+            cblas_dsymv(CblasColMajor, CblasUpper, 4, b.ral, b.A, 1, b.X, 1,
+                        b.rbe, b.Y, 1));
+    ERRCASE(double, "cblas_dsbmv", 7,
+            cblas_dsbmv(CblasColMajor, CblasUpper, 4, 1, b.ral, b.A, 1, b.X, 1,
+                        b.rbe, b.Y, 1));
+    ERRCASE(double, "cblas_dspmv", 7,
+            cblas_dspmv(CblasColMajor, CblasUpper, 4, b.ral, b.A, b.X, 0, b.rbe,
+                        b.Y, 1));
+    ERRCASE(double, "cblas_dger", 10,
+            cblas_dger(CblasColMajor, 4, 4, b.ral, b.X, 1, b.Y, 1, b.A, 1));
+    ERRCASE(double, "cblas_dsyr", 8,
+            cblas_dsyr(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.A, 1));
+    ERRCASE(double, "cblas_dsyr2", 10,
+            cblas_dsyr2(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.Y, 1,
+                        b.A, 1));
+    ERRCASE(double, "cblas_dspr", 6,
+            cblas_dspr(CblasColMajor, CblasUpper, 4, b.ral, b.X, 0, b.A));
+    ERRCASE(
+        double, "cblas_dspr2", 8,
+        cblas_dspr2(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.Y, 0, b.A));
+    ERRCASE(double, "cblas_dsymm", 8,
+            cblas_dsymm(CblasColMajor, CblasLeft, CblasUpper, 4, 4, b.ral, b.A,
+                        1, b.B, 4, b.rbe, b.C, 4));
+    ERRCASE(double, "cblas_dsyrk", 8,
+            cblas_dsyrk(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral,
+                        b.A, 1, b.rbe, b.C, 4));
+    ERRCASE(double, "cblas_dsyr2k", 8,
+            cblas_dsyr2k(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral,
+                         b.A, 1, b.B, 4, b.rbe, b.C, 4));
+    ERRCASE(double, "cblas_dtrmv", 7,
+            cblas_dtrmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, 1, b.X, 1));
+    ERRCASE(double, "cblas_dtbmv", 8,
+            cblas_dtbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, 1, b.A, 1, b.X, 1));
+    ERRCASE(double, "cblas_dtpmv", 8,
+            cblas_dtpmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, b.X, 0));
+    ERRCASE(double, "cblas_dtrsv", 7,
+            cblas_dtrsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, 1, b.X, 1));
+    ERRCASE(double, "cblas_dtbsv", 8,
+            cblas_dtbsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, 1, b.A, 1, b.X, 1));
+    ERRCASE(double, "cblas_dtpsv", 8,
+            cblas_dtpsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, b.X, 0));
+    ERRCASE(double, "cblas_dgemm", 9,
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4,
+                        b.ral, b.A, 1, b.B, 4, b.rbe, b.C, 4));
+    ERRCASE(double, "cblas_dtrmm", 10,
+            cblas_dtrmm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans,
+                        CblasNonUnit, 4, 4, b.ral, b.A, 1, b.B, 4));
+    ERRCASE(double, "cblas_dtrsm", 10,
+            cblas_dtrsm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans,
+                        CblasNonUnit, 4, 4, b.ral, b.A, 1, b.B, 4));
     // float (complex)
-    ERRCASE(float, "cblas_cgemv",  7, cblas_cgemv(CblasColMajor, CblasNoTrans, 4, 4, b.al, b.A, 1, b.X, 1, b.be, b.Y, 1));
-    ERRCASE(float, "cblas_cgbmv",  9, cblas_cgbmv(CblasColMajor, CblasNoTrans, 4, 4, 1, 1, b.al, b.A, 1, b.X, 1, b.be, b.Y, 1));
-    ERRCASE(float, "cblas_chemv",  6, cblas_chemv(CblasColMajor, CblasUpper, 4, b.al, b.A, 1, b.X, 1, b.be, b.Y, 1));
-    ERRCASE(float, "cblas_chbmv",  7, cblas_chbmv(CblasColMajor, CblasUpper, 4, 1, b.al, b.A, 1, b.X, 1, b.be, b.Y, 1));
-    ERRCASE(float, "cblas_chpmv",  7, cblas_chpmv(CblasColMajor, CblasUpper, 4, b.al, b.A, b.X, 0, b.be, b.Y, 1));
-    ERRCASE(float, "cblas_cgeru", 10, cblas_cgeru(CblasColMajor, 4, 4, b.al, b.X, 1, b.Y, 1, b.A, 1));
-    ERRCASE(float, "cblas_cgerc", 10, cblas_cgerc(CblasColMajor, 4, 4, b.al, b.X, 1, b.Y, 1, b.A, 1));
-    ERRCASE(float, "cblas_cher",  8, cblas_cher(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.A, 1));
-    ERRCASE(float, "cblas_cher2", 10, cblas_cher2(CblasColMajor, CblasUpper, 4, b.al, b.X, 1, b.Y, 1, b.A, 1));
-    ERRCASE(float, "cblas_chpr",  6, cblas_chpr(CblasColMajor, CblasUpper, 4, b.ral, b.X, 0, b.A));
-    ERRCASE(float, "cblas_chpr2",  8, cblas_chpr2(CblasColMajor, CblasUpper, 4, b.al, b.X, 1, b.Y, 0, b.A));
-    ERRCASE(float, "cblas_csymm",  8, cblas_csymm(CblasColMajor, CblasLeft, CblasUpper, 4, 4, b.al, b.A, 1, b.B, 4, b.be, b.C, 4));
-    ERRCASE(float, "cblas_chemm",  8, cblas_chemm(CblasColMajor, CblasLeft, CblasUpper, 4, 4, b.al, b.A, 1, b.B, 4, b.be, b.C, 4));
-    ERRCASE(float, "cblas_csyrk",  8, cblas_csyrk(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.al, b.A, 1, b.be, b.C, 4));
-    ERRCASE(float, "cblas_cherk",  8, cblas_cherk(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral, b.A, 1, b.rbe, b.C, 4));
-    ERRCASE(float, "cblas_csyr2k",  8, cblas_csyr2k(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.al, b.A, 1, b.B, 4, b.be, b.C, 4));
-    ERRCASE(float, "cblas_cher2k",  8, cblas_cher2k(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.al, b.A, 1, b.B, 4, b.rbe, b.C, 4));
-    ERRCASE(float, "cblas_ctrmv",  7, cblas_ctrmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, 1, b.X, 1));
-    ERRCASE(float, "cblas_ctbmv",  8, cblas_ctbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 1, b.A, 1, b.X, 1));
-    ERRCASE(float, "cblas_ctpmv",  8, cblas_ctpmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, b.X, 0));
-    ERRCASE(float, "cblas_ctrsv",  7, cblas_ctrsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, 1, b.X, 1));
-    ERRCASE(float, "cblas_ctbsv",  8, cblas_ctbsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 1, b.A, 1, b.X, 1));
-    ERRCASE(float, "cblas_ctpsv",  8, cblas_ctpsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, b.X, 0));
-    ERRCASE(float, "cblas_cgemm",  9, cblas_cgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4, b.al, b.A, 1, b.B, 4, b.be, b.C, 4));
-    ERRCASE(float, "cblas_ctrmm", 10, cblas_ctrmm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 4, b.al, b.A, 1, b.B, 4));
-    ERRCASE(float, "cblas_ctrsm", 10, cblas_ctrsm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 4, b.al, b.A, 1, b.B, 4));
+    ERRCASE(float, "cblas_cgemv", 7,
+            cblas_cgemv(CblasColMajor, CblasNoTrans, 4, 4, b.al, b.A, 1, b.X, 1,
+                        b.be, b.Y, 1));
+    ERRCASE(float, "cblas_cgbmv", 9,
+            cblas_cgbmv(CblasColMajor, CblasNoTrans, 4, 4, 1, 1, b.al, b.A, 1,
+                        b.X, 1, b.be, b.Y, 1));
+    ERRCASE(float, "cblas_chemv", 6,
+            cblas_chemv(CblasColMajor, CblasUpper, 4, b.al, b.A, 1, b.X, 1,
+                        b.be, b.Y, 1));
+    ERRCASE(float, "cblas_chbmv", 7,
+            cblas_chbmv(CblasColMajor, CblasUpper, 4, 1, b.al, b.A, 1, b.X, 1,
+                        b.be, b.Y, 1));
+    ERRCASE(float, "cblas_chpmv", 7,
+            cblas_chpmv(CblasColMajor, CblasUpper, 4, b.al, b.A, b.X, 0, b.be,
+                        b.Y, 1));
+    ERRCASE(float, "cblas_cgeru", 10,
+            cblas_cgeru(CblasColMajor, 4, 4, b.al, b.X, 1, b.Y, 1, b.A, 1));
+    ERRCASE(float, "cblas_cgerc", 10,
+            cblas_cgerc(CblasColMajor, 4, 4, b.al, b.X, 1, b.Y, 1, b.A, 1));
+    ERRCASE(float, "cblas_cher", 8,
+            cblas_cher(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.A, 1));
+    ERRCASE(float, "cblas_cher2", 10,
+            cblas_cher2(CblasColMajor, CblasUpper, 4, b.al, b.X, 1, b.Y, 1, b.A,
+                        1));
+    ERRCASE(float, "cblas_chpr", 6,
+            cblas_chpr(CblasColMajor, CblasUpper, 4, b.ral, b.X, 0, b.A));
+    ERRCASE(
+        float, "cblas_chpr2", 8,
+        cblas_chpr2(CblasColMajor, CblasUpper, 4, b.al, b.X, 1, b.Y, 0, b.A));
+    ERRCASE(float, "cblas_csymm", 8,
+            cblas_csymm(CblasColMajor, CblasLeft, CblasUpper, 4, 4, b.al, b.A,
+                        1, b.B, 4, b.be, b.C, 4));
+    ERRCASE(float, "cblas_chemm", 8,
+            cblas_chemm(CblasColMajor, CblasLeft, CblasUpper, 4, 4, b.al, b.A,
+                        1, b.B, 4, b.be, b.C, 4));
+    ERRCASE(float, "cblas_csyrk", 8,
+            cblas_csyrk(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.al,
+                        b.A, 1, b.be, b.C, 4));
+    ERRCASE(float, "cblas_cherk", 8,
+            cblas_cherk(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral,
+                        b.A, 1, b.rbe, b.C, 4));
+    ERRCASE(float, "cblas_csyr2k", 8,
+            cblas_csyr2k(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.al,
+                         b.A, 1, b.B, 4, b.be, b.C, 4));
+    ERRCASE(float, "cblas_cher2k", 8,
+            cblas_cher2k(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.al,
+                         b.A, 1, b.B, 4, b.rbe, b.C, 4));
+    ERRCASE(float, "cblas_ctrmv", 7,
+            cblas_ctrmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, 1, b.X, 1));
+    ERRCASE(float, "cblas_ctbmv", 8,
+            cblas_ctbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, 1, b.A, 1, b.X, 1));
+    ERRCASE(float, "cblas_ctpmv", 8,
+            cblas_ctpmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, b.X, 0));
+    ERRCASE(float, "cblas_ctrsv", 7,
+            cblas_ctrsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, 1, b.X, 1));
+    ERRCASE(float, "cblas_ctbsv", 8,
+            cblas_ctbsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, 1, b.A, 1, b.X, 1));
+    ERRCASE(float, "cblas_ctpsv", 8,
+            cblas_ctpsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, b.X, 0));
+    ERRCASE(float, "cblas_cgemm", 9,
+            cblas_cgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4,
+                        b.al, b.A, 1, b.B, 4, b.be, b.C, 4));
+    ERRCASE(float, "cblas_ctrmm", 10,
+            cblas_ctrmm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans,
+                        CblasNonUnit, 4, 4, b.al, b.A, 1, b.B, 4));
+    ERRCASE(float, "cblas_ctrsm", 10,
+            cblas_ctrsm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans,
+                        CblasNonUnit, 4, 4, b.al, b.A, 1, b.B, 4));
     // double (complex)
-    ERRCASE(double, "cblas_zgemv",  7, cblas_zgemv(CblasColMajor, CblasNoTrans, 4, 4, b.al, b.A, 1, b.X, 1, b.be, b.Y, 1));
-    ERRCASE(double, "cblas_zgbmv",  9, cblas_zgbmv(CblasColMajor, CblasNoTrans, 4, 4, 1, 1, b.al, b.A, 1, b.X, 1, b.be, b.Y, 1));
-    ERRCASE(double, "cblas_zhemv",  6, cblas_zhemv(CblasColMajor, CblasUpper, 4, b.al, b.A, 1, b.X, 1, b.be, b.Y, 1));
-    ERRCASE(double, "cblas_zhbmv",  7, cblas_zhbmv(CblasColMajor, CblasUpper, 4, 1, b.al, b.A, 1, b.X, 1, b.be, b.Y, 1));
-    ERRCASE(double, "cblas_zhpmv",  7, cblas_zhpmv(CblasColMajor, CblasUpper, 4, b.al, b.A, b.X, 0, b.be, b.Y, 1));
-    ERRCASE(double, "cblas_zgeru", 10, cblas_zgeru(CblasColMajor, 4, 4, b.al, b.X, 1, b.Y, 1, b.A, 1));
-    ERRCASE(double, "cblas_zgerc", 10, cblas_zgerc(CblasColMajor, 4, 4, b.al, b.X, 1, b.Y, 1, b.A, 1));
-    ERRCASE(double, "cblas_zher",  8, cblas_zher(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.A, 1));
-    ERRCASE(double, "cblas_zher2", 10, cblas_zher2(CblasColMajor, CblasUpper, 4, b.al, b.X, 1, b.Y, 1, b.A, 1));
-    ERRCASE(double, "cblas_zhpr",  6, cblas_zhpr(CblasColMajor, CblasUpper, 4, b.ral, b.X, 0, b.A));
-    ERRCASE(double, "cblas_zhpr2",  8, cblas_zhpr2(CblasColMajor, CblasUpper, 4, b.al, b.X, 1, b.Y, 0, b.A));
-    ERRCASE(double, "cblas_zsymm",  8, cblas_zsymm(CblasColMajor, CblasLeft, CblasUpper, 4, 4, b.al, b.A, 1, b.B, 4, b.be, b.C, 4));
-    ERRCASE(double, "cblas_zhemm",  8, cblas_zhemm(CblasColMajor, CblasLeft, CblasUpper, 4, 4, b.al, b.A, 1, b.B, 4, b.be, b.C, 4));
-    ERRCASE(double, "cblas_zsyrk",  8, cblas_zsyrk(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.al, b.A, 1, b.be, b.C, 4));
-    ERRCASE(double, "cblas_zherk",  8, cblas_zherk(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral, b.A, 1, b.rbe, b.C, 4));
-    ERRCASE(double, "cblas_zsyr2k",  8, cblas_zsyr2k(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.al, b.A, 1, b.B, 4, b.be, b.C, 4));
-    ERRCASE(double, "cblas_zher2k",  8, cblas_zher2k(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.al, b.A, 1, b.B, 4, b.rbe, b.C, 4));
-    ERRCASE(double, "cblas_ztrmv",  7, cblas_ztrmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, 1, b.X, 1));
-    ERRCASE(double, "cblas_ztbmv",  8, cblas_ztbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 1, b.A, 1, b.X, 1));
-    ERRCASE(double, "cblas_ztpmv",  8, cblas_ztpmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, b.X, 0));
-    ERRCASE(double, "cblas_ztrsv",  7, cblas_ztrsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, 1, b.X, 1));
-    ERRCASE(double, "cblas_ztbsv",  8, cblas_ztbsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 1, b.A, 1, b.X, 1));
-    ERRCASE(double, "cblas_ztpsv",  8, cblas_ztpsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, 4, b.A, b.X, 0));
-    ERRCASE(double, "cblas_zgemm",  9, cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4, b.al, b.A, 1, b.B, 4, b.be, b.C, 4));
-    ERRCASE(double, "cblas_ztrmm", 10, cblas_ztrmm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 4, b.al, b.A, 1, b.B, 4));
-    ERRCASE(double, "cblas_ztrsm", 10, cblas_ztrsm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, 4, 4, b.al, b.A, 1, b.B, 4));
+    ERRCASE(double, "cblas_zgemv", 7,
+            cblas_zgemv(CblasColMajor, CblasNoTrans, 4, 4, b.al, b.A, 1, b.X, 1,
+                        b.be, b.Y, 1));
+    ERRCASE(double, "cblas_zgbmv", 9,
+            cblas_zgbmv(CblasColMajor, CblasNoTrans, 4, 4, 1, 1, b.al, b.A, 1,
+                        b.X, 1, b.be, b.Y, 1));
+    ERRCASE(double, "cblas_zhemv", 6,
+            cblas_zhemv(CblasColMajor, CblasUpper, 4, b.al, b.A, 1, b.X, 1,
+                        b.be, b.Y, 1));
+    ERRCASE(double, "cblas_zhbmv", 7,
+            cblas_zhbmv(CblasColMajor, CblasUpper, 4, 1, b.al, b.A, 1, b.X, 1,
+                        b.be, b.Y, 1));
+    ERRCASE(double, "cblas_zhpmv", 7,
+            cblas_zhpmv(CblasColMajor, CblasUpper, 4, b.al, b.A, b.X, 0, b.be,
+                        b.Y, 1));
+    ERRCASE(double, "cblas_zgeru", 10,
+            cblas_zgeru(CblasColMajor, 4, 4, b.al, b.X, 1, b.Y, 1, b.A, 1));
+    ERRCASE(double, "cblas_zgerc", 10,
+            cblas_zgerc(CblasColMajor, 4, 4, b.al, b.X, 1, b.Y, 1, b.A, 1));
+    ERRCASE(double, "cblas_zher", 8,
+            cblas_zher(CblasColMajor, CblasUpper, 4, b.ral, b.X, 1, b.A, 1));
+    ERRCASE(double, "cblas_zher2", 10,
+            cblas_zher2(CblasColMajor, CblasUpper, 4, b.al, b.X, 1, b.Y, 1, b.A,
+                        1));
+    ERRCASE(double, "cblas_zhpr", 6,
+            cblas_zhpr(CblasColMajor, CblasUpper, 4, b.ral, b.X, 0, b.A));
+    ERRCASE(
+        double, "cblas_zhpr2", 8,
+        cblas_zhpr2(CblasColMajor, CblasUpper, 4, b.al, b.X, 1, b.Y, 0, b.A));
+    ERRCASE(double, "cblas_zsymm", 8,
+            cblas_zsymm(CblasColMajor, CblasLeft, CblasUpper, 4, 4, b.al, b.A,
+                        1, b.B, 4, b.be, b.C, 4));
+    ERRCASE(double, "cblas_zhemm", 8,
+            cblas_zhemm(CblasColMajor, CblasLeft, CblasUpper, 4, 4, b.al, b.A,
+                        1, b.B, 4, b.be, b.C, 4));
+    ERRCASE(double, "cblas_zsyrk", 8,
+            cblas_zsyrk(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.al,
+                        b.A, 1, b.be, b.C, 4));
+    ERRCASE(double, "cblas_zherk", 8,
+            cblas_zherk(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral,
+                        b.A, 1, b.rbe, b.C, 4));
+    ERRCASE(double, "cblas_zsyr2k", 8,
+            cblas_zsyr2k(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.al,
+                         b.A, 1, b.B, 4, b.be, b.C, 4));
+    ERRCASE(double, "cblas_zher2k", 8,
+            cblas_zher2k(CblasColMajor, CblasUpper, CblasNoTrans, 4, 4, b.al,
+                         b.A, 1, b.B, 4, b.rbe, b.C, 4));
+    ERRCASE(double, "cblas_ztrmv", 7,
+            cblas_ztrmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, 1, b.X, 1));
+    ERRCASE(double, "cblas_ztbmv", 8,
+            cblas_ztbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, 1, b.A, 1, b.X, 1));
+    ERRCASE(double, "cblas_ztpmv", 8,
+            cblas_ztpmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, b.X, 0));
+    ERRCASE(double, "cblas_ztrsv", 7,
+            cblas_ztrsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, 1, b.X, 1));
+    ERRCASE(double, "cblas_ztbsv", 8,
+            cblas_ztbsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, 1, b.A, 1, b.X, 1));
+    ERRCASE(double, "cblas_ztpsv", 8,
+            cblas_ztpsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit,
+                        4, b.A, b.X, 0));
+    ERRCASE(double, "cblas_zgemm", 9,
+            cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4,
+                        b.al, b.A, 1, b.B, 4, b.be, b.C, 4));
+    ERRCASE(double, "cblas_ztrmm", 10,
+            cblas_ztrmm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans,
+                        CblasNonUnit, 4, 4, b.al, b.A, 1, b.B, 4));
+    ERRCASE(double, "cblas_ztrsm", 10,
+            cblas_ztrsm(CblasColMajor, CblasLeft, CblasUpper, CblasNoTrans,
+                        CblasNonUnit, 4, 4, b.al, b.A, 1, b.B, 4));
 }
 
 //
@@ -232,14 +414,26 @@ ULMBLAS_TEST(T0701, "errors/invalid arguments of all checking CBLAS functions")
 //
 ULMBLAS_TEST(T0702, "errors/cblas_?syr, ?syr2, ?her, ?her2 with n=0, ldA=0")
 {
-    ERRCASE(float, "cblas_ssyr", 8, cblas_ssyr(CblasColMajor, CblasUpper, 0, b.ral, b.X, 1, b.A, 0));
-    ERRCASE(double, "cblas_dsyr", 8, cblas_dsyr(CblasRowMajor, CblasLower, 0, b.ral, b.X, 1, b.A, 0));
-    ERRCASE(float, "cblas_ssyr2", 10, cblas_ssyr2(CblasColMajor, CblasUpper, 0, b.ral, b.X, 1, b.Y, 1, b.A, 0));
-    ERRCASE(double, "cblas_dsyr2", 10, cblas_dsyr2(CblasRowMajor, CblasLower, 0, b.ral, b.X, 1, b.Y, 1, b.A, 0));
-    ERRCASE(float, "cblas_cher", 8, cblas_cher(CblasColMajor, CblasUpper, 0, b.ral, b.X, 1, b.A, 0));
-    ERRCASE(double, "cblas_zher", 8, cblas_zher(CblasRowMajor, CblasLower, 0, b.ral, b.X, 1, b.A, 0));
-    ERRCASE(float, "cblas_cher2", 10, cblas_cher2(CblasColMajor, CblasUpper, 0, b.al, b.X, 1, b.Y, 1, b.A, 0));
-    ERRCASE(double, "cblas_zher2", 10, cblas_zher2(CblasRowMajor, CblasLower, 0, b.al, b.X, 1, b.Y, 1, b.A, 0));
+    ERRCASE(float, "cblas_ssyr", 8,
+            cblas_ssyr(CblasColMajor, CblasUpper, 0, b.ral, b.X, 1, b.A, 0));
+    ERRCASE(double, "cblas_dsyr", 8,
+            cblas_dsyr(CblasRowMajor, CblasLower, 0, b.ral, b.X, 1, b.A, 0));
+    ERRCASE(float, "cblas_ssyr2", 10,
+            cblas_ssyr2(CblasColMajor, CblasUpper, 0, b.ral, b.X, 1, b.Y, 1,
+                        b.A, 0));
+    ERRCASE(double, "cblas_dsyr2", 10,
+            cblas_dsyr2(CblasRowMajor, CblasLower, 0, b.ral, b.X, 1, b.Y, 1,
+                        b.A, 0));
+    ERRCASE(float, "cblas_cher", 8,
+            cblas_cher(CblasColMajor, CblasUpper, 0, b.ral, b.X, 1, b.A, 0));
+    ERRCASE(double, "cblas_zher", 8,
+            cblas_zher(CblasRowMajor, CblasLower, 0, b.ral, b.X, 1, b.A, 0));
+    ERRCASE(float, "cblas_cher2", 10,
+            cblas_cher2(CblasColMajor, CblasUpper, 0, b.al, b.X, 1, b.Y, 1, b.A,
+                        0));
+    ERRCASE(double, "cblas_zher2", 10,
+            cblas_zher2(CblasRowMajor, CblasLower, 0, b.al, b.X, 1, b.Y, 1, b.A,
+                        0));
 }
 
 //
@@ -249,32 +443,63 @@ ULMBLAS_TEST(T0702, "errors/cblas_?syr, ?syr2, ?her, ?her2 with n=0, ldA=0")
 //  The level 3 wrappers did not set RowMajorStrg.  Expected INFO values as
 //  reported by the reference CBLAS of LAPACK 3.12.1.
 //
-#define ROWCASE(T, NAME, INFO, ROWMAJOR, CALL)                              \
-    {                                                                       \
-        ERRCASE(T, NAME, INFO, CALL)                                        \
-        ctx.check(xerblaRowMajor==ROWMAJOR, "%s: RowMajorStrg is %d, "      \
-                  "expected %d", NAME, xerblaRowMajor, ROWMAJOR);          \
+#define ROWCASE(T, NAME, INFO, ROWMAJOR, CALL)                                 \
+    {                                                                          \
+	ERRCASE(T, NAME, INFO, CALL)                                           \
+	ctx.check(xerblaRowMajor == ROWMAJOR,                                  \
+	          "%s: RowMajorStrg is %d, "                                   \
+	          "expected %d",                                               \
+	          NAME, xerblaRowMajor, ROWMAJOR);                             \
     }
 
 ULMBLAS_TEST(T0703, "errors/row major calls set RowMajorStrg")
 {
     // level 3
-    ROWCASE(double, "cblas_dgemm", 4, 1, cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 4, -1, 4, b.ral, b.A, 4, b.B, 4, b.rbe, b.C, 4));
-    ROWCASE(double, "cblas_dgemm", 11, 1, cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4, b.ral, b.A, 1, b.B, 4, b.rbe, b.C, 4));
-    ROWCASE(double, "cblas_dgemm", 9, 1, cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4, b.ral, b.A, 4, b.B, 1, b.rbe, b.C, 4));
-    ROWCASE(double, "cblas_dgemm", 5, 0, cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 4, -1, 4, b.ral, b.A, 4, b.B, 4, b.rbe, b.C, 4));
-    ROWCASE(float, "cblas_ssymm", 5, 1, cblas_ssymm(CblasRowMajor, CblasLeft, CblasUpper, -1, 4, b.ral, b.A, 4, b.B, 4, b.rbe, b.C, 4));
-    ROWCASE(double, "cblas_zhemm", 5, 1, cblas_zhemm(CblasRowMajor, CblasLeft, CblasUpper, -1, 4, b.al, b.A, 4, b.B, 4, b.be, b.C, 4));
-    ROWCASE(double, "cblas_dsyrk", 8, 1, cblas_dsyrk(CblasRowMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral, b.A, 1, b.rbe, b.C, 4));
-    ROWCASE(float, "cblas_cherk", 5, 1, cblas_cherk(CblasRowMajor, CblasUpper, CblasNoTrans, 4, -1, b.ral, b.A, 4, b.rbe, b.C, 4));
-    ROWCASE(double, "cblas_dsyr2k", 10, 1, cblas_dsyr2k(CblasRowMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral, b.A, 4, b.B, 1, b.rbe, b.C, 4));
-    ROWCASE(double, "cblas_zher2k", 8, 1, cblas_zher2k(CblasRowMajor, CblasUpper, CblasNoTrans, 4, 4, b.al, b.A, 1, b.B, 4, b.rbe, b.C, 4));
-    ROWCASE(double, "cblas_dtrmm", 6, 1, cblas_dtrmm(CblasRowMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, 4, -1, b.ral, b.A, 4, b.B, 4));
-    ROWCASE(float, "cblas_strsm", 7, 1, cblas_strsm(CblasRowMajor, CblasLeft, CblasUpper, CblasNoTrans, CblasNonUnit, -1, 4, b.ral, b.A, 4, b.B, 4));
+    ROWCASE(double, "cblas_dgemm", 4, 1,
+            cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 4, -1, 4,
+                        b.ral, b.A, 4, b.B, 4, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_dgemm", 11, 1,
+            cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4,
+                        b.ral, b.A, 1, b.B, 4, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_dgemm", 9, 1,
+            cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 4, 4, 4,
+                        b.ral, b.A, 4, b.B, 1, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_dgemm", 5, 0,
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 4, -1, 4,
+                        b.ral, b.A, 4, b.B, 4, b.rbe, b.C, 4));
+    ROWCASE(float, "cblas_ssymm", 5, 1,
+            cblas_ssymm(CblasRowMajor, CblasLeft, CblasUpper, -1, 4, b.ral, b.A,
+                        4, b.B, 4, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_zhemm", 5, 1,
+            cblas_zhemm(CblasRowMajor, CblasLeft, CblasUpper, -1, 4, b.al, b.A,
+                        4, b.B, 4, b.be, b.C, 4));
+    ROWCASE(double, "cblas_dsyrk", 8, 1,
+            cblas_dsyrk(CblasRowMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral,
+                        b.A, 1, b.rbe, b.C, 4));
+    ROWCASE(float, "cblas_cherk", 5, 1,
+            cblas_cherk(CblasRowMajor, CblasUpper, CblasNoTrans, 4, -1, b.ral,
+                        b.A, 4, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_dsyr2k", 10, 1,
+            cblas_dsyr2k(CblasRowMajor, CblasUpper, CblasNoTrans, 4, 4, b.ral,
+                         b.A, 4, b.B, 1, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_zher2k", 8, 1,
+            cblas_zher2k(CblasRowMajor, CblasUpper, CblasNoTrans, 4, 4, b.al,
+                         b.A, 1, b.B, 4, b.rbe, b.C, 4));
+    ROWCASE(double, "cblas_dtrmm", 6, 1,
+            cblas_dtrmm(CblasRowMajor, CblasLeft, CblasUpper, CblasNoTrans,
+                        CblasNonUnit, 4, -1, b.ral, b.A, 4, b.B, 4));
+    ROWCASE(float, "cblas_strsm", 7, 1,
+            cblas_strsm(CblasRowMajor, CblasLeft, CblasUpper, CblasNoTrans,
+                        CblasNonUnit, -1, 4, b.ral, b.A, 4, b.B, 4));
     // level 2 (already set before the audit)
-    ROWCASE(double, "cblas_dgemv", 3, 1, cblas_dgemv(CblasRowMajor, CblasNoTrans, 4, -1, b.ral, b.A, 4, b.X, 1, b.rbe, b.Y, 1));
-    ROWCASE(double, "cblas_dger", 8, 1, cblas_dger(CblasRowMajor, 4, 4, b.ral, b.X, 0, b.Y, 1, b.A, 4));
-    ROWCASE(double, "cblas_zher2", 6, 0, cblas_zher2(CblasColMajor, CblasUpper, 4, b.al, b.X, 0, b.Y, 1, b.A, 4));
+    ROWCASE(double, "cblas_dgemv", 3, 1,
+            cblas_dgemv(CblasRowMajor, CblasNoTrans, 4, -1, b.ral, b.A, 4, b.X,
+                        1, b.rbe, b.Y, 1));
+    ROWCASE(double, "cblas_dger", 8, 1,
+            cblas_dger(CblasRowMajor, 4, 4, b.ral, b.X, 0, b.Y, 1, b.A, 4));
+    ROWCASE(double, "cblas_zher2", 6, 0,
+            cblas_zher2(CblasColMajor, CblasUpper, 4, b.al, b.X, 0, b.Y, 1, b.A,
+                        4));
 }
 
 //
@@ -283,14 +508,33 @@ ULMBLAS_TEST(T0703, "errors/row major calls set RowMajorStrg")
 //
 ULMBLAS_TEST(T0704, "errors/invalid transposition codes besides AtlasConj")
 {
-    const CBLAS_TRANSPOSE bad = CBLAS_TRANSPOSE(115), low = CBLAS_TRANSPOSE(110);
-    ERRCASE(double, "cblas_dgemv", 2, cblas_dgemv(CblasColMajor, bad, 4, 4, b.ral, b.A, 4, b.X, 1, b.rbe, b.Y, 1));
-    ERRCASE(double, "cblas_dgbmv", 2, cblas_dgbmv(CblasColMajor, low, 4, 4, 1, 1, b.ral, b.A, 4, b.X, 1, b.rbe, b.Y, 1));
-    ERRCASE(double, "cblas_zgemm", 2, cblas_zgemm(CblasColMajor, bad, CblasNoTrans, 4, 4, 4, b.al, b.A, 4, b.B, 4, b.be, b.C, 4));
-    ERRCASE(double, "cblas_zgemm", 3, cblas_zgemm(CblasRowMajor, CblasNoTrans, low, 4, 4, 4, b.al, b.A, 4, b.B, 4, b.be, b.C, 4));
-    ERRCASE(float, "cblas_strmv", 3, cblas_strmv(CblasColMajor, CblasUpper, bad, CblasNonUnit, 4, b.A, 4, b.X, 1));
-    ERRCASE(double, "cblas_ztpsv", 3, cblas_ztpsv(CblasRowMajor, CblasUpper, low, CblasNonUnit, 4, b.A, b.X, 1));
-    ERRCASE(double, "cblas_dsyrk", 3, cblas_dsyrk(CblasColMajor, CblasUpper, bad, 4, 4, b.ral, b.A, 4, b.rbe, b.C, 4));
-    ERRCASE(double, "cblas_zsyr2k", 3, cblas_zsyr2k(CblasColMajor, CblasUpper, AtlasConj, 4, 4, b.al, b.A, 4, b.B, 4, b.be, b.C, 4));
-    ERRCASE(double, "cblas_ztrsm", 4, cblas_ztrsm(CblasColMajor, CblasLeft, CblasUpper, bad, CblasNonUnit, 4, 4, b.al, b.A, 4, b.B, 4));
+    const CBLAS_TRANSPOSE bad = CBLAS_TRANSPOSE(115),
+                          low = CBLAS_TRANSPOSE(110);
+    ERRCASE(double, "cblas_dgemv", 2,
+            cblas_dgemv(CblasColMajor, bad, 4, 4, b.ral, b.A, 4, b.X, 1, b.rbe,
+                        b.Y, 1));
+    ERRCASE(double, "cblas_dgbmv", 2,
+            cblas_dgbmv(CblasColMajor, low, 4, 4, 1, 1, b.ral, b.A, 4, b.X, 1,
+                        b.rbe, b.Y, 1));
+    ERRCASE(double, "cblas_zgemm", 2,
+            cblas_zgemm(CblasColMajor, bad, CblasNoTrans, 4, 4, 4, b.al, b.A, 4,
+                        b.B, 4, b.be, b.C, 4));
+    ERRCASE(double, "cblas_zgemm", 3,
+            cblas_zgemm(CblasRowMajor, CblasNoTrans, low, 4, 4, 4, b.al, b.A, 4,
+                        b.B, 4, b.be, b.C, 4));
+    ERRCASE(float, "cblas_strmv", 3,
+            cblas_strmv(CblasColMajor, CblasUpper, bad, CblasNonUnit, 4, b.A, 4,
+                        b.X, 1));
+    ERRCASE(double, "cblas_ztpsv", 3,
+            cblas_ztpsv(CblasRowMajor, CblasUpper, low, CblasNonUnit, 4, b.A,
+                        b.X, 1));
+    ERRCASE(double, "cblas_dsyrk", 3,
+            cblas_dsyrk(CblasColMajor, CblasUpper, bad, 4, 4, b.ral, b.A, 4,
+                        b.rbe, b.C, 4));
+    ERRCASE(double, "cblas_zsyr2k", 3,
+            cblas_zsyr2k(CblasColMajor, CblasUpper, AtlasConj, 4, 4, b.al, b.A,
+                         4, b.B, 4, b.be, b.C, 4));
+    ERRCASE(double, "cblas_ztrsm", 4,
+            cblas_ztrsm(CblasColMajor, CblasLeft, CblasUpper, bad, CblasNonUnit,
+                        4, 4, b.al, b.A, 4, b.B, 4));
 }

@@ -10,74 +10,53 @@ namespace ulmBLAS {
 template <typename IndexType, typename Alpha, typename TA, typename TX,
           typename Beta, typename TY>
 void
-gbmtv(IndexType    m,
-      IndexType    n,
-      IndexType    kl,
-      IndexType    ku,
-      const Alpha  &alpha,
-      bool         conjA,
-      const TA     *A,
-      IndexType    ldA,
-      const TX     *x,
-      IndexType    incX,
-      const Beta   &beta,
-      TY           *y,
-      IndexType    incY)
+gbmtv(IndexType m, IndexType n, IndexType kl, IndexType ku, const Alpha &alpha,
+      bool conjA, const TA *A, IndexType ldA, const TX *x, IndexType incX,
+      const Beta &beta, TY *y, IndexType incY)
 {
-    if (m==0 || n==0 || (alpha==Alpha(0) && beta==Beta(1))) {
-        return;
+    if (m == 0 || n == 0 || (alpha == Alpha(0) && beta == Beta(1))) {
+	return;
     }
 
     scal(n, beta, y, incY);
 
-    if (alpha==Alpha(0)) {
-        return;
+    if (alpha == Alpha(0)) {
+	return;
     }
 
     if (!conjA) {
-        for (IndexType j=0; j<n; ++j) {
-            IndexType i0  = std::max(IndexType(0), ku-j);
-            IndexType i1  = std::min(ku+1+kl, m+ku-j);
-            IndexType len = std::max(IndexType(0), i1-i0);
+	for (IndexType j = 0; j < n; ++j) {
+	    IndexType i0 = std::max(IndexType(0), ku - j);
+	    IndexType i1 = std::min(ku + 1 + kl, m + ku - j);
+	    IndexType len = std::max(IndexType(0), i1 - i0);
 
-            IndexType iX  = std::max(IndexType(0), j-ku);
+	    IndexType iX = std::max(IndexType(0), j - ku);
 
-            y[j*incY] += alpha*dotu(len,
-                                    &A[i0], IndexType(1),
-                                    &x[iX*incX], incX);
-            A += ldA;
-        }
+	    y[j * incY] +=
+	        alpha * dotu(len, &A[i0], IndexType(1), &x[iX * incX], incX);
+	    A += ldA;
+	}
     } else {
-        for (IndexType j=0; j<n; ++j) {
-            IndexType i0  = std::max(IndexType(0), ku-j);
-            IndexType i1  = std::min(ku+1+kl, m+ku-j);
-            IndexType len = std::max(IndexType(0), i1-i0);
+	for (IndexType j = 0; j < n; ++j) {
+	    IndexType i0 = std::max(IndexType(0), ku - j);
+	    IndexType i1 = std::min(ku + 1 + kl, m + ku - j);
+	    IndexType len = std::max(IndexType(0), i1 - i0);
 
-            IndexType iX  = std::max(IndexType(0), j-ku);
+	    IndexType iX = std::max(IndexType(0), j - ku);
 
-            y[j*incY] += alpha*dotc(len,
-                                    &A[i0], IndexType(1),
-                                    &x[iX*incX], incX);
-            A += ldA;
-        }
+	    y[j * incY] +=
+	        alpha * dotc(len, &A[i0], IndexType(1), &x[iX * incX], incX);
+	    A += ldA;
+	}
     }
 }
 
 template <typename IndexType, typename Alpha, typename TA, typename TX,
           typename Beta, typename TY>
 void
-gbmtv(IndexType    m,
-      IndexType    n,
-      IndexType    kl,
-      IndexType    ku,
-      const Alpha  &alpha,
-      const TA     *A,
-      IndexType    ldA,
-      const TX     *x,
-      IndexType    incX,
-      const Beta   &beta,
-      TY           *y,
-      IndexType    incY)
+gbmtv(IndexType m, IndexType n, IndexType kl, IndexType ku, const Alpha &alpha,
+      const TA *A, IndexType ldA, const TX *x, IndexType incX, const Beta &beta,
+      TY *y, IndexType incY)
 {
     gbmtv(m, n, kl, ku, alpha, false, A, ldA, x, incX, beta, y, incY);
 }

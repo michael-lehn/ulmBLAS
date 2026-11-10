@@ -10,12 +10,8 @@ namespace ulmBLAS {
 //  ?lauum).  Recursive; with OpenMP larger matrices as tasks.  Any strides.
 //
 template <typename IndexType, typename T>
-    void
-    lauum(bool         lower,
-          IndexType    n,
-          T            *A,
-          IndexType    incRowA,
-          IndexType    incColA);
+void
+lauum(bool lower, IndexType n, T *A, IndexType incRowA, IndexType incColA);
 
 } // namespace ulmBLAS
 

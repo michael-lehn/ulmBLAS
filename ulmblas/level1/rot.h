@@ -6,55 +6,29 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename VX, typename VY, typename T>
-    void
-    rot(IndexType   n,
-        VX          *x,
-        IndexType   incX,
-        VY          *y,
-        IndexType   incY,
-        T           c,
-        T           s);
+void
+rot(IndexType n, VX *x, IndexType incX, VY *y, IndexType incY, T c, T s);
 
 template <typename IndexType, typename X, typename Y, typename T>
-    void
-    rot(IndexType              n,
-        std::complex<X>        *x,
-        IndexType              incX,
-        std::complex<Y>        *y,
-        IndexType              incY,
-        T                      c,
-        const std::complex<T>  &s);
+void
+rot(IndexType n, std::complex<X> *x, IndexType incX, std::complex<Y> *y,
+    IndexType incY, T c, const std::complex<T> &s);
 
 template <typename A, typename B, typename T>
-    void
-    rotg(A &a,
-         B &b,
-         T &c,
-         T &s);
+void
+rotg(A &a, B &b, T &c, T &s);
 
 template <typename TA, typename TB, typename T>
-    void
-    rotg(std::complex<TA>   &a,
-         std::complex<TB>   &b,
-         T                  &c,
-         std::complex<T>    &s);
+void
+rotg(std::complex<TA> &a, std::complex<TB> &b, T &c, std::complex<T> &s);
 
 template <typename IndexType, typename VX, typename VY, typename T>
-    void
-    rotm(IndexType   n,
-         VX          *x,
-         IndexType   incX,
-         VY          *y,
-         IndexType   incY,
-         const T     *param);
+void
+rotm(IndexType n, VX *x, IndexType incX, VY *y, IndexType incY, const T *param);
 
 template <typename T>
-    void
-    rotmg(T        &d1,
-          T        &d2,
-          T        &x1,
-          const T  &y1,
-          T        *param);
+void
+rotmg(T &d1, T &d2, T &x1, const T &y1, T *param);
 
 } // namespace ulmBLAS
 

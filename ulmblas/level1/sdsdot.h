@@ -4,13 +4,9 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename VX, typename VY, typename Result>
-    void
-    sdsdot(IndexType    n,
-           const VX     *x,
-           IndexType    incX,
-           const VY     *y,
-           IndexType    incY,
-           Result       &result);
+void
+sdsdot(IndexType n, const VX *x, IndexType incX, const VY *y, IndexType incY,
+       Result &result);
 
 } // namespace ulmBLAS
 

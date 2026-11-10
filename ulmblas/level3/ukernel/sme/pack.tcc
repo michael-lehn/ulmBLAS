@@ -39,18 +39,16 @@ namespace sme {
 //  Panel of 32 rows of A with unit row stride (column j: A + j*incColA);
 //  the rows mr to 31 (mr <= 32) are zero.
 //
-__arm_locally_streaming
-inline void
-pack_A_colmajor(long mr, long k, const double *A, long incColA,
-                double *buffer)
+__arm_locally_streaming inline void
+pack_A_colmajor(long mr, long k, const double *A, long incColA, double *buffer)
 {
     const svcount_t pc = svptrue_c64();
     const svcount_t pm = svwhilelt_c64_s64(int64_t(0), int64_t(mr), 4);
 
-    for (long j=0; j<k; ++j) {
-        svst1_f64_x4(pc, buffer, svld1_f64_x4(pm, A));
-        buffer += 32;
-        A      += incColA;
+    for (long j = 0; j < k; ++j) {
+	svst1_f64_x4(pc, buffer, svld1_f64_x4(pm, A));
+	buffer += 32;
+	A += incColA;
     }
 }
 
@@ -60,49 +58,55 @@ pack_A_colmajor(long mr, long k, const double *A, long incColA,
 //  the horizontal slice c of tile t, the vertical slice r of the tiles 0 to
 //  3 is column r of the panel (the slices of the rows mr to 31 stay zero).
 //
-__arm_new("za") __arm_locally_streaming
-inline void
-pack_A_rowmajor(long mr, long k, const double *A, long incRowA,
-                double *buffer)
+__arm_new("za") __arm_locally_streaming inline void pack_A_rowmajor(
+    long mr, long k, const double *A, long incRowA, double *buffer)
 {
     const svbool_t p = svptrue_b64();
-    long           j = 0;
+    long j = 0;
 
     svzero_za();
-    for (; j+8<=k; j+=8) {
-        for (long c=0; c<8; ++c) {
-            if (c   <mr) svld1_hor_za64(0, c, p, A + (c   )*incRowA + j);
-            if (c+ 8<mr) svld1_hor_za64(1, c, p, A + (c+ 8)*incRowA + j);
-            if (c+16<mr) svld1_hor_za64(2, c, p, A + (c+16)*incRowA + j);
-            if (c+24<mr) svld1_hor_za64(3, c, p, A + (c+24)*incRowA + j);
-        }
-        for (long r=0; r<8; ++r) {
-            svst1_ver_za64(0, r, p, buffer + 32*r);
-            svst1_ver_za64(1, r, p, buffer + 32*r + 8);
-            svst1_ver_za64(2, r, p, buffer + 32*r + 16);
-            svst1_ver_za64(3, r, p, buffer + 32*r + 24);
-        }
-        buffer += 8*32;
+    for (; j + 8 <= k; j += 8) {
+	for (long c = 0; c < 8; ++c) {
+	    if (c < mr)
+		svld1_hor_za64(0, c, p, A + (c)*incRowA + j);
+	    if (c + 8 < mr)
+		svld1_hor_za64(1, c, p, A + (c + 8) * incRowA + j);
+	    if (c + 16 < mr)
+		svld1_hor_za64(2, c, p, A + (c + 16) * incRowA + j);
+	    if (c + 24 < mr)
+		svld1_hor_za64(3, c, p, A + (c + 24) * incRowA + j);
+	}
+	for (long r = 0; r < 8; ++r) {
+	    svst1_ver_za64(0, r, p, buffer + 32 * r);
+	    svst1_ver_za64(1, r, p, buffer + 32 * r + 8);
+	    svst1_ver_za64(2, r, p, buffer + 32 * r + 16);
+	    svst1_ver_za64(3, r, p, buffer + 32 * r + 24);
+	}
+	buffer += 8 * 32;
     }
     //  The last k%8 columns the same way, with the loads predicated to the
     //  columns j to k-1 (inactive elements of a slice are set to zero).
     //  Scalar stores here (in streaming mode) made the following loads of
     //  the micro kernel slow: up to 1 us per panel on an Apple M5.
-    if (j<k) {
-        const svbool_t pk = svwhilelt_b64_s64(int64_t(j), int64_t(k));
+    if (j < k) {
+	const svbool_t pk = svwhilelt_b64_s64(int64_t(j), int64_t(k));
 
-        for (long c=0; c<8; ++c) {
-            if (c   <mr) svld1_hor_za64(0, c, pk, A + (c   )*incRowA + j);
-            if (c+ 8<mr) svld1_hor_za64(1, c, pk, A + (c+ 8)*incRowA + j);
-            if (c+16<mr) svld1_hor_za64(2, c, pk, A + (c+16)*incRowA + j);
-            if (c+24<mr) svld1_hor_za64(3, c, pk, A + (c+24)*incRowA + j);
-        }
-        for (long r=0; r<k-j; ++r) {
-            svst1_ver_za64(0, r, p, buffer + 32*r);
-            svst1_ver_za64(1, r, p, buffer + 32*r + 8);
-            svst1_ver_za64(2, r, p, buffer + 32*r + 16);
-            svst1_ver_za64(3, r, p, buffer + 32*r + 24);
-        }
+	for (long c = 0; c < 8; ++c) {
+	    if (c < mr)
+		svld1_hor_za64(0, c, pk, A + (c)*incRowA + j);
+	    if (c + 8 < mr)
+		svld1_hor_za64(1, c, pk, A + (c + 8) * incRowA + j);
+	    if (c + 16 < mr)
+		svld1_hor_za64(2, c, pk, A + (c + 16) * incRowA + j);
+	    if (c + 24 < mr)
+		svld1_hor_za64(3, c, pk, A + (c + 24) * incRowA + j);
+	}
+	for (long r = 0; r < k - j; ++r) {
+	    svst1_ver_za64(0, r, p, buffer + 32 * r);
+	    svst1_ver_za64(1, r, p, buffer + 32 * r + 8);
+	    svst1_ver_za64(2, r, p, buffer + 32 * r + 16);
+	    svst1_ver_za64(3, r, p, buffer + 32 * r + 24);
+	}
     }
 }
 
@@ -112,39 +116,41 @@ pack_A_rowmajor(long mr, long k, const double *A, long incRowA,
 //  the horizontal slice c of tile t, the vertical slice r of the tiles 0 and
 //  1 is row r of the panel (the slices of the columns nr to 15 stay zero).
 //
-__arm_new("za") __arm_locally_streaming
-inline void
-pack_B_colmajor(long nr, long k, const double *B, long incColB,
-                double *buffer)
+__arm_new("za") __arm_locally_streaming inline void pack_B_colmajor(
+    long nr, long k, const double *B, long incColB, double *buffer)
 {
     const svbool_t p = svptrue_b64();
-    long           l = 0;
+    long l = 0;
 
     svzero_za();
-    for (; l+8<=k; l+=8) {
-        for (long c=0; c<8; ++c) {
-            if (c  <nr) svld1_hor_za64(0, c, p, B + (c  )*incColB + l);
-            if (c+8<nr) svld1_hor_za64(1, c, p, B + (c+8)*incColB + l);
-        }
-        for (long r=0; r<8; ++r) {
-            svst1_ver_za64(0, r, p, buffer + 16*r);
-            svst1_ver_za64(1, r, p, buffer + 16*r + 8);
-        }
-        buffer += 8*16;
+    for (; l + 8 <= k; l += 8) {
+	for (long c = 0; c < 8; ++c) {
+	    if (c < nr)
+		svld1_hor_za64(0, c, p, B + (c)*incColB + l);
+	    if (c + 8 < nr)
+		svld1_hor_za64(1, c, p, B + (c + 8) * incColB + l);
+	}
+	for (long r = 0; r < 8; ++r) {
+	    svst1_ver_za64(0, r, p, buffer + 16 * r);
+	    svst1_ver_za64(1, r, p, buffer + 16 * r + 8);
+	}
+	buffer += 8 * 16;
     }
     //  The last k%8 rows the same way, with the loads predicated to the rows
     //  l to k-1 (see pack_A_rowmajor).
-    if (l<k) {
-        const svbool_t pk = svwhilelt_b64_s64(int64_t(l), int64_t(k));
+    if (l < k) {
+	const svbool_t pk = svwhilelt_b64_s64(int64_t(l), int64_t(k));
 
-        for (long c=0; c<8; ++c) {
-            if (c  <nr) svld1_hor_za64(0, c, pk, B + (c  )*incColB + l);
-            if (c+8<nr) svld1_hor_za64(1, c, pk, B + (c+8)*incColB + l);
-        }
-        for (long r=0; r<k-l; ++r) {
-            svst1_ver_za64(0, r, p, buffer + 16*r);
-            svst1_ver_za64(1, r, p, buffer + 16*r + 8);
-        }
+	for (long c = 0; c < 8; ++c) {
+	    if (c < nr)
+		svld1_hor_za64(0, c, pk, B + (c)*incColB + l);
+	    if (c + 8 < nr)
+		svld1_hor_za64(1, c, pk, B + (c + 8) * incColB + l);
+	}
+	for (long r = 0; r < k - l; ++r) {
+	    svst1_ver_za64(0, r, p, buffer + 16 * r);
+	    svst1_ver_za64(1, r, p, buffer + 16 * r + 8);
+	}
     }
 }
 
@@ -152,18 +158,16 @@ pack_B_colmajor(long nr, long k, const double *B, long incColB,
 //  Panel of 16 columns of B with unit column stride (row l: B + l*incRowB);
 //  the columns nr to 15 (nr <= 16) are zero.
 //
-__arm_locally_streaming
-inline void
-pack_B_rowmajor(long nr, long k, const double *B, long incRowB,
-                double *buffer)
+__arm_locally_streaming inline void
+pack_B_rowmajor(long nr, long k, const double *B, long incRowB, double *buffer)
 {
     const svcount_t pc = svptrue_c64();
     const svcount_t pn = svwhilelt_c64_s64(int64_t(0), int64_t(nr), 2);
 
-    for (long l=0; l<k; ++l) {
-        svst1_f64_x2(pc, buffer, svld1_f64_x2(pn, B));
-        buffer += 16;
-        B      += incRowB;
+    for (long l = 0; l < k; ++l) {
+	svst1_f64_x2(pc, buffer, svld1_f64_x2(pn, B));
+	buffer += 16;
+	B += incRowB;
     }
 }
 
@@ -174,31 +178,28 @@ pack_B_rowmajor(long nr, long k, const double *B, long incRowB,
 //
 template <int P, typename IndexType>
 static void
-pack_MRxk(IndexType      k,
-          bool           ,
-          const double   *A,
-          IndexType      incRowA,
-          IndexType      incColA,
-          double         *buffer)
+pack_MRxk(IndexType k, bool, const double *A, IndexType incRowA,
+          IndexType incColA, double *buffer)
 {
-    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+    const sme::FpsrRestore fpsr; // see sme/fpsr.h
 
     constexpr IndexType MR = sme::BlockSizeUGemm<double>::MR;
 
-    static_assert(MR==32, "SME packing of A requires MR = 32");
+    static_assert(MR == 32, "SME packing of A requires MR = 32");
 
-    if (incRowA!=IndexType(1) && incColA!=IndexType(1)) {
-        pack_MRxk<P, IndexType, double, double>(k, false, A, incRowA,
-                                                incColA, buffer);
-        return;
+    if (incRowA != IndexType(1) && incColA != IndexType(1)) {
+	pack_MRxk<P, IndexType, double, double>(k, false, A, incRowA, incColA,
+	                                        buffer);
+	return;
     }
-    for (IndexType p=0; p<P; ++p) {
-        if (incRowA==IndexType(1)) {
-            sme::pack_A_colmajor(MR, k, A + p*MR, incColA, buffer + p*k*MR);
-        } else {
-            sme::pack_A_rowmajor(MR, k, A + p*MR*incRowA, incRowA,
-                                 buffer + p*k*MR);
-        }
+    for (IndexType p = 0; p < P; ++p) {
+	if (incRowA == IndexType(1)) {
+	    sme::pack_A_colmajor(MR, k, A + p * MR, incColA,
+	                         buffer + p * k * MR);
+	} else {
+	    sme::pack_A_rowmajor(MR, k, A + p * MR * incRowA, incRowA,
+	                         buffer + p * k * MR);
+	}
     }
 }
 
@@ -207,26 +208,22 @@ pack_MRxk(IndexType      k,
 //
 template <typename IndexType>
 static void
-pack_kxNR(IndexType      k,
-          bool           ,
-          const double   *B,
-          IndexType      incRowB,
-          IndexType      incColB,
-          double         *buffer)
+pack_kxNR(IndexType k, bool, const double *B, IndexType incRowB,
+          IndexType incColB, double *buffer)
 {
-    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+    const sme::FpsrRestore fpsr; // see sme/fpsr.h
 
     constexpr IndexType NR = sme::BlockSizeUGemm<double>::NR;
 
-    static_assert(NR==16, "SME packing of B requires NR = 16");
+    static_assert(NR == 16, "SME packing of B requires NR = 16");
 
-    if (incRowB==IndexType(1)) {
-        sme::pack_B_colmajor(NR, k, B, incColB, buffer);
-    } else if (incColB==IndexType(1)) {
-        sme::pack_B_rowmajor(NR, k, B, incRowB, buffer);
+    if (incRowB == IndexType(1)) {
+	sme::pack_B_colmajor(NR, k, B, incColB, buffer);
+    } else if (incColB == IndexType(1)) {
+	sme::pack_B_rowmajor(NR, k, B, incRowB, buffer);
     } else {
-        pack_kxNR<IndexType, double, double>(k, false, B, incRowB, incColB,
-                                             buffer);
+	pack_kxNR<IndexType, double, double>(k, false, B, incRowB, incColB,
+	                                     buffer);
     }
 }
 
@@ -235,23 +232,18 @@ pack_kxNR(IndexType      k,
 //
 template <typename IndexType>
 static bool
-pack_MRxk_partial(IndexType      mr,
-                  IndexType      k,
-                  bool           ,
-                  const double   *A,
-                  IndexType      incRowA,
-                  IndexType      incColA,
-                  double         *buffer)
+pack_MRxk_partial(IndexType mr, IndexType k, bool, const double *A,
+                  IndexType incRowA, IndexType incColA, double *buffer)
 {
-    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+    const sme::FpsrRestore fpsr; // see sme/fpsr.h
 
-    if (incRowA==IndexType(1)) {
-        sme::pack_A_colmajor(mr, k, A, incColA, buffer);
-        return true;
+    if (incRowA == IndexType(1)) {
+	sme::pack_A_colmajor(mr, k, A, incColA, buffer);
+	return true;
     }
-    if (incColA==IndexType(1)) {
-        sme::pack_A_rowmajor(mr, k, A, incRowA, buffer);
-        return true;
+    if (incColA == IndexType(1)) {
+	sme::pack_A_rowmajor(mr, k, A, incRowA, buffer);
+	return true;
     }
     return false;
 }
@@ -261,23 +253,18 @@ pack_MRxk_partial(IndexType      mr,
 //
 template <typename IndexType>
 static bool
-pack_kxNR_partial(IndexType      nr,
-                  IndexType      k,
-                  bool           ,
-                  const double   *B,
-                  IndexType      incRowB,
-                  IndexType      incColB,
-                  double         *buffer)
+pack_kxNR_partial(IndexType nr, IndexType k, bool, const double *B,
+                  IndexType incRowB, IndexType incColB, double *buffer)
 {
-    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+    const sme::FpsrRestore fpsr; // see sme/fpsr.h
 
-    if (incRowB==IndexType(1)) {
-        sme::pack_B_colmajor(nr, k, B, incColB, buffer);
-        return true;
+    if (incRowB == IndexType(1)) {
+	sme::pack_B_colmajor(nr, k, B, incColB, buffer);
+	return true;
     }
-    if (incColB==IndexType(1)) {
-        sme::pack_B_rowmajor(nr, k, B, incRowB, buffer);
-        return true;
+    if (incColB == IndexType(1)) {
+	sme::pack_B_rowmajor(nr, k, B, incRowB, buffer);
+	return true;
     }
     return false;
 }

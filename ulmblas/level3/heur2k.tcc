@@ -17,119 +17,102 @@ namespace ulmBLAS {
 template <typename IndexType, typename Alpha, typename TA, typename TB,
           typename Beta, typename TC>
 void
-heur2k(IndexType    n,
-       IndexType    k,
-       const Alpha  &alpha,
-       const TA     *A,
-       IndexType    incRowA,
-       IndexType    incColA,
-       const TB     *B,
-       IndexType    incRowB,
-       IndexType    incColB,
-       const Beta   &beta,
-       TC           *C,
-       IndexType    incRowC,
-       IndexType    incColC)
+heur2k(IndexType n, IndexType k, const Alpha &alpha, const TA *A,
+       IndexType incRowA, IndexType incColA, const TB *B, IndexType incRowB,
+       IndexType incColB, const Beta &beta, TC *C, IndexType incRowC,
+       IndexType incColC)
 {
-    const FpsrScope fpsrScope;  // see level3/fpsrscope.h
+    const FpsrScope fpsrScope; // see level3/fpsrscope.h
 
-    typedef decltype(Alpha(0)*TA(0))  T;
+    typedef decltype(Alpha(0) * TA(0)) T;
 
     constexpr IndexType MC = BlockSize<T>::MC;
 
     constexpr IndexType MR = BlockSizeUGemm<T>::MR;
     constexpr IndexType NR = BlockSizeUGemm<T>::NR;
 
-    const IndexType mb = (n+MC-1) / MC;
-    const IndexType kb = (k+MC-1) / MC;
+    const IndexType mb = (n + MC - 1) / MC;
+    const IndexType kb = (k + MC - 1) / MC;
 
     const IndexType mc_ = n % MC;
     const IndexType kc_ = k % MC;
 
     static MemoryPool<T> memoryPool;
 
-    if (n==0 || ((alpha==Alpha(0) || k==0) && beta==Beta(1))) {
-        return;
+    if (n == 0 || ((alpha == Alpha(0) || k == 0) && beta == Beta(1))) {
+	return;
     }
 
-    if (alpha==Alpha(0) || k==0) {
-        truscal(n, n, false, beta, C, incRowC, incColC);
-        for (IndexType i=0; i<n; ++i) {
-            C[i*(incRowC+incColC)] = std::real(C[i*(incRowC+incColC)]);
-        }
-        return;
+    if (alpha == Alpha(0) || k == 0) {
+	truscal(n, n, false, beta, C, incRowC, incColC);
+	for (IndexType i = 0; i < n; ++i) {
+	    C[i * (incRowC + incColC)] = std::real(C[i * (incRowC + incColC)]);
+	}
+	return;
     }
 
-    T     *A_ = memoryPool.allocate(MC*MC+MR);
-    T     *B_ = memoryPool.allocate(MC*MC+NR);
+    T *A_ = memoryPool.allocate(MC * MC + MR);
+    T *B_ = memoryPool.allocate(MC * MC + NR);
 
-    for (IndexType j=0; j<mb; ++j) {
-        IndexType nc = (j!=mb-1 || mc_==0) ? MC : mc_;
+    for (IndexType j = 0; j < mb; ++j) {
+	IndexType nc = (j != mb - 1 || mc_ == 0) ? MC : mc_;
 
-        for (IndexType l=0; l<kb; ++l) {
-            IndexType kc    = (l!=kb-1 || kc_==0) ? MC   : kc_;
-            Beta      beta_ = (l==0) ? beta : Beta(1);
+	for (IndexType l = 0; l < kb; ++l) {
+	    IndexType kc = (l != kb - 1 || kc_ == 0) ? MC : kc_;
+	    Beta beta_ = (l == 0) ? beta : Beta(1);
 
-            gepack_B(kc, nc, true,
-                     &B[l*MC*incColB+j*MC*incRowB], incColB, incRowB,
-                     B_);
+	    gepack_B(kc, nc, true, &B[l * MC * incColB + j * MC * incRowB],
+	             incColB, incRowB, B_);
 
-            for (IndexType i=0; i<=j; ++i) {
-                IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
+	    for (IndexType i = 0; i <= j; ++i) {
+		IndexType mc = (i != mb - 1 || mc_ == 0) ? MC : mc_;
 
-                gepack_A(mc, kc, false,
-                         &A[i*MC*incRowA+l*MC*incColA], incRowA, incColA,
-                         A_);
+		gepack_A(mc, kc, false, &A[i * MC * incRowA + l * MC * incColA],
+		         incRowA, incColA, A_);
 
-                if (i==j) {
-                    msyurk(mc, nc, kc, alpha,
-                           A_, B_, beta_,
-                           &C[i*MC*incRowC+j*MC*incColC],
-                           incRowC, incColC);
-                } else {
-                    mgemm(mc, nc, kc, alpha,
-                          A_, B_, beta_,
-                          &C[i*MC*incRowC+j*MC*incColC],
-                          incRowC, incColC);
-                }
-            }
-        }
+		if (i == j) {
+		    msyurk(mc, nc, kc, alpha, A_, B_, beta_,
+		           &C[i * MC * incRowC + j * MC * incColC], incRowC,
+		           incColC);
+		} else {
+		    mgemm(mc, nc, kc, alpha, A_, B_, beta_,
+		          &C[i * MC * incRowC + j * MC * incColC], incRowC,
+		          incColC);
+		}
+	    }
+	}
     }
 
-    for (IndexType j=0; j<mb; ++j) {
-        IndexType nc = (j!=mb-1 || mc_==0) ? MC : mc_;
+    for (IndexType j = 0; j < mb; ++j) {
+	IndexType nc = (j != mb - 1 || mc_ == 0) ? MC : mc_;
 
-        for (IndexType l=0; l<kb; ++l) {
-            IndexType kc    = (l!=kb-1 || kc_==0) ? MC   : kc_;
+	for (IndexType l = 0; l < kb; ++l) {
+	    IndexType kc = (l != kb - 1 || kc_ == 0) ? MC : kc_;
 
-            gepack_B(kc, nc, true,
-                     &A[l*MC*incColA+j*MC*incRowA], incColA, incRowA,
-                     B_);
+	    gepack_B(kc, nc, true, &A[l * MC * incColA + j * MC * incRowA],
+	             incColA, incRowA, B_);
 
-            for (IndexType i=0; i<=j; ++i) {
-                IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
+	    for (IndexType i = 0; i <= j; ++i) {
+		IndexType mc = (i != mb - 1 || mc_ == 0) ? MC : mc_;
 
-                gepack_A(mc, kc, false,
-                         &B[i*MC*incRowB+l*MC*incColB], incRowB, incColB,
-                         A_);
+		gepack_A(mc, kc, false, &B[i * MC * incRowB + l * MC * incColB],
+		         incRowB, incColB, A_);
 
-                if (i==j) {
-                    msyurk(mc, nc, kc, conjugate(alpha),
-                           A_, B_, Beta(1),
-                           &C[i*MC*incRowC+j*MC*incColC],
-                           incRowC, incColC);
-                } else {
-                    mgemm(mc, nc, kc, conjugate(alpha),
-                          A_, B_, Beta(1),
-                          &C[i*MC*incRowC+j*MC*incColC],
-                          incRowC, incColC);
-                }
-            }
-        }
+		if (i == j) {
+		    msyurk(mc, nc, kc, conjugate(alpha), A_, B_, Beta(1),
+		           &C[i * MC * incRowC + j * MC * incColC], incRowC,
+		           incColC);
+		} else {
+		    mgemm(mc, nc, kc, conjugate(alpha), A_, B_, Beta(1),
+		          &C[i * MC * incRowC + j * MC * incColC], incRowC,
+		          incColC);
+		}
+	    }
+	}
     }
 
-    for (IndexType i=0; i<n; ++i) {
-        C[i*(incRowC+incColC)] = std::real(C[i*(incRowC+incColC)]);
+    for (IndexType i = 0; i < n; ++i) {
+	C[i * (incRowC + incColC)] = std::real(C[i * (incRowC + incColC)]);
     }
 
     memoryPool.release(A_);

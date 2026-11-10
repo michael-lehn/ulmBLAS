@@ -4,40 +4,34 @@
 #include <ulmblas/auxiliary/conjugate.h>
 #include <ulmblas/level1/kernel/ref/dot.h>
 
-namespace ulmBLAS { namespace ref {
+namespace ulmBLAS {
+namespace ref {
 
 template <typename IndexType, typename VX, typename VY, typename Result>
 void
-dotu(IndexType      n,
-     const VX       *x,
-     IndexType      incX,
-     const VY       *y,
-     IndexType      incY,
-     Result         &result)
+dotu(IndexType n, const VX *x, IndexType incX, const VY *y, IndexType incY,
+     Result &result)
 {
     result = Result(0);
 
-    for (IndexType i=0; i<n; ++i) {
-        result += x[i*incX]*y[i*incY];
+    for (IndexType i = 0; i < n; ++i) {
+	result += x[i * incX] * y[i * incY];
     }
 }
 
 template <typename IndexType, typename VX, typename VY, typename Result>
 void
-dotc(IndexType      n,
-     const VX       *x,
-     IndexType      incX,
-     const VY       *y,
-     IndexType      incY,
-     Result         &result)
+dotc(IndexType n, const VX *x, IndexType incX, const VY *y, IndexType incY,
+     Result &result)
 {
     result = Result(0);
 
-    for (IndexType i=0; i<n; ++i) {
-        result += conjugate(x[i*incX])*y[i*incY];
+    for (IndexType i = 0; i < n; ++i) {
+	result += conjugate(x[i * incX]) * y[i * incY];
     }
 }
 
-} } // namespace ref, ulmBLAS
+} // namespace ref
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL1_KERNEL_REF_DOT_TCC 1

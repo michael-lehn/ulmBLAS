@@ -19,21 +19,13 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TA, typename TB>
 void
-trusm(IndexType    m,
-      IndexType    n,
-      const Alpha  &alpha,
-      bool         conjA,
-      bool         unitDiag,
-      const TA     *A,
-      IndexType    incRowA,
-      IndexType    incColA,
-      TB           *B,
-      IndexType    incRowB,
-      IndexType    incColB)
+trusm(IndexType m, IndexType n, const Alpha &alpha, bool conjA, bool unitDiag,
+      const TA *A, IndexType incRowA, IndexType incColA, TB *B,
+      IndexType incRowB, IndexType incColB)
 {
-    const FpsrScope fpsrScope;  // see level3/fpsrscope.h
+    const FpsrScope fpsrScope; // see level3/fpsrscope.h
 
-    typedef decltype(Alpha(0)*TA(0)*TB(0))  T;
+    typedef decltype(Alpha(0) * TA(0) * TB(0)) T;
 
     constexpr IndexType MC = BlockSize<T>::MC;
     constexpr IndexType NC = BlockSize<T>::NC;
@@ -41,61 +33,60 @@ trusm(IndexType    m,
     constexpr IndexType MR = BlockSizeUGemm<T>::MR;
     constexpr IndexType NR = BlockSizeUGemm<T>::NR;
 
-    const IndexType mb = (m+MC-1) / MC;
-    const IndexType nb = (n+NC-1) / NC;
+    const IndexType mb = (m + MC - 1) / MC;
+    const IndexType nb = (n + NC - 1) / NC;
 
     const IndexType mc_ = m % MC;
     const IndexType nc_ = n % NC;
 
     static MemoryPool<T> memoryPool;
 
-    if (alpha==Alpha(0)) {
-        gescal(m, n, Alpha(0), B, incRowB, incColB);
-        return;
+    if (alpha == Alpha(0)) {
+	gescal(m, n, Alpha(0), B, incRowB, incColB);
+	return;
     }
 
-    T  *A_ = memoryPool.allocate(MC*MC+MR);
-    T  *B_ = memoryPool.allocate(MC*NC+NR);
+    T *A_ = memoryPool.allocate(MC * MC + MR);
+    T *B_ = memoryPool.allocate(MC * NC + NR);
 
-    for (IndexType j=0; j<nb; ++j) {
-        IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;
+    for (IndexType j = 0; j < nb; ++j) {
+	IndexType nc = (j != nb - 1 || nc_ == 0) ? NC : nc_;
 
-        for (IndexType i=mb-1; i>=0; --i) {
-            IndexType mc  = (i!=mb-1 || mc_==0) ? MC : mc_;
-            Alpha  alpha_ = (i==mb-1) ? alpha : Alpha(1);
+	for (IndexType i = mb - 1; i >= 0; --i) {
+	    IndexType mc = (i != mb - 1 || mc_ == 0) ? MC : mc_;
+	    Alpha alpha_ = (i == mb - 1) ? alpha : Alpha(1);
 
-            gepack_B(mc, nc, false,
-                     &B[i*MC*incRowB+j*NC*incColB], incRowB, incColB,
-                     B_);
+	    gepack_B(mc, nc, false, &B[i * MC * incRowB + j * NC * incColB],
+	             incRowB, incColB, B_);
 
-            // std::cerr << "-- trusm ----------" << std::endl;
-            // std::cerr << "m = " << m
-            //           << ", mb = " << mb
-            //           << ", mc_ = " << mc_
-            //           << ", mc = " << mc
-            //           << ", MC = " << MC
-            //           << ", MR = " << MR
-            //           << std::endl;
-            // printMatrix(mc, mc, &A[i*MC*(incRowA+incColA)], incRowA, incColA);
+	    // std::cerr << "-- trusm ----------" << std::endl;
+	    // std::cerr << "m = " << m
+	    //           << ", mb = " << mb
+	    //           << ", mc_ = " << mc_
+	    //           << ", mc = " << mc
+	    //           << ", MC = " << MC
+	    //           << ", MR = " << MR
+	    //           << std::endl;
+	    // printMatrix(mc, mc, &A[i*MC*(incRowA+incColA)], incRowA,
+	    // incColA);
 
-            truspack(mc, conjA, unitDiag,
-                     &A[i*MC*(incRowA+incColA)], incRowA, incColA,
-                     A_);
+	    truspack(mc, conjA, unitDiag, &A[i * MC * (incRowA + incColA)],
+	             incRowA, incColA, A_);
 
-            // printMatrix(MR, (MC*MC/MR), A_, 1, MR);
+	    // printMatrix(MR, (MC*MC/MR), A_, 1, MR);
 
-            mtrusm(mc, nc, alpha_, A_, B_,
-                   &B[i*MC*incRowB+j*NC*incColB], incRowB, incColB);
+	    mtrusm(mc, nc, alpha_, A_, B_,
+	           &B[i * MC * incRowB + j * NC * incColB], incRowB, incColB);
 
-            for (IndexType l=0; l<i; ++l) {
-                gepack_A(MC, mc, conjA,
-                         &A[l*MC*incRowA+i*MC*incColA], incRowA, incColA,
-                         A_);
+	    for (IndexType l = 0; l < i; ++l) {
+		gepack_A(MC, mc, conjA, &A[l * MC * incRowA + i * MC * incColA],
+		         incRowA, incColA, A_);
 
-                mgemm(MC, nc, mc, T(-1), A_, B_, alpha_,
-                      &B[l*MC*incRowB+j*NC*incColB], incRowB, incColB);
-            }
-        }
+		mgemm(MC, nc, mc, T(-1), A_, B_, alpha_,
+		      &B[l * MC * incRowB + j * NC * incColB], incRowB,
+		      incColB);
+	    }
+	}
     }
 
     memoryPool.release(A_);

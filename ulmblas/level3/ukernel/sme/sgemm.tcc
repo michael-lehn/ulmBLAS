@@ -33,7 +33,8 @@
 #include <cstdint>
 #include <ulmblas/level3/ukernel/sme/fpsr.h>
 
-namespace ulmBLAS { namespace sme {
+namespace ulmBLAS {
+namespace sme {
 
 //
 //  Columns 0 to n-1 (n <= 16) of the tiles T and T+1 (the rows 0 to 31 of
@@ -42,49 +43,48 @@ namespace ulmBLAS { namespace sme {
 //
 template <unsigned T>
 inline void
-sload_32x16(long n, const float *C, long ldC, svbool_t p0, svbool_t p1)
-    __arm_streaming __arm_inout("za")
+sload_32x16(long n, const float *C, long ldC, svbool_t p0,
+            svbool_t p1) __arm_streaming __arm_inout("za")
 {
-    for (long c=0; c<n; ++c) {
-        svld1_hor_za32(T+0, c, p0, C + c*ldC);
-        svld1_hor_za32(T+1, c, p1, C + c*ldC + 16);
+    for (long c = 0; c < n; ++c) {
+	svld1_hor_za32(T + 0, c, p0, C + c * ldC);
+	svld1_hor_za32(T + 1, c, p1, C + c * ldC + 16);
     }
 }
 
 template <unsigned T>
 inline void
-sstore_32x16(long n, float *C, long ldC, svbool_t p0, svbool_t p1)
-    __arm_streaming __arm_in("za")
+sstore_32x16(long n, float *C, long ldC, svbool_t p0,
+             svbool_t p1) __arm_streaming __arm_in("za")
 {
-    for (long c=0; c<n; ++c) {
-        svst1_hor_za32(T+0, c, p0, C + c*ldC);
-        svst1_hor_za32(T+1, c, p1, C + c*ldC + 16);
+    for (long c = 0; c < n; ++c) {
+	svst1_hor_za32(T + 0, c, p0, C + c * ldC);
+	svst1_hor_za32(T + 1, c, p1, C + c * ldC + 16);
     }
 }
 
 template <unsigned T>
 inline void
 supdate_32x16(long n, float alpha, float beta, float *C, long ldC,
-              svcount_t pc)
-    __arm_streaming __arm_in("za")
+              svcount_t pc) __arm_streaming __arm_in("za")
 {
-    const svbool_t    p  = svptrue_b32();
+    const svbool_t p = svptrue_b32();
     const svfloat32_t va = svdup_f32(alpha);
     const svfloat32_t vb = svdup_f32(beta);
 
-    for (long c=0; c<n; ++c) {
-        float *Cc = C + c*ldC;
+    for (long c = 0; c < n; ++c) {
+	float *Cc = C + c * ldC;
 
-        svfloat32_t z0 = svmul_x(p, svread_hor_za32_f32_m(va, p, T+0, c), va);
-        svfloat32_t z1 = svmul_x(p, svread_hor_za32_f32_m(va, p, T+1, c), va);
+	svfloat32_t z0 = svmul_x(p, svread_hor_za32_f32_m(va, p, T + 0, c), va);
+	svfloat32_t z1 = svmul_x(p, svread_hor_za32_f32_m(va, p, T + 1, c), va);
 
-        if (beta!=0.0f) {
-            svfloat32x2_t x = svld1_f32_x2(pc, Cc);
+	if (beta != 0.0f) {
+	    svfloat32x2_t x = svld1_f32_x2(pc, Cc);
 
-            z0 = svmla_x(p, z0, svget2(x, 0), vb);
-            z1 = svmla_x(p, z1, svget2(x, 1), vb);
-        }
-        svst1_f32_x2(pc, Cc, svcreate2(z0, z1));
+	    z0 = svmla_x(p, z0, svget2(x, 0), vb);
+	    z1 = svmla_x(p, z1, svget2(x, 1), vb);
+	}
+	svst1_f32_x2(pc, Cc, svcreate2(z0, z1));
     }
 }
 
@@ -92,47 +92,46 @@ supdate_32x16(long n, float alpha, float beta, float *C, long ldC,
 //  The rows 0 to mr-1 and columns 0 to nr-1 of the 32 x 32 tile of C (mr,
 //  nr <= 32) with unit row stride and column stride ldC, in streaming mode.
 //
-__arm_new("za") __arm_locally_streaming
-inline void
-sgemm_32x32_streaming(long kc, float alpha, const float *A, const float *B,
-                      float beta, float *C, long ldC, long mr, long nr)
+__arm_new("za") __arm_locally_streaming inline void sgemm_32x32_streaming(
+    long kc, float alpha, const float *A, const float *B, float beta, float *C,
+    long ldC, long mr, long nr)
 {
-    const svbool_t  p  = svptrue_b32();
+    const svbool_t p = svptrue_b32();
     const svcount_t pc = svptrue_c32();
-    const bool      direct = alpha==1.0f && (beta==0.0f || beta==1.0f);
+    const bool direct = alpha == 1.0f && (beta == 0.0f || beta == 1.0f);
 
-    const int64_t   m   = mr;
-    const svbool_t  p0  = svwhilelt_b32_s64(int64_t(0), m);
-    const svbool_t  p1  = svwhilelt_b32_s64(int64_t(16), m);
+    const int64_t m = mr;
+    const svbool_t p0 = svwhilelt_b32_s64(int64_t(0), m);
+    const svbool_t p1 = svwhilelt_b32_s64(int64_t(16), m);
     const svcount_t pcr = svwhilelt_c32_s64(int64_t(0), m, 2);
-    const long      n0  = (nr<16) ? nr : 16;
-    const long      n1  = nr - n0;
+    const long n0 = (nr < 16) ? nr : 16;
+    const long n1 = nr - n0;
 
     svzero_za();
-    if (direct && beta==1.0f) {
-        sload_32x16<0>(n0, C, ldC, p0, p1);
-        sload_32x16<2>(n1, C + 16*ldC, ldC, p0, p1);
+    if (direct && beta == 1.0f) {
+	sload_32x16<0>(n0, C, ldC, p0, p1);
+	sload_32x16<2>(n1, C + 16 * ldC, ldC, p0, p1);
     }
 
-    for (long l=0; l<kc; ++l) {
-        svfloat32x2_t a = svld1_f32_x2(pc, A);
-        svfloat32x2_t b = svld1_f32_x2(pc, B);
+    for (long l = 0; l < kc; ++l) {
+	svfloat32x2_t a = svld1_f32_x2(pc, A);
+	svfloat32x2_t b = svld1_f32_x2(pc, B);
 
-        svmopa_za32_f32_m(0, p, p, svget2(b, 0), svget2(a, 0));
-        svmopa_za32_f32_m(1, p, p, svget2(b, 0), svget2(a, 1));
-        svmopa_za32_f32_m(2, p, p, svget2(b, 1), svget2(a, 0));
-        svmopa_za32_f32_m(3, p, p, svget2(b, 1), svget2(a, 1));
+	svmopa_za32_f32_m(0, p, p, svget2(b, 0), svget2(a, 0));
+	svmopa_za32_f32_m(1, p, p, svget2(b, 0), svget2(a, 1));
+	svmopa_za32_f32_m(2, p, p, svget2(b, 1), svget2(a, 0));
+	svmopa_za32_f32_m(3, p, p, svget2(b, 1), svget2(a, 1));
 
-        A += 32;
-        B += 32;
+	A += 32;
+	B += 32;
     }
 
     if (direct) {
-        sstore_32x16<0>(n0, C, ldC, p0, p1);
-        sstore_32x16<2>(n1, C + 16*ldC, ldC, p0, p1);
+	sstore_32x16<0>(n0, C, ldC, p0, p1);
+	sstore_32x16<2>(n1, C + 16 * ldC, ldC, p0, p1);
     } else {
-        supdate_32x16<0>(n0, alpha, beta, C, ldC, pcr);
-        supdate_32x16<2>(n1, alpha, beta, C + 16*ldC, ldC, pcr);
+	supdate_32x16<0>(n0, alpha, beta, C, ldC, pcr);
+	supdate_32x16<2>(n1, alpha, beta, C + 16 * ldC, ldC, pcr);
     }
 }
 
@@ -141,14 +140,14 @@ sgemm_32x32_streaming(long kc, float alpha, const float *A, const float *B,
 //  the next call of the macro kernel) is prefetched first, see ugemm_32x16.
 //
 inline void
-sgemm_32x32(long kc, float alpha, const float *A, const float *B,
-            float beta, float *C, long ldC, long mr, long nr)
+sgemm_32x32(long kc, float alpha, const float *A, const float *B, float beta,
+            float *C, long ldC, long mr, long nr)
 {
-    for (long c=0; c<32; ++c) {
-        __builtin_prefetch(C + c*ldC + 32, 1, 2);
-        __builtin_prefetch(C + c*ldC + 63, 1, 2);
+    for (long c = 0; c < 32; ++c) {
+	__builtin_prefetch(C + c * ldC + 32, 1, 2);
+	__builtin_prefetch(C + c * ldC + 63, 1, 2);
     }
-    const FpsrRestore fpsr;  // see sme/fpsr.h
+    const FpsrRestore fpsr; // see sme/fpsr.h
     sgemm_32x32_streaming(kc, alpha, A, B, beta, C, ldC, mr, nr);
 }
 
@@ -159,34 +158,27 @@ void
 update_strided(IndexType mr, IndexType nr, const T &beta, const T *C_, T *C,
                IndexType incRowC, IndexType incColC)
 {
-    const bool beta0 = beta==T(0);
-    for (IndexType j=0; j<nr; ++j) {
-        for (IndexType i=0; i<mr; ++i) {
-            T &c = C[i*incRowC+j*incColC];
-            c = beta0 ? C_[i+MR*j] : beta*c + C_[i+MR*j];
-        }
+    const bool beta0 = beta == T(0);
+    for (IndexType j = 0; j < nr; ++j) {
+	for (IndexType i = 0; i < mr; ++i) {
+	    T &c = C[i * incRowC + j * incColC];
+	    c = beta0 ? C_[i + MR * j] : beta * c + C_[i + MR * j];
+	}
     }
 }
 
 template <typename IndexType>
-static typename std::enable_if<std::is_convertible<IndexType,long>::value,
-void>::type
-ugemm(IndexType      kc,
-      const float    &alpha,
-      const float    *A,
-      const float    *B,
-      const float    &beta,
-      float          *C,
-      IndexType      incRowC,
-      IndexType      incColC,
-      const float    *,
-      const float    *)
+static typename std::enable_if<std::is_convertible<IndexType, long>::value,
+                               void>::type
+ugemm(IndexType kc, const float &alpha, const float *A, const float *B,
+      const float &beta, float *C, IndexType incRowC, IndexType incColC,
+      const float *, const float *)
 {
-    if (incRowC==IndexType(1)) {
-        sgemm_32x32(long(kc), alpha, A, B, beta, C, long(incColC), 32, 32);
-        return;
+    if (incRowC == IndexType(1)) {
+	sgemm_32x32(long(kc), alpha, A, B, beta, C, long(incColC), 32, 32);
+	return;
     }
-    float C_[32*32];
+    float C_[32 * 32];
     sgemm_32x32(long(kc), alpha, A, B, 0.0f, C_, 32, 32, 32);
     update_strided<32>(IndexType(32), IndexType(32), beta, C_, C, incRowC,
                        incColC);
@@ -201,25 +193,16 @@ ugemm(IndexType      kc,
 //
 template <typename IndexType>
 void
-ugemm(IndexType      mr,
-      IndexType      nr,
-      IndexType      kc,
-      const float    &alpha,
-      const float    *A,
-      const float    *B,
-      const float    &beta,
-      float          *C,
-      IndexType      incRowC,
-      IndexType      incColC,
-      const float    *,
-      const float    *)
+ugemm(IndexType mr, IndexType nr, IndexType kc, const float &alpha,
+      const float *A, const float *B, const float &beta, float *C,
+      IndexType incRowC, IndexType incColC, const float *, const float *)
 {
-    if (incRowC==IndexType(1)) {
-        sme::sgemm_32x32(long(kc), alpha, A, B, beta, C, long(incColC),
-                         long(mr), long(nr));
-        return;
+    if (incRowC == IndexType(1)) {
+	sme::sgemm_32x32(long(kc), alpha, A, B, beta, C, long(incColC),
+	                 long(mr), long(nr));
+	return;
     }
-    float C_[32*32];
+    float C_[32 * 32];
     sme::sgemm_32x32(long(kc), alpha, A, B, 0.0f, C_, 32, 32, 32);
     sme::update_strided<32>(mr, nr, beta, C_, C, incRowC, incColC);
 }

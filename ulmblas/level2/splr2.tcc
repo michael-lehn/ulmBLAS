@@ -9,26 +9,17 @@ namespace ulmBLAS {
 template <typename IndexType, typename Alpha, typename TX, typename TY,
           typename TA>
 void
-splr2(IndexType    n,
-      const Alpha  &alpha,
-      const TX     *x,
-      IndexType    incX,
-      const TY     *y,
-      IndexType    incY,
-      TA           *A)
+splr2(IndexType n, const Alpha &alpha, const TX *x, IndexType incX, const TY *y,
+      IndexType incY, TA *A)
 {
-    if (n==0 || alpha==Alpha(0)) {
-        return;
+    if (n == 0 || alpha == Alpha(0)) {
+	return;
     }
 
-    for (IndexType j=0; j<n; ++j) {
-        axpy2v(n-j,
-               alpha*y[j*incY],
-               alpha*x[j*incX],
-               &x[j*incX], incX,
-               &y[j*incY], incY,
-               A, IndexType(1));
-        A += n-j;
+    for (IndexType j = 0; j < n; ++j) {
+	axpy2v(n - j, alpha * y[j * incY], alpha * x[j * incX], &x[j * incX],
+	       incX, &y[j * incY], incY, A, IndexType(1));
+	A += n - j;
     }
 }
 

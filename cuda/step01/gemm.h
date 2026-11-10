@@ -10,19 +10,17 @@
 //  semantics as cULMblas::gemm (culmblas/gemm.h).
 //
 
-namespace cULMblas { namespace step01 {
+namespace cULMblas {
+namespace step01 {
 
 constexpr int BlockDim = 32;
 
 void
-gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
-     double alpha,
-     const double *A, std::ptrdiff_t ldA,
-     const double *B, std::ptrdiff_t ldB,
-     double beta,
-     double *C, std::ptrdiff_t ldC,
-     cudaStream_t stream = 0);
+gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k, double alpha,
+     const double *A, std::ptrdiff_t ldA, const double *B, std::ptrdiff_t ldB,
+     double beta, double *C, std::ptrdiff_t ldC, cudaStream_t stream = 0);
 
-} } // namespace step01, cULMblas
+} // namespace step01
+} // namespace cULMblas
 
 #endif // CULMBLAS_STEP01_GEMM_H

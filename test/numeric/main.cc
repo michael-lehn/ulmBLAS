@@ -32,78 +32,81 @@ main(int argc, char **argv)
 
     std::vector<TestCase> &testCases = registry();
 
-    if (argc>1 && std::strcmp(argv[1], "--list")==0) {
-        for (std::size_t i=0; i<testCases.size(); ++i) {
-            const TestCase &tc = testCases[i];
-            std::printf("%s %s %d %s\n", tc.id,
-                        tc.recorded ? "DESIGN" : tc.issue ? "XFAIL" : "TEST",
-                        tc.issue, tc.name);
-        }
-        return 0;
+    if (argc > 1 && std::strcmp(argv[1], "--list") == 0) {
+	for (std::size_t i = 0; i < testCases.size(); ++i) {
+	    const TestCase &tc = testCases[i];
+	    std::printf("%s %s %d %s\n", tc.id,
+	                tc.recorded ? "DESIGN"
+	                : tc.issue  ? "XFAIL"
+	                            : "TEST",
+	                tc.issue, tc.name);
+	}
+	return 0;
     }
 
     int numErrors = 0;
 
-    for (std::size_t i=0; i<testCases.size(); ++i) {
-        const TestCase &tc = testCases[i];
+    for (std::size_t i = 0; i < testCases.size(); ++i) {
+	const TestCase &tc = testCases[i];
 
-        bool selected = argc<2;
-        for (int a=1; a<argc && !selected; ++a) {
-            selected = std::strstr(tc.id, argv[a])
-                    || std::strstr(tc.name, argv[a]);
-        }
-        if (!selected) {
-            continue;
-        }
+	bool selected = argc < 2;
+	for (int a = 1; a < argc && !selected; ++a) {
+	    selected =
+	        std::strstr(tc.id, argv[a]) || std::strstr(tc.name, argv[a]);
+	}
+	if (!selected) {
+	    continue;
+	}
 
-        Context ctx;
-        try {
-            tc.function(ctx);
-        } catch (std::exception &e) {
-            ctx.check(false, "exception: %s", e.what());
-        } catch (...) {
-            ctx.check(false, "unknown exception");
-        }
+	Context ctx;
+	try {
+	    tc.function(ctx);
+	} catch (std::exception &e) {
+	    ctx.check(false, "exception: %s", e.what());
+	} catch (...) {
+	    ctx.check(false, "unknown exception");
+	}
 
-        bool ok = ctx.numFailed==0 && ctx.numChecks>0;
-        if (ctx.numChecks==0) {
-            ctx.messages.push_back("no checks performed");
-        }
+	bool ok = ctx.numFailed == 0 && ctx.numChecks > 0;
+	if (ctx.numChecks == 0) {
+	    ctx.messages.push_back("no checks performed");
+	}
 
-        const char *status;
-        if (tc.recorded) {
-            if (ok && ctx.observed!=tc.recorded) {
-                ctx.messages.push_back("observed '" + ctx.observed
-                                       + "', recorded '" + tc.recorded + "'");
-                ok = false;
-            }
-            status = ok ? "DESIGN" : "FAIL";
-        } else if (tc.issue==0) {
-            status = ok ? "PASS" : "FAIL";
-        } else {
-            status = ok ? "XPASS" : "XFAIL";
-        }
-        if (std::strcmp(status, "FAIL")==0 || std::strcmp(status, "XPASS")==0) {
-            ++numErrors;
-        }
+	const char *status;
+	if (tc.recorded) {
+	    if (ok && ctx.observed != tc.recorded) {
+		ctx.messages.push_back("observed '" + ctx.observed +
+		                       "', recorded '" + tc.recorded + "'");
+		ok = false;
+	    }
+	    status = ok ? "DESIGN" : "FAIL";
+	} else if (tc.issue == 0) {
+	    status = ok ? "PASS" : "FAIL";
+	} else {
+	    status = ok ? "XPASS" : "XFAIL";
+	}
+	if (std::strcmp(status, "FAIL") == 0 ||
+	    std::strcmp(status, "XPASS") == 0) {
+	    ++numErrors;
+	}
 
-        std::printf("%-5s %s %s", status, tc.id, tc.name);
-        if (tc.issue) {
-            std::printf(" (#%04d)", tc.issue);
-        }
-        if (tc.recorded && ok) {
-            std::printf(": %s", ctx.observed.c_str());
-        }
-        if (!ok) {
-            std::printf(": %s", ctx.messages.empty() ? ""
-                                                     : ctx.messages[0].c_str());
-            for (std::size_t m=1; m<ctx.messages.size(); ++m) {
-                std::printf("\n      %s", ctx.messages[m].c_str());
-            }
-        }
-        std::printf("\n");
-        std::fflush(stdout);
+	std::printf("%-5s %s %s", status, tc.id, tc.name);
+	if (tc.issue) {
+	    std::printf(" (#%04d)", tc.issue);
+	}
+	if (tc.recorded && ok) {
+	    std::printf(": %s", ctx.observed.c_str());
+	}
+	if (!ok) {
+	    std::printf(": %s",
+	                ctx.messages.empty() ? "" : ctx.messages[0].c_str());
+	    for (std::size_t m = 1; m < ctx.messages.size(); ++m) {
+		std::printf("\n      %s", ctx.messages[m].c_str());
+	    }
+	}
+	std::printf("\n");
+	std::fflush(stdout);
     }
     std::printf("END\n");
-    return numErrors==0 ? 0 : 1;
+    return numErrors == 0 ? 0 : 1;
 }

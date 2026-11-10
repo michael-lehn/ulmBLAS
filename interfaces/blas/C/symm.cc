@@ -9,346 +9,290 @@
 extern "C" {
 
 void
-ULMBLAS(ssymm)(enum CBLAS_SIDE    side,
-               enum CBLAS_UPLO    upLo,
-               ULMBLAS_INDEX_TYPE m,
-               ULMBLAS_INDEX_TYPE n,
-               float              alpha,
-               const float        *A,
-               ULMBLAS_INDEX_TYPE ldA,
-               const float        *B,
-               ULMBLAS_INDEX_TYPE ldB,
-               float              beta,
-               float              *C,
-               ULMBLAS_INDEX_TYPE ldC)
+ULMBLAS(ssymm)(enum CBLAS_SIDE side, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n, float alpha, const float *A,
+               ULMBLAS_INDEX_TYPE ldA, const float *B, ULMBLAS_INDEX_TYPE ldB,
+               float beta, float *C, ULMBLAS_INDEX_TYPE ldC)
 {
-    bool left     = (side==CblasLeft);
-    bool lower    = (upLo==CblasLower);
+    bool left = (side == CblasLeft);
+    bool lower = (upLo == CblasLower);
 
-//
-//  Start the operations.
-//
+    //
+    //  Start the operations.
+    //
     if (left) {
-        if (lower) {
-            ulmBLAS::sylmm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
-                                           beta, C, 1, ldC);
-        } else {
-            ulmBLAS::syumm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
-                                           beta, C, 1, ldC);
-        }
+	if (lower) {
+	    ulmBLAS::sylmm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
+	                                   beta, C, 1, ldC);
+	} else {
+	    ulmBLAS::syumm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
+	                                   beta, C, 1, ldC);
+	}
     } else {
-        if (lower) {
-            ulmBLAS::syumm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
-                                           beta, C, ldC, 1);
-        } else {
-            ulmBLAS::sylmm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
-                                           beta, C, ldC, 1);
-        }
+	if (lower) {
+	    ulmBLAS::syumm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
+	                                   beta, C, ldC, 1);
+	} else {
+	    ulmBLAS::sylmm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
+	                                   beta, C, ldC, 1);
+	}
     }
 }
 
 void
-ULMBLAS(dsymm)(enum CBLAS_SIDE    side,
-               enum CBLAS_UPLO    upLo,
-               ULMBLAS_INDEX_TYPE m,
-               ULMBLAS_INDEX_TYPE n,
-               double             alpha,
-               const double       *A,
-               ULMBLAS_INDEX_TYPE ldA,
-               const double       *B,
-               ULMBLAS_INDEX_TYPE ldB,
-               double             beta,
-               double             *C,
-               ULMBLAS_INDEX_TYPE ldC)
+ULMBLAS(dsymm)(enum CBLAS_SIDE side, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n, double alpha, const double *A,
+               ULMBLAS_INDEX_TYPE ldA, const double *B, ULMBLAS_INDEX_TYPE ldB,
+               double beta, double *C, ULMBLAS_INDEX_TYPE ldC)
 {
-    bool left     = (side==CblasLeft);
-    bool lower    = (upLo==CblasLower);
+    bool left = (side == CblasLeft);
+    bool lower = (upLo == CblasLower);
 
-//
-//  Start the operations.
-//
+    //
+    //  Start the operations.
+    //
     if (left) {
-        if (lower) {
-            ulmBLAS::sylmm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
-                                           beta, C, 1, ldC);
-        } else {
-            ulmBLAS::syumm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
-                                           beta, C, 1, ldC);
-        }
+	if (lower) {
+	    ulmBLAS::sylmm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
+	                                   beta, C, 1, ldC);
+	} else {
+	    ulmBLAS::syumm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
+	                                   beta, C, 1, ldC);
+	}
     } else {
-        if (lower) {
-            ulmBLAS::syumm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
-                                           beta, C, ldC, 1);
-        } else {
-            ulmBLAS::sylmm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
-                                           beta, C, ldC, 1);
-        }
+	if (lower) {
+	    ulmBLAS::syumm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
+	                                   beta, C, ldC, 1);
+	} else {
+	    ulmBLAS::sylmm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
+	                                   beta, C, ldC, 1);
+	}
     }
 }
 
 void
-ULMBLAS(csymm)(enum CBLAS_SIDE    side,
-               enum CBLAS_UPLO    upLo,
-               ULMBLAS_INDEX_TYPE m,
-               ULMBLAS_INDEX_TYPE n,
-               const float        *alpha_,
-               const float        *A_,
-               ULMBLAS_INDEX_TYPE ldA,
-               const float        *B_,
-               ULMBLAS_INDEX_TYPE ldB,
-               const float        *beta_,
-               float              *C_,
-               ULMBLAS_INDEX_TYPE ldC)
+ULMBLAS(csymm)(enum CBLAS_SIDE side, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n, const float *alpha_, const float *A_,
+               ULMBLAS_INDEX_TYPE ldA, const float *B_, ULMBLAS_INDEX_TYPE ldB,
+               const float *beta_, float *C_, ULMBLAS_INDEX_TYPE ldC)
 {
     typedef std::complex<float> fcomplex;
 
-    bool left     = (side==CblasLeft);
-    bool lower    = (upLo==CblasLower);
+    bool left = (side == CblasLeft);
+    bool lower = (upLo == CblasLower);
 
-    fcomplex   alpha(alpha_[0], alpha_[1]);
-    fcomplex   beta(beta_[0], beta_[1]);
+    fcomplex alpha(alpha_[0], alpha_[1]);
+    fcomplex beta(beta_[0], beta_[1]);
 
     const fcomplex *A = reinterpret_cast<const fcomplex *>(A_);
     const fcomplex *B = reinterpret_cast<const fcomplex *>(B_);
-    fcomplex       *C = reinterpret_cast<fcomplex *>(C_);
-//
-//  Start the operations.
-//
+    fcomplex *C = reinterpret_cast<fcomplex *>(C_);
+    //
+    //  Start the operations.
+    //
     if (left) {
-        if (lower) {
-            ulmBLAS::sylmm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
-                                           beta, C, 1, ldC);
-        } else {
-            ulmBLAS::syumm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
-                                           beta, C, 1, ldC);
-        }
+	if (lower) {
+	    ulmBLAS::sylmm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
+	                                   beta, C, 1, ldC);
+	} else {
+	    ulmBLAS::syumm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
+	                                   beta, C, 1, ldC);
+	}
     } else {
-        if (lower) {
-            ulmBLAS::syumm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
-                                           beta, C, ldC, 1);
-        } else {
-            ulmBLAS::sylmm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
-                                           beta, C, ldC, 1);
-        }
+	if (lower) {
+	    ulmBLAS::syumm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
+	                                   beta, C, ldC, 1);
+	} else {
+	    ulmBLAS::sylmm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
+	                                   beta, C, ldC, 1);
+	}
     }
 }
 
 void
-ULMBLAS(zsymm)(enum CBLAS_SIDE    side,
-               enum CBLAS_UPLO    upLo,
-               ULMBLAS_INDEX_TYPE m,
-               ULMBLAS_INDEX_TYPE n,
-               const double       *alpha_,
-               const double       *A_,
-               ULMBLAS_INDEX_TYPE ldA,
-               const double       *B_,
-               ULMBLAS_INDEX_TYPE ldB,
-               const double       *beta_,
-               double             *C_,
-               ULMBLAS_INDEX_TYPE ldC)
+ULMBLAS(zsymm)(enum CBLAS_SIDE side, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n, const double *alpha_, const double *A_,
+               ULMBLAS_INDEX_TYPE ldA, const double *B_, ULMBLAS_INDEX_TYPE ldB,
+               const double *beta_, double *C_, ULMBLAS_INDEX_TYPE ldC)
 {
     typedef std::complex<double> dcomplex;
 
-    bool left     = (side==CblasLeft);
-    bool lower    = (upLo==CblasLower);
+    bool left = (side == CblasLeft);
+    bool lower = (upLo == CblasLower);
 
-    dcomplex   alpha(alpha_[0], alpha_[1]);
-    dcomplex   beta(beta_[0], beta_[1]);
+    dcomplex alpha(alpha_[0], alpha_[1]);
+    dcomplex beta(beta_[0], beta_[1]);
 
     const dcomplex *A = reinterpret_cast<const dcomplex *>(A_);
     const dcomplex *B = reinterpret_cast<const dcomplex *>(B_);
-    dcomplex       *C = reinterpret_cast<dcomplex *>(C_);
-//
-//  Start the operations.
-//
+    dcomplex *C = reinterpret_cast<dcomplex *>(C_);
+    //
+    //  Start the operations.
+    //
     if (left) {
-        if (lower) {
-            ulmBLAS::sylmm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
-                                           beta, C, 1, ldC);
-        } else {
-            ulmBLAS::syumm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
-                                           beta, C, 1, ldC);
-        }
+	if (lower) {
+	    ulmBLAS::sylmm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
+	                                   beta, C, 1, ldC);
+	} else {
+	    ulmBLAS::syumm<std::ptrdiff_t>(m, n, alpha, A, 1, ldA, B, 1, ldB,
+	                                   beta, C, 1, ldC);
+	}
     } else {
-        if (lower) {
-            ulmBLAS::syumm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
-                                           beta, C, ldC, 1);
-        } else {
-            ulmBLAS::sylmm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
-                                           beta, C, ldC, 1);
-        }
+	if (lower) {
+	    ulmBLAS::syumm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
+	                                   beta, C, ldC, 1);
+	} else {
+	    ulmBLAS::sylmm<std::ptrdiff_t>(n, m, alpha, A, ldA, 1, B, ldB, 1,
+	                                   beta, C, ldC, 1);
+	}
     }
 }
 
 void
-CBLAS(ssymm)(enum CBLAS_ORDER   order,
-             enum CBLAS_SIDE    side,
-             enum CBLAS_UPLO    upLo,
-             ULMBLAS_INDEX_TYPE m,
-             ULMBLAS_INDEX_TYPE n,
-             float              alpha,
-             const float        *A,
-             ULMBLAS_INDEX_TYPE ldA,
-             const float        *B,
-             ULMBLAS_INDEX_TYPE ldB,
-             float              beta,
-             float              *C,
+CBLAS(ssymm)(enum CBLAS_ORDER order, enum CBLAS_SIDE side, enum CBLAS_UPLO upLo,
+             ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n, float alpha,
+             const float *A, ULMBLAS_INDEX_TYPE ldA, const float *B,
+             ULMBLAS_INDEX_TYPE ldB, float beta, float *C,
              ULMBLAS_INDEX_TYPE ldC)
 {
-    bool left = (side==CblasLeft);
+    bool left = (side == CblasLeft);
 
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
-    ULMBLAS_INDEX_TYPE  numRowsA = (left) ? m : n;
+    //
+    //  Set  numRowsA and numRowsB as the number of rows of A and B
+    //
+    ULMBLAS_INDEX_TYPE numRowsA = (left) ? m : n;
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
 
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (side!=CblasLeft && side!=CblasRight) {
-        info = 2;
-    } else if (upLo!=CblasLower && upLo!=CblasUpper) {
-        info = 3;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (side != CblasLeft && side != CblasRight) {
+	info = 2;
+    } else if (upLo != CblasLower && upLo != CblasUpper) {
+	info = 3;
     } else {
-        if (order==CblasColMajor) {
-            if (m<0) {
-                info = 4;
-            } else if (n<0) {
-                info = 5;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-                info = 8;
-            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-                info = 10;
-            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-                info = 13;
-            }
-        } else {
-            if (n<0) {
-                info = 4;
-            } else if (m<0) {
-                info = 5;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-                info = 8;
-            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-                info = 10;
-            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-                info = 13;
-            }
-        }
+	if (order == CblasColMajor) {
+	    if (m < 0) {
+		info = 4;
+	    } else if (n < 0) {
+		info = 5;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+		info = 8;
+	    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+		info = 10;
+	    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+		info = 13;
+	    }
+	} else {
+	    if (n < 0) {
+		info = 4;
+	    } else if (m < 0) {
+		info = 5;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+		info = 8;
+	    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+		info = 10;
+	    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+		info = 13;
+	    }
+	}
     }
 
-    if (info!=0) {
-        extern int RowMajorStrg;
+    if (info != 0) {
+	extern int RowMajorStrg;
 
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_ssymm", "");
-        return;
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_ssymm", "");
+	return;
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(ssymm)(side, upLo, m, n, alpha, A, ldA, B, ldB, beta, C, ldC);
+    if (order == CblasColMajor) {
+	ULMBLAS(ssymm)(side, upLo, m, n, alpha, A, ldA, B, ldB, beta, C, ldC);
     } else {
-        side = (side==CblasLeft) ? CblasRight : CblasLeft;
-        upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
-        ULMBLAS(ssymm)(side, upLo, n, m, alpha, A, ldA, B, ldB, beta, C, ldC);
+	side = (side == CblasLeft) ? CblasRight : CblasLeft;
+	upLo = (upLo == CblasUpper) ? CblasLower : CblasUpper;
+	ULMBLAS(ssymm)(side, upLo, n, m, alpha, A, ldA, B, ldB, beta, C, ldC);
     }
 }
 
 void
-CBLAS(dsymm)(enum CBLAS_ORDER   order,
-             enum CBLAS_SIDE    side,
-             enum CBLAS_UPLO    upLo,
-             ULMBLAS_INDEX_TYPE m,
-             ULMBLAS_INDEX_TYPE n,
-             double             alpha,
-             const double       *A,
-             ULMBLAS_INDEX_TYPE ldA,
-             const double       *B,
-             ULMBLAS_INDEX_TYPE ldB,
-             double             beta,
-             double             *C,
+CBLAS(dsymm)(enum CBLAS_ORDER order, enum CBLAS_SIDE side, enum CBLAS_UPLO upLo,
+             ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n, double alpha,
+             const double *A, ULMBLAS_INDEX_TYPE ldA, const double *B,
+             ULMBLAS_INDEX_TYPE ldB, double beta, double *C,
              ULMBLAS_INDEX_TYPE ldC)
 {
-    bool left = (side==CblasLeft);
+    bool left = (side == CblasLeft);
 
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
-    ULMBLAS_INDEX_TYPE  numRowsA = (left) ? m : n;
+    //
+    //  Set  numRowsA and numRowsB as the number of rows of A and B
+    //
+    ULMBLAS_INDEX_TYPE numRowsA = (left) ? m : n;
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
 
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (side!=CblasLeft && side!=CblasRight) {
-        info = 2;
-    } else if (upLo!=CblasLower && upLo!=CblasUpper) {
-        info = 3;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (side != CblasLeft && side != CblasRight) {
+	info = 2;
+    } else if (upLo != CblasLower && upLo != CblasUpper) {
+	info = 3;
     } else {
-        if (order==CblasColMajor) {
-            if (m<0) {
-                info = 4;
-            } else if (n<0) {
-                info = 5;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-                info = 8;
-            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-                info = 10;
-            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-                info = 13;
-            }
-        } else {
-            if (n<0) {
-                info = 4;
-            } else if (m<0) {
-                info = 5;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-                info = 8;
-            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-                info = 10;
-            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-                info = 13;
-            }
-        }
+	if (order == CblasColMajor) {
+	    if (m < 0) {
+		info = 4;
+	    } else if (n < 0) {
+		info = 5;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+		info = 8;
+	    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+		info = 10;
+	    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+		info = 13;
+	    }
+	} else {
+	    if (n < 0) {
+		info = 4;
+	    } else if (m < 0) {
+		info = 5;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+		info = 8;
+	    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+		info = 10;
+	    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+		info = 13;
+	    }
+	}
     }
 
-    if (info!=0) {
-        extern int RowMajorStrg;
+    if (info != 0) {
+	extern int RowMajorStrg;
 
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_dsymm", "");
-        return;
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_dsymm", "");
+	return;
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(dsymm)(side, upLo, m, n, alpha, A, ldA, B, ldB, beta, C, ldC);
+    if (order == CblasColMajor) {
+	ULMBLAS(dsymm)(side, upLo, m, n, alpha, A, ldA, B, ldB, beta, C, ldC);
     } else {
-        side = (side==CblasLeft) ? CblasRight : CblasLeft;
-        upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
-        ULMBLAS(dsymm)(side, upLo, n, m, alpha, A, ldA, B, ldB, beta, C, ldC);
+	side = (side == CblasLeft) ? CblasRight : CblasLeft;
+	upLo = (upLo == CblasUpper) ? CblasLower : CblasUpper;
+	ULMBLAS(dsymm)(side, upLo, n, m, alpha, A, ldA, B, ldB, beta, C, ldC);
     }
 }
 
 void
-CBLAS(csymm)(enum CBLAS_ORDER   order,
-             enum CBLAS_SIDE    side,
-             enum CBLAS_UPLO    upLo,
-             ULMBLAS_INDEX_TYPE m,
-             ULMBLAS_INDEX_TYPE n,
-             const void         *alpha_v,
-             const void         *A_v,
-             ULMBLAS_INDEX_TYPE ldA,
-             const void         *B_v,
-             ULMBLAS_INDEX_TYPE ldB,
-             const void         *beta_v,
-             void               *C_v,
+CBLAS(csymm)(enum CBLAS_ORDER order, enum CBLAS_SIDE side, enum CBLAS_UPLO upLo,
+             ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n, const void *alpha_v,
+             const void *A_v, ULMBLAS_INDEX_TYPE ldA, const void *B_v,
+             ULMBLAS_INDEX_TYPE ldB, const void *beta_v, void *C_v,
              ULMBLAS_INDEX_TYPE ldC)
 {
     const float *alpha = static_cast<const float *>(alpha_v);
@@ -357,82 +301,74 @@ CBLAS(csymm)(enum CBLAS_ORDER   order,
     const float *beta = static_cast<const float *>(beta_v);
     float *C = static_cast<float *>(C_v);
 
-    bool left = (side==CblasLeft);
+    bool left = (side == CblasLeft);
 
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
-    ULMBLAS_INDEX_TYPE  numRowsA = (left) ? m : n;
+    //
+    //  Set  numRowsA and numRowsB as the number of rows of A and B
+    //
+    ULMBLAS_INDEX_TYPE numRowsA = (left) ? m : n;
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
 
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (side!=CblasLeft && side!=CblasRight) {
-        info = 2;
-    } else if (upLo!=CblasLower && upLo!=CblasUpper) {
-        info = 3;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (side != CblasLeft && side != CblasRight) {
+	info = 2;
+    } else if (upLo != CblasLower && upLo != CblasUpper) {
+	info = 3;
     } else {
-        if (order==CblasColMajor) {
-            if (m<0) {
-                info = 4;
-            } else if (n<0) {
-                info = 5;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-                info = 8;
-            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-                info = 10;
-            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-                info = 13;
-            }
-        } else {
-            if (n<0) {
-                info = 4;
-            } else if (m<0) {
-                info = 5;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-                info = 8;
-            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-                info = 10;
-            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-                info = 13;
-            }
-        }
+	if (order == CblasColMajor) {
+	    if (m < 0) {
+		info = 4;
+	    } else if (n < 0) {
+		info = 5;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+		info = 8;
+	    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+		info = 10;
+	    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+		info = 13;
+	    }
+	} else {
+	    if (n < 0) {
+		info = 4;
+	    } else if (m < 0) {
+		info = 5;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+		info = 8;
+	    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+		info = 10;
+	    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+		info = 13;
+	    }
+	}
     }
 
-    if (info!=0) {
-        extern int RowMajorStrg;
+    if (info != 0) {
+	extern int RowMajorStrg;
 
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_csymm", "");
-        return;
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_csymm", "");
+	return;
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(csymm)(side, upLo, m, n, alpha, A, ldA, B, ldB, beta, C, ldC);
+    if (order == CblasColMajor) {
+	ULMBLAS(csymm)(side, upLo, m, n, alpha, A, ldA, B, ldB, beta, C, ldC);
     } else {
-        side = (side==CblasLeft) ? CblasRight : CblasLeft;
-        upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
-        ULMBLAS(csymm)(side, upLo, n, m, alpha, A, ldA, B, ldB, beta, C, ldC);
+	side = (side == CblasLeft) ? CblasRight : CblasLeft;
+	upLo = (upLo == CblasUpper) ? CblasLower : CblasUpper;
+	ULMBLAS(csymm)(side, upLo, n, m, alpha, A, ldA, B, ldB, beta, C, ldC);
     }
 }
 
 void
-CBLAS(zsymm)(enum CBLAS_ORDER   order,
-             enum CBLAS_SIDE    side,
-             enum CBLAS_UPLO    upLo,
-             ULMBLAS_INDEX_TYPE m,
-             ULMBLAS_INDEX_TYPE n,
-             const void         *alpha_v,
-             const void         *A_v,
-             ULMBLAS_INDEX_TYPE ldA,
-             const void         *B_v,
-             ULMBLAS_INDEX_TYPE ldB,
-             const void         *beta_v,
-             void               *C_v,
+CBLAS(zsymm)(enum CBLAS_ORDER order, enum CBLAS_SIDE side, enum CBLAS_UPLO upLo,
+             ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n, const void *alpha_v,
+             const void *A_v, ULMBLAS_INDEX_TYPE ldA, const void *B_v,
+             ULMBLAS_INDEX_TYPE ldB, const void *beta_v, void *C_v,
              ULMBLAS_INDEX_TYPE ldC)
 {
     const double *alpha = static_cast<const double *>(alpha_v);
@@ -441,66 +377,66 @@ CBLAS(zsymm)(enum CBLAS_ORDER   order,
     const double *beta = static_cast<const double *>(beta_v);
     double *C = static_cast<double *>(C_v);
 
-    bool left = (side==CblasLeft);
+    bool left = (side == CblasLeft);
 
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
-    ULMBLAS_INDEX_TYPE  numRowsA = (left) ? m : n;
+    //
+    //  Set  numRowsA and numRowsB as the number of rows of A and B
+    //
+    ULMBLAS_INDEX_TYPE numRowsA = (left) ? m : n;
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
 
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (side!=CblasLeft && side!=CblasRight) {
-        info = 2;
-    } else if (upLo!=CblasLower && upLo!=CblasUpper) {
-        info = 3;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (side != CblasLeft && side != CblasRight) {
+	info = 2;
+    } else if (upLo != CblasLower && upLo != CblasUpper) {
+	info = 3;
     } else {
-        if (order==CblasColMajor) {
-            if (m<0) {
-                info = 4;
-            } else if (n<0) {
-                info = 5;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-                info = 8;
-            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-                info = 10;
-            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,m)) {
-                info = 13;
-            }
-        } else {
-            if (n<0) {
-                info = 4;
-            } else if (m<0) {
-                info = 5;
-            } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-                info = 8;
-            } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-                info = 10;
-            } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-                info = 13;
-            }
-        }
+	if (order == CblasColMajor) {
+	    if (m < 0) {
+		info = 4;
+	    } else if (n < 0) {
+		info = 5;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+		info = 8;
+	    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+		info = 10;
+	    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, m)) {
+		info = 13;
+	    }
+	} else {
+	    if (n < 0) {
+		info = 4;
+	    } else if (m < 0) {
+		info = 5;
+	    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+		info = 8;
+	    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+		info = 10;
+	    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+		info = 13;
+	    }
+	}
     }
 
-    if (info!=0) {
-        extern int RowMajorStrg;
+    if (info != 0) {
+	extern int RowMajorStrg;
 
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_zsymm", "");
-        return;
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_zsymm", "");
+	return;
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(zsymm)(side, upLo, m, n, alpha, A, ldA, B, ldB, beta, C, ldC);
+    if (order == CblasColMajor) {
+	ULMBLAS(zsymm)(side, upLo, m, n, alpha, A, ldA, B, ldB, beta, C, ldC);
     } else {
-        side = (side==CblasLeft) ? CblasRight : CblasLeft;
-        upLo = (upLo==CblasUpper) ? CblasLower : CblasUpper;
-        ULMBLAS(zsymm)(side, upLo, n, m, alpha, A, ldA, B, ldB, beta, C, ldC);
+	side = (side == CblasLeft) ? CblasRight : CblasLeft;
+	upLo = (upLo == CblasUpper) ? CblasLower : CblasUpper;
+	ULMBLAS(zsymm)(side, upLo, n, m, alpha, A, ldA, B, ldB, beta, C, ldC);
     }
 }
 

@@ -4,14 +4,9 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename MA>
-    void
-    trlscal(IndexType    m,
-            IndexType    n,
-            bool         unit,
-            const Alpha  &alpha,
-            MA           *A,
-            IndexType    incRowA,
-            IndexType    incColA);
+void
+trlscal(IndexType m, IndexType n, bool unit, const Alpha &alpha, MA *A,
+        IndexType incRowA, IndexType incColA);
 
 } // namespace ulmBLAS
 

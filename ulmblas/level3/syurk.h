@@ -5,17 +5,10 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TA, typename Beta,
           typename TC>
-    void
-    syurk(IndexType    n,
-          IndexType    k,
-          const Alpha  &alpha,
-          const TA     *A,
-          IndexType    incRowA,
-          IndexType    incColA,
-          const Beta   &beta,
-          TC           *C,
-          IndexType    incRowC,
-          IndexType    incColC);
+void
+syurk(IndexType n, IndexType k, const Alpha &alpha, const TA *A,
+      IndexType incRowA, IndexType incColA, const Beta &beta, TC *C,
+      IndexType incRowC, IndexType incColC);
 
 } // namespace ulmBLAS
 

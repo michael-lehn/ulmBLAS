@@ -10,13 +10,9 @@ namespace ulmBLAS {
 //  ?trtri).  Recursive; with OpenMP larger matrices as tasks.  Any strides.
 //
 template <typename IndexType, typename T>
-    IndexType
-    trtri(bool         lower,
-          bool         unitDiag,
-          IndexType    n,
-          T            *A,
-          IndexType    incRowA,
-          IndexType    incColA);
+IndexType
+trtri(bool lower, bool unitDiag, IndexType n, T *A, IndexType incRowA,
+      IndexType incColA);
 
 } // namespace ulmBLAS
 

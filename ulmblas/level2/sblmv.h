@@ -5,17 +5,9 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TA, typename TX,
           typename Beta, typename TY>
-    void
-    sblmv(IndexType    n,
-          IndexType    k,
-          const Alpha  &alpha,
-          const TA     *A,
-          IndexType    ldA,
-          const TX     *x,
-          IndexType    incX,
-          const Beta   &beta,
-          TY           *y,
-          IndexType    incY);
+void
+sblmv(IndexType n, IndexType k, const Alpha &alpha, const TA *A, IndexType ldA,
+      const TX *x, IndexType incX, const Beta &beta, TY *y, IndexType incY);
 
 } // namespace ulmBLAS
 

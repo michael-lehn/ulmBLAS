@@ -1,7 +1,6 @@
 #ifndef ULMBLAS_LEVEL2_GER_TCC
 #define ULMBLAS_LEVEL2_GER_TCC 1
 
-
 #include <ulmblas/auxiliary/conjugate.h>
 #include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/config/blocksize.h>
@@ -15,121 +14,105 @@ namespace ulmBLAS {
 template <typename IndexType, typename Alpha, typename TX, typename TY,
           typename TA>
 void
-ger(IndexType    m,
-    IndexType    n,
-    const Alpha  &alpha,
-    const TX     *x,
-    IndexType    incX,
-    const TY     *y,
-    IndexType    incY,
-    TA           *A,
-    IndexType    incRowA,
-    IndexType    incColA)
+ger(IndexType m, IndexType n, const Alpha &alpha, const TX *x, IndexType incX,
+    const TY *y, IndexType incY, TA *A, IndexType incRowA, IndexType incColA)
 {
-    typedef decltype(Alpha(0)*TX(0)*TY(0)+TA(0))  T;
+    typedef decltype(Alpha(0) * TX(0) * TY(0) + TA(0)) T;
 
-    if (m==0 || n==0 || alpha==Alpha(0)) {
-        return;
+    if (m == 0 || n == 0 || alpha == Alpha(0)) {
+	return;
     }
 
-    constexpr IndexType   UnitStride(1);
-    static constexpr bool homogeneousTypes = std::is_same<T,Alpha>::value
-                                          && std::is_same<T,TX>::value
-                                          && std::is_same<T,TY>::value
-                                          && std::is_same<T,TA>::value;
+    constexpr IndexType UnitStride(1);
+    static constexpr bool homogeneousTypes =
+        std::is_same<T, Alpha>::value && std::is_same<T, TX>::value &&
+        std::is_same<T, TY>::value && std::is_same<T, TA>::value;
 
-//
-//  If all operands have the same element type and if vectors x and y have unit
-//  stride and matrix A is row or col major the called axpy can use a fast
-//  kernel.
-//
-    if (homogeneousTypes && incX==UnitStride && incY==UnitStride) {
-        if (incColA==UnitStride) {
-            for (IndexType i=0; i<m; ++i) {
-                axpy(n, alpha*x[i*incX],
-                     y, UnitStride,
-                     &A[i*incRowA], UnitStride);
-            }
-            return;
-        }
+    //
+    //  If all operands have the same element type and if vectors x and y have
+    //  unit stride and matrix A is row or col major the called axpy can use a
+    //  fast kernel.
+    //
+    if (homogeneousTypes && incX == UnitStride && incY == UnitStride) {
+	if (incColA == UnitStride) {
+	    for (IndexType i = 0; i < m; ++i) {
+		axpy(n, alpha * x[i * incX], y, UnitStride, &A[i * incRowA],
+		     UnitStride);
+	    }
+	    return;
+	}
 
-        if (incRowA==UnitStride) {
-            for (IndexType j=0; j<n; ++j) {
-                axpy(m, alpha*y[j*incY],
-                     x, UnitStride,
-                     &A[j*incColA], UnitStride);
-            }
-            return;
-        }
+	if (incRowA == UnitStride) {
+	    for (IndexType j = 0; j < n; ++j) {
+		axpy(m, alpha * y[j * incY], x, UnitStride, &A[j * incColA],
+		     UnitStride);
+	    }
+	    return;
+	}
     }
 
-//
-//  Otherwise we pack corresponding operands
-//
+    //
+    //  Otherwise we pack corresponding operands
+    //
     static MemoryPool<T> memoryPool;
 
-    const bool packX    = !(incX==UnitStride && std::is_same<T,TX>::value);
-    const bool packY    = !(incY==UnitStride && std::is_same<T,TY>::value);
-    const bool packA    = !((incRowA==UnitStride || incColA==UnitStride) &&
-                            std::is_same<T,TA>::value);
+    const bool packX = !(incX == UnitStride && std::is_same<T, TX>::value);
+    const bool packY = !(incY == UnitStride && std::is_same<T, TY>::value);
+    const bool packA = !((incRowA == UnitStride || incColA == UnitStride) &&
+                         std::is_same<T, TA>::value);
 
-    //printf("packing: packX=%d, packY=%d, packA=%d\n", packX, packY, packA);
-    //printf("packing: incX=%d, incY=%d\n", incX, incY);
+    // printf("packing: packX=%d, packY=%d, packA=%d\n", packX, packY, packA);
+    // printf("packing: incX=%d, incY=%d\n", incX, incY);
 
-    constexpr IndexType MC  = BlockSize<T>::MC;
-    constexpr IndexType NC  = BlockSize<T>::NC;
+    constexpr IndexType MC = BlockSize<T>::MC;
+    constexpr IndexType NC = BlockSize<T>::NC;
 
-    const T &alpha_     = alpha;
-    T *buffer_x         = packX ? memoryPool.allocate(MC)    : 0;
-    T *buffer_y         = packY ? memoryPool.allocate(NC)    : 0;
-    T *buffer_A         = packA ? memoryPool.allocate(MC*NC) : 0;
+    const T &alpha_ = alpha;
+    T *buffer_x = packX ? memoryPool.allocate(MC) : 0;
+    T *buffer_y = packY ? memoryPool.allocate(NC) : 0;
+    T *buffer_A = packA ? memoryPool.allocate(MC * NC) : 0;
 
-    const T *x_         = packX ? buffer_x : 0;
-    const T *y_         = packY ? buffer_y : 0;
+    const T *x_ = packX ? buffer_x : 0;
+    const T *y_ = packY ? buffer_y : 0;
 
-    const IndexType mb  = (m+MC-1) / MC;
-    const IndexType nb  = (n+NC-1) / NC;
+    const IndexType mb = (m + MC - 1) / MC;
+    const IndexType nb = (n + NC - 1) / NC;
 
     const IndexType mc_ = m % MC;
     const IndexType nc_ = n % NC;
 
-    for (IndexType j=0; j<nb; ++j) {
-        IndexType nc = (j!=nb-1 || nc_==0) ? NC : nc_;
+    for (IndexType j = 0; j < nb; ++j) {
+	IndexType nc = (j != nb - 1 || nc_ == 0) ? NC : nc_;
 
-        if (packY) {
-            copy(nc, false, &y[j*NC*incY], incY, buffer_y, UnitStride);
-        } else {
-            y_ = &y[j*NC];
-        }
+	if (packY) {
+	    copy(nc, false, &y[j * NC * incY], incY, buffer_y, UnitStride);
+	} else {
+	    y_ = &y[j * NC];
+	}
 
-        for (IndexType i=0; i<mb; ++i) {
-            IndexType mc = (i!=mb-1 || mc_==0) ? MC : mc_;
+	for (IndexType i = 0; i < mb; ++i) {
+	    IndexType mc = (i != mb - 1 || mc_ == 0) ? MC : mc_;
 
-            if (packX) {
-                copy(mc, false, &x[i*MC*incX], incX, buffer_x, UnitStride);
-            } else {
-                x_ = &x[i*MC];
-            }
+	    if (packX) {
+		copy(mc, false, &x[i * MC * incX], incX, buffer_x, UnitStride);
+	    } else {
+		x_ = &x[i * MC];
+	    }
 
-            if (packA) {
-                //  A = A + alpha x y^T: the buffer needs the block of A
-                gecopy(mc, nc, false,
-                       &A[i*MC*incRowA+j*NC*incColA], incRowA, incColA,
-                       buffer_A, UnitStride, mc);
-                ger(mc, nc, alpha_,
-                    x_, UnitStride,
-                    y_, UnitStride,
-                    buffer_A, UnitStride, mc);
-                gecopy(mc, nc, false,
-                       buffer_A, UnitStride, mc,
-                       &A[i*MC*incRowA+j*NC*incColA], incRowA, incColA);
-            } else {
-                ger(mc, nc, alpha_,
-                    x_, UnitStride,
-                    y_, UnitStride,
-                    &A[i*MC*incRowA+j*NC*incColA], incRowA, incColA);
-            }
-        }
+	    if (packA) {
+		//  A = A + alpha x y^T: the buffer needs the block of A
+		gecopy(mc, nc, false, &A[i * MC * incRowA + j * NC * incColA],
+		       incRowA, incColA, buffer_A, UnitStride, mc);
+		ger(mc, nc, alpha_, x_, UnitStride, y_, UnitStride, buffer_A,
+		    UnitStride, mc);
+		gecopy(mc, nc, false, buffer_A, UnitStride, mc,
+		       &A[i * MC * incRowA + j * NC * incColA], incRowA,
+		       incColA);
+	    } else {
+		ger(mc, nc, alpha_, x_, UnitStride, y_, UnitStride,
+		    &A[i * MC * incRowA + j * NC * incColA], incRowA, incColA);
+	    }
+	}
     }
     memoryPool.release(buffer_x);
     memoryPool.release(buffer_y);
@@ -139,101 +122,80 @@ ger(IndexType    m,
 template <typename IndexType, typename Alpha, typename TX, typename TY,
           typename TA>
 void
-gerc(IndexType    m,
-     IndexType    n,
-     const Alpha  &alpha,
-     bool         conj,
-     const TX     *x,
-     IndexType    incX,
-     const TY     *y,
-     IndexType    incY,
-     TA           *A,
-     IndexType    incRowA,
-     IndexType    incColA)
+gerc(IndexType m, IndexType n, const Alpha &alpha, bool conj, const TX *x,
+     IndexType incX, const TY *y, IndexType incY, TA *A, IndexType incRowA,
+     IndexType incColA)
 {
-    typedef decltype(Alpha(0)*TX(0)*TY(0)+TA(0))  T;
+    typedef decltype(Alpha(0) * TX(0) * TY(0) + TA(0)) T;
 
-    if (m==0 || n==0 || alpha==Alpha(0)) {
-        return;
+    if (m == 0 || n == 0 || alpha == Alpha(0)) {
+	return;
     }
 
-    constexpr IndexType   UnitStride(1);
-    static constexpr bool homogeneousTypes = std::is_same<T,Alpha>::value
-                                          && std::is_same<T,TX>::value
-                                          && std::is_same<T,TY>::value
-                                          && std::is_same<T,TA>::value;
+    constexpr IndexType UnitStride(1);
+    static constexpr bool homogeneousTypes =
+        std::is_same<T, Alpha>::value && std::is_same<T, TX>::value &&
+        std::is_same<T, TY>::value && std::is_same<T, TA>::value;
 
-//
-//  If all operands have the same element type and if vectors x and y have unit
-//  stride and matrix A is row or col major the called axpy can use a fast
-//  kernel.
-//
-    if (homogeneousTypes && incX==UnitStride && incY==UnitStride) {
-        if (incColA==UnitStride) {
-            if (!conj) {
-                for (IndexType i=0; i<m; ++i) {
-                    acxpy(n, alpha*x[i*incX],
-                          y, UnitStride,
-                          &A[i*incRowA], UnitStride);
-                }
-                return;
-            } else {
-                for (IndexType i=0; i<m; ++i) {
-                    axpy(n, alpha*conjugate(x[i*incX]),
-                         y, UnitStride,
-                         &A[i*incRowA], UnitStride);
-                }
-                return;
-            }
-        }
+    //
+    //  If all operands have the same element type and if vectors x and y have
+    //  unit stride and matrix A is row or col major the called axpy can use a
+    //  fast kernel.
+    //
+    if (homogeneousTypes && incX == UnitStride && incY == UnitStride) {
+	if (incColA == UnitStride) {
+	    if (!conj) {
+		for (IndexType i = 0; i < m; ++i) {
+		    acxpy(n, alpha * x[i * incX], y, UnitStride,
+		          &A[i * incRowA], UnitStride);
+		}
+		return;
+	    } else {
+		for (IndexType i = 0; i < m; ++i) {
+		    axpy(n, alpha * conjugate(x[i * incX]), y, UnitStride,
+		         &A[i * incRowA], UnitStride);
+		}
+		return;
+	    }
+	}
 
-        if (incRowA==UnitStride) {
-            if (!conj) {
-                for (IndexType j=0; j<n; ++j) {
-                    axpy(m, alpha*conjugate(y[j*incY]),
-                         x, UnitStride,
-                         &A[j*incColA], UnitStride);
-                }
-                return;
-            } else {
-                for (IndexType j=0; j<n; ++j) {
-                    acxpy(m, alpha*y[j*incY],
-                          x, UnitStride,
-                          &A[j*incColA], UnitStride);
-                }
-                return;
-            }
-        }
+	if (incRowA == UnitStride) {
+	    if (!conj) {
+		for (IndexType j = 0; j < n; ++j) {
+		    axpy(m, alpha * conjugate(y[j * incY]), x, UnitStride,
+		         &A[j * incColA], UnitStride);
+		}
+		return;
+	    } else {
+		for (IndexType j = 0; j < n; ++j) {
+		    acxpy(m, alpha * y[j * incY], x, UnitStride,
+		          &A[j * incColA], UnitStride);
+		}
+		return;
+	    }
+	}
     }
 
-//
-//  General case
-//
+    //
+    //  General case
+    //
     if (!conj) {
-        for (IndexType j=0; j<n; ++j) {
-            axpy(m, alpha*conjugate(y[j*incY]), x, incX,
-                 &A[j*incColA], incRowA);
-        }
+	for (IndexType j = 0; j < n; ++j) {
+	    axpy(m, alpha * conjugate(y[j * incY]), x, incX, &A[j * incColA],
+	         incRowA);
+	}
     } else {
-        for (IndexType j=0; j<n; ++j) {
-            acxpy(m, alpha*y[j*incY], x, incX, &A[j*incColA], incRowA);
-        }
+	for (IndexType j = 0; j < n; ++j) {
+	    acxpy(m, alpha * y[j * incY], x, incX, &A[j * incColA], incRowA);
+	}
     }
 }
 
 template <typename IndexType, typename Alpha, typename TX, typename TY,
           typename TA>
 void
-gerc(IndexType    m,
-     IndexType    n,
-     const Alpha  &alpha,
-     const TX     *x,
-     IndexType    incX,
-     const TY     *y,
-     IndexType    incY,
-     TA           *A,
-     IndexType    incRowA,
-     IndexType    incColA)
+gerc(IndexType m, IndexType n, const Alpha &alpha, const TX *x, IndexType incX,
+     const TY *y, IndexType incY, TA *A, IndexType incRowA, IndexType incColA)
 {
     gerc(m, n, alpha, false, x, incX, y, incY, A, incRowA, incColA);
 }

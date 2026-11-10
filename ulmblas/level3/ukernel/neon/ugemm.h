@@ -13,27 +13,31 @@
 //  3, zgemm.tcc), written for ulmBLAS.  Other types use the reference micro
 //  kernel.
 //
-namespace ulmBLAS { namespace neon {
+namespace ulmBLAS {
+namespace neon {
 
-template <typename T>
-struct BlockSizeUGemm
+template <typename T> struct BlockSizeUGemm
 {
-    static constexpr int MR = (std::is_same<T,double>::value) ? 6
-                            : (std::is_same<T,float>::value) ? 8
-                            : (std::is_same<T,std::complex<float> >::value) ? 4
-                            : (std::is_same<T,std::complex<double> >::value) ? 4
-                            : ref::BlockSizeUGemm<T>::MR;
-    static constexpr int NR = (std::is_same<T,double>::value) ? 8
-                            : (std::is_same<T,float>::value) ? 12
-                            : (std::is_same<T,std::complex<float> >::value) ? 6
-                            : (std::is_same<T,std::complex<double> >::value) ? 3
-                            : ref::BlockSizeUGemm<T>::NR;
+    static constexpr int MR = (std::is_same<T, double>::value)  ? 6
+                              : (std::is_same<T, float>::value) ? 8
+                              : (std::is_same<T, std::complex<float>>::value)
+                                  ? 4
+                              : (std::is_same<T, std::complex<double>>::value)
+                                  ? 4
+                                  : ref::BlockSizeUGemm<T>::MR;
+    static constexpr int NR = (std::is_same<T, double>::value)  ? 8
+                              : (std::is_same<T, float>::value) ? 12
+                              : (std::is_same<T, std::complex<float>>::value)
+                                  ? 6
+                              : (std::is_same<T, std::complex<double>>::value)
+                                  ? 3
+                                  : ref::BlockSizeUGemm<T>::NR;
 
-    static_assert(MR>0 && NR>0, "Invalid block size.");
+    static_assert(MR > 0 && NR > 0, "Invalid block size.");
 
     //  The block sizes MC, KC, NC (and the sizes of the packing buffers)
     //  are chosen for these MR, NR.
-    static_assert(MR==BlockSize<T>::MR && NR==BlockSize<T>::NR,
+    static_assert(MR == BlockSize<T>::MR && NR == BlockSize<T>::NR,
                   "NEON micro kernels require MR x NR = 6 x 8 for double, "
                   "8 x 12 for float, 4 x 6 for complex float, 4 x 3 for "
                   "complex double");
@@ -42,20 +46,14 @@ struct BlockSizeUGemm
 using ref::ugemm;
 
 template <typename IndexType>
-static typename std::enable_if<std::is_convertible<IndexType,long>::value,
-    void>::type
-    ugemm(IndexType      kc,
-          const double   &alpha,
-          const double   *A,
-          const double   *B,
-          const double   &beta,
-          double         *C,
-          IndexType      incRowC,
-          IndexType      incColC,
-          const double   *nextA,
-          const double   *nextB);
+static typename std::enable_if<std::is_convertible<IndexType, long>::value,
+                               void>::type
+ugemm(IndexType kc, const double &alpha, const double *A, const double *B,
+      const double &beta, double *C, IndexType incRowC, IndexType incColC,
+      const double *nextA, const double *nextB);
 
-} } // namespace neon, ulmBLAS
+} // namespace neon
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL3_UKERNEL_NEON_UGEMM_H
 

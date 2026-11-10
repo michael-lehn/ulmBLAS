@@ -6,18 +6,12 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename VX>
-    void
-    scal(IndexType      n,
-         const Alpha    &alpha,
-         VX             *x,
-         IndexType      incX);
+void
+scal(IndexType n, const Alpha &alpha, VX *x, IndexType incX);
 
 template <typename IndexType, typename Alpha, typename VX>
-    void
-    scalBlas(IndexType      n,
-             const Alpha    &alpha,
-             VX             *x,
-             IndexType      incX);
+void
+scalBlas(IndexType n, const Alpha &alpha, VX *x, IndexType incX);
 
 } // namespace ulmBLAS
 

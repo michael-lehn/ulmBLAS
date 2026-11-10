@@ -4,15 +4,9 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename T, typename TB>
-    void
-    mtrumm(IndexType    mc,
-           IndexType    nc,
-           const Alpha  &alpha,
-           const T      *A_,
-           const T      *B_,
-           TB           *B,
-           IndexType    incRowB,
-           IndexType    incColB);
+void
+mtrumm(IndexType mc, IndexType nc, const Alpha &alpha, const T *A_, const T *B_,
+       TB *B, IndexType incRowB, IndexType incColB);
 
 } // namespace ulmBLAS
 

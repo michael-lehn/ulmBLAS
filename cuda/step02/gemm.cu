@@ -22,7 +22,8 @@
 #include <limits>
 #include <stdexcept>
 
-namespace cULMblas { namespace step02 {
+namespace cULMblas {
+namespace step02 {
 
 namespace {
 
@@ -30,81 +31,76 @@ namespace {
 std::ptrdiff_t
 ceildiv(std::ptrdiff_t a, std::ptrdiff_t b)
 {
-    return a/b + (a%b != 0);
+    return a / b + (a % b != 0);
 }
 
-__global__ void __launch_bounds__(BlockRows*ThreadsY)
-dgemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
-      double alpha,
-      const double *A, std::ptrdiff_t ldA,
-      const double *B, std::ptrdiff_t ldB,
-      double beta,
-      double *C, std::ptrdiff_t ldC)
+__global__ void
+__launch_bounds__(BlockRows *ThreadsY)
+    dgemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k, double alpha,
+          const double *A, std::ptrdiff_t ldA, const double *B,
+          std::ptrdiff_t ldB, double beta, double *C, std::ptrdiff_t ldC)
 {
-    std::ptrdiff_t i  = std::ptrdiff_t(blockIdx.x)*BlockRows + threadIdx.x;
-    std::ptrdiff_t j0 = std::ptrdiff_t(blockIdx.y)*BlockCols
-                      + threadIdx.y*ThreadCols;
+    std::ptrdiff_t i = std::ptrdiff_t(blockIdx.x) * BlockRows + threadIdx.x;
+    std::ptrdiff_t j0 =
+        std::ptrdiff_t(blockIdx.y) * BlockCols + threadIdx.y * ThreadCols;
 
     //  number of the columns j0, ..., j0+ThreadCols-1 that are inside C
     std::ptrdiff_t nc = n - j0 < ThreadCols ? n - j0 : ThreadCols;
 
     if (i >= m || nc <= 0) {
-        return;
+	return;
     }
 
     double ab[ThreadCols] = {};
     if (alpha != 0) {
-        for (std::ptrdiff_t l = 0; l < k; ++l) {
-            double a = A[i + l*ldA];
-            for (int c = 0; c < ThreadCols; ++c) {
-                if (c < nc) {
-                    ab[c] += a * B[l + (j0 + c)*ldB];
-                }
-            }
-        }
+	for (std::ptrdiff_t l = 0; l < k; ++l) {
+	    double a = A[i + l * ldA];
+	    for (int c = 0; c < ThreadCols; ++c) {
+		if (c < nc) {
+		    ab[c] += a * B[l + (j0 + c) * ldB];
+		}
+	    }
+	}
     }
 
     //  beta == 0: C is not read, it may contain NaN
     for (int c = 0; c < ThreadCols; ++c) {
-        if (c < nc) {
-            double &cij = C[i + (j0 + c)*ldC];
-            cij = (beta == 0) ? alpha*ab[c] : beta*cij + alpha*ab[c];
-        }
+	if (c < nc) {
+	    double &cij = C[i + (j0 + c) * ldC];
+	    cij = (beta == 0) ? alpha * ab[c] : beta * cij + alpha * ab[c];
+	}
     }
 }
 
 } // namespace
 
 void
-gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
-     double alpha,
-     const double *A, std::ptrdiff_t ldA,
-     const double *B, std::ptrdiff_t ldB,
-     double beta,
-     double *C, std::ptrdiff_t ldC,
-     cudaStream_t stream)
+gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k, double alpha,
+     const double *A, std::ptrdiff_t ldA, const double *B, std::ptrdiff_t ldB,
+     double beta, double *C, std::ptrdiff_t ldC, cudaStream_t stream)
 {
     checkGemmArguments(m, n, k, A, ldA, B, ldB, C, ldC);
 
     if (m == 0 || n == 0 || ((alpha == 0 || k == 0) && beta == 1)) {
-        return;
+	return;
     }
 
     std::ptrdiff_t numBlocksM = ceildiv(m, BlockRows);
     std::ptrdiff_t numBlocksN = ceildiv(n, BlockCols);
 
     if (numBlocksM > std::numeric_limits<int>::max() || numBlocksN > 65535) {
-        throw std::invalid_argument("cULMblas::step02::gemm: m or n too "
-                                    "large for the grid of this kernel");
+	throw std::invalid_argument("cULMblas::step02::gemm: m or n too "
+	                            "large for the grid of this kernel");
     }
 
     dim3 block(BlockRows, ThreadsY);
     dim3 grid(static_cast<unsigned>(numBlocksM),
               static_cast<unsigned>(numBlocksN));
 
-    dgemm<<<grid, block, 0, stream>>>(m, n, k, alpha, A, ldA, B, ldB,
-                                      beta, C, ldC);
+    dgemm<<<grid, block, 0, stream>>>(m, n, k, alpha, A, ldA, B, ldB, beta, C,
+                                      ldC);
     CULMBLAS_CHECK_CUDA(cudaGetLastError());
 }
 
-} } // namespace step02, cULMblas
+} // namespace step02
+} // namespace cULMblas

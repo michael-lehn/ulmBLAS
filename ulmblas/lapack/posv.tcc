@@ -9,19 +9,12 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename T>
 IndexType
-posv(bool         lower,
-     IndexType    n,
-     IndexType    nrhs,
-     T            *A,
-     IndexType    incRowA,
-     IndexType    incColA,
-     T            *B,
-     IndexType    incRowB,
-     IndexType    incColB)
+posv(bool lower, IndexType n, IndexType nrhs, T *A, IndexType incRowA,
+     IndexType incColA, T *B, IndexType incRowB, IndexType incColB)
 {
     const IndexType info = potrf(lower, n, A, incRowA, incColA);
-    if (info==0) {
-        potrs(lower, n, nrhs, A, incRowA, incColA, B, incRowB, incColB);
+    if (info == 0) {
+	potrs(lower, n, nrhs, A, incRowA, incColA, B, incRowB, incColB);
     }
     return info;
 }

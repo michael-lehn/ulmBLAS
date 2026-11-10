@@ -8,19 +8,15 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TX, typename TA>
 void
-splr(IndexType    n,
-     const Alpha  &alpha,
-     const TX     *x,
-     IndexType    incX,
-     TA           *A)
+splr(IndexType n, const Alpha &alpha, const TX *x, IndexType incX, TA *A)
 {
-    if (n==0 || alpha==Alpha(0)) {
-        return;
+    if (n == 0 || alpha == Alpha(0)) {
+	return;
     }
 
-    for (IndexType j=0; j<n; ++j) {
-        axpy(n-j, alpha*x[j*incX], &x[j*incX], incX, A, IndexType(1));
-        A += n-j;
+    for (IndexType j = 0; j < n; ++j) {
+	axpy(n - j, alpha * x[j * incX], &x[j * incX], incX, A, IndexType(1));
+	A += n - j;
     }
 }
 

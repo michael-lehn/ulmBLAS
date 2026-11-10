@@ -4,14 +4,9 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename T, typename PivIndex>
-    IndexType
-    getf2(IndexType    m,
-          IndexType    n,
-          T            *A,
-          IndexType    incRowA,
-          IndexType    incColA,
-          PivIndex     *piv,
-          IndexType    incPiv);
+IndexType
+getf2(IndexType m, IndexType n, T *A, IndexType incRowA, IndexType incColA,
+      PivIndex *piv, IndexType incPiv);
 
 } // namespace ulmBLAS
 

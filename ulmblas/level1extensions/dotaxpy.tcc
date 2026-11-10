@@ -16,21 +16,12 @@ namespace ulmBLAS {
 template <typename IndexType, typename Alpha, typename VX, typename VY,
           typename VZ, typename Rho>
 void
-dotaxpy(IndexType      n,
-        bool           conjX,
-        bool           conjXt,
-        bool           conjY,
-        const Alpha    &alpha,
-        const VX       *x,
-        IndexType      incX,
-        const VY       *y,
-        IndexType      incY,
-        VZ             *z,
-        IndexType      incZ,
-        Rho            &rho)
+dotaxpy(IndexType n, bool conjX, bool conjXt, bool conjY, const Alpha &alpha,
+        const VX *x, IndexType incX, const VY *y, IndexType incY, VZ *z,
+        IndexType incZ, Rho &rho)
 {
-    SELECT_DOTAXPY_KERNEL::dotaxpy(n, conjX, conjXt, conjY, alpha,
-                                   x, incX, y, incY, z, incZ, rho);
+    SELECT_DOTAXPY_KERNEL::dotaxpy(n, conjX, conjXt, conjY, alpha, x, incX, y,
+                                   incY, z, incZ, rho);
 }
 
 } // namespace ulmBLAS

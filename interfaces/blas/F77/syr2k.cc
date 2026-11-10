@@ -9,200 +9,173 @@
 extern "C" {
 
 void
-F77BLAS(ssyr2k)(const char               *upLo_,
-                const char               *trans_,
-                const ULMBLAS_INDEX_TYPE *n_,
-                const ULMBLAS_INDEX_TYPE *k_,
-                const float              *alpha_,
-                const float              *A,
-                const ULMBLAS_INDEX_TYPE *ldA_,
-                const float              *B,
-                const ULMBLAS_INDEX_TYPE *ldB_,
-                const float              *beta_,
-                float                    *C,
+F77BLAS(ssyr2k)(const char *upLo_, const char *trans_,
+                const ULMBLAS_INDEX_TYPE *n_, const ULMBLAS_INDEX_TYPE *k_,
+                const float *alpha_, const float *A,
+                const ULMBLAS_INDEX_TYPE *ldA_, const float *B,
+                const ULMBLAS_INDEX_TYPE *ldB_, const float *beta_, float *C,
                 const ULMBLAS_INDEX_TYPE *ldC_)
 {
-//
-//  Dereference scalar parameters
-//
-    bool trans             = (toupper(*trans_) == 'T'
-                           || toupper(*trans_) == 'C');
-    bool lower             = (toupper(*upLo_) == 'L');
-    ULMBLAS_INDEX_TYPE n   = *n_;
-    ULMBLAS_INDEX_TYPE k   = *k_;
-    float  alpha           = *alpha_;
+    //
+    //  Dereference scalar parameters
+    //
+    bool trans = (toupper(*trans_) == 'T' || toupper(*trans_) == 'C');
+    bool lower = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n = *n_;
+    ULMBLAS_INDEX_TYPE k = *k_;
+    float alpha = *alpha_;
     ULMBLAS_INDEX_TYPE ldA = *ldA_;
     ULMBLAS_INDEX_TYPE ldB = *ldB_;
-    float  beta            = *beta_;
+    float beta = *beta_;
     ULMBLAS_INDEX_TYPE ldC = *ldC_;
 
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
+    //
+    //  Set  numRowsA and numRowsB as the number of rows of A and B
+    //
     ULMBLAS_INDEX_TYPE numRowsA = (trans) ? k : n;
     ULMBLAS_INDEX_TYPE numRowsB = (trans) ? k : n;
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     ULMBLAS_INDEX_TYPE info = 0;
 
-    if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
-        info = 1;
-    } else if (toupper(*trans_)!='N'
-            && toupper(*trans_)!='T'
-            && toupper(*trans_)!='C'
-            && toupper(*trans_)!='R')
-    {
-        info = 2;
-    } else if (n<0) {
-        info = 3;
-    } else if (k<0) {
-        info = 4;
-    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-        info = 7;
-    } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
-        info = 9;
-    } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-        info = 12;
+    if (toupper(*upLo_) != 'L' && toupper(*upLo_) != 'U') {
+	info = 1;
+    } else if (toupper(*trans_) != 'N' && toupper(*trans_) != 'T' &&
+               toupper(*trans_) != 'C' && toupper(*trans_) != 'R') {
+	info = 2;
+    } else if (n < 0) {
+	info = 3;
+    } else if (k < 0) {
+	info = 4;
+    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+	info = 7;
+    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsB)) {
+	info = 9;
+    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+	info = 12;
     }
 
-    if (info!=0) {
-        F77BLAS(xerbla)("SSYR2K", &info, 6);
-        return;
+    if (info != 0) {
+	F77BLAS(xerbla)("SSYR2K", &info, 6);
+	return;
     }
 
-//
-//  Start the operations.
-//
+    //
+    //  Start the operations.
+    //
     if (!trans) {
-        if (lower) {
-            ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
-                                            beta, C, 1, ldC);
-        } else {
-            ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
-                                            beta, C, 1, ldC);
-        }
+	if (lower) {
+	    ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
+	                                    beta, C, 1, ldC);
+	} else {
+	    ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
+	                                    beta, C, 1, ldC);
+	}
     } else {
-        if (lower) {
-            ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
-                                            beta, C, ldC, 1);
-        } else {
-            ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
-                                            beta, C, ldC, 1);
-        }
+	if (lower) {
+	    ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
+	                                    beta, C, ldC, 1);
+	} else {
+	    ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
+	                                    beta, C, ldC, 1);
+	}
     }
 }
 
 void
-F77BLAS(dsyr2k)(const char               *upLo_,
-                const char               *trans_,
-                const ULMBLAS_INDEX_TYPE *n_,
-                const ULMBLAS_INDEX_TYPE *k_,
-                const double             *alpha_,
-                const double             *A,
-                const ULMBLAS_INDEX_TYPE *ldA_,
-                const double             *B,
-                const ULMBLAS_INDEX_TYPE *ldB_,
-                const double             *beta_,
-                double                   *C,
+F77BLAS(dsyr2k)(const char *upLo_, const char *trans_,
+                const ULMBLAS_INDEX_TYPE *n_, const ULMBLAS_INDEX_TYPE *k_,
+                const double *alpha_, const double *A,
+                const ULMBLAS_INDEX_TYPE *ldA_, const double *B,
+                const ULMBLAS_INDEX_TYPE *ldB_, const double *beta_, double *C,
                 const ULMBLAS_INDEX_TYPE *ldC_)
 {
-//
-//  Dereference scalar parameters
-//
-    bool trans             = (toupper(*trans_) == 'T'
-                           || toupper(*trans_) == 'C');
-    bool lower             = (toupper(*upLo_) == 'L');
-    ULMBLAS_INDEX_TYPE n   = *n_;
-    ULMBLAS_INDEX_TYPE k   = *k_;
-    double alpha           = *alpha_;
+    //
+    //  Dereference scalar parameters
+    //
+    bool trans = (toupper(*trans_) == 'T' || toupper(*trans_) == 'C');
+    bool lower = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n = *n_;
+    ULMBLAS_INDEX_TYPE k = *k_;
+    double alpha = *alpha_;
     ULMBLAS_INDEX_TYPE ldA = *ldA_;
     ULMBLAS_INDEX_TYPE ldB = *ldB_;
-    double beta            = *beta_;
+    double beta = *beta_;
     ULMBLAS_INDEX_TYPE ldC = *ldC_;
 
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
+    //
+    //  Set  numRowsA and numRowsB as the number of rows of A and B
+    //
     ULMBLAS_INDEX_TYPE numRowsA = (trans) ? k : n;
     ULMBLAS_INDEX_TYPE numRowsB = (trans) ? k : n;
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     ULMBLAS_INDEX_TYPE info = 0;
 
-    if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
-        info = 1;
-    } else if (toupper(*trans_)!='N'
-            && toupper(*trans_)!='T'
-            && toupper(*trans_)!='C'
-            && toupper(*trans_)!='R')
-    {
-        info = 2;
-    } else if (n<0) {
-        info = 3;
-    } else if (k<0) {
-        info = 4;
-    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-        info = 7;
-    } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
-        info = 9;
-    } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-        info = 12;
+    if (toupper(*upLo_) != 'L' && toupper(*upLo_) != 'U') {
+	info = 1;
+    } else if (toupper(*trans_) != 'N' && toupper(*trans_) != 'T' &&
+               toupper(*trans_) != 'C' && toupper(*trans_) != 'R') {
+	info = 2;
+    } else if (n < 0) {
+	info = 3;
+    } else if (k < 0) {
+	info = 4;
+    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+	info = 7;
+    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsB)) {
+	info = 9;
+    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+	info = 12;
     }
 
-    if (info!=0) {
-        F77BLAS(xerbla)("DSYR2K", &info, 6);
-        return;
+    if (info != 0) {
+	F77BLAS(xerbla)("DSYR2K", &info, 6);
+	return;
     }
 
-//
-//  Start the operations.
-//
+    //
+    //  Start the operations.
+    //
     if (!trans) {
-        if (lower) {
-            ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
-                                            beta, C, 1, ldC);
-        } else {
-            ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
-                                            beta, C, 1, ldC);
-        }
+	if (lower) {
+	    ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
+	                                    beta, C, 1, ldC);
+	} else {
+	    ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
+	                                    beta, C, 1, ldC);
+	}
     } else {
-        if (lower) {
-            ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
-                                            beta, C, ldC, 1);
-        } else {
-            ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
-                                            beta, C, ldC, 1);
-        }
+	if (lower) {
+	    ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
+	                                    beta, C, ldC, 1);
+	} else {
+	    ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
+	                                    beta, C, ldC, 1);
+	}
     }
 }
 
 void
-F77BLAS(csyr2k)(const char               *upLo_,
-                const char               *trans_,
-                const ULMBLAS_INDEX_TYPE *n_,
-                const ULMBLAS_INDEX_TYPE *k_,
-                const float              *alpha_,
-                const float              *A_,
-                const ULMBLAS_INDEX_TYPE *ldA_,
-                const float              *B_,
-                const ULMBLAS_INDEX_TYPE *ldB_,
-                const float              *beta_,
-                float                    *C_,
+F77BLAS(csyr2k)(const char *upLo_, const char *trans_,
+                const ULMBLAS_INDEX_TYPE *n_, const ULMBLAS_INDEX_TYPE *k_,
+                const float *alpha_, const float *A_,
+                const ULMBLAS_INDEX_TYPE *ldA_, const float *B_,
+                const ULMBLAS_INDEX_TYPE *ldB_, const float *beta_, float *C_,
                 const ULMBLAS_INDEX_TYPE *ldC_)
 {
     typedef std::complex<float> fcomplex;
-//
-//  Dereference scalar parameters
-//
-    bool trans             = (toupper(*trans_) == 'T'
-                           || toupper(*trans_) == 'C');
-    bool lower             = (toupper(*upLo_) == 'L');
-    ULMBLAS_INDEX_TYPE n   = *n_;
-    ULMBLAS_INDEX_TYPE k   = *k_;
+    //
+    //  Dereference scalar parameters
+    //
+    bool trans = (toupper(*trans_) == 'T' || toupper(*trans_) == 'C');
+    bool lower = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n = *n_;
+    ULMBLAS_INDEX_TYPE k = *k_;
     ULMBLAS_INDEX_TYPE ldA = *ldA_;
     ULMBLAS_INDEX_TYPE ldB = *ldB_;
     ULMBLAS_INDEX_TYPE ldC = *ldC_;
@@ -212,87 +185,77 @@ F77BLAS(csyr2k)(const char               *upLo_,
 
     const fcomplex *A = reinterpret_cast<const fcomplex *>(A_);
     const fcomplex *B = reinterpret_cast<const fcomplex *>(B_);
-    fcomplex       *C = reinterpret_cast<fcomplex *>(C_);
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
+    fcomplex *C = reinterpret_cast<fcomplex *>(C_);
+    //
+    //  Set  numRowsA and numRowsB as the number of rows of A and B
+    //
     ULMBLAS_INDEX_TYPE numRowsA = (trans) ? k : n;
     ULMBLAS_INDEX_TYPE numRowsB = (trans) ? k : n;
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     ULMBLAS_INDEX_TYPE info = 0;
 
-    if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
-        info = 1;
-    } else if (toupper(*trans_)!='N' && toupper(*trans_)!='T')
-    {
-        info = 2;
-    } else if (n<0) {
-        info = 3;
-    } else if (k<0) {
-        info = 4;
-    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-        info = 7;
-    } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
-        info = 9;
-    } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-        info = 12;
+    if (toupper(*upLo_) != 'L' && toupper(*upLo_) != 'U') {
+	info = 1;
+    } else if (toupper(*trans_) != 'N' && toupper(*trans_) != 'T') {
+	info = 2;
+    } else if (n < 0) {
+	info = 3;
+    } else if (k < 0) {
+	info = 4;
+    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+	info = 7;
+    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsB)) {
+	info = 9;
+    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+	info = 12;
     }
 
-    if (info!=0) {
-        F77BLAS(xerbla)("CSYR2K", &info, 6);
-        return;
+    if (info != 0) {
+	F77BLAS(xerbla)("CSYR2K", &info, 6);
+	return;
     }
 
-//
-//  Start the operations.
-//
+    //
+    //  Start the operations.
+    //
     if (!trans) {
-        if (lower) {
-            ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
-                                            beta, C, 1, ldC);
-        } else {
-            ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
-                                            beta, C, 1, ldC);
-        }
+	if (lower) {
+	    ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
+	                                    beta, C, 1, ldC);
+	} else {
+	    ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
+	                                    beta, C, 1, ldC);
+	}
     } else {
-        if (lower) {
-            ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
-                                            beta, C, ldC, 1);
-        } else {
-            ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
-                                            beta, C, ldC, 1);
-        }
+	if (lower) {
+	    ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
+	                                    beta, C, ldC, 1);
+	} else {
+	    ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
+	                                    beta, C, ldC, 1);
+	}
     }
 }
 
-
-
 void
-F77BLAS(zsyr2k)(const char               *upLo_,
-                const char               *trans_,
-                const ULMBLAS_INDEX_TYPE *n_,
-                const ULMBLAS_INDEX_TYPE *k_,
-                const double             *alpha_,
-                const double             *A_,
-                const ULMBLAS_INDEX_TYPE *ldA_,
-                const double             *B_,
-                const ULMBLAS_INDEX_TYPE *ldB_,
-                const double             *beta_,
-                double                   *C_,
+F77BLAS(zsyr2k)(const char *upLo_, const char *trans_,
+                const ULMBLAS_INDEX_TYPE *n_, const ULMBLAS_INDEX_TYPE *k_,
+                const double *alpha_, const double *A_,
+                const ULMBLAS_INDEX_TYPE *ldA_, const double *B_,
+                const ULMBLAS_INDEX_TYPE *ldB_, const double *beta_, double *C_,
                 const ULMBLAS_INDEX_TYPE *ldC_)
 {
     typedef std::complex<double> dcomplex;
-//
-//  Dereference scalar parameters
-//
-    bool trans             = (toupper(*trans_) == 'T'
-                           || toupper(*trans_) == 'C');
-    bool lower             = (toupper(*upLo_) == 'L');
-    ULMBLAS_INDEX_TYPE n   = *n_;
-    ULMBLAS_INDEX_TYPE k   = *k_;
+    //
+    //  Dereference scalar parameters
+    //
+    bool trans = (toupper(*trans_) == 'T' || toupper(*trans_) == 'C');
+    bool lower = (toupper(*upLo_) == 'L');
+    ULMBLAS_INDEX_TYPE n = *n_;
+    ULMBLAS_INDEX_TYPE k = *k_;
     ULMBLAS_INDEX_TYPE ldA = *ldA_;
     ULMBLAS_INDEX_TYPE ldB = *ldB_;
     ULMBLAS_INDEX_TYPE ldC = *ldC_;
@@ -302,61 +265,59 @@ F77BLAS(zsyr2k)(const char               *upLo_,
 
     const dcomplex *A = reinterpret_cast<const dcomplex *>(A_);
     const dcomplex *B = reinterpret_cast<const dcomplex *>(B_);
-    dcomplex       *C = reinterpret_cast<dcomplex *>(C_);
-//
-//  Set  numRowsA and numRowsB as the number of rows of A and B
-//
+    dcomplex *C = reinterpret_cast<dcomplex *>(C_);
+    //
+    //  Set  numRowsA and numRowsB as the number of rows of A and B
+    //
     ULMBLAS_INDEX_TYPE numRowsA = (trans) ? k : n;
     ULMBLAS_INDEX_TYPE numRowsB = (trans) ? k : n;
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     ULMBLAS_INDEX_TYPE info = 0;
 
-    if (toupper(*upLo_)!='L' && toupper(*upLo_)!='U') {
-        info = 1;
-    } else if (toupper(*trans_)!='N' && toupper(*trans_)!='T')
-    {
-        info = 2;
-    } else if (n<0) {
-        info = 3;
-    } else if (k<0) {
-        info = 4;
-    } else if (ldA<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsA)) {
-        info = 7;
-    } else if (ldB<std::max<ULMBLAS_INDEX_TYPE>(1,numRowsB)) {
-        info = 9;
-    } else if (ldC<std::max<ULMBLAS_INDEX_TYPE>(1,n)) {
-        info = 12;
+    if (toupper(*upLo_) != 'L' && toupper(*upLo_) != 'U') {
+	info = 1;
+    } else if (toupper(*trans_) != 'N' && toupper(*trans_) != 'T') {
+	info = 2;
+    } else if (n < 0) {
+	info = 3;
+    } else if (k < 0) {
+	info = 4;
+    } else if (ldA < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsA)) {
+	info = 7;
+    } else if (ldB < std::max<ULMBLAS_INDEX_TYPE>(1, numRowsB)) {
+	info = 9;
+    } else if (ldC < std::max<ULMBLAS_INDEX_TYPE>(1, n)) {
+	info = 12;
     }
 
-    if (info!=0) {
-        F77BLAS(xerbla)("ZSYR2K", &info, 6);
-        return;
+    if (info != 0) {
+	F77BLAS(xerbla)("ZSYR2K", &info, 6);
+	return;
     }
 
-//
-//  Start the operations.
-//
+    //
+    //  Start the operations.
+    //
     if (!trans) {
-        if (lower) {
-            ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
-                                            beta, C, 1, ldC);
-        } else {
-            ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
-                                            beta, C, 1, ldC);
-        }
+	if (lower) {
+	    ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
+	                                    beta, C, 1, ldC);
+	} else {
+	    ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, 1, ldA, B, 1, ldB,
+	                                    beta, C, 1, ldC);
+	}
     } else {
-        if (lower) {
-            ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
-                                            beta, C, ldC, 1);
-        } else {
-            ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
-                                            beta, C, ldC, 1);
-        }
+	if (lower) {
+	    ulmBLAS::syur2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
+	                                    beta, C, ldC, 1);
+	} else {
+	    ulmBLAS::sylr2k<std::ptrdiff_t>(n, k, alpha, A, ldA, 1, B, ldB, 1,
+	                                    beta, C, ldC, 1);
+	}
     }
 }
-
 
 } // extern "C"

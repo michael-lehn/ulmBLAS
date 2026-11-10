@@ -4,14 +4,9 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TX, typename TA>
-    void
-    sylr(IndexType    n,
-         const Alpha  &alpha,
-         const TX     *x,
-         IndexType    incX,
-         TA           *A,
-         IndexType    incRowA,
-         IndexType    incColA);
+void
+sylr(IndexType n, const Alpha &alpha, const TX *x, IndexType incX, TA *A,
+     IndexType incRowA, IndexType incColA);
 
 } // namespace ulmBLAS
 

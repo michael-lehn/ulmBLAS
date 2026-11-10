@@ -11,13 +11,9 @@ namespace ulmBLAS {
 //  With OpenMP larger matrices as tasks.  Any strides.
 //
 template <typename IndexType, typename T, typename PivIndex>
-    IndexType
-    getri(IndexType        n,
-          T                *A,
-          IndexType        incRowA,
-          IndexType        incColA,
-          const PivIndex   *piv,
-          IndexType        incPiv);
+IndexType
+getri(IndexType n, T *A, IndexType incRowA, IndexType incColA,
+      const PivIndex *piv, IndexType incPiv);
 
 } // namespace ulmBLAS
 

@@ -10,11 +10,8 @@ namespace ulmBLAS {
 //  positive or NaN (the factorization stops there, as LAPACK's ?potf2).
 //
 template <typename IndexType, typename T>
-    IndexType
-    potf2(IndexType    n,
-          T            *A,
-          IndexType    incRowA,
-          IndexType    incColA);
+IndexType
+potf2(IndexType n, T *A, IndexType incRowA, IndexType incColA);
 
 } // namespace ulmBLAS
 

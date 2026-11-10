@@ -11,7 +11,7 @@
 int
 main()
 {
-    int  A[4] = { 4, 2, 2, 3 };
+    int A[4] = {4, 2, 2, 3};
     long piv[2];
     ulmBLAS::getrf(2L, 2L, A, 1L, 2L, piv, 1L);
     ulmBLAS::potrf(true, 2L, A, 1L, 2L);

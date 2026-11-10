@@ -18,7 +18,7 @@
 #include <atomic>
 
 #ifdef _OPENMP
-#   include <omp.h>
+#include <omp.h>
 #endif
 
 namespace ulmBLAS {
@@ -33,7 +33,7 @@ numThreadsSetting()
 inline void
 setNumThreads(int n)
 {
-    numThreadsSetting().store(n>0 ? n : 0, std::memory_order_relaxed);
+    numThreadsSetting().store(n > 0 ? n : 0, std::memory_order_relaxed);
 }
 
 inline int
@@ -41,7 +41,7 @@ numThreads()
 {
 #ifdef _OPENMP
     const int n = numThreadsSetting().load(std::memory_order_relaxed);
-    return n>0 ? n : omp_get_max_threads();
+    return n > 0 ? n : omp_get_max_threads();
 #else
     return 1;
 #endif

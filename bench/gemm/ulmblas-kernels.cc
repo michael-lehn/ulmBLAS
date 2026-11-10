@@ -6,7 +6,8 @@
 //  time, ulmblas/config/simd.h, ulmblas/level3/ukernel/ugemm.h).  Output,
 //  one line per type:
 //
-//      ulmBLAS double: kernel neon, MR x NR = 6 x 8, MC, KC, NC = 960, 1024, 4080
+//      ulmBLAS double: kernel neon, MR x NR = 6 x 8, MC, KC, NC = 960, 1024,
+//      4080
 //
 #include <complex>
 #include <cstdio>
@@ -16,7 +17,7 @@
 #include <ulmblas/level3/ukernel/ugemm.h>
 
 #define STR_(x) #x
-#define STR(x)  STR_(x)
+#define STR(x) STR_(x)
 
 //
 //  The kernel for T.  ulmBLAS's own kernel sets implement double (sse,
@@ -34,14 +35,14 @@ kernel()
     const std::string base = STR(ULMBLAS_BASE_UGEMM_KERNEL);
 #if defined(USE_BLIS_XGEMM)
     if (ulmBLAS::blisk::Kernel<T>::selected) {
-        return std::string(ulmBLAS::blisk::Kernel<T>::name()) + " (vendored)";
+	return std::string(ulmBLAS::blisk::Kernel<T>::name()) + " (vendored)";
     }
 #endif
-    if (base=="neon" || base=="sme") {
-        return base;
+    if (base == "neon" || base == "sme") {
+	return base;
     }
     if (!std::is_same<T, double>::value) {
-        return "ref";
+	return "ref";
     }
 #if defined(USE_BLIS_DGEMM)
     return std::string(STR(ULMBLAS_BLIS_DGEMM_NAME)) + " (vendored)";
@@ -55,10 +56,10 @@ void
 report(const char *type)
 {
     std::printf("ulmBLAS %s: kernel %s, MR x NR = %d x %d, MC, KC, NC = %d, "
-                "%d, %d\n", type, kernel<T>().c_str(),
-                ulmBLAS::BlockSizeUGemm<T>::MR, ulmBLAS::BlockSizeUGemm<T>::NR,
-                ulmBLAS::BlockSize<T>::MC, ulmBLAS::BlockSize<T>::KC,
-                ulmBLAS::BlockSize<T>::NC);
+                "%d, %d\n",
+                type, kernel<T>().c_str(), ulmBLAS::BlockSizeUGemm<T>::MR,
+                ulmBLAS::BlockSizeUGemm<T>::NR, ulmBLAS::BlockSize<T>::MC,
+                ulmBLAS::BlockSize<T>::KC, ulmBLAS::BlockSize<T>::NC);
 }
 
 int
@@ -71,7 +72,7 @@ main()
 #endif
     report<float>("float");
     report<double>("double");
-    report<std::complex<float> >("complex float");
-    report<std::complex<double> >("complex double");
+    report<std::complex<float>>("complex float");
+    report<std::complex<double>>("complex double");
     return 0;
 }

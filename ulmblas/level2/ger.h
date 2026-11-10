@@ -5,46 +5,22 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TX, typename TY,
           typename TA>
-    void
-    ger(IndexType    m,
-        IndexType    n,
-        const Alpha  &alpha,
-        const TX     *x,
-        IndexType    incX,
-        const TY     *y,
-        IndexType    incY,
-        TA           *A,
-        IndexType    incRowA,
-        IndexType    incColA);
+void
+ger(IndexType m, IndexType n, const Alpha &alpha, const TX *x, IndexType incX,
+    const TY *y, IndexType incY, TA *A, IndexType incRowA, IndexType incColA);
 
 template <typename IndexType, typename Alpha, typename TX, typename TY,
           typename TA>
-    void
-    gerc(IndexType    m,
-         IndexType    n,
-         const Alpha  &alpha,
-         bool         conj,
-         const TX     *x,
-         IndexType    incX,
-         const TY     *y,
-         IndexType    incY,
-         TA           *A,
-         IndexType    incRowA,
-         IndexType    incColA);
+void
+gerc(IndexType m, IndexType n, const Alpha &alpha, bool conj, const TX *x,
+     IndexType incX, const TY *y, IndexType incY, TA *A, IndexType incRowA,
+     IndexType incColA);
 
 template <typename IndexType, typename Alpha, typename TX, typename TY,
           typename TA>
-    void
-    gerc(IndexType    m,
-         IndexType    n,
-         const Alpha  &alpha,
-         const TX     *x,
-         IndexType    incX,
-         const TY     *y,
-         IndexType    incY,
-         TA           *A,
-         IndexType    incRowA,
-         IndexType    incColA);
+void
+gerc(IndexType m, IndexType n, const Alpha &alpha, const TX *x, IndexType incX,
+     const TY *y, IndexType incY, TA *A, IndexType incRowA, IndexType incColA);
 
 } // namespace ulmBLAS
 

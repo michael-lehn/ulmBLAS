@@ -5,7 +5,8 @@
 #include <ulmblas/auxiliary/conjugate.h>
 #include <ulmblas/level1extensions/kernel/ref/dotaxpy.h>
 
-namespace ulmBLAS { namespace ref {
+namespace ulmBLAS {
+namespace ref {
 
 //
 //  Fuse the computations:
@@ -17,26 +18,18 @@ namespace ulmBLAS { namespace ref {
 template <typename IndexType, typename Alpha, typename VX, typename VY,
           typename VZ, typename Rho>
 void
-dotaxpy(IndexType      n,
-        bool           conjX,
-        bool           conjXt,
-        bool           conjY,
-        const Alpha    &alpha,
-        const VX       *x,
-        IndexType      incX,
-        const VY       *y,
-        IndexType      incY,
-        VZ             *z,
-        IndexType      incZ,
-        Rho            &rho)
+dotaxpy(IndexType n, bool conjX, bool conjXt, bool conjY, const Alpha &alpha,
+        const VX *x, IndexType incX, const VY *y, IndexType incY, VZ *z,
+        IndexType incZ, Rho &rho)
 {
     rho = Rho(0);
-    for (IndexType i=0; i<n; ++i) {
-        z[i*incZ] += alpha*conjugate(x[i*incX], conjX);
-        rho       += conjugate(x[i*incX], conjXt) * conjugate(y[i*incY], conjY);
+    for (IndexType i = 0; i < n; ++i) {
+	z[i * incZ] += alpha * conjugate(x[i * incX], conjX);
+	rho += conjugate(x[i * incX], conjXt) * conjugate(y[i * incY], conjY);
     }
 }
 
-} } // namespace ref, ulmBLAS
+} // namespace ref
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL1EXTENSIONS_KERNEL_REF_DOTAXPY_TCC 1

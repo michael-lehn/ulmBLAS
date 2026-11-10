@@ -4,15 +4,9 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TX, typename TA>
-    void
-    helr(IndexType    n,
-         const Alpha  &alpha,
-         bool         conjX,
-         const TX     *x,
-         IndexType    incX,
-         TA           *A,
-         IndexType    incRowA,
-         IndexType    incColA);
+void
+helr(IndexType n, const Alpha &alpha, bool conjX, const TX *x, IndexType incX,
+     TA *A, IndexType incRowA, IndexType incColA);
 
 } // namespace ulmBLAS
 

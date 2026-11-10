@@ -20,25 +20,25 @@ namespace test {
 
 struct Full
 {
-    Full(int m_=0, int n_=0)
-        : m(m_), n(n_), a(std::size_t(std::max(1, m_*n_)), cdouble(0))
+    Full(int m_ = 0, int n_ = 0)
+        : m(m_), n(n_), a(std::size_t(std::max(1, m_ * n_)), cdouble(0))
     {
     }
 
     cdouble &
     operator()(int i, int j)
     {
-        return a[i+j*m];
+	return a[i + j * m];
     }
 
     const cdouble &
     operator()(int i, int j) const
     {
-        return a[i+j*m];
+	return a[i + j * m];
     }
 
-    int                   m, n;
-    std::vector<cdouble>  a;
+    int m, n;
+    std::vector<cdouble> a;
 };
 
 template <typename T>
@@ -48,11 +48,26 @@ toCdouble(const T &x)
     return cdouble(double(std::real(x)), double(std::imag(x)));
 }
 
-inline float   fromCdouble(const cdouble &x, float *)   { return float(x.real()); }
-inline double  fromCdouble(const cdouble &x, double *)  { return x.real(); }
-inline cfloat  fromCdouble(const cdouble &x, cfloat *)
-{ return cfloat(float(x.real()), float(x.imag())); }
-inline cdouble fromCdouble(const cdouble &x, cdouble *) { return x; }
+inline float
+fromCdouble(const cdouble &x, float *)
+{
+    return float(x.real());
+}
+inline double
+fromCdouble(const cdouble &x, double *)
+{
+    return x.real();
+}
+inline cfloat
+fromCdouble(const cdouble &x, cfloat *)
+{
+    return cfloat(float(x.real()), float(x.imag()));
+}
+inline cdouble
+fromCdouble(const cdouble &x, cdouble *)
+{
+    return x;
+}
 
 template <typename T>
 T
@@ -64,13 +79,13 @@ fromCdouble(const cdouble &x)
 inline char
 transChar(CBLAS_TRANSPOSE trans)
 {
-    return trans==CblasNoTrans ? 'N' : trans==CblasTrans ? 'T' : 'C';
+    return trans == CblasNoTrans ? 'N' : trans == CblasTrans ? 'T' : 'C';
 }
 
 inline const char *
 orderName(CBLAS_ORDER order)
 {
-    return order==CblasColMajor ? "col" : "row";
+    return order == CblasColMajor ? "col" : "row";
 }
 
 inline CBLAS_ORDER
@@ -86,20 +101,20 @@ template <typename T>
 Full
 full(const Matrix<T> &A, CBLAS_TRANSPOSE trans = CblasNoTrans)
 {
-    bool  t = trans!=CblasNoTrans;
-    Full  F(t ? A.n : A.m, t ? A.m : A.n);
+    bool t = trans != CblasNoTrans;
+    Full F(t ? A.n : A.m, t ? A.m : A.n);
 
-    for (int j=0; j<A.n; ++j) {
-        for (int i=0; i<A.m; ++i) {
-            cdouble aij = toCdouble(A(i,j));
-            if (trans==CblasNoTrans) {
-                F(i,j) = aij;
-            } else if (trans==CblasTrans) {
-                F(j,i) = aij;
-            } else {
-                F(j,i) = std::conj(aij);
-            }
-        }
+    for (int j = 0; j < A.n; ++j) {
+	for (int i = 0; i < A.m; ++i) {
+	    cdouble aij = toCdouble(A(i, j));
+	    if (trans == CblasNoTrans) {
+		F(i, j) = aij;
+	    } else if (trans == CblasTrans) {
+		F(j, i) = aij;
+	    } else {
+		F(j, i) = std::conj(aij);
+	    }
+	}
     }
     return F;
 }
@@ -113,21 +128,21 @@ template <typename T>
 Full
 fullSymmetric(const Matrix<T> &A, CBLAS_UPLO upLo, bool hermitian)
 {
-    int   n = A.n;
-    Full  F(n, n);
+    int n = A.n;
+    Full F(n, n);
 
-    for (int j=0; j<n; ++j) {
-        for (int i=0; i<n; ++i) {
-            bool    stored = (upLo==CblasLower) ? i>=j : i<=j;
-            cdouble aij    = stored ? toCdouble(A(i,j)) : toCdouble(A(j,i));
-            if (hermitian && !stored) {
-                aij = std::conj(aij);
-            }
-            if (hermitian && i==j) {
-                aij = cdouble(aij.real(), 0);
-            }
-            F(i,j) = aij;
-        }
+    for (int j = 0; j < n; ++j) {
+	for (int i = 0; i < n; ++i) {
+	    bool stored = (upLo == CblasLower) ? i >= j : i <= j;
+	    cdouble aij = stored ? toCdouble(A(i, j)) : toCdouble(A(j, i));
+	    if (hermitian && !stored) {
+		aij = std::conj(aij);
+	    }
+	    if (hermitian && i == j) {
+		aij = cdouble(aij.real(), 0);
+	    }
+	    F(i, j) = aij;
+	}
     }
     return F;
 }
@@ -141,25 +156,25 @@ Full
 fullTriangular(const Matrix<T> &A, CBLAS_UPLO upLo, CBLAS_DIAG diag,
                CBLAS_TRANSPOSE trans)
 {
-    int   n = A.n;
-    Full  F(n, n);
+    int n = A.n;
+    Full F(n, n);
 
-    for (int j=0; j<n; ++j) {
-        for (int i=0; i<n; ++i) {
-            cdouble aij(0);
-            if (i==j) {
-                aij = (diag==CblasUnit) ? cdouble(1) : toCdouble(A(i,i));
-            } else if ((upLo==CblasLower) ? i>j : i<j) {
-                aij = toCdouble(A(i,j));
-            }
-            if (trans==CblasNoTrans) {
-                F(i,j) = aij;
-            } else if (trans==CblasTrans) {
-                F(j,i) = aij;
-            } else {
-                F(j,i) = std::conj(aij);
-            }
-        }
+    for (int j = 0; j < n; ++j) {
+	for (int i = 0; i < n; ++i) {
+	    cdouble aij(0);
+	    if (i == j) {
+		aij = (diag == CblasUnit) ? cdouble(1) : toCdouble(A(i, i));
+	    } else if ((upLo == CblasLower) ? i > j : i < j) {
+		aij = toCdouble(A(i, j));
+	    }
+	    if (trans == CblasNoTrans) {
+		F(i, j) = aij;
+	    } else if (trans == CblasTrans) {
+		F(j, i) = aij;
+	    } else {
+		F(j, i) = std::conj(aij);
+	    }
+	}
     }
     return F;
 }
@@ -169,8 +184,8 @@ Full
 fullVector(const Vector<T> &x)
 {
     Full F(x.n, 1);
-    for (int i=0; i<x.n; ++i) {
-        F(i,0) = toCdouble(x(i));
+    for (int i = 0; i < x.n; ++i) {
+	F(i, 0) = toCdouble(x(i));
     }
     return F;
 }
@@ -184,13 +199,13 @@ template <typename T>
 void
 poisonTriangle(Matrix<T> &A, CBLAS_UPLO upLo, bool unitDiag)
 {
-    for (int j=0; j<A.n; ++j) {
-        for (int i=0; i<A.m; ++i) {
-            bool other = (upLo==CblasLower) ? i<j : i>j;
-            if (other || (unitDiag && i==j)) {
-                A(i,j) = nan<T>();
-            }
-        }
+    for (int j = 0; j < A.n; ++j) {
+	for (int i = 0; i < A.m; ++i) {
+	    bool other = (upLo == CblasLower) ? i < j : i > j;
+	    if (other || (unitDiag && i == j)) {
+		A(i, j) = nan<T>();
+	    }
+	}
     }
 }
 
@@ -199,7 +214,7 @@ poisonTriangle(Matrix<T> &A, CBLAS_UPLO upLo, bool unitDiag)
 //
 struct Result
 {
-    Full  value, bound;
+    Full value, bound;
 };
 
 inline Result
@@ -210,25 +225,25 @@ multiply(cdouble alpha, const Full &A, const Full &B, cdouble beta,
     r.value = Full(A.m, B.n);
     r.bound = Full(A.m, B.n);
 
-    for (int j=0; j<B.n; ++j) {
-        for (int i=0; i<A.m; ++i) {
-            cdouble sum(0);
-            double  bound = 0;
-            if (alpha!=cdouble(0)) {
-                for (int l=0; l<A.n; ++l) {
-                    sum   += A(i,l)*B(l,j);
-                    bound += std::abs(A(i,l))*std::abs(B(l,j));
-                }
-                sum   *= alpha;
-                bound *= std::abs(alpha);
-            }
-            if (beta!=cdouble(0)) {
-                sum   += beta*C(i,j);
-                bound += std::abs(beta)*std::abs(C(i,j));
-            }
-            r.value(i,j) = sum;
-            r.bound(i,j) = bound;
-        }
+    for (int j = 0; j < B.n; ++j) {
+	for (int i = 0; i < A.m; ++i) {
+	    cdouble sum(0);
+	    double bound = 0;
+	    if (alpha != cdouble(0)) {
+		for (int l = 0; l < A.n; ++l) {
+		    sum += A(i, l) * B(l, j);
+		    bound += std::abs(A(i, l)) * std::abs(B(l, j));
+		}
+		sum *= alpha;
+		bound *= std::abs(alpha);
+	    }
+	    if (beta != cdouble(0)) {
+		sum += beta * C(i, j);
+		bound += std::abs(beta) * std::abs(C(i, j));
+	    }
+	    r.value(i, j) = sum;
+	    r.bound(i, j) = bound;
+	}
     }
     return r;
 }
@@ -243,23 +258,24 @@ bool
 checkMatrix(Context &ctx, const Matrix<T> &C, const Result &ref, int k,
             char part, const std::string &what)
 {
-    for (int j=0; j<C.n; ++j) {
-        for (int i=0; i<C.m; ++i) {
-            if ((part=='L' && i<j) || (part=='U' && i>j)) {
-                continue;
-            }
-            T expected = fromCdouble<T>(ref.value(i,j));
-            if (!closeEnough(C(i,j), expected, ref.bound(i,j).real(), k)) {
-                ctx.check(false, "%s: element (%d,%d) is (%g,%g), expected "
-                          "(%g,%g), bound %g, %s", what.c_str(), i, j,
-                          double(std::real(C(i,j))),
-                          double(std::imag(C(i,j))),
-                          double(std::real(expected)),
-                          double(std::imag(expected)),
-                          ref.bound(i,j).real(), typeName<T>());
-                return false;
-            }
-        }
+    for (int j = 0; j < C.n; ++j) {
+	for (int i = 0; i < C.m; ++i) {
+	    if ((part == 'L' && i < j) || (part == 'U' && i > j)) {
+		continue;
+	    }
+	    T expected = fromCdouble<T>(ref.value(i, j));
+	    if (!closeEnough(C(i, j), expected, ref.bound(i, j).real(), k)) {
+		ctx.check(false,
+		          "%s: element (%d,%d) is (%g,%g), expected "
+		          "(%g,%g), bound %g, %s",
+		          what.c_str(), i, j, double(std::real(C(i, j))),
+		          double(std::imag(C(i, j))),
+		          double(std::real(expected)),
+		          double(std::imag(expected)), ref.bound(i, j).real(),
+		          typeName<T>());
+		return false;
+	    }
+	}
     }
     ctx.pass();
     return true;
@@ -270,17 +286,18 @@ bool
 checkVector(Context &ctx, const Vector<T> &y, const Result &ref, int k,
             const std::string &what)
 {
-    for (int i=0; i<y.n; ++i) {
-        T expected = fromCdouble<T>(ref.value(i,0));
-        if (!closeEnough(y(i), expected, ref.bound(i,0).real(), k)) {
-            ctx.check(false, "%s: element %d is (%g,%g), expected (%g,%g), "
-                      "bound %g, %s", what.c_str(), i,
-                      double(std::real(y(i))), double(std::imag(y(i))),
-                      double(std::real(expected)),
-                      double(std::imag(expected)),
-                      ref.bound(i,0).real(), typeName<T>());
-            return false;
-        }
+    for (int i = 0; i < y.n; ++i) {
+	T expected = fromCdouble<T>(ref.value(i, 0));
+	if (!closeEnough(y(i), expected, ref.bound(i, 0).real(), k)) {
+	    ctx.check(false,
+	              "%s: element %d is (%g,%g), expected (%g,%g), "
+	              "bound %g, %s",
+	              what.c_str(), i, double(std::real(y(i))),
+	              double(std::imag(y(i))), double(std::real(expected)),
+	              double(std::imag(expected)), ref.bound(i, 0).real(),
+	              typeName<T>());
+	    return false;
+	}
     }
     ctx.pass();
     return true;
@@ -298,8 +315,8 @@ format(const char *fmt, ...)
 inline std::string
 format(const char *fmt, ...)
 {
-    char     buffer[512];
-    va_list  ap;
+    char buffer[512];
+    va_list ap;
     va_start(ap, fmt);
     std::vsnprintf(buffer, sizeof(buffer), fmt, ap);
     va_end(ap);
@@ -311,8 +328,8 @@ std::string
 str(const T &x)
 {
     return IsComplex<T>::value
-         ? format("(%g,%g)", double(std::real(x)), double(std::imag(x)))
-         : format("%g", double(std::real(x)));
+               ? format("(%g,%g)", double(std::real(x)), double(std::imag(x)))
+	       : format("%g", double(std::real(x)));
 }
 
 //

@@ -4,15 +4,9 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename T, typename PivIndex>
-    void
-    laswp(IndexType    n,
-          T            *A,
-          IndexType    incRowA,
-          IndexType    incColA,
-          IndexType    k1,
-          IndexType    k2,
-          PivIndex     *piv,
-          IndexType    incPiv);
+void
+laswp(IndexType n, T *A, IndexType incRowA, IndexType incColA, IndexType k1,
+      IndexType k2, PivIndex *piv, IndexType incPiv);
 
 } // namespace ulmBLAS
 

@@ -16,12 +16,12 @@ twice(const T &x)
 int
 main()
 {
-    std::complex<double>  z(1, 2);
-    auto                  y = twice(z.imag());
+    std::complex<double> z(1, 2);
+    auto y = twice(z.imag());
     static_assert(std::is_same<decltype(y), double>::value, "C++11");
 
-    std::unordered_map<std::string, double> *map
-        = new std::unordered_map<std::string, double>();
+    std::unordered_map<std::string, double> *map =
+        new std::unordered_map<std::string, double>();
     (*map)["y"] = y;
     bool ok = map->at("y") == 4;
     delete map;

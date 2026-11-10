@@ -3,21 +3,19 @@
 
 #include <ulmblas/level1/kernel/ref/axpy.h>
 
-namespace ulmBLAS { namespace sse {
+namespace ulmBLAS {
+namespace sse {
 
-using ref::axpy;
 using ref::acxpy;
+using ref::axpy;
 
 template <typename IndexType>
-    void
-    axpy(IndexType      n,
-         const double   &alpha,
-         const double   *x,
-         IndexType      incX,
-         double         *y,
-         IndexType      incY);
+void
+axpy(IndexType n, const double &alpha, const double *x, IndexType incX,
+     double *y, IndexType incY);
 
-} } // namespace sse, ulmBLAS
+} // namespace sse
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL1_KERNEL_SSE_AXPY_H 1
 

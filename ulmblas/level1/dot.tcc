@@ -9,11 +9,7 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename VT>
 VT
-dotu(IndexType      n,
-     const VT       *x,
-     IndexType      incX,
-     const VT       *y,
-     IndexType      incY)
+dotu(IndexType n, const VT *x, IndexType incX, const VT *y, IndexType incY)
 {
     VT result;
 
@@ -23,23 +19,15 @@ dotu(IndexType      n,
 
 template <typename IndexType, typename VX, typename VY, typename Result>
 void
-dotu(IndexType      n,
-     const VX       *x,
-     IndexType      incX,
-     const VY       *y,
-     IndexType      incY,
-     Result         &result)
+dotu(IndexType n, const VX *x, IndexType incX, const VY *y, IndexType incY,
+     Result &result)
 {
     SELECT_DOT_KERNEL::dotu(n, x, incX, y, incY, result);
 }
 
 template <typename IndexType, typename VT>
 VT
-dotc(IndexType      n,
-     const VT       *x,
-     IndexType      incX,
-     const VT       *y,
-     IndexType      incY)
+dotc(IndexType n, const VT *x, IndexType incX, const VT *y, IndexType incY)
 {
     VT result;
 
@@ -49,12 +37,8 @@ dotc(IndexType      n,
 
 template <typename IndexType, typename VX, typename VY, typename Result>
 void
-dotc(IndexType      n,
-     const VX       *x,
-     IndexType      incX,
-     const VY       *y,
-     IndexType      incY,
-     Result         &result)
+dotc(IndexType n, const VX *x, IndexType incX, const VY *y, IndexType incY,
+     Result &result)
 {
     SELECT_DOT_KERNEL::dotc(n, x, incX, y, incY, result);
 }

@@ -6,12 +6,12 @@
 namespace ulmBLAS {
 
 template <typename T>
-    T
-    abs1(const T &x);
+T
+abs1(const T &x);
 
 template <typename T>
-    T
-    abs1(const std::complex<T> &x);
+T
+abs1(const std::complex<T> &x);
 
 } // namespace ulmBLAS
 

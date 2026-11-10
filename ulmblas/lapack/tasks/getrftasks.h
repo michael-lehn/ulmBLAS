@@ -1,7 +1,8 @@
 #ifndef ULMBLAS_LAPACK_TASKS_GETRFTASKS_H
 #define ULMBLAS_LAPACK_TASKS_GETRFTASKS_H 1
 
-namespace ulmBLAS { namespace tasks {
+namespace ulmBLAS {
+namespace tasks {
 
 //
 //  LU factorization with partial pivoting A = P L U of an m x n matrix with
@@ -12,19 +13,13 @@ namespace ulmBLAS { namespace tasks {
 //  0 or i if U(i-1,i-1) is exactly zero (1-based i).  Needs OpenMP.
 //
 template <typename IndexType, typename T>
-    IndexType
-    getrfTasks(IndexType    m,
-               IndexType    n,
-               T            *A,
-               IndexType    incRowA,
-               IndexType    incColA,
-               IndexType    *piv,
-               IndexType    nb,
-               IndexType    ib,
-               int          panelThreads,
-               int          threads);
+IndexType
+getrfTasks(IndexType m, IndexType n, T *A, IndexType incRowA, IndexType incColA,
+           IndexType *piv, IndexType nb, IndexType ib, int panelThreads,
+           int threads);
 
-} } // namespace tasks, ulmBLAS
+} // namespace tasks
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LAPACK_TASKS_GETRFTASKS_H
 

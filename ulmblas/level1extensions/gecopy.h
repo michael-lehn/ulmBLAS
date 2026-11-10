@@ -4,28 +4,14 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename MX, typename MY>
-    void
-    gecopy(IndexType      m,
-           IndexType      n,
-           bool           conjX,
-           const MX       *X,
-           IndexType      incRowX,
-           IndexType      incColX,
-           MY             *Y,
-           IndexType      incRowY,
-           IndexType      incColY);
+void
+gecopy(IndexType m, IndexType n, bool conjX, const MX *X, IndexType incRowX,
+       IndexType incColX, MY *Y, IndexType incRowY, IndexType incColY);
 
 template <typename IndexType, typename MX, typename MY>
-    void
-    gecopy(IndexType      m,
-           IndexType      n,
-           const MX       *X,
-           IndexType      incRowX,
-           IndexType      incColX,
-           MY             *Y,
-           IndexType      incRowY,
-           IndexType      incColY);
-
+void
+gecopy(IndexType m, IndexType n, const MX *X, IndexType incRowX,
+       IndexType incColX, MY *Y, IndexType incRowY, IndexType incColY);
 
 } // namespace ulmBLAS
 

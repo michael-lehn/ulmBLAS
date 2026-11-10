@@ -1,7 +1,8 @@
 #ifndef ULMBLAS_LAPACK_TASKS_SOLVETASKS_H
 #define ULMBLAS_LAPACK_TASKS_SOLVETASKS_H 1
 
-namespace ulmBLAS { namespace tasks {
+namespace ulmBLAS {
+namespace tasks {
 
 //
 //  A step of a solve with the n x nrhs matrix B (getrs, potrs, trtrs):
@@ -15,16 +16,20 @@ namespace ulmBLAS { namespace tasks {
 //
 //  A transposed A is passed as a view: strides exchanged, upper <-> lower.
 //
-template <typename IndexType, typename T>
-struct SolveStep
+template <typename IndexType, typename T> struct SolveStep
 {
-    enum Kind { SwapForward, SwapBackward, Solve };
+    enum Kind
+    {
+	SwapForward,
+	SwapBackward,
+	Solve
+    };
 
-    Kind             kind;
-    const IndexType  *piv;              // swaps
-    bool             upper, conj, unitDiag;
-    const T          *A;                // solve
-    IndexType        incRowA, incColA;
+    Kind kind;
+    const IndexType *piv; // swaps
+    bool upper, conj, unitDiag;
+    const T *A; // solve
+    IndexType incRowA, incColA;
 };
 
 //
@@ -37,16 +42,10 @@ struct SolveStep
 //  serial BLAS routines on all of B.
 //
 template <typename IndexType, typename T>
-    void
-    solveSteps(IndexType                         n,
-               IndexType                         nrhs,
-               const SolveStep<IndexType, T>     *steps,
-               int                               numSteps,
-               T                                 *B,
-               IndexType                         incRowB,
-               IndexType                         incColB,
-               IndexType                         nb,
-               int                               threads);
+void
+solveSteps(IndexType n, IndexType nrhs, const SolveStep<IndexType, T> *steps,
+           int numSteps, T *B, IndexType incRowB, IndexType incColB,
+           IndexType nb, int threads);
 
 //
 //  solveSteps with the threads and tile size of solveParam (param.h): with
@@ -54,16 +53,12 @@ template <typename IndexType, typename T>
 //  OpenMP serial.
 //
 template <typename IndexType, typename T>
-    void
-    solve(IndexType                         n,
-          IndexType                         nrhs,
-          const SolveStep<IndexType, T>     *steps,
-          int                               numSteps,
-          T                                 *B,
-          IndexType                         incRowB,
-          IndexType                         incColB);
+void
+solve(IndexType n, IndexType nrhs, const SolveStep<IndexType, T> *steps,
+      int numSteps, T *B, IndexType incRowB, IndexType incColB);
 
-} } // namespace tasks, ulmBLAS
+} // namespace tasks
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LAPACK_TASKS_SOLVETASKS_H
 

@@ -7,32 +7,28 @@
 namespace ulmBLAS {
 
 template <typename T>
-typename std::enable_if<std::is_fundamental<T>::value,
-         const T &>::type
+typename std::enable_if<std::is_fundamental<T>::value, const T &>::type
 conjugate(const T &x)
 {
     return x;
 }
 
 template <typename T>
-typename std::enable_if<std::is_fundamental<T>::value,
-         const T &>::type
+typename std::enable_if<std::is_fundamental<T>::value, const T &>::type
 conjugate(const T &x, bool)
 {
     return x;
 }
 
 template <typename T>
-typename std::enable_if<! std::is_fundamental<T>::value,
-         const T>::type
+typename std::enable_if<!std::is_fundamental<T>::value, const T>::type
 conjugate(const T &x)
 {
     return std::conj(x);
 }
 
 template <typename T>
-typename std::enable_if<! std::is_fundamental<T>::value,
-         const T>::type
+typename std::enable_if<!std::is_fundamental<T>::value, const T>::type
 conjugate(const T &x, bool apply)
 {
     return (apply) ? std::conj(x) : x;

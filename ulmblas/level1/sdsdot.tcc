@@ -12,15 +12,11 @@ namespace ulmBLAS {
 //
 template <typename IndexType, typename VX, typename VY, typename Result>
 void
-sdsdot(IndexType    n,
-       const VX     *x,
-       IndexType    incX,
-       const VY     *y,
-       IndexType    incY,
-       Result       &result)
+sdsdot(IndexType n, const VX *x, IndexType incX, const VY *y, IndexType incY,
+       Result &result)
 {
-    for (IndexType i=0; i<n; ++i) {
-        result += Result(x[i*incX])*Result(y[i*incY]);
+    for (IndexType i = 0; i < n; ++i) {
+	result += Result(x[i * incX]) * Result(y[i * incY]);
     }
 }
 

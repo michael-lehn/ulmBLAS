@@ -5,54 +5,45 @@
 extern "C" {
 
 float
-ULMBLAS(sdot)(ULMBLAS_INDEX_TYPE n,
-              const float        *x,
-              ULMBLAS_INDEX_TYPE incX,
-              const float        *y,
-              ULMBLAS_INDEX_TYPE incY)
+ULMBLAS(sdot)(ULMBLAS_INDEX_TYPE n, const float *x, ULMBLAS_INDEX_TYPE incX,
+              const float *y, ULMBLAS_INDEX_TYPE incY)
 {
-    if (incX<0) {
-        x -= incX*(n-1);
+    if (incX < 0) {
+	x -= incX * (n - 1);
     }
-    if (incY<0) {
-        y -= incY*(n-1);
+    if (incY < 0) {
+	y -= incY * (n - 1);
     }
     return ulmBLAS::dotu<std::ptrdiff_t>(n, x, incX, y, incY);
 }
 
 double
-ULMBLAS(ddot)(ULMBLAS_INDEX_TYPE n,
-              const double       *x,
-              ULMBLAS_INDEX_TYPE incX,
-              const double       *y,
-              ULMBLAS_INDEX_TYPE incY)
+ULMBLAS(ddot)(ULMBLAS_INDEX_TYPE n, const double *x, ULMBLAS_INDEX_TYPE incX,
+              const double *y, ULMBLAS_INDEX_TYPE incY)
 {
-    if (incX<0) {
-        x -= incX*(n-1);
+    if (incX < 0) {
+	x -= incX * (n - 1);
     }
-    if (incY<0) {
-        y -= incY*(n-1);
+    if (incY < 0) {
+	y -= incY * (n - 1);
     }
     return ulmBLAS::dotu<std::ptrdiff_t>(n, x, incX, y, incY);
 }
 
 void
-ULMBLAS(cdotc_sub)(ULMBLAS_INDEX_TYPE n,
-                   const float        *x_,
-                   ULMBLAS_INDEX_TYPE incX,
-                   const float        *y_,
-                   ULMBLAS_INDEX_TYPE incY,
-                   float              *dotc_)
+ULMBLAS(cdotc_sub)(ULMBLAS_INDEX_TYPE n, const float *x_,
+                   ULMBLAS_INDEX_TYPE incX, const float *y_,
+                   ULMBLAS_INDEX_TYPE incY, float *dotc_)
 {
     typedef std::complex<float> fcomplex;
     const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
     const fcomplex *y = reinterpret_cast<const fcomplex *>(y_);
 
-    if (incX<0) {
-        x -= incX*(n-1);
+    if (incX < 0) {
+	x -= incX * (n - 1);
     }
-    if (incY<0) {
-        y -= incY*(n-1);
+    if (incY < 0) {
+	y -= incY * (n - 1);
     }
 
     fcomplex dotc = ulmBLAS::dotc<std::ptrdiff_t>(n, x, incX, y, incY);
@@ -61,22 +52,19 @@ ULMBLAS(cdotc_sub)(ULMBLAS_INDEX_TYPE n,
 }
 
 void
-ULMBLAS(zdotc_sub)(ULMBLAS_INDEX_TYPE n,
-                   const double       *x_,
-                   ULMBLAS_INDEX_TYPE incX,
-                   const double       *y_,
-                   ULMBLAS_INDEX_TYPE incY,
-                   double             *dotc_)
+ULMBLAS(zdotc_sub)(ULMBLAS_INDEX_TYPE n, const double *x_,
+                   ULMBLAS_INDEX_TYPE incX, const double *y_,
+                   ULMBLAS_INDEX_TYPE incY, double *dotc_)
 {
     typedef std::complex<double> dcomplex;
     const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
     const dcomplex *y = reinterpret_cast<const dcomplex *>(y_);
 
-    if (incX<0) {
-        x -= incX*(n-1);
+    if (incX < 0) {
+	x -= incX * (n - 1);
     }
-    if (incY<0) {
-        y -= incY*(n-1);
+    if (incY < 0) {
+	y -= incY * (n - 1);
     }
 
     dcomplex dotc = ulmBLAS::dotc<std::ptrdiff_t>(n, x, incX, y, incY);
@@ -85,22 +73,19 @@ ULMBLAS(zdotc_sub)(ULMBLAS_INDEX_TYPE n,
 }
 
 void
-ULMBLAS(cdotu_sub)(ULMBLAS_INDEX_TYPE n,
-                   const float        *x_,
-                   ULMBLAS_INDEX_TYPE incX,
-                   const float        *y_,
-                   ULMBLAS_INDEX_TYPE incY,
-                   float              *dotu_)
+ULMBLAS(cdotu_sub)(ULMBLAS_INDEX_TYPE n, const float *x_,
+                   ULMBLAS_INDEX_TYPE incX, const float *y_,
+                   ULMBLAS_INDEX_TYPE incY, float *dotu_)
 {
     typedef std::complex<float> fcomplex;
     const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
     const fcomplex *y = reinterpret_cast<const fcomplex *>(y_);
 
-    if (incX<0) {
-        x -= incX*(n-1);
+    if (incX < 0) {
+	x -= incX * (n - 1);
     }
-    if (incY<0) {
-        y -= incY*(n-1);
+    if (incY < 0) {
+	y -= incY * (n - 1);
     }
 
     fcomplex dotu = ulmBLAS::dotu<std::ptrdiff_t>(n, x, incX, y, incY);
@@ -109,22 +94,19 @@ ULMBLAS(cdotu_sub)(ULMBLAS_INDEX_TYPE n,
 }
 
 void
-ULMBLAS(zdotu_sub)(ULMBLAS_INDEX_TYPE n,
-                   const double       *x_,
-                   ULMBLAS_INDEX_TYPE incX,
-                   const double       *y_,
-                   ULMBLAS_INDEX_TYPE incY,
-                   double             *dotu_)
+ULMBLAS(zdotu_sub)(ULMBLAS_INDEX_TYPE n, const double *x_,
+                   ULMBLAS_INDEX_TYPE incX, const double *y_,
+                   ULMBLAS_INDEX_TYPE incY, double *dotu_)
 {
     typedef std::complex<double> dcomplex;
     const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
     const dcomplex *y = reinterpret_cast<const dcomplex *>(y_);
 
-    if (incX<0) {
-        x -= incX*(n-1);
+    if (incX < 0) {
+	x -= incX * (n - 1);
     }
-    if (incY<0) {
-        y -= incY*(n-1);
+    if (incY < 0) {
+	y -= incY * (n - 1);
     }
 
     dcomplex dotu = ulmBLAS::dotu<std::ptrdiff_t>(n, x, incX, y, incY);
@@ -133,33 +115,22 @@ ULMBLAS(zdotu_sub)(ULMBLAS_INDEX_TYPE n,
 }
 
 float
-CBLAS(sdot)(ULMBLAS_INDEX_TYPE n,
-            const float        *x,
-            ULMBLAS_INDEX_TYPE incX,
-            const float        *y,
-            ULMBLAS_INDEX_TYPE incY)
+CBLAS(sdot)(ULMBLAS_INDEX_TYPE n, const float *x, ULMBLAS_INDEX_TYPE incX,
+            const float *y, ULMBLAS_INDEX_TYPE incY)
 {
     return ULMBLAS(sdot)(n, x, incX, y, incY);
 }
 
-
 double
-CBLAS(ddot)(ULMBLAS_INDEX_TYPE n,
-            const double       *x,
-            ULMBLAS_INDEX_TYPE incX,
-            const double       *y,
-            ULMBLAS_INDEX_TYPE incY)
+CBLAS(ddot)(ULMBLAS_INDEX_TYPE n, const double *x, ULMBLAS_INDEX_TYPE incX,
+            const double *y, ULMBLAS_INDEX_TYPE incY)
 {
     return ULMBLAS(ddot)(n, x, incX, y, incY);
 }
 
 void
-CBLAS(cdotc_sub)(ULMBLAS_INDEX_TYPE n,
-                 const void         *x_v,
-                 ULMBLAS_INDEX_TYPE incX,
-                 const void         *y_v,
-                 ULMBLAS_INDEX_TYPE incY,
-                 void               *dotc_v)
+CBLAS(cdotc_sub)(ULMBLAS_INDEX_TYPE n, const void *x_v, ULMBLAS_INDEX_TYPE incX,
+                 const void *y_v, ULMBLAS_INDEX_TYPE incY, void *dotc_v)
 {
     const float *x = static_cast<const float *>(x_v);
     const float *y = static_cast<const float *>(y_v);
@@ -169,12 +140,8 @@ CBLAS(cdotc_sub)(ULMBLAS_INDEX_TYPE n,
 }
 
 void
-CBLAS(zdotc_sub)(ULMBLAS_INDEX_TYPE n,
-                 const void         *x_v,
-                 ULMBLAS_INDEX_TYPE incX,
-                 const void         *y_v,
-                 ULMBLAS_INDEX_TYPE incY,
-                 void               *dotc_v)
+CBLAS(zdotc_sub)(ULMBLAS_INDEX_TYPE n, const void *x_v, ULMBLAS_INDEX_TYPE incX,
+                 const void *y_v, ULMBLAS_INDEX_TYPE incY, void *dotc_v)
 {
     const double *x = static_cast<const double *>(x_v);
     const double *y = static_cast<const double *>(y_v);
@@ -184,12 +151,8 @@ CBLAS(zdotc_sub)(ULMBLAS_INDEX_TYPE n,
 }
 
 void
-CBLAS(cdotu_sub)(ULMBLAS_INDEX_TYPE n,
-                 const void         *x_v,
-                 ULMBLAS_INDEX_TYPE incX,
-                 const void         *y_v,
-                 ULMBLAS_INDEX_TYPE incY,
-                 void               *dotc_v)
+CBLAS(cdotu_sub)(ULMBLAS_INDEX_TYPE n, const void *x_v, ULMBLAS_INDEX_TYPE incX,
+                 const void *y_v, ULMBLAS_INDEX_TYPE incY, void *dotc_v)
 {
     const float *x = static_cast<const float *>(x_v);
     const float *y = static_cast<const float *>(y_v);
@@ -199,12 +162,8 @@ CBLAS(cdotu_sub)(ULMBLAS_INDEX_TYPE n,
 }
 
 void
-CBLAS(zdotu_sub)(ULMBLAS_INDEX_TYPE n,
-                 const void         *x_v,
-                 ULMBLAS_INDEX_TYPE incX,
-                 const void         *y_v,
-                 ULMBLAS_INDEX_TYPE incY,
-                 void               *dotc_v)
+CBLAS(zdotu_sub)(ULMBLAS_INDEX_TYPE n, const void *x_v, ULMBLAS_INDEX_TYPE incX,
+                 const void *y_v, ULMBLAS_INDEX_TYPE incY, void *dotc_v)
 {
     const double *x = static_cast<const double *>(x_v);
     const double *y = static_cast<const double *>(y_v);

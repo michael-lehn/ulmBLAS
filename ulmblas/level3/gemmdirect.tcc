@@ -4,7 +4,7 @@
 #include <ulmblas/level3/gemmdirect.h>
 
 #if defined(USE_NEON)
-#   include <arm_neon.h>
+#include <arm_neon.h>
 #endif
 
 namespace ulmBLAS {
@@ -12,20 +12,9 @@ namespace ulmBLAS {
 template <typename IndexType, typename Alpha, typename TA, typename TB,
           typename Beta, typename TC>
 bool
-gemm_direct(IndexType    ,
-            IndexType    ,
-            IndexType    ,
-            const Alpha  &,
-            const TA     *,
-            IndexType    ,
-            IndexType    ,
-            const TB     *,
-            IndexType    ,
-            IndexType    ,
-            const Beta   &,
-            TC           *,
-            IndexType    ,
-            IndexType    )
+gemm_direct(IndexType, IndexType, IndexType, const Alpha &, const TA *,
+            IndexType, IndexType, const TB *, IndexType, IndexType,
+            const Beta &, TC *, IndexType, IndexType)
 {
     return false;
 }
@@ -64,64 +53,63 @@ namespace direct {
 
 template <int R, int N>
 inline void
-tile(long k, double alpha, const double *A, long ldA,
-     const double *B, long incRowB, long incColB,
-     double beta, double *C, long ldC)
+tile(long k, double alpha, const double *A, long ldA, const double *B,
+     long incRowB, long incColB, double beta, double *C, long ldC)
 {
     float64x2_t c[N][R];
 
-    for (int j=0; j<N; ++j) {
-        for (int r=0; r<R; ++r) {
-            c[j][r] = vdupq_n_f64(0.0);
-        }
+    for (int j = 0; j < N; ++j) {
+	for (int r = 0; r < R; ++r) {
+	    c[j][r] = vdupq_n_f64(0.0);
+	}
     }
-    for (long l=0; l<k; ++l) {
-        float64x2_t a[R];
-        for (int r=0; r<R; ++r) {
-            a[r] = vld1q_f64(A + 2*r);
-        }
-        for (int j=0; j<N; ++j) {
-            const float64x2_t b = vld1q_dup_f64(B + j*incColB);
-            for (int r=0; r<R; ++r) {
-                c[j][r] = vfmaq_f64(c[j][r], a[r], b);
-            }
-        }
-        A += ldA;
-        B += incRowB;
+    for (long l = 0; l < k; ++l) {
+	float64x2_t a[R];
+	for (int r = 0; r < R; ++r) {
+	    a[r] = vld1q_f64(A + 2 * r);
+	}
+	for (int j = 0; j < N; ++j) {
+	    const float64x2_t b = vld1q_dup_f64(B + j * incColB);
+	    for (int r = 0; r < R; ++r) {
+		c[j][r] = vfmaq_f64(c[j][r], a[r], b);
+	    }
+	}
+	A += ldA;
+	B += incRowB;
     }
-    for (int j=0; j<N; ++j) {
-        for (int r=0; r<R; ++r) {
-            double      *Cp = C + j*ldC + 2*r;
-            float64x2_t x   = vmulq_n_f64(c[j][r], alpha);
-            if (beta!=0.0) {
-                x = vfmaq_n_f64(x, vld1q_f64(Cp), beta);
-            }
-            vst1q_f64(Cp, x);
-        }
+    for (int j = 0; j < N; ++j) {
+	for (int r = 0; r < R; ++r) {
+	    double *Cp = C + j * ldC + 2 * r;
+	    float64x2_t x = vmulq_n_f64(c[j][r], alpha);
+	    if (beta != 0.0) {
+		x = vfmaq_n_f64(x, vld1q_f64(Cp), beta);
+	    }
+	    vst1q_f64(Cp, x);
+	}
     }
 }
 
 //  The last row (m odd).
 template <int N>
 inline void
-row(long k, double alpha, const double *A, long ldA,
-    const double *B, long incRowB, long incColB,
-    double beta, double *C, long ldC)
+row(long k, double alpha, const double *A, long ldA, const double *B,
+    long incRowB, long incColB, double beta, double *C, long ldC)
 {
     double c[N];
 
-    for (int j=0; j<N; ++j) {
-        c[j] = 0.0;
+    for (int j = 0; j < N; ++j) {
+	c[j] = 0.0;
     }
-    for (long l=0; l<k; ++l) {
-        for (int j=0; j<N; ++j) {
-            c[j] += A[0]*B[j*incColB];
-        }
-        A += ldA;
-        B += incRowB;
+    for (long l = 0; l < k; ++l) {
+	for (int j = 0; j < N; ++j) {
+	    c[j] += A[0] * B[j * incColB];
+	}
+	A += ldA;
+	B += incRowB;
     }
-    for (int j=0; j<N; ++j) {
-        C[j*ldC] = (beta!=0.0) ? alpha*c[j] + beta*C[j*ldC] : alpha*c[j];
+    for (int j = 0; j < N; ++j) {
+	C[j * ldC] =
+	    (beta != 0.0) ? alpha * c[j] + beta * C[j * ldC] : alpha * c[j];
     }
 }
 
@@ -129,24 +117,24 @@ row(long k, double alpha, const double *A, long ldA,
 template <int N>
 inline void
 columns(long m, long k, double alpha, const double *A, long ldA,
-        const double *B, long incRowB, long incColB,
-        double beta, double *C, long ldC)
+        const double *B, long incRowB, long incColB, double beta, double *C,
+        long ldC)
 {
     long i = 0;
 
-    for (; i+8<=m; i+=8) {
-        tile<4, N>(k, alpha, A+i, ldA, B, incRowB, incColB, beta, C+i, ldC);
+    for (; i + 8 <= m; i += 8) {
+	tile<4, N>(k, alpha, A + i, ldA, B, incRowB, incColB, beta, C + i, ldC);
     }
-    if (i+4<=m) {
-        tile<2, N>(k, alpha, A+i, ldA, B, incRowB, incColB, beta, C+i, ldC);
-        i += 4;
+    if (i + 4 <= m) {
+	tile<2, N>(k, alpha, A + i, ldA, B, incRowB, incColB, beta, C + i, ldC);
+	i += 4;
     }
-    if (i+2<=m) {
-        tile<1, N>(k, alpha, A+i, ldA, B, incRowB, incColB, beta, C+i, ldC);
-        i += 2;
+    if (i + 2 <= m) {
+	tile<1, N>(k, alpha, A + i, ldA, B, incRowB, incColB, beta, C + i, ldC);
+	i += 2;
     }
-    if (i<m) {
-        row<N>(k, alpha, A+i, ldA, B, incRowB, incColB, beta, C+i, ldC);
+    if (i < m) {
+	row<N>(k, alpha, A + i, ldA, B, incRowB, incColB, beta, C + i, ldC);
     }
 }
 
@@ -154,48 +142,37 @@ columns(long m, long k, double alpha, const double *A, long ldA,
 
 template <typename IndexType>
 bool
-gemm_direct(IndexType     m,
-            IndexType     n,
-            IndexType     k,
-            const double  &alpha,
-            const double  *A,
-            IndexType     incRowA,
-            IndexType     incColA,
-            const double  *B,
-            IndexType     incRowB,
-            IndexType     incColB,
-            const double  &beta,
-            double        *C,
-            IndexType     incRowC,
-            IndexType     incColC)
+gemm_direct(IndexType m, IndexType n, IndexType k, const double &alpha,
+            const double *A, IndexType incRowA, IndexType incColA,
+            const double *B, IndexType incRowB, IndexType incColB,
+            const double &beta, double *C, IndexType incRowC, IndexType incColC)
 {
-    if (incRowA!=IndexType(1) || incRowC!=IndexType(1)
-     || double(m)*double(n)*double(k) > ULMBLAS_GEMM_DIRECT_MAX_MNK)
-    {
-        return false;
+    if (incRowA != IndexType(1) || incRowC != IndexType(1) ||
+        double(m) * double(n) * double(k) > ULMBLAS_GEMM_DIRECT_MAX_MNK) {
+	return false;
     }
 
     const long ldA = incColA, ldC = incColC;
     const long iRB = incRowB, iCB = incColB;
-    long       j   = 0;
+    long j = 0;
 
-    for (; j+4<=n; j+=4) {
-        direct::columns<4>(m, k, alpha, A, ldA, B+j*iCB, iRB, iCB, beta,
-                           C+j*ldC, ldC);
+    for (; j + 4 <= n; j += 4) {
+	direct::columns<4>(m, k, alpha, A, ldA, B + j * iCB, iRB, iCB, beta,
+	                   C + j * ldC, ldC);
     }
-    switch (n-j) {
-        case 3:
-            direct::columns<3>(m, k, alpha, A, ldA, B+j*iCB, iRB, iCB, beta,
-                               C+j*ldC, ldC);
-            break;
-        case 2:
-            direct::columns<2>(m, k, alpha, A, ldA, B+j*iCB, iRB, iCB, beta,
-                               C+j*ldC, ldC);
-            break;
-        case 1:
-            direct::columns<1>(m, k, alpha, A, ldA, B+j*iCB, iRB, iCB, beta,
-                               C+j*ldC, ldC);
-            break;
+    switch (n - j) {
+    case 3:
+	direct::columns<3>(m, k, alpha, A, ldA, B + j * iCB, iRB, iCB, beta,
+	                   C + j * ldC, ldC);
+	break;
+    case 2:
+	direct::columns<2>(m, k, alpha, A, ldA, B + j * iCB, iRB, iCB, beta,
+	                   C + j * ldC, ldC);
+	break;
+    case 1:
+	direct::columns<1>(m, k, alpha, A, ldA, B + j * iCB, iRB, iCB, beta,
+	                   C + j * ldC, ldC);
+	break;
     }
     return true;
 }

@@ -23,7 +23,7 @@ ULMBLAS(dcabs1)(const double *z_)
 }
 
 float
-CBLAS(scabs1)(const void  *z_v)
+CBLAS(scabs1)(const void *z_v)
 {
     const float *z = static_cast<const float *>(z_v);
 
@@ -31,7 +31,7 @@ CBLAS(scabs1)(const void  *z_v)
 }
 
 double
-CBLAS(dcabs1)(const void   *z_v)
+CBLAS(dcabs1)(const void *z_v)
 {
     const double *z = static_cast<const double *>(z_v);
 

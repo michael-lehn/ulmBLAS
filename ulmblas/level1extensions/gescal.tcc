@@ -8,31 +8,27 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename MA>
 void
-gescal(IndexType    m,
-       IndexType    n,
-       const Alpha  &alpha,
-       MA           *A,
-       IndexType    incRowA,
-       IndexType    incColA)
+gescal(IndexType m, IndexType n, const Alpha &alpha, MA *A, IndexType incRowA,
+       IndexType incColA)
 {
-    constexpr IndexType   UnitStride(1);
+    constexpr IndexType UnitStride(1);
 
-    if (alpha==Alpha(1) || m<=0 || n<=0) {
-        return;
+    if (alpha == Alpha(1) || m <= 0 || n <= 0) {
+	return;
     }
 
-    if (incRowA==UnitStride) {
-        for (IndexType j=0; j<n; ++j) {
-            scal(m, alpha, &A[j*incColA], UnitStride);
-        }
-    } else if (incColA==UnitStride) {
-        for (IndexType i=0; i<m; ++i) {
-            scal(n, alpha, &A[i*incRowA], UnitStride);
-        }
+    if (incRowA == UnitStride) {
+	for (IndexType j = 0; j < n; ++j) {
+	    scal(m, alpha, &A[j * incColA], UnitStride);
+	}
+    } else if (incColA == UnitStride) {
+	for (IndexType i = 0; i < m; ++i) {
+	    scal(n, alpha, &A[i * incRowA], UnitStride);
+	}
     } else {
-        for (IndexType j=0; j<n; ++j) {
-            scal(m, alpha, &A[j*incColA], incRowA);
-        }
+	for (IndexType j = 0; j < n; ++j) {
+	    scal(m, alpha, &A[j * incColA], incRowA);
+	}
     }
 }
 

@@ -27,25 +27,23 @@
 #define CULMBLAS_STEP05_PANEL 16
 #endif
 
-namespace cULMblas { namespace step05 {
+namespace cULMblas {
+namespace step05 {
 
-constexpr int ThreadsX   = CULMBLAS_STEP05_THREADS_X;       // threadIdx.x
-constexpr int ThreadsY   = CULMBLAS_STEP05_THREADS_Y;       // threadIdx.y
-constexpr int ThreadRows = CULMBLAS_STEP05_THREAD_ROWS;     // per thread
-constexpr int ThreadCols = CULMBLAS_STEP05_THREAD_COLS;     // per thread
-constexpr int Panel      = CULMBLAS_STEP05_PANEL;           // values of l
-constexpr int BlockRows  = ThreadsX*ThreadRows;             // of C
-constexpr int BlockCols  = ThreadsY*ThreadCols;             // of C
+constexpr int ThreadsX = CULMBLAS_STEP05_THREADS_X;     // threadIdx.x
+constexpr int ThreadsY = CULMBLAS_STEP05_THREADS_Y;     // threadIdx.y
+constexpr int ThreadRows = CULMBLAS_STEP05_THREAD_ROWS; // per thread
+constexpr int ThreadCols = CULMBLAS_STEP05_THREAD_COLS; // per thread
+constexpr int Panel = CULMBLAS_STEP05_PANEL;            // values of l
+constexpr int BlockRows = ThreadsX * ThreadRows;        // of C
+constexpr int BlockCols = ThreadsY * ThreadCols;        // of C
 
 void
-gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
-     double alpha,
-     const double *A, std::ptrdiff_t ldA,
-     const double *B, std::ptrdiff_t ldB,
-     double beta,
-     double *C, std::ptrdiff_t ldC,
-     cudaStream_t stream = 0);
+gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k, double alpha,
+     const double *A, std::ptrdiff_t ldA, const double *B, std::ptrdiff_t ldB,
+     double beta, double *C, std::ptrdiff_t ldC, cudaStream_t stream = 0);
 
-} } // namespace step05, cULMblas
+} // namespace step05
+} // namespace cULMblas
 
 #endif // CULMBLAS_STEP05_GEMM_H

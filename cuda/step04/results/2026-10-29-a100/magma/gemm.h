@@ -17,13 +17,14 @@
 //      v4  as v3 with 32 x 8 threads: rows 32 apart, 4 neighboring columns
 //          (step 04 4x4, passes of 4)
 //
-namespace cULMblas { namespace xmagma {
+namespace cULMblas {
+namespace xmagma {
 
-#define CULMBLAS_XMAGMA_DECL(v) \
-void gemm##v(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,        \
-             double alpha, const double *A, std::ptrdiff_t ldA,            \
-             const double *B, std::ptrdiff_t ldB, double beta,             \
-             double *C, std::ptrdiff_t ldC, cudaStream_t stream = 0);
+#define CULMBLAS_XMAGMA_DECL(v)                                                \
+    void gemm##v(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,         \
+                 double alpha, const double *A, std::ptrdiff_t ldA,            \
+                 const double *B, std::ptrdiff_t ldB, double beta, double *C,  \
+                 std::ptrdiff_t ldC, cudaStream_t stream = 0);
 CULMBLAS_XMAGMA_DECL(0)
 CULMBLAS_XMAGMA_DECL(1)
 CULMBLAS_XMAGMA_DECL(2)
@@ -40,6 +41,7 @@ CULMBLAS_XMAGMA_DECL(12)
 CULMBLAS_XMAGMA_DECL(13)
 #undef CULMBLAS_XMAGMA_DECL
 
-} } // namespace xmagma, cULMblas
+} // namespace xmagma
+} // namespace cULMblas
 
 #endif

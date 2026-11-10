@@ -13,14 +13,9 @@ namespace ulmBLAS {
 //  factorization is completed in any case.
 //
 template <typename IndexType, typename T, typename PivIndex>
-    IndexType
-    getrf2(IndexType    m,
-           IndexType    n,
-           T            *A,
-           IndexType    incRowA,
-           IndexType    incColA,
-           PivIndex     *piv,
-           IndexType    incPiv);
+IndexType
+getrf2(IndexType m, IndexType n, T *A, IndexType incRowA, IndexType incColA,
+       PivIndex *piv, IndexType incPiv);
 
 } // namespace ulmBLAS
 

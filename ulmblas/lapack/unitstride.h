@@ -13,14 +13,9 @@ namespace ulmBLAS {
 //  back); the other one is not referenced.  Returns the result of f.
 //
 template <typename IndexType, typename T, typename F>
-    IndexType
-    withUnitStride(IndexType    m,
-                   IndexType    n,
-                   T            *A,
-                   IndexType    incRowA,
-                   IndexType    incColA,
-                   bool         lowerOnly,
-                   F            f);
+IndexType
+withUnitStride(IndexType m, IndexType n, T *A, IndexType incRowA,
+               IndexType incColA, bool lowerOnly, F f);
 
 } // namespace ulmBLAS
 

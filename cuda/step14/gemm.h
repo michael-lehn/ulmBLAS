@@ -47,30 +47,28 @@
 #define CULMBLAS_STEP14_MIN_BLOCKS 0
 #endif
 
-namespace cULMblas { namespace step14 {
+namespace cULMblas {
+namespace step14 {
 
-constexpr int TileM      = 8;           // mma.sync for double:
-constexpr int TileN      = 8;           // C(8 x 8) += A(8 x 4) B(4 x 8)
-constexpr int TileK      = 4;
-constexpr int WarpsM     = CULMBLAS_STEP14_WARPS_M;     // per block
-constexpr int WarpsN     = CULMBLAS_STEP14_WARPS_N;
-constexpr int Group      = CULMBLAS_STEP14_GROUP;       // block rows
-constexpr int PanelSmall   = CULMBLAS_STEP14_PANEL_SMALL;
-constexpr int PanelMedium  = CULMBLAS_STEP14_PANEL_MEDIUM;
-constexpr int PanelLarge   = CULMBLAS_STEP14_PANEL_LARGE;
-constexpr int StagesSmall  = CULMBLAS_STEP14_STAGES_SMALL;
+constexpr int TileM = 8; // mma.sync for double:
+constexpr int TileN = 8; // C(8 x 8) += A(8 x 4) B(4 x 8)
+constexpr int TileK = 4;
+constexpr int WarpsM = CULMBLAS_STEP14_WARPS_M; // per block
+constexpr int WarpsN = CULMBLAS_STEP14_WARPS_N;
+constexpr int Group = CULMBLAS_STEP14_GROUP; // block rows
+constexpr int PanelSmall = CULMBLAS_STEP14_PANEL_SMALL;
+constexpr int PanelMedium = CULMBLAS_STEP14_PANEL_MEDIUM;
+constexpr int PanelLarge = CULMBLAS_STEP14_PANEL_LARGE;
+constexpr int StagesSmall = CULMBLAS_STEP14_STAGES_SMALL;
 constexpr int StagesMedium = CULMBLAS_STEP14_STAGES_MEDIUM;
-constexpr int StagesLarge  = CULMBLAS_STEP14_STAGES_LARGE;
+constexpr int StagesLarge = CULMBLAS_STEP14_STAGES_LARGE;
 
 void
-gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
-     double alpha,
-     const double *A, std::ptrdiff_t ldA,
-     const double *B, std::ptrdiff_t ldB,
-     double beta,
-     double *C, std::ptrdiff_t ldC,
-     cudaStream_t stream = 0);
+gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k, double alpha,
+     const double *A, std::ptrdiff_t ldA, const double *B, std::ptrdiff_t ldB,
+     double beta, double *C, std::ptrdiff_t ldC, cudaStream_t stream = 0);
 
-} } // namespace step14, cULMblas
+} // namespace step14
+} // namespace cULMblas
 
 #endif // CULMBLAS_STEP14_GEMM_H

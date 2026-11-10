@@ -43,7 +43,7 @@ gemm(IndexType m, IndexType n, IndexType k, const Alpha &alpha, bool conjA,
      IndexType incRowB, IndexType incColB, const Beta &beta, TC *C,
      IndexType incRowC, IndexType incColC)
 {
-    const FpsrScope fpsrScope;  // see level3/fpsrscope.h
+    const FpsrScope fpsrScope; // see level3/fpsrscope.h
 
     typedef decltype(Alpha(0) * TA(0) * TB(0)) T;
 

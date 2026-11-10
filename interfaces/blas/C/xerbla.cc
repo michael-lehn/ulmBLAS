@@ -22,36 +22,55 @@ CBLAS(xerbla)(int info, const char *rout, const char *form, ...)
     extern int RowMajorStrg;
 
     if (RowMajorStrg) {
-        if (std::strstr(rout, "gemm")) {
-            if      (info==5)  info = 4;
-            else if (info==4)  info = 5;
-            else if (info==11) info = 9;
-            else if (info==9)  info = 11;
-        } else if (std::strstr(rout, "symm") || std::strstr(rout, "hemm")) {
-            if      (info==5) info = 4;
-            else if (info==4) info = 5;
-        } else if (std::strstr(rout, "trmm") || std::strstr(rout, "trsm")) {
-            if      (info==7) info = 6;
-            else if (info==6) info = 7;
-        } else if (std::strstr(rout, "gemv")) {
-            if      (info==4) info = 3;
-            else if (info==3) info = 4;
-        } else if (std::strstr(rout, "gbmv")) {
-            if      (info==4) info = 3;
-            else if (info==3) info = 4;
-            else if (info==6) info = 5;
-            else if (info==5) info = 6;
-        } else if (std::strstr(rout, "ger")) {
-            if      (info==3) info = 2;
-            else if (info==2) info = 3;
-            else if (info==8) info = 6;
-            else if (info==6) info = 8;
-        } else if ((std::strstr(rout, "her2") || std::strstr(rout, "hpr2"))
-                && !std::strstr(rout, "her2k"))
-        {
-            if      (info==8) info = 6;
-            else if (info==6) info = 8;
-        }
+	if (std::strstr(rout, "gemm")) {
+	    if (info == 5)
+		info = 4;
+	    else if (info == 4)
+		info = 5;
+	    else if (info == 11)
+		info = 9;
+	    else if (info == 9)
+		info = 11;
+	} else if (std::strstr(rout, "symm") || std::strstr(rout, "hemm")) {
+	    if (info == 5)
+		info = 4;
+	    else if (info == 4)
+		info = 5;
+	} else if (std::strstr(rout, "trmm") || std::strstr(rout, "trsm")) {
+	    if (info == 7)
+		info = 6;
+	    else if (info == 6)
+		info = 7;
+	} else if (std::strstr(rout, "gemv")) {
+	    if (info == 4)
+		info = 3;
+	    else if (info == 3)
+		info = 4;
+	} else if (std::strstr(rout, "gbmv")) {
+	    if (info == 4)
+		info = 3;
+	    else if (info == 3)
+		info = 4;
+	    else if (info == 6)
+		info = 5;
+	    else if (info == 5)
+		info = 6;
+	} else if (std::strstr(rout, "ger")) {
+	    if (info == 3)
+		info = 2;
+	    else if (info == 2)
+		info = 3;
+	    else if (info == 8)
+		info = 6;
+	    else if (info == 6)
+		info = 8;
+	} else if ((std::strstr(rout, "her2") || std::strstr(rout, "hpr2")) &&
+	           !std::strstr(rout, "her2k")) {
+	    if (info == 8)
+		info = 6;
+	    else if (info == 6)
+		info = 8;
+	}
     }
     fprintf(stderr, "Parameter %d to routine %s was incorrect\n", info, rout);
 }

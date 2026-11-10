@@ -4,12 +4,9 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename TA, typename Buffer>
-    void
-    syupack(IndexType   mc,
-            const TA    *A,
-            IndexType   incRowA,
-            IndexType   incColA,
-            Buffer      *buffer);
+void
+syupack(IndexType mc, const TA *A, IndexType incRowA, IndexType incColA,
+        Buffer *buffer);
 
 } // namespace ulmBLAS
 

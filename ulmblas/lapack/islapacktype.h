@@ -26,18 +26,16 @@ struct IsLapackType
 {
 };
 
-template <typename T>
-struct IsLapackType<std::complex<T> >
-    : IsLapackType<T>
+template <typename T> struct IsLapackType<std::complex<T>> : IsLapackType<T>
 {
 };
 
 } // namespace ulmBLAS
 
-#define ULMBLAS_LAPACK_REQUIRE_FLOATING_POINT(T)                              \
-    static_assert(::ulmBLAS::IsLapackType<T>::value,                         \
-                  "ulmBLAS LAPACK functions need a floating-point (or "      \
-                  "complex floating-point) element type, see "               \
+#define ULMBLAS_LAPACK_REQUIRE_FLOATING_POINT(T)                               \
+    static_assert(::ulmBLAS::IsLapackType<T>::value,                           \
+                  "ulmBLAS LAPACK functions need a floating-point (or "        \
+                  "complex floating-point) element type, see "                 \
                   "ulmblas/lapack/islapacktype.h")
 
 #endif // ULMBLAS_LAPACK_ISLAPACKTYPE_H

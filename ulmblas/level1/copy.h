@@ -4,21 +4,13 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename VX, typename VY>
-    void
-    copy(IndexType      n,
-         bool           conjX,
-         const VX       *x,
-         IndexType      incX,
-         VY             *y,
-         IndexType      incY);
+void
+copy(IndexType n, bool conjX, const VX *x, IndexType incX, VY *y,
+     IndexType incY);
 
 template <typename IndexType, typename VX, typename VY>
-    void
-    copy(IndexType      n,
-         const VX       *x,
-         IndexType      incX,
-         VY             *y,
-         IndexType      incY);
+void
+copy(IndexType n, const VX *x, IndexType incX, VY *y, IndexType incY);
 
 } // namespace ulmBLAS
 

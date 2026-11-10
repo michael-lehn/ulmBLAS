@@ -23,17 +23,17 @@ namespace ulmlapack {
 
 struct Tiles
 {
-    double  *A;
-    Index   rs, cs;
-    Index   nb;
-    Index   mt;         // tiled: tile rows
-    bool    tiled;
+    double *A;
+    Index rs, cs;
+    Index nb;
+    Index mt; // tiled: tile rows
+    bool tiled;
 
     double *
     tile(Index i, Index j) const
     {
-        return tiled ? A + (i + j*mt)*nb*nb
-                     : A + i*nb*rs + j*nb*cs;
+	return tiled ? A + (i + j * mt) * nb * nb
+	             : A + i * nb * rs + j * nb * cs;
     }
 };
 
@@ -57,19 +57,19 @@ tiledTiles(double *A, Index mt, Index nb)
 //
 struct Source
 {
-    double  *A;
-    Index   rs, cs;
+    double *A;
+    Index rs, cs;
 };
 
 //  B = A for an m x n block; lower: only the lower triangle (i >= j)
 inline void
-copyBlock(Index m, Index n, const double *A, Index ars, Index acs,
-          double *B, Index brs, Index bcs, bool lower)
+copyBlock(Index m, Index n, const double *A, Index ars, Index acs, double *B,
+          Index brs, Index bcs, bool lower)
 {
-    for (Index j=0; j<n; ++j) {
-        for (Index i=lower ? j : 0; i<m; ++i) {
-            B[i*brs+j*bcs] = A[i*ars+j*acs];
-        }
+    for (Index j = 0; j < n; ++j) {
+	for (Index i = lower ? j : 0; i < m; ++i) {
+	    B[i * brs + j * bcs] = A[i * ars + j * acs];
+	}
     }
 }
 
@@ -83,10 +83,10 @@ inline double *
 workspace(std::size_t n, int slot = 0)
 {
     thread_local std::unique_ptr<double[]> w[2];
-    thread_local std::size_t               size[2] = {0, 0};
-    if (size[slot]<n) {
-        w[slot].reset(new double[n]);
-        size[slot] = n;
+    thread_local std::size_t size[2] = {0, 0};
+    if (size[slot] < n) {
+	w[slot].reset(new double[n]);
+	size[slot] = n;
     }
     return w[slot].get();
 }

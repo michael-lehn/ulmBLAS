@@ -20,7 +20,8 @@
 //
 #include <arm_neon.h>
 
-namespace ulmBLAS { namespace neon {
+namespace ulmBLAS {
+namespace neon {
 
 inline void
 sgemm_8x12(long kc, float alpha, const float *A, const float *B, float beta,
@@ -28,77 +29,73 @@ sgemm_8x12(long kc, float alpha, const float *A, const float *B, float beta,
 {
     float32x4_t c[12][2];
 
-    for (int j=0; j<12; ++j) {
-        c[j][0] = c[j][1] = vdupq_n_f32(0);
+    for (int j = 0; j < 12; ++j) {
+	c[j][0] = c[j][1] = vdupq_n_f32(0);
     }
 
-#define ULMBLAS_NEON_SFMA(j, b, l)                                          \
-    c[j][0] = vfmaq_laneq_f32(c[j][0], a0, b, l);                           \
+#define ULMBLAS_NEON_SFMA(j, b, l)                                             \
+    c[j][0] = vfmaq_laneq_f32(c[j][0], a0, b, l);                              \
     c[j][1] = vfmaq_laneq_f32(c[j][1], a1, b, l);
 
-    for (long l=0; l<kc; ++l) {
-        const float32x4_t a0 = vld1q_f32(A), a1 = vld1q_f32(A+4);
-        const float32x4_t b0 = vld1q_f32(B), b1 = vld1q_f32(B+4),
-                          b2 = vld1q_f32(B+8);
+    for (long l = 0; l < kc; ++l) {
+	const float32x4_t a0 = vld1q_f32(A), a1 = vld1q_f32(A + 4);
+	const float32x4_t b0 = vld1q_f32(B), b1 = vld1q_f32(B + 4),
+	                  b2 = vld1q_f32(B + 8);
 
-        ULMBLAS_NEON_SFMA( 0, b0, 0) ULMBLAS_NEON_SFMA( 1, b0, 1)
-        ULMBLAS_NEON_SFMA( 2, b0, 2) ULMBLAS_NEON_SFMA( 3, b0, 3)
-        ULMBLAS_NEON_SFMA( 4, b1, 0) ULMBLAS_NEON_SFMA( 5, b1, 1)
-        ULMBLAS_NEON_SFMA( 6, b1, 2) ULMBLAS_NEON_SFMA( 7, b1, 3)
-        ULMBLAS_NEON_SFMA( 8, b2, 0) ULMBLAS_NEON_SFMA( 9, b2, 1)
-        ULMBLAS_NEON_SFMA(10, b2, 2) ULMBLAS_NEON_SFMA(11, b2, 3)
+	// clang-format off
+	ULMBLAS_NEON_SFMA( 0, b0, 0) ULMBLAS_NEON_SFMA( 1, b0, 1)
+	ULMBLAS_NEON_SFMA( 2, b0, 2) ULMBLAS_NEON_SFMA( 3, b0, 3)
+	ULMBLAS_NEON_SFMA( 4, b1, 0) ULMBLAS_NEON_SFMA( 5, b1, 1)
+	ULMBLAS_NEON_SFMA( 6, b1, 2) ULMBLAS_NEON_SFMA( 7, b1, 3)
+	ULMBLAS_NEON_SFMA( 8, b2, 0) ULMBLAS_NEON_SFMA( 9, b2, 1)
+	ULMBLAS_NEON_SFMA(10, b2, 2) ULMBLAS_NEON_SFMA(11, b2, 3)
+	// clang-format on
 
-        A += 8;
-        B += 12;
+	A += 8;
+	B += 12;
     }
 
 #undef ULMBLAS_NEON_SFMA
 
-    if (incRowC==1) {
-        for (int j=0; j<12; ++j) {
-            float       *p  = C + j*incColC;
-            float32x4_t c0 = vmulq_n_f32(c[j][0], alpha);
-            float32x4_t c1 = vmulq_n_f32(c[j][1], alpha);
-            if (beta!=0.0f) {
-                c0 = vfmaq_n_f32(c0, vld1q_f32(p), beta);
-                c1 = vfmaq_n_f32(c1, vld1q_f32(p+4), beta);
-            }
-            vst1q_f32(p, c0);
-            vst1q_f32(p+4, c1);
-        }
-        return;
+    if (incRowC == 1) {
+	for (int j = 0; j < 12; ++j) {
+	    float *p = C + j * incColC;
+	    float32x4_t c0 = vmulq_n_f32(c[j][0], alpha);
+	    float32x4_t c1 = vmulq_n_f32(c[j][1], alpha);
+	    if (beta != 0.0f) {
+		c0 = vfmaq_n_f32(c0, vld1q_f32(p), beta);
+		c1 = vfmaq_n_f32(c1, vld1q_f32(p + 4), beta);
+	    }
+	    vst1q_f32(p, c0);
+	    vst1q_f32(p + 4, c1);
+	}
+	return;
     }
 
-    float C_[8*12];
-    for (int j=0; j<12; ++j) {
-        vst1q_f32(C_ + 8*j,     vmulq_n_f32(c[j][0], alpha));
-        vst1q_f32(C_ + 8*j + 4, vmulq_n_f32(c[j][1], alpha));
+    float C_[8 * 12];
+    for (int j = 0; j < 12; ++j) {
+	vst1q_f32(C_ + 8 * j, vmulq_n_f32(c[j][0], alpha));
+	vst1q_f32(C_ + 8 * j + 4, vmulq_n_f32(c[j][1], alpha));
     }
-    for (long j=0; j<12; ++j) {
-        for (long i=0; i<8; ++i) {
-            float &x = C[i*incRowC+j*incColC];
-            x = (beta==0.0f) ? C_[i+8*j] : beta*x + C_[i+8*j];
-        }
+    for (long j = 0; j < 12; ++j) {
+	for (long i = 0; i < 8; ++i) {
+	    float &x = C[i * incRowC + j * incColC];
+	    x = (beta == 0.0f) ? C_[i + 8 * j] : beta * x + C_[i + 8 * j];
+	}
     }
 }
 
 template <typename IndexType>
-static typename std::enable_if<std::is_convertible<IndexType,long>::value,
-void>::type
-ugemm(IndexType      kc,
-      const float    &alpha,
-      const float    *A,
-      const float    *B,
-      const float    &beta,
-      float          *C,
-      IndexType      incRowC,
-      IndexType      incColC,
-      const float    *,
-      const float    *)
+static typename std::enable_if<std::is_convertible<IndexType, long>::value,
+                               void>::type
+ugemm(IndexType kc, const float &alpha, const float *A, const float *B,
+      const float &beta, float *C, IndexType incRowC, IndexType incColC,
+      const float *, const float *)
 {
     sgemm_8x12(long(kc), alpha, A, B, beta, C, long(incRowC), long(incColC));
 }
 
-} } // namespace neon, ulmBLAS
+} // namespace neon
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL3_UKERNEL_NEON_SGEMM_TCC

@@ -32,13 +32,9 @@
 namespace cULMblas {
 
 void
-gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
-     double alpha,
-     const double *A, std::ptrdiff_t ldA,
-     const double *B, std::ptrdiff_t ldB,
-     double beta,
-     double *C, std::ptrdiff_t ldC,
-     cudaStream_t stream = 0);
+gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k, double alpha,
+     const double *A, std::ptrdiff_t ldA, const double *B, std::ptrdiff_t ldB,
+     double beta, double *C, std::ptrdiff_t ldC, cudaStream_t stream = 0);
 
 //
 //  Checks of the arguments shared by all implementations (throws
@@ -46,9 +42,8 @@ gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
 //
 void
 checkGemmArguments(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
-                   const double *A, std::ptrdiff_t ldA,
-                   const double *B, std::ptrdiff_t ldB,
-                   const double *C, std::ptrdiff_t ldC);
+                   const double *A, std::ptrdiff_t ldA, const double *B,
+                   std::ptrdiff_t ldB, const double *C, std::ptrdiff_t ldC);
 
 } // namespace cULMblas
 

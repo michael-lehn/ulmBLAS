@@ -5,17 +5,10 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TA, typename TX,
           typename Beta, typename TY>
-    void
-    sylmv(IndexType    n,
-          const Alpha  &alpha,
-          const TA     *A,
-          IndexType    incRowA,
-          IndexType    incColA,
-          const TX     *x,
-          IndexType    incX,
-          const Beta   &beta,
-          TY           *y,
-          IndexType    incY);
+void
+sylmv(IndexType n, const Alpha &alpha, const TA *A, IndexType incRowA,
+      IndexType incColA, const TX *x, IndexType incX, const Beta &beta, TY *y,
+      IndexType incY);
 
 } // namespace ulmBLAS
 

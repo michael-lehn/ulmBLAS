@@ -11,46 +11,38 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename T, typename PivIndex>
 void
-laswp(IndexType    n,
-      T            *A,
-      IndexType    incRowA,
-      IndexType    incColA,
-      IndexType    k1,
-      IndexType    k2,
-      PivIndex     *piv,
-      IndexType    incPiv)
+laswp(IndexType n, T *A, IndexType incRowA, IndexType incColA, IndexType k1,
+      IndexType k2, PivIndex *piv, IndexType incPiv)
 {
-    const IndexType inc = (incPiv > 0) ? 1    : -1;
-    const IndexType i1  = (incPiv > 0) ? k1   : k2-1;
-    const IndexType i2  = (incPiv > 0) ? k2-1 : k1;
+    const IndexType inc = (incPiv > 0) ? 1 : -1;
+    const IndexType i1 = (incPiv > 0) ? k1 : k2 - 1;
+    const IndexType i2 = (incPiv > 0) ? k2 - 1 : k1;
 
-    if (incPiv==0 || n==0) {
-        return;
+    if (incPiv == 0 || n == 0) {
+	return;
     }
 
-    const IndexType n32 = (n/32)*32;
+    const IndexType n32 = (n / 32) * 32;
 
-    if (n32!=0) {
-        for (IndexType j=0; j<n32; j+=32) {
-            for (IndexType i=i1; i<=i2; i+=inc) {
-                IndexType ip = piv[i*incPiv];
-                if (ip!=i) {
-                    swap(IndexType(32),
-                         &A[ip*incRowA+j*incColA], incColA,
-                         &A[i *incRowA+j*incColA], incColA);
-                }
-            }
-        }
+    if (n32 != 0) {
+	for (IndexType j = 0; j < n32; j += 32) {
+	    for (IndexType i = i1; i <= i2; i += inc) {
+		IndexType ip = piv[i * incPiv];
+		if (ip != i) {
+		    swap(IndexType(32), &A[ip * incRowA + j * incColA], incColA,
+		         &A[i * incRowA + j * incColA], incColA);
+		}
+	    }
+	}
     }
-    if (n32!=n) {
-        for (IndexType i=i1; i<=i2; i+=inc) {
-            IndexType ip = piv[i*incPiv];
-            if (ip!=i) {
-                swap(n-n32,
-                     &A[ip*incRowA+n32*incColA], incColA,
-                     &A[i *incRowA+n32*incColA], incColA);
-            }
-        }
+    if (n32 != n) {
+	for (IndexType i = i1; i <= i2; i += inc) {
+	    IndexType ip = piv[i * incPiv];
+	    if (ip != i) {
+		swap(n - n32, &A[ip * incRowA + n32 * incColA], incColA,
+		     &A[i * incRowA + n32 * incColA], incColA);
+	    }
+	}
     }
 }
 

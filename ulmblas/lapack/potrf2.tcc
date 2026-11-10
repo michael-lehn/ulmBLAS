@@ -41,9 +41,8 @@ herkLower(IndexType n, IndexType k, const T *A, IndexType rs, IndexType cs,
 //  B := B L^{-H}, L lower triangular (m x m), B n x m
 template <typename IndexType, typename T>
 void
-trsmRightLowerConjTrans(IndexType m, IndexType n,
-                        const T *L, IndexType rs, IndexType cs,
-                        T *B, IndexType brs, IndexType bcs)
+trsmRightLowerConjTrans(IndexType m, IndexType n, const T *L, IndexType rs,
+                        IndexType cs, T *B, IndexType brs, IndexType bcs)
 {
     //  B L^H = B0  <=>  conj(L) B^T = B0^T
     trlsm(m, n, T(1), true, false, L, rs, cs, B, bcs, brs);
@@ -53,43 +52,40 @@ template <typename IndexType, typename T>
 IndexType
 rec(IndexType n, T *A, IndexType rs, IndexType cs)
 {
-    if (n<=ULMBLAS_POTRF2_BASE) {
-        return potf2(n, A, rs, cs);
+    if (n <= ULMBLAS_POTRF2_BASE) {
+	return potf2(n, A, rs, cs);
     }
-    const IndexType n1 = n/2;
-    const IndexType n2 = n-n1;
+    const IndexType n1 = n / 2;
+    const IndexType n2 = n - n1;
 
     IndexType info = rec(n1, A, rs, cs);
     if (info) {
-        return info;
+	return info;
     }
-    T *A21 = &A[n1*rs];
-    T *A22 = &A[n1*(rs+cs)];
+    T *A21 = &A[n1 * rs];
+    T *A22 = &A[n1 * (rs + cs)];
 
     trsmRightLowerConjTrans(n1, n2, A, rs, cs, A21, rs, cs);
     herkLower(n2, n1, A21, rs, cs, A22, rs, cs);
 
     info = rec(n2, A22, rs, cs);
-    return info ? info+n1 : 0;
+    return info ? info + n1 : 0;
 }
 
 } // namespace potrf2_impl
 
 template <typename IndexType, typename T>
 IndexType
-potrf2(IndexType    n,
-       T            *A,
-       IndexType    incRowA,
-       IndexType    incColA)
+potrf2(IndexType n, T *A, IndexType incRowA, IndexType incColA)
 {
     ULMBLAS_LAPACK_REQUIRE_FLOATING_POINT(T);
 
-    if (n<=0) {
-        return 0;
+    if (n <= 0) {
+	return 0;
     }
     return withUnitStride(n, n, A, incRowA, incColA, true,
                           [n](T *B, IndexType rs, IndexType cs) {
-                              return potrf2_impl::rec(n, B, rs, cs);
+	                      return potrf2_impl::rec(n, B, rs, cs);
                           });
 }
 

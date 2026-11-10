@@ -7,16 +7,14 @@
 namespace ulmBLAS {
 
 template <typename T>
-typename std::enable_if<std::is_fundamental<T>::value,
-         const T &>::type
+typename std::enable_if<std::is_fundamental<T>::value, const T &>::type
 real(const T &x)
 {
     return x;
 }
 
 template <typename T>
-typename std::enable_if<! std::is_fundamental<T>::value,
-         const T>::type
+typename std::enable_if<!std::is_fundamental<T>::value, const T>::type
 real(const T &x)
 {
     return std::real(x);

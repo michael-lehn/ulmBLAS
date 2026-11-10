@@ -10,39 +10,32 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TX, typename TA>
 void
-hpur(IndexType    n,
-     const Alpha  &alpha,
-     bool         conjX,
-     const TX     *x,
-     IndexType    incX,
-     TA           *A)
+hpur(IndexType n, const Alpha &alpha, bool conjX, const TX *x, IndexType incX,
+     TA *A)
 {
-    if (n==0 || alpha==Alpha(0)) {
-        return;
+    if (n == 0 || alpha == Alpha(0)) {
+	return;
     }
 
     if (!conjX) {
-        for (IndexType j=0; j<n; ++j) {
-            axpy(j+1, alpha*conjugate(x[j*incX]), x, incX, A, IndexType(1));
-            A[j] = real(A[j]);
-            A += j+1;
-        }
+	for (IndexType j = 0; j < n; ++j) {
+	    axpy(j + 1, alpha * conjugate(x[j * incX]), x, incX, A,
+	         IndexType(1));
+	    A[j] = real(A[j]);
+	    A += j + 1;
+	}
     } else {
-        for (IndexType j=0; j<n; ++j) {
-            acxpy(j+1, alpha*x[j*incX], x, incX, A, IndexType(1));
-            A[j] = real(A[j]);
-            A += j+1;
-        }
+	for (IndexType j = 0; j < n; ++j) {
+	    acxpy(j + 1, alpha * x[j * incX], x, incX, A, IndexType(1));
+	    A[j] = real(A[j]);
+	    A += j + 1;
+	}
     }
 }
 
 template <typename IndexType, typename Alpha, typename TX, typename TA>
 void
-hpur(IndexType    n,
-     const Alpha  &alpha,
-     const TX     *x,
-     IndexType    incX,
-     TA           *A)
+hpur(IndexType n, const Alpha &alpha, const TX *x, IndexType incX, TA *A)
 {
     hpur(n, alpha, false, x, incX, A);
 }

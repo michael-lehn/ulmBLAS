@@ -23,7 +23,8 @@
 #include <limits>
 #include <stdexcept>
 
-namespace cULMblas { namespace step01 {
+namespace cULMblas {
+namespace step01 {
 
 namespace {
 
@@ -31,57 +32,51 @@ namespace {
 std::ptrdiff_t
 ceildiv(std::ptrdiff_t a, std::ptrdiff_t b)
 {
-    return a/b + (a%b != 0);
+    return a / b + (a % b != 0);
 }
 
 //  __launch_bounds__: a block has 32 x 32 = 1024 threads, the maximum.  The
 //  compiler then limits the registers per thread so that a block fits on a
 //  multiprocessor; otherwise the launch could fail with "too many resources
 //  requested".
-__global__ void __launch_bounds__(BlockDim*BlockDim)
-dgemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
-      double alpha,
-      const double *A, std::ptrdiff_t ldA,
-      const double *B, std::ptrdiff_t ldB,
-      double beta,
-      double *C, std::ptrdiff_t ldC)
+__global__ void
+__launch_bounds__(BlockDim *BlockDim)
+    dgemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k, double alpha,
+          const double *A, std::ptrdiff_t ldA, const double *B,
+          std::ptrdiff_t ldB, double beta, double *C, std::ptrdiff_t ldC)
 {
-    std::ptrdiff_t i = std::ptrdiff_t(blockIdx.x)*blockDim.x + threadIdx.x;
-    std::ptrdiff_t j = std::ptrdiff_t(blockIdx.y)*blockDim.y + threadIdx.y;
+    std::ptrdiff_t i = std::ptrdiff_t(blockIdx.x) * blockDim.x + threadIdx.x;
+    std::ptrdiff_t j = std::ptrdiff_t(blockIdx.y) * blockDim.y + threadIdx.y;
 
     //  threads of the blocks at the bottom and the right of C idle
     if (i >= m || j >= n) {
-        return;
+	return;
     }
 
     double ab = 0;
     if (alpha != 0) {
-        for (std::ptrdiff_t l = 0; l < k; ++l) {
-            ab += A[i + l*ldA] * B[l + j*ldB];
-        }
+	for (std::ptrdiff_t l = 0; l < k; ++l) {
+	    ab += A[i + l * ldA] * B[l + j * ldB];
+	}
     }
 
     //  beta == 0: C is not read, it may contain NaN
-    double &c = C[i + j*ldC];
-    c = (beta == 0) ? alpha*ab : beta*c + alpha*ab;
+    double &c = C[i + j * ldC];
+    c = (beta == 0) ? alpha * ab : beta * c + alpha * ab;
 }
 
 } // namespace
 
 void
-gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
-     double alpha,
-     const double *A, std::ptrdiff_t ldA,
-     const double *B, std::ptrdiff_t ldB,
-     double beta,
-     double *C, std::ptrdiff_t ldC,
-     cudaStream_t stream)
+gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k, double alpha,
+     const double *A, std::ptrdiff_t ldA, const double *B, std::ptrdiff_t ldB,
+     double beta, double *C, std::ptrdiff_t ldC, cudaStream_t stream)
 {
     checkGemmArguments(m, n, k, A, ldA, B, ldB, C, ldC);
 
     //  nothing to do (no grid of size 0: that is not a valid launch)
     if (m == 0 || n == 0 || ((alpha == 0 || k == 0) && beta == 1)) {
-        return;
+	return;
     }
 
     std::ptrdiff_t numBlocksM = ceildiv(m, BlockDim);
@@ -89,17 +84,18 @@ gemm(std::ptrdiff_t m, std::ptrdiff_t n, std::ptrdiff_t k,
 
     //  limits of the grid: gridDim.x <= 2^31 - 1, gridDim.y <= 65535
     if (numBlocksM > std::numeric_limits<int>::max() || numBlocksN > 65535) {
-        throw std::invalid_argument("cULMblas::step01::gemm: m or n too "
-                                    "large for the grid of this kernel");
+	throw std::invalid_argument("cULMblas::step01::gemm: m or n too "
+	                            "large for the grid of this kernel");
     }
 
     dim3 block(BlockDim, BlockDim);
     dim3 grid(static_cast<unsigned>(numBlocksM),
               static_cast<unsigned>(numBlocksN));
 
-    dgemm<<<grid, block, 0, stream>>>(m, n, k, alpha, A, ldA, B, ldB,
-                                      beta, C, ldC);
+    dgemm<<<grid, block, 0, stream>>>(m, n, k, alpha, A, ldA, B, ldB, beta, C,
+                                      ldC);
     CULMBLAS_CHECK_CUDA(cudaGetLastError());
 }
 
-} } // namespace step01, cULMblas
+} // namespace step01
+} // namespace cULMblas

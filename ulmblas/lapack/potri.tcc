@@ -9,15 +9,11 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename T>
 IndexType
-potri(bool         lower,
-      IndexType    n,
-      T            *A,
-      IndexType    incRowA,
-      IndexType    incColA)
+potri(bool lower, IndexType n, T *A, IndexType incRowA, IndexType incColA)
 {
     const IndexType info = trtri(lower, false, n, A, incRowA, incColA);
-    if (info==0) {
-        lauum(lower, n, A, incRowA, incColA);
+    if (info == 0) {
+	lauum(lower, n, A, incRowA, incColA);
     }
     return info;
 }

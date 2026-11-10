@@ -8,22 +8,18 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename VX, typename VY>
 void
-swap(IndexType      n,
-     VX             *x,
-     IndexType      incX,
-     VY             *y,
-     IndexType      incY)
+swap(IndexType n, VX *x, IndexType incX, VY *y, IndexType incY)
 {
-    constexpr IndexType   UnitStride(1);
+    constexpr IndexType UnitStride(1);
 
-    if (incX==UnitStride && incY==UnitStride) {
-        for (IndexType i=0; i<n; ++i) {
-            std::swap(x[i], y[i]);
-        }
-     } else {
-        for (IndexType i=0; i<n; ++i) {
-            std::swap(x[i*incX], y[i*incY]);
-        }
+    if (incX == UnitStride && incY == UnitStride) {
+	for (IndexType i = 0; i < n; ++i) {
+	    std::swap(x[i], y[i]);
+	}
+    } else {
+	for (IndexType i = 0; i < n; ++i) {
+	    std::swap(x[i * incX], y[i * incY]);
+	}
     }
 }
 

@@ -25,8 +25,8 @@ namespace ulmlapack {
 typedef std::ptrdiff_t Index;
 
 Index
-getrf(Index m, Index n, double *A, Index incRowA, Index incColA,
-      Index *piv, Index incPiv = 1, const ulmlapack_param *param = 0);
+getrf(Index m, Index n, double *A, Index incRowA, Index incColA, Index *piv,
+      Index incPiv = 1, const ulmlapack_param *param = 0);
 
 //  Lower: A = L L^T, upper: A = U^T U; only that triangle is referenced.
 Index
@@ -59,50 +59,50 @@ potrf_tiled(bool lower, Index n, double *A, Index incRowA, Index incColA,
 //
 class TileMatrix
 {
-    public:
-        TileMatrix(Index m_, Index n_, Index nb_)
-            : m(m_), n(n_), nb(nb_), mt((m_+nb_-1)/nb_), nt((n_+nb_-1)/nb_),
-              data_(std::size_t(mt)*nt*nb_*nb_)
-        {
-        }
+  public:
+    TileMatrix(Index m_, Index n_, Index nb_)
+        : m(m_), n(n_), nb(nb_), mt((m_ + nb_ - 1) / nb_),
+          nt((n_ + nb_ - 1) / nb_), data_(std::size_t(mt) * nt * nb_ * nb_)
+    {
+    }
 
-        double *
-        tile(Index i, Index j)
-        {
-            return &data_[std::size_t(i+j*mt)*nb*nb];
-        }
+    double *
+    tile(Index i, Index j)
+    {
+	return &data_[std::size_t(i + j * mt) * nb * nb];
+    }
 
-        double &
-        operator()(Index i, Index j)
-        {
-            return tile(i/nb, j/nb)[i%nb + (j%nb)*nb];
-        }
+    double &
+    operator()(Index i, Index j)
+    {
+	return tile(i / nb, j / nb)[i % nb + (j % nb) * nb];
+    }
 
-        //  copy in from / out to a strided matrix
-        void
-        assign(const double *A, Index incRowA, Index incColA)
-        {
-            for (Index j=0; j<n; ++j) {
-                for (Index i=0; i<m; ++i) {
-                    (*this)(i, j) = A[i*incRowA+j*incColA];
-                }
-            }
-        }
+    //  copy in from / out to a strided matrix
+    void
+    assign(const double *A, Index incRowA, Index incColA)
+    {
+	for (Index j = 0; j < n; ++j) {
+	    for (Index i = 0; i < m; ++i) {
+		(*this)(i, j) = A[i * incRowA + j * incColA];
+	    }
+	}
+    }
 
-        void
-        copyTo(double *A, Index incRowA, Index incColA)
-        {
-            for (Index j=0; j<n; ++j) {
-                for (Index i=0; i<m; ++i) {
-                    A[i*incRowA+j*incColA] = (*this)(i, j);
-                }
-            }
-        }
+    void
+    copyTo(double *A, Index incRowA, Index incColA)
+    {
+	for (Index j = 0; j < n; ++j) {
+	    for (Index i = 0; i < m; ++i) {
+		A[i * incRowA + j * incColA] = (*this)(i, j);
+	    }
+	}
+    }
 
-        const Index m, n, nb, mt, nt;
+    const Index m, n, nb, mt, nt;
 
-    private:
-        std::vector<double> data_;
+  private:
+    std::vector<double> data_;
 };
 
 //  Cholesky factorization of the lower triangle of a square TileMatrix

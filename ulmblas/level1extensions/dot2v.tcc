@@ -9,18 +9,12 @@ namespace ulmBLAS {
 template <typename IndexType, typename VX0, typename VX1, typename VY,
           typename Result>
 void
-dotu2v(IndexType      n,
-       const VX0      *x0,
-       IndexType      incX0,
-       const VX1      *x1,
-       IndexType      incX1,
-       VY             *y,
-       IndexType      incY,
-       Result         *result,
-       IndexType      resultInc)
+dotu2v(IndexType n, const VX0 *x0, IndexType incX0, const VX1 *x1,
+       IndexType incX1, VY *y, IndexType incY, Result *result,
+       IndexType resultInc)
 {
-    SELECT_DOT2V_KERNEL::dotu2v(n, x0, incX0, x1, incX1, y, incY,
-                                result, resultInc);
+    SELECT_DOT2V_KERNEL::dotu2v(n, x0, incX0, x1, incX1, y, incY, result,
+                                resultInc);
 }
 
 } // namespace ulmBLAS

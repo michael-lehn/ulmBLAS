@@ -24,13 +24,11 @@ struct GenericBlockSize
 
 #if defined(USE_TESTPARAM)
 
-template <typename T>
-struct BlockSize
+template <typename T> struct BlockSize
 {
     static constexpr int MC = USE_TESTPARAM_MC;
     static constexpr int KC = USE_TESTPARAM_KC;
     static constexpr int NC = USE_TESTPARAM_NC;
-
 
     static constexpr int MR = USE_TESTPARAM_MR;
     static constexpr int NR = USE_TESTPARAM_NR;
@@ -38,17 +36,17 @@ struct BlockSize
     //  gepack_A packs PACK_A_PANELS panels of A together if the columns of A
     //  are at least PACK_A_GROUP_DISTANCE bytes apart (not measured for this
     //  configuration).
-    static constexpr int PACK_A_PANELS         = 4;
+    static constexpr int PACK_A_PANELS = 4;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0
-                  && PACK_A_PANELS>0 && PACK_A_GROUP_DISTANCE>0,
+    static_assert(MC > 0 && KC > 0 && NC > 0 && MR > 0 && NR > 0 &&
+                      PACK_A_PANELS > 0 && PACK_A_GROUP_DISTANCE > 0,
                   "Invalid block size.");
 
     //  The packing buffers hold MC x KC (A), KC x NC (B) or MC x MC and
     //  MC x NC elements (plus MR or NR for reading ahead), panels are zero
     //  padded to multiples of MR (A) and NR (B).
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
@@ -61,59 +59,57 @@ struct BlockSize
 //  than MC = 72 for syrk, symm, trmm and trsm, and up to 3% for gemm.
 //
 
-template <typename T>
-struct BlockSize
+template <typename T> struct BlockSize
 {
-    static constexpr int MC
-        = std::is_same<float, T>::value                ? 768
-        : std::is_same<double, T>::value               ? 288
-        : std::is_same<std::complex<float>, T>::value  ? 384
-        : std::is_same<std::complex<double>, T>::value ? 192
-        : GenericBlockSize::MC;
+    static constexpr int MC =
+        std::is_same<float, T>::value                  ? 768
+	: std::is_same<double, T>::value               ? 288
+	: std::is_same<std::complex<float>, T>::value  ? 384
+	: std::is_same<std::complex<double>, T>::value ? 192
+	                                               : GenericBlockSize::MC;
 
-    static constexpr int KC
-        = std::is_same<float, T>::value                ? 384
-        : std::is_same<double, T>::value               ? 256
-        : std::is_same<std::complex<float>, T>::value  ? 384
-        : std::is_same<std::complex<double>, T>::value ? 192
-        : GenericBlockSize::KC;
+    static constexpr int KC =
+        std::is_same<float, T>::value                  ? 384
+	: std::is_same<double, T>::value               ? 256
+	: std::is_same<std::complex<float>, T>::value  ? 384
+	: std::is_same<std::complex<double>, T>::value ? 192
+	                                               : GenericBlockSize::KC;
 
-    static constexpr int NC
-        = std::is_same<float, T>::value                ? 4096
-        : std::is_same<double, T>::value               ? 4080
-        : std::is_same<std::complex<float>, T>::value  ? 4096
-        : std::is_same<std::complex<double>, T>::value ? 4096
-        : GenericBlockSize::NC;
+    static constexpr int NC =
+        std::is_same<float, T>::value                  ? 4096
+	: std::is_same<double, T>::value               ? 4080
+	: std::is_same<std::complex<float>, T>::value  ? 4096
+	: std::is_same<std::complex<double>, T>::value ? 4096
+	                                               : GenericBlockSize::NC;
 
+    static constexpr int MR = std::is_same<float, T>::value                 ? 8
+                              : std::is_same<double, T>::value              ? 6
+                              : std::is_same<std::complex<float>, T>::value ? 4
+                              : std::is_same<std::complex<double>, T>::value
+                                  ? 2
+                                  : GenericBlockSize::MR;
 
-    static constexpr int MR
-        = std::is_same<float, T>::value                ? 8
-        : std::is_same<double, T>::value               ? 6
-        : std::is_same<std::complex<float>, T>::value  ? 4
-        : std::is_same<std::complex<double>, T>::value ? 2
-        : GenericBlockSize::MR;
-
-    static constexpr int NR
-        = std::is_same<float, T>::value                ? 4
-        : std::is_same<double, T>::value               ? 8
-        : std::is_same<std::complex<float>, T>::value  ? 2
-        : std::is_same<std::complex<double>, T>::value ? 2
-        : GenericBlockSize::NR;
+    static constexpr int NR = std::is_same<float, T>::value                 ? 4
+                              : std::is_same<double, T>::value              ? 8
+                              : std::is_same<std::complex<float>, T>::value ? 2
+                              : std::is_same<std::complex<double>, T>::value
+                                  ? 2
+                                  : GenericBlockSize::NR;
 
     //  gepack_A packs PACK_A_PANELS panels of A together if the columns of A
     //  are at least PACK_A_GROUP_DISTANCE bytes apart (measured for double on
     //  an Intel Core i5-12500).
-    static constexpr int PACK_A_PANELS         = 4;
+    static constexpr int PACK_A_PANELS = 4;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0
-                  && PACK_A_PANELS>0 && PACK_A_GROUP_DISTANCE>0,
+    static_assert(MC > 0 && KC > 0 && NC > 0 && MR > 0 && NR > 0 &&
+                      PACK_A_PANELS > 0 && PACK_A_GROUP_DISTANCE > 0,
                   "Invalid block size.");
 
     //  The packing buffers hold MC x KC (A), KC x NC (B) or MC x MC and
     //  MC x NC elements (plus MR or NR for reading ahead), panels are zero
     //  padded to multiples of MR (A) and NR (B).
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
@@ -145,61 +141,59 @@ struct BlockSize
 //  large n, 9% slower for small m).
 //
 
-template <typename T>
-struct BlockSize
+template <typename T> struct BlockSize
 {
-    static constexpr int MC
-        = std::is_same<float, T>::value                ? 512
-        : std::is_same<double, T>::value               ? 384
-        : std::is_same<std::complex<float>, T>::value  ? 384
-        : std::is_same<std::complex<double>, T>::value ? 384
-        : GenericBlockSize::MC;
+    static constexpr int MC =
+        std::is_same<float, T>::value                  ? 512
+	: std::is_same<double, T>::value               ? 384
+	: std::is_same<std::complex<float>, T>::value  ? 384
+	: std::is_same<std::complex<double>, T>::value ? 384
+	                                               : GenericBlockSize::MC;
 
-    static constexpr int KC
-        = std::is_same<float, T>::value                ? 2048
-        : std::is_same<double, T>::value               ? 1024
-        : std::is_same<std::complex<float>, T>::value  ? 1024
-        : std::is_same<std::complex<double>, T>::value ? 1024
-        : GenericBlockSize::KC;
+    static constexpr int KC =
+        std::is_same<float, T>::value                  ? 2048
+	: std::is_same<double, T>::value               ? 1024
+	: std::is_same<std::complex<float>, T>::value  ? 1024
+	: std::is_same<std::complex<double>, T>::value ? 1024
+	                                               : GenericBlockSize::KC;
 
-    static constexpr int NC
-        = std::is_same<float, T>::value                ? 1024
-        : std::is_same<double, T>::value               ? 1024
-        : std::is_same<std::complex<float>, T>::value  ? 1024
-        : std::is_same<std::complex<double>, T>::value ? 1024
-        : GenericBlockSize::NC;
+    static constexpr int NC =
+        std::is_same<float, T>::value                  ? 1024
+	: std::is_same<double, T>::value               ? 1024
+	: std::is_same<std::complex<float>, T>::value  ? 1024
+	: std::is_same<std::complex<double>, T>::value ? 1024
+	                                               : GenericBlockSize::NC;
 
+    static constexpr int MR = std::is_same<float, T>::value                 ? 32
+                              : std::is_same<double, T>::value              ? 32
+                              : std::is_same<std::complex<float>, T>::value ? 32
+                              : std::is_same<std::complex<double>, T>::value
+                                  ? 16
+                                  : GenericBlockSize::MR;
 
-    static constexpr int MR
-        = std::is_same<float, T>::value                ? 32
-        : std::is_same<double, T>::value               ? 32
-        : std::is_same<std::complex<float>, T>::value  ? 32
-        : std::is_same<std::complex<double>, T>::value ? 16
-        : GenericBlockSize::MR;
-
-    static constexpr int NR
-        = std::is_same<float, T>::value                ? 32
-        : std::is_same<double, T>::value               ? 16
-        : std::is_same<std::complex<float>, T>::value  ? 16
-        : std::is_same<std::complex<double>, T>::value ? 16
-        : GenericBlockSize::NR;
+    static constexpr int NR = std::is_same<float, T>::value                 ? 32
+                              : std::is_same<double, T>::value              ? 16
+                              : std::is_same<std::complex<float>, T>::value ? 16
+                              : std::is_same<std::complex<double>, T>::value
+                                  ? 16
+                                  : GenericBlockSize::NR;
 
     //  gepack_A packs PACK_A_PANELS panels of A together if the columns of A
     //  are at least PACK_A_GROUP_DISTANCE bytes apart.  The SME packing
     //  routine for double packs panel by panel with prefetching (see
     //  ulmblas/level3/ukernel/sme/pack.tcc); grouping 2, 4, 8 or 19 panels
     //  made no measurable difference with the reference routine.
-    static constexpr int PACK_A_PANELS         = 1;
+    static constexpr int PACK_A_PANELS = 1;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0
-                  && PACK_A_PANELS>0 && PACK_A_GROUP_DISTANCE>0,
+    static_assert(MC > 0 && KC > 0 && NC > 0 && MR > 0 && NR > 0 &&
+                      PACK_A_PANELS > 0 && PACK_A_GROUP_DISTANCE > 0,
                   "Invalid block size.");
 
     //  The packing buffers hold MC x KC (A), KC x NC (B) or MC x MC and
     //  MC x NC elements (plus MR or NR for reading ahead), panels are zero
     //  padded to multiples of MR (A) and NR (B).
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
@@ -219,175 +213,169 @@ struct BlockSize
 //  float MC = 960, KC = 1024, complex float MC = 384, KC = 1024.
 //
 
-template <typename T>
-struct BlockSize
+template <typename T> struct BlockSize
 {
-    static constexpr int MC
-        = std::is_same<float, T>::value                ? 960
-        : std::is_same<double, T>::value               ? 960
-        : std::is_same<std::complex<float>, T>::value  ? 384
-        : std::is_same<std::complex<double>, T>::value ? 192
-        : GenericBlockSize::MC;
+    static constexpr int MC =
+        std::is_same<float, T>::value                  ? 960
+	: std::is_same<double, T>::value               ? 960
+	: std::is_same<std::complex<float>, T>::value  ? 384
+	: std::is_same<std::complex<double>, T>::value ? 192
+	                                               : GenericBlockSize::MC;
 
-    static constexpr int KC
-        = std::is_same<float, T>::value                ? 1024
-        : std::is_same<double, T>::value               ? 1024
-        : std::is_same<std::complex<float>, T>::value  ? 1024
-        : std::is_same<std::complex<double>, T>::value ? 512
-        : GenericBlockSize::KC;
+    static constexpr int KC =
+        std::is_same<float, T>::value                  ? 1024
+	: std::is_same<double, T>::value               ? 1024
+	: std::is_same<std::complex<float>, T>::value  ? 1024
+	: std::is_same<std::complex<double>, T>::value ? 512
+	                                               : GenericBlockSize::KC;
 
-    static constexpr int NC
-        = std::is_same<float, T>::value                ? 4080
-        : std::is_same<double, T>::value               ? 4080
-        : std::is_same<std::complex<float>, T>::value  ? 4080
-        : std::is_same<std::complex<double>, T>::value ? 4080
-        : GenericBlockSize::NC;
+    static constexpr int NC =
+        std::is_same<float, T>::value                  ? 4080
+	: std::is_same<double, T>::value               ? 4080
+	: std::is_same<std::complex<float>, T>::value  ? 4080
+	: std::is_same<std::complex<double>, T>::value ? 4080
+	                                               : GenericBlockSize::NC;
 
+    static constexpr int MR = std::is_same<float, T>::value                 ? 8
+                              : std::is_same<double, T>::value              ? 6
+                              : std::is_same<std::complex<float>, T>::value ? 4
+                              : std::is_same<std::complex<double>, T>::value
+                                  ? 4
+                                  : GenericBlockSize::MR;
 
-    static constexpr int MR
-        = std::is_same<float, T>::value                ? 8
-        : std::is_same<double, T>::value               ? 6
-        : std::is_same<std::complex<float>, T>::value  ? 4
-        : std::is_same<std::complex<double>, T>::value ? 4
-        : GenericBlockSize::MR;
-
-    static constexpr int NR
-        = std::is_same<float, T>::value                ? 12
-        : std::is_same<double, T>::value               ? 8
-        : std::is_same<std::complex<float>, T>::value  ? 6
-        : std::is_same<std::complex<double>, T>::value ? 3
-        : GenericBlockSize::NR;
+    static constexpr int NR = std::is_same<float, T>::value                 ? 12
+                              : std::is_same<double, T>::value              ? 8
+                              : std::is_same<std::complex<float>, T>::value ? 6
+                              : std::is_same<std::complex<double>, T>::value
+                                  ? 3
+                                  : GenericBlockSize::NR;
 
     //  gepack_A packs PACK_A_PANELS panels of A together if the columns of A
     //  are at least PACK_A_GROUP_DISTANCE bytes apart (measured for double on
     //  an Apple M5).
-    static constexpr int PACK_A_PANELS         = 4;
+    static constexpr int PACK_A_PANELS = 4;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0
-                  && PACK_A_PANELS>0 && PACK_A_GROUP_DISTANCE>0,
+    static_assert(MC > 0 && KC > 0 && NC > 0 && MR > 0 && NR > 0 &&
+                      PACK_A_PANELS > 0 && PACK_A_GROUP_DISTANCE > 0,
                   "Invalid block size.");
 
     //  The packing buffers hold MC x KC (A), KC x NC (B) or MC x MC and
     //  MC x NC elements (plus MR or NR for reading ahead), panels are zero
     //  padded to multiples of MR (A) and NR (B).
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
 #elif defined(USE_SSE)
 
-template <typename T>
-struct BlockSize
+template <typename T> struct BlockSize
 {
-    static constexpr int MC
-        = std::is_same<float, T>::value                ? 768
-        : std::is_same<double, T>::value               ? 384
-        : std::is_same<std::complex<float>, T>::value  ? 384
-        : std::is_same<std::complex<double>, T>::value ? 192
-        : GenericBlockSize::MC;
+    static constexpr int MC =
+        std::is_same<float, T>::value                  ? 768
+	: std::is_same<double, T>::value               ? 384
+	: std::is_same<std::complex<float>, T>::value  ? 384
+	: std::is_same<std::complex<double>, T>::value ? 192
+	                                               : GenericBlockSize::MC;
 
-    static constexpr int KC
-        = std::is_same<float, T>::value                ? 384
-        : std::is_same<double, T>::value               ? 384
-        : std::is_same<std::complex<float>, T>::value  ? 384
-        : std::is_same<std::complex<double>, T>::value ? 192
-        : GenericBlockSize::KC;
+    static constexpr int KC =
+        std::is_same<float, T>::value                  ? 384
+	: std::is_same<double, T>::value               ? 384
+	: std::is_same<std::complex<float>, T>::value  ? 384
+	: std::is_same<std::complex<double>, T>::value ? 192
+	                                               : GenericBlockSize::KC;
 
-    static constexpr int NC
-        = std::is_same<float, T>::value                ? 4096
-        : std::is_same<double, T>::value               ? 4096
-        : std::is_same<std::complex<float>, T>::value  ? 4096
-        : std::is_same<std::complex<double>, T>::value ? 4096
-        : GenericBlockSize::NC;
+    static constexpr int NC =
+        std::is_same<float, T>::value                  ? 4096
+	: std::is_same<double, T>::value               ? 4096
+	: std::is_same<std::complex<float>, T>::value  ? 4096
+	: std::is_same<std::complex<double>, T>::value ? 4096
+	                                               : GenericBlockSize::NC;
 
+    static constexpr int MR = std::is_same<float, T>::value                 ? 8
+                              : std::is_same<double, T>::value              ? 4
+                              : std::is_same<std::complex<float>, T>::value ? 4
+                              : std::is_same<std::complex<double>, T>::value
+                                  ? 2
+                                  : GenericBlockSize::MR;
 
-    static constexpr int MR
-        = std::is_same<float, T>::value                ? 8
-        : std::is_same<double, T>::value               ? 4
-        : std::is_same<std::complex<float>, T>::value  ? 4
-        : std::is_same<std::complex<double>, T>::value ? 2
-        : GenericBlockSize::MR;
-
-    static constexpr int NR
-        = std::is_same<float, T>::value                ? 4
-        : std::is_same<double, T>::value               ? 4
-        : std::is_same<std::complex<float>, T>::value  ? 2
-        : std::is_same<std::complex<double>, T>::value ? 2
-        : GenericBlockSize::NR;
+    static constexpr int NR = std::is_same<float, T>::value                 ? 4
+                              : std::is_same<double, T>::value              ? 4
+                              : std::is_same<std::complex<float>, T>::value ? 2
+                              : std::is_same<std::complex<double>, T>::value
+                                  ? 2
+                                  : GenericBlockSize::NR;
 
     //  gepack_A packs PACK_A_PANELS panels of A together if the columns of A
     //  are at least PACK_A_GROUP_DISTANCE bytes apart (measured for double on
     //  an Intel Core i5-12500).
-    static constexpr int PACK_A_PANELS         = 4;
+    static constexpr int PACK_A_PANELS = 4;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0
-                  && PACK_A_PANELS>0 && PACK_A_GROUP_DISTANCE>0,
+    static_assert(MC > 0 && KC > 0 && NC > 0 && MR > 0 && NR > 0 &&
+                      PACK_A_PANELS > 0 && PACK_A_GROUP_DISTANCE > 0,
                   "Invalid block size.");
 
     //  The packing buffers hold MC x KC (A), KC x NC (B) or MC x MC and
     //  MC x NC elements (plus MR or NR for reading ahead), panels are zero
     //  padded to multiples of MR (A) and NR (B).
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
 #else
 
-template <typename T>
-struct BlockSize
+template <typename T> struct BlockSize
 {
-    static constexpr int MC
-        = std::is_same<float, T>::value                ? 768
-        : std::is_same<double, T>::value               ? 384
-        : std::is_same<std::complex<float>, T>::value  ? 384
-        : std::is_same<std::complex<double>, T>::value ? 192
-        : GenericBlockSize::MC;
+    static constexpr int MC =
+        std::is_same<float, T>::value                  ? 768
+	: std::is_same<double, T>::value               ? 384
+	: std::is_same<std::complex<float>, T>::value  ? 384
+	: std::is_same<std::complex<double>, T>::value ? 192
+	                                               : GenericBlockSize::MC;
 
-    static constexpr int KC
-        = std::is_same<float, T>::value                ? 384
-        : std::is_same<double, T>::value               ? 384
-        : std::is_same<std::complex<float>, T>::value  ? 384
-        : std::is_same<std::complex<double>, T>::value ? 192
-        : GenericBlockSize::KC;
+    static constexpr int KC =
+        std::is_same<float, T>::value                  ? 384
+	: std::is_same<double, T>::value               ? 384
+	: std::is_same<std::complex<float>, T>::value  ? 384
+	: std::is_same<std::complex<double>, T>::value ? 192
+	                                               : GenericBlockSize::KC;
 
-    static constexpr int NC
-        = std::is_same<float, T>::value                ? 4096
-        : std::is_same<double, T>::value               ? 4096
-        : std::is_same<std::complex<float>, T>::value  ? 4096
-        : std::is_same<std::complex<double>, T>::value ? 4096
-        : GenericBlockSize::NC;
+    static constexpr int NC =
+        std::is_same<float, T>::value                  ? 4096
+	: std::is_same<double, T>::value               ? 4096
+	: std::is_same<std::complex<float>, T>::value  ? 4096
+	: std::is_same<std::complex<double>, T>::value ? 4096
+	                                               : GenericBlockSize::NC;
 
+    static constexpr int MR = std::is_same<float, T>::value                 ? 8
+                              : std::is_same<double, T>::value              ? 4
+                              : std::is_same<std::complex<float>, T>::value ? 4
+                              : std::is_same<std::complex<double>, T>::value
+                                  ? 2
+                                  : GenericBlockSize::MR;
 
-    static constexpr int MR
-        = std::is_same<float, T>::value                ? 8
-        : std::is_same<double, T>::value               ? 4
-        : std::is_same<std::complex<float>, T>::value  ? 4
-        : std::is_same<std::complex<double>, T>::value ? 2
-        : GenericBlockSize::MR;
-
-    static constexpr int NR
-        = std::is_same<float, T>::value                ? 4
-        : std::is_same<double, T>::value               ? 4
-        : std::is_same<std::complex<float>, T>::value  ? 2
-        : std::is_same<std::complex<double>, T>::value ? 2
-        : GenericBlockSize::NR;
+    static constexpr int NR = std::is_same<float, T>::value                 ? 4
+                              : std::is_same<double, T>::value              ? 4
+                              : std::is_same<std::complex<float>, T>::value ? 2
+                              : std::is_same<std::complex<double>, T>::value
+                                  ? 2
+                                  : GenericBlockSize::NR;
 
     //  gepack_A packs PACK_A_PANELS panels of A together if the columns of A
     //  are at least PACK_A_GROUP_DISTANCE bytes apart (not measured for this
     //  configuration).
-    static constexpr int PACK_A_PANELS         = 4;
+    static constexpr int PACK_A_PANELS = 4;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0
-                  && PACK_A_PANELS>0 && PACK_A_GROUP_DISTANCE>0,
+    static_assert(MC > 0 && KC > 0 && NC > 0 && MR > 0 && NR > 0 &&
+                      PACK_A_PANELS > 0 && PACK_A_GROUP_DISTANCE > 0,
                   "Invalid block size.");
 
     //  The packing buffers hold MC x KC (A), KC x NC (B) or MC x MC and
     //  MC x NC elements (plus MR or NR for reading ahead), panels are zero
     //  padded to multiples of MR (A) and NR (B).
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
@@ -402,8 +390,7 @@ struct BlockSize
 //  The other data types keep the block sizes above.
 //
 
-template <>
-struct BlockSize<double>
+template <> struct BlockSize<double>
 {
     static constexpr int MC = ULMBLAS_BLIS_DGEMM_MC;
     static constexpr int KC = ULMBLAS_BLIS_DGEMM_KC;
@@ -412,14 +399,14 @@ struct BlockSize<double>
     static constexpr int NR = ULMBLAS_BLIS_DGEMM_NR;
 
     //  as for the AVX/FMA kernel (not measured for these kernels)
-    static constexpr int PACK_A_PANELS         = 4;
+    static constexpr int PACK_A_PANELS = 4;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0
-                  && PACK_A_PANELS>0 && PACK_A_GROUP_DISTANCE>0,
+    static_assert(MC > 0 && KC > 0 && NC > 0 && MR > 0 && NR > 0 &&
+                      PACK_A_PANELS > 0 && PACK_A_GROUP_DISTANCE > 0,
                   "Invalid block size.");
 
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
@@ -435,8 +422,7 @@ struct BlockSize<double>
 //  NC of the configuration.
 //
 
-template <>
-struct BlockSize<float>
+template <> struct BlockSize<float>
 {
 #if defined(USE_TESTPARAM)
     static constexpr int MC = USE_TESTPARAM_MC;
@@ -451,14 +437,14 @@ struct BlockSize<float>
     static constexpr int NR = ULMBLAS_BLIS_SGEMM_NR;
 
     //  as for double (not measured for these kernels)
-    static constexpr int PACK_A_PANELS         = 4;
+    static constexpr int PACK_A_PANELS = 4;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0
-                  && PACK_A_PANELS>0 && PACK_A_GROUP_DISTANCE>0,
+    static_assert(MC > 0 && KC > 0 && NC > 0 && MR > 0 && NR > 0 &&
+                      PACK_A_PANELS > 0 && PACK_A_GROUP_DISTANCE > 0,
                   "Invalid block size.");
 
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
@@ -474,8 +460,7 @@ struct BlockSize<float>
 //  NC of the configuration.
 //
 
-template <>
-struct BlockSize<std::complex<float> >
+template <> struct BlockSize<std::complex<float>>
 {
 #if defined(USE_TESTPARAM)
     static constexpr int MC = USE_TESTPARAM_MC;
@@ -490,14 +475,14 @@ struct BlockSize<std::complex<float> >
     static constexpr int NR = ULMBLAS_BLIS_CGEMM_NR;
 
     //  as for double (not measured for these kernels)
-    static constexpr int PACK_A_PANELS         = 4;
+    static constexpr int PACK_A_PANELS = 4;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0
-                  && PACK_A_PANELS>0 && PACK_A_GROUP_DISTANCE>0,
+    static_assert(MC > 0 && KC > 0 && NC > 0 && MR > 0 && NR > 0 &&
+                      PACK_A_PANELS > 0 && PACK_A_GROUP_DISTANCE > 0,
                   "Invalid block size.");
 
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
@@ -513,8 +498,7 @@ struct BlockSize<std::complex<float> >
 //  NC of the configuration.
 //
 
-template <>
-struct BlockSize<std::complex<double> >
+template <> struct BlockSize<std::complex<double>>
 {
 #if defined(USE_TESTPARAM)
     static constexpr int MC = USE_TESTPARAM_MC;
@@ -529,21 +513,21 @@ struct BlockSize<std::complex<double> >
     static constexpr int NR = ULMBLAS_BLIS_ZGEMM_NR;
 
     //  as for double (not measured for these kernels)
-    static constexpr int PACK_A_PANELS         = 4;
+    static constexpr int PACK_A_PANELS = 4;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC>0 && KC>0 && NC>0 && MR>0 && NR>0
-                  && PACK_A_PANELS>0 && PACK_A_GROUP_DISTANCE>0,
+    static_assert(MC > 0 && KC > 0 && NC > 0 && MR > 0 && NR > 0 &&
+                      PACK_A_PANELS > 0 && PACK_A_GROUP_DISTANCE > 0,
                   "Invalid block size.");
 
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
 #endif
 
-#if defined(USE_TESTPARAM) && (defined(USE_NEON) || defined(USE_SME)) \
- && !defined(USE_BLIS_ZGEMM)
+#if defined(USE_TESTPARAM) && (defined(USE_NEON) || defined(USE_SME)) &&       \
+    !defined(USE_BLIS_ZGEMM)
 
 //
 //  Test configurations with small block sizes and the NEON or SME2
@@ -555,11 +539,10 @@ struct BlockSize<std::complex<double> >
 constexpr int
 testparamRound(int x, int m)
 {
-    return (x/m*m>0) ? x/m*m : m;
+    return (x / m * m > 0) ? x / m * m : m;
 }
 
-template <>
-struct BlockSize<float>
+template <> struct BlockSize<float>
 {
 #if defined(USE_SME)
     static constexpr int MR = 32;
@@ -573,15 +556,14 @@ struct BlockSize<float>
     static constexpr int KC = USE_TESTPARAM_KC;
     static constexpr int NC = testparamRound(USE_TESTPARAM_NC, NR);
 
-    static constexpr int PACK_A_PANELS         = 4;
+    static constexpr int PACK_A_PANELS = 4;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
-template <>
-struct BlockSize<std::complex<float> >
+template <> struct BlockSize<std::complex<float>>
 {
 #if defined(USE_SME)
     static constexpr int MR = 32;
@@ -595,15 +577,14 @@ struct BlockSize<std::complex<float> >
     static constexpr int KC = USE_TESTPARAM_KC;
     static constexpr int NC = testparamRound(USE_TESTPARAM_NC, NR);
 
-    static constexpr int PACK_A_PANELS         = 4;
+    static constexpr int PACK_A_PANELS = 4;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 
-template <>
-struct BlockSize<std::complex<double> >
+template <> struct BlockSize<std::complex<double>>
 {
 #if defined(USE_SME)
     static constexpr int MR = 16;
@@ -617,10 +598,10 @@ struct BlockSize<std::complex<double> >
     static constexpr int KC = USE_TESTPARAM_KC;
     static constexpr int NC = testparamRound(USE_TESTPARAM_NC, NR);
 
-    static constexpr int PACK_A_PANELS         = 4;
+    static constexpr int PACK_A_PANELS = 4;
     static constexpr int PACK_A_GROUP_DISTANCE = 8192;
 
-    static_assert(MC%MR==0 && MC%NR==0 && NC%NR==0,
+    static_assert(MC % MR == 0 && MC % NR == 0 && NC % NR == 0,
                   "MC must be a multiple of MR and NR, NC a multiple of NR.");
 };
 

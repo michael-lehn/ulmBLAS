@@ -1,0 +1,34 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 8
+UseTab: ForIndentation
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterClass: true
+    AfterStruct: true
+    AfterFunction: true
+    AfterControlStatement: false
+    AfterEnum: true
+    AfterNamespace: false
+    BeforeElse: false
+    BeforeCatch: false
+    IndentBraces: false
+
+AlwaysBreakAfterReturnType: All
+AlwaysBreakAfterDefinitionReturnType: All
+
+DerivePointerAlignment: false
+PointerAlignment: Right
+
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+
+#  ulmBLAS: the order of includes matters (implementation files after the
+#  include guard, BLAS_HEADER), so it is not changed
+SortIncludes: Never
+
+#  macros used as complete statements (without semicolon)
+StatementMacros: [ULMBLAS_NEON_SFMA, ULMBLAS_NEON_CFMA]

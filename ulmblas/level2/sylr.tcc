@@ -7,25 +7,20 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TX, typename TA>
 void
-sylr(IndexType    n,
-     const Alpha  &alpha,
-     const TX     *x,
-     IndexType    incX,
-     TA           *A,
-     IndexType    incRowA,
-     IndexType    incColA)
+sylr(IndexType n, const Alpha &alpha, const TX *x, IndexType incX, TA *A,
+     IndexType incRowA, IndexType incColA)
 {
-    if (n==0 || alpha==Alpha(0)) {
-        return;
+    if (n == 0 || alpha == Alpha(0)) {
+	return;
     }
 
-//
-//  Simple reference implementation
-//
-    for (IndexType j=0; j<n; ++j) {
-        for (IndexType i=j; i<n; ++i) {
-            A[i*incRowA+j*incColA] += alpha*x[i*incX]*x[j*incX];
-        }
+    //
+    //  Simple reference implementation
+    //
+    for (IndexType j = 0; j < n; ++j) {
+	for (IndexType i = j; i < n; ++i) {
+	    A[i * incRowA + j * incColA] += alpha * x[i * incX] * x[j * incX];
+	}
     }
 }
 

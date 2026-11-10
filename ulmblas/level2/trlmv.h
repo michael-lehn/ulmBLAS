@@ -4,25 +4,14 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename TA, typename TX>
-    void
-    trlmv(IndexType    n,
-          bool         unitDiag,
-          bool         conjA,
-          const TA     *A,
-          IndexType    incRowA,
-          IndexType    incColA,
-          TX           *x,
-          IndexType    incX);
+void
+trlmv(IndexType n, bool unitDiag, bool conjA, const TA *A, IndexType incRowA,
+      IndexType incColA, TX *x, IndexType incX);
 
 template <typename IndexType, typename TA, typename TX>
-    void
-    trlmv(IndexType    n,
-          bool         unitDiag,
-          const TA     *A,
-          IndexType    incRowA,
-          IndexType    incColA,
-          TX           *x,
-          IndexType    incX);
+void
+trlmv(IndexType n, bool unitDiag, const TA *A, IndexType incRowA,
+      IndexType incColA, TX *x, IndexType incX);
 
 } // namespace ulmBLAS
 

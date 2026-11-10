@@ -11,19 +11,10 @@ namespace ulmBLAS {
 //  tasks/solvetasks.h).
 //
 template <typename IndexType, typename T, typename PivIndex>
-    void
-    getrs(bool             trans,
-          bool             conj,
-          IndexType        n,
-          IndexType        nrhs,
-          const T          *A,
-          IndexType        incRowA,
-          IndexType        incColA,
-          const PivIndex   *piv,
-          IndexType        incPiv,
-          T                *B,
-          IndexType        incRowB,
-          IndexType        incColB);
+void
+getrs(bool trans, bool conj, IndexType n, IndexType nrhs, const T *A,
+      IndexType incRowA, IndexType incColA, const PivIndex *piv,
+      IndexType incPiv, T *B, IndexType incRowB, IndexType incColB);
 
 } // namespace ulmBLAS
 

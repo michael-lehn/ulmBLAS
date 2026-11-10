@@ -20,12 +20,8 @@ namespace ulmBLAS {
 //  recursive algorithm.
 //
 template <typename IndexType, typename T>
-    IndexType
-    potrf(bool         lower,
-          IndexType    n,
-          T            *A,
-          IndexType    incRowA,
-          IndexType    incColA);
+IndexType
+potrf(bool lower, IndexType n, T *A, IndexType incRowA, IndexType incColA);
 
 } // namespace ulmBLAS
 

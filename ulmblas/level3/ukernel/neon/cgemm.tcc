@@ -26,13 +26,14 @@
 #include <arm_neon.h>
 #include <complex>
 
-namespace ulmBLAS { namespace neon {
+namespace ulmBLAS {
+namespace neon {
 
 //  [-x1, x0, -x3, x2] for x = [x0, x1, x2, x3]: multiplication by i
 inline float32x4_t
 mul_i(float32x4_t x)
 {
-    const float32x4_t s = { -1.0f, 1.0f, -1.0f, 1.0f };
+    const float32x4_t s = {-1.0f, 1.0f, -1.0f, 1.0f};
     return vmulq_f32(vrev64q_f32(x), s);
 }
 
@@ -50,79 +51,77 @@ cgemm_4x6(long kc, const std::complex<float> &alpha, const float *A,
 {
     float32x4_t r[6][2], im[6][2];
 
-    for (int j=0; j<6; ++j) {
-        r[j][0] = r[j][1] = im[j][0] = im[j][1] = vdupq_n_f32(0);
+    for (int j = 0; j < 6; ++j) {
+	r[j][0] = r[j][1] = im[j][0] = im[j][1] = vdupq_n_f32(0);
     }
 
-#define ULMBLAS_NEON_CFMA(j, b, l)                                          \
-    r[j][0]  = vfmaq_laneq_f32(r[j][0],  a0, b, l);                         \
-    r[j][1]  = vfmaq_laneq_f32(r[j][1],  a1, b, l);                         \
-    im[j][0] = vfmaq_laneq_f32(im[j][0], a0, b, l+1);                       \
-    im[j][1] = vfmaq_laneq_f32(im[j][1], a1, b, l+1);
+#define ULMBLAS_NEON_CFMA(j, b, l)                                             \
+    r[j][0] = vfmaq_laneq_f32(r[j][0], a0, b, l);                              \
+    r[j][1] = vfmaq_laneq_f32(r[j][1], a1, b, l);                              \
+    im[j][0] = vfmaq_laneq_f32(im[j][0], a0, b, l + 1);                        \
+    im[j][1] = vfmaq_laneq_f32(im[j][1], a1, b, l + 1);
 
-    for (long l=0; l<kc; ++l) {
-        const float32x4_t a0 = vld1q_f32(A), a1 = vld1q_f32(A+4);
-        const float32x4_t b0 = vld1q_f32(B), b1 = vld1q_f32(B+4),
-                          b2 = vld1q_f32(B+8);
+    for (long l = 0; l < kc; ++l) {
+	const float32x4_t a0 = vld1q_f32(A), a1 = vld1q_f32(A + 4);
+	const float32x4_t b0 = vld1q_f32(B), b1 = vld1q_f32(B + 4),
+	                  b2 = vld1q_f32(B + 8);
 
-        ULMBLAS_NEON_CFMA(0, b0, 0) ULMBLAS_NEON_CFMA(1, b0, 2)
-        ULMBLAS_NEON_CFMA(2, b1, 0) ULMBLAS_NEON_CFMA(3, b1, 2)
-        ULMBLAS_NEON_CFMA(4, b2, 0) ULMBLAS_NEON_CFMA(5, b2, 2)
+	// clang-format off
+	ULMBLAS_NEON_CFMA(0, b0, 0) ULMBLAS_NEON_CFMA(1, b0, 2)
+	ULMBLAS_NEON_CFMA(2, b1, 0) ULMBLAS_NEON_CFMA(3, b1, 2)
+	ULMBLAS_NEON_CFMA(4, b2, 0) ULMBLAS_NEON_CFMA(5, b2, 2)
+	// clang-format on
 
-        A += 8;
-        B += 12;
+	A += 8;
+	B += 12;
     }
 
 #undef ULMBLAS_NEON_CFMA
 
     const float ar = alpha.real(), ai = alpha.imag();
-    const float br = beta.real(),  bi = beta.imag();
-    const bool  beta0 = br==0.0f && bi==0.0f;
-    float       *C = reinterpret_cast<float *>(C_);
-    const long  rs = 2*incRowC, cs = 2*incColC;
+    const float br = beta.real(), bi = beta.imag();
+    const bool beta0 = br == 0.0f && bi == 0.0f;
+    float *C = reinterpret_cast<float *>(C_);
+    const long rs = 2 * incRowC, cs = 2 * incColC;
 
-    for (int j=0; j<6; ++j) {
-        for (int h=0; h<2; ++h) {
-            float       *p0 = C + 2*h*rs + j*cs;
-            float       *p1 = p0 + rs;
-            float32x4_t c   = cmul(ar, ai, vaddq_f32(r[j][h], mul_i(im[j][h])));
+    for (int j = 0; j < 6; ++j) {
+	for (int h = 0; h < 2; ++h) {
+	    float *p0 = C + 2 * h * rs + j * cs;
+	    float *p1 = p0 + rs;
+	    float32x4_t c = cmul(ar, ai, vaddq_f32(r[j][h], mul_i(im[j][h])));
 
-            if (incRowC==1) {
-                if (!beta0) {
-                    c = vaddq_f32(c, cmul(br, bi, vld1q_f32(p0)));
-                }
-                vst1q_f32(p0, c);
-            } else {
-                if (!beta0) {
-                    float32x4_t x = vcombine_f32(vld1_f32(p0), vld1_f32(p1));
-                    c = vaddq_f32(c, cmul(br, bi, x));
-                }
-                vst1_f32(p0, vget_low_f32(c));
-                vst1_f32(p1, vget_high_f32(c));
-            }
-        }
+	    if (incRowC == 1) {
+		if (!beta0) {
+		    c = vaddq_f32(c, cmul(br, bi, vld1q_f32(p0)));
+		}
+		vst1q_f32(p0, c);
+	    } else {
+		if (!beta0) {
+		    float32x4_t x = vcombine_f32(vld1_f32(p0), vld1_f32(p1));
+		    c = vaddq_f32(c, cmul(br, bi, x));
+		}
+		vst1_f32(p0, vget_low_f32(c));
+		vst1_f32(p1, vget_high_f32(c));
+	    }
+	}
     }
 }
 
 template <typename IndexType>
-static typename std::enable_if<std::is_convertible<IndexType,long>::value,
-void>::type
-ugemm(IndexType                     kc,
-      const std::complex<float>     &alpha,
-      const std::complex<float>     *A,
-      const std::complex<float>     *B,
-      const std::complex<float>     &beta,
-      std::complex<float>           *C,
-      IndexType                     incRowC,
-      IndexType                     incColC,
-      const std::complex<float>     *,
-      const std::complex<float>     *)
+static typename std::enable_if<std::is_convertible<IndexType, long>::value,
+                               void>::type
+ugemm(IndexType kc, const std::complex<float> &alpha,
+      const std::complex<float> *A, const std::complex<float> *B,
+      const std::complex<float> &beta, std::complex<float> *C,
+      IndexType incRowC, IndexType incColC, const std::complex<float> *,
+      const std::complex<float> *)
 {
     cgemm_4x6(long(kc), alpha, reinterpret_cast<const float *>(A),
               reinterpret_cast<const float *>(B), beta, C, long(incRowC),
               long(incColC));
 }
 
-} } // namespace neon, ulmBLAS
+} // namespace neon
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL3_UKERNEL_NEON_CGEMM_TCC

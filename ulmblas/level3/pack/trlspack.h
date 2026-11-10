@@ -4,14 +4,9 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename TL, typename Buffer>
-    void
-    trlspack(IndexType   mc,
-             bool        conjA,
-             bool        unit,
-             const TL    *L,
-             IndexType   incRowL,
-             IndexType   incColL,
-             Buffer      *buffer);
+void
+trlspack(IndexType mc, bool conjA, bool unit, const TL *L, IndexType incRowL,
+         IndexType incColL, Buffer *buffer);
 
 } // namespace ulmBLAS
 

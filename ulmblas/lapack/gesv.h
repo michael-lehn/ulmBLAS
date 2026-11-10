@@ -10,17 +10,10 @@ namespace ulmBLAS {
 //  zero (i > 0), A is singular and B is not changed.  Any strides.
 //
 template <typename IndexType, typename T, typename PivIndex>
-    IndexType
-    gesv(IndexType    n,
-         IndexType    nrhs,
-         T            *A,
-         IndexType    incRowA,
-         IndexType    incColA,
-         PivIndex     *piv,
-         IndexType    incPiv,
-         T            *B,
-         IndexType    incRowB,
-         IndexType    incColB);
+IndexType
+gesv(IndexType n, IndexType nrhs, T *A, IndexType incRowA, IndexType incColA,
+     PivIndex *piv, IndexType incPiv, T *B, IndexType incRowB,
+     IndexType incColB);
 
 } // namespace ulmBLAS
 

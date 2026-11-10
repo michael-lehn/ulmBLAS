@@ -14,27 +14,31 @@
 //  use the reference micro kernel.  The panels are packed by the routines
 //  of sme/pack.h.
 //
-namespace ulmBLAS { namespace sme {
+namespace ulmBLAS {
+namespace sme {
 
-template <typename T>
-struct BlockSizeUGemm
+template <typename T> struct BlockSizeUGemm
 {
-    static constexpr int MR = (std::is_same<T,double>::value) ? 32
-                            : (std::is_same<T,float>::value) ? 32
-                            : (std::is_same<T,std::complex<float> >::value) ? 32
-                            : (std::is_same<T,std::complex<double> >::value) ? 16
-                            : ref::BlockSizeUGemm<T>::MR;
-    static constexpr int NR = (std::is_same<T,double>::value) ? 16
-                            : (std::is_same<T,float>::value) ? 32
-                            : (std::is_same<T,std::complex<float> >::value) ? 16
-                            : (std::is_same<T,std::complex<double> >::value) ? 16
-                            : ref::BlockSizeUGemm<T>::NR;
+    static constexpr int MR = (std::is_same<T, double>::value)  ? 32
+                              : (std::is_same<T, float>::value) ? 32
+                              : (std::is_same<T, std::complex<float>>::value)
+                                  ? 32
+                              : (std::is_same<T, std::complex<double>>::value)
+                                  ? 16
+                                  : ref::BlockSizeUGemm<T>::MR;
+    static constexpr int NR = (std::is_same<T, double>::value)  ? 16
+                              : (std::is_same<T, float>::value) ? 32
+                              : (std::is_same<T, std::complex<float>>::value)
+                                  ? 16
+                              : (std::is_same<T, std::complex<double>>::value)
+                                  ? 16
+                                  : ref::BlockSizeUGemm<T>::NR;
 
-    static_assert(MR>0 && NR>0, "Invalid block size.");
+    static_assert(MR > 0 && NR > 0, "Invalid block size.");
 
     //  The block sizes MC, KC, NC (and the sizes of the packing buffers)
     //  are chosen for these MR, NR.
-    static_assert(MR==BlockSize<T>::MR && NR==BlockSize<T>::NR,
+    static_assert(MR == BlockSize<T>::MR && NR == BlockSize<T>::NR,
                   "SME micro kernels require MR x NR = 32 x 16 for double, "
                   "32 x 32 for float, 32 x 16 for complex float, 16 x 16 "
                   "for complex double");
@@ -43,18 +47,11 @@ struct BlockSizeUGemm
 using ref::ugemm;
 
 template <typename IndexType>
-static typename std::enable_if<std::is_convertible<IndexType,long>::value,
-    void>::type
-    ugemm(IndexType      kc,
-          const double   &alpha,
-          const double   *A,
-          const double   *B,
-          const double   &beta,
-          double         *C,
-          IndexType      incRowC,
-          IndexType      incColC,
-          const double   *nextA,
-          const double   *nextB);
+static typename std::enable_if<std::is_convertible<IndexType, long>::value,
+                               void>::type
+ugemm(IndexType kc, const double &alpha, const double *A, const double *B,
+      const double &beta, double *C, IndexType incRowC, IndexType incColC,
+      const double *nextA, const double *nextB);
 
 } // namespace sme
 
@@ -67,19 +64,11 @@ static typename std::enable_if<std::is_convertible<IndexType,long>::value,
 //  the SME2 kernel (USE_SME).
 //
 template <typename IndexType>
-    void
-    ugemm(IndexType      mr,
-          IndexType      nr,
-          IndexType      kc,
-          const double   &alpha,
-          const double   *A,
-          const double   *B,
-          const double   &beta,
-          double         *C,
-          IndexType      incRowC,
-          IndexType      incColC,
-          const double   *nextA,
-          const double   *nextB);
+void
+ugemm(IndexType mr, IndexType nr, IndexType kc, const double &alpha,
+      const double *A, const double *B, const double &beta, double *C,
+      IndexType incRowC, IndexType incColC, const double *nextA,
+      const double *nextB);
 
 } // namespace ulmBLAS
 

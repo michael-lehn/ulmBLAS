@@ -4,26 +4,14 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename TX, typename TY, typename Result>
-    void
-    dotuxf(IndexType      n,
-           const TX       *X,
-           IndexType      incRowX,
-           IndexType      incColX,
-           const TY       *y,
-           IndexType      incY,
-           Result         *result,
-           IndexType      resultInc);
+void
+dotuxf(IndexType n, const TX *X, IndexType incRowX, IndexType incColX,
+       const TY *y, IndexType incY, Result *result, IndexType resultInc);
 
 template <typename IndexType, typename TX, typename TY, typename Result>
-    void
-    dotcxf(IndexType      n,
-           const TX       *X,
-           IndexType      incRowX,
-           IndexType      incColX,
-           const TY       *y,
-           IndexType      incY,
-           Result         *result,
-           IndexType      resultInc);
+void
+dotcxf(IndexType n, const TX *X, IndexType incRowX, IndexType incColX,
+       const TY *y, IndexType incY, Result *result, IndexType resultInc);
 
 } // namespace ulmBLAS
 

@@ -5,17 +5,10 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename T, typename Beta,
           typename TC>
-    void
-    msylrk(IndexType     mc,
-           IndexType     nc,
-           IndexType     kc,
-           const Alpha   &alpha,
-           const T       *A_,
-           const T       *B_,
-           const Beta    &beta,
-           TC            *C,
-           IndexType     incRowC,
-           IndexType     incColC);
+void
+msylrk(IndexType mc, IndexType nc, IndexType kc, const Alpha &alpha,
+       const T *A_, const T *B_, const Beta &beta, TC *C, IndexType incRowC,
+       IndexType incColC);
 
 } // namespace ulmBLAS
 

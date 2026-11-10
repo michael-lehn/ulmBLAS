@@ -4,16 +4,10 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename MX, typename MY>
-    void
-    geaxpy(IndexType      m,
-           IndexType      n,
-           const Alpha    &alpha,
-           const MX       *X,
-           IndexType      incRowX,
-           IndexType      incColX,
-           MY             *Y,
-           IndexType      incRowY,
-           IndexType      incColY);
+void
+geaxpy(IndexType m, IndexType n, const Alpha &alpha, const MX *X,
+       IndexType incRowX, IndexType incColX, MY *Y, IndexType incRowY,
+       IndexType incColY);
 
 } // namespace ulmBLAS
 

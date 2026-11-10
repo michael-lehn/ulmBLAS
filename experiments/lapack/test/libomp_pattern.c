@@ -22,59 +22,75 @@
 #include <unistd.h>
 
 #define N 512
-static double a[N+2];
+static double a[N + 2];
 static long other;
 
-static void spin(double s) { double t0 = omp_get_wtime(); while (omp_get_wtime()-t0 < s) {} }
-
-static void body(void)
+static void
+spin(double s)
 {
-    double *x = a+N, *y = a+N+1;
-    #pragma omp task depend(inout: x[0]) priority(3)
-    {   /* panel-like: children, then taskwait */
-        for (int j=0; j<4; ++j) {
-            #pragma omp task priority(3)
-            spin(2e-6);
-        }
-        #pragma omp taskwait
-        spin(100e-6);
+    double t0 = omp_get_wtime();
+    while (omp_get_wtime() - t0 < s) {
     }
-    for (int i=0; i<N; ++i) {
-        #pragma omp task depend(inout: a[i]) priority(i%3)
-        a[i] += 1.0;
+}
+
+static void
+body(void)
+{
+    double *x = a + N, *y = a + N + 1;
+#pragma omp task depend(inout : x[0]) priority(3)
+    { /* panel-like: children, then taskwait */
+	for (int j = 0; j < 4; ++j) {
+#pragma omp task priority(3)
+	    spin(2e-6);
+	}
+#pragma omp taskwait
+	spin(100e-6);
     }
-    #pragma omp task depend(in: x[0]) depend(in: a[N-1]) priority(3)
+    for (int i = 0; i < N; ++i) {
+#pragma omp task depend(inout : a[i]) priority(i % 3)
+	a[i] += 1.0;
+    }
+#pragma omp task depend(in : x[0]) depend(in : a[N - 1]) priority(3)
     y[0] += 1.0;
 }
 
-static void on_alarm(int s) { (void)s; (void)!write(2, "HANG\n", 5); _exit(3); }
-
-int main(int argc, char **argv)
+static void
+on_alarm(int s)
 {
-    int single = strcmp(argv[1], "single")==0;
+    (void)s;
+    (void)!write(2, "HANG\n", 5);
+    _exit(3);
+}
+
+int
+main(int argc, char **argv)
+{
+    int single = strcmp(argv[1], "single") == 0;
     long regions = atol(argv[2]);
     signal(SIGALRM, on_alarm);
-    for (long r=0; r<regions; ++r) {
-        alarm(10);
-        int th = 2 + (int)(r % 7);
-        if (single) {
-            #pragma omp parallel num_threads(th)
-            #pragma omp single
-            body();
-        } else {
-            #pragma omp parallel num_threads(th)
-            #pragma omp master
-            body();
-        }
-        #pragma omp parallel num_threads(10 - th)
-        {
-            #pragma omp atomic
-            other++;
-        }
+    for (long r = 0; r < regions; ++r) {
+	alarm(10);
+	int th = 2 + (int)(r % 7);
+	if (single) {
+#pragma omp parallel num_threads(th)
+#pragma omp single
+	    body();
+	} else {
+#pragma omp parallel num_threads(th)
+#pragma omp master
+	    body();
+	}
+#pragma omp parallel num_threads(10 - th)
+	{
+#pragma omp atomic
+	    other++;
+	}
     }
     long bad = 0;
-    for (int i=0; i<N; ++i) bad += a[i] != (double)regions;
-    bad += a[N+1] != (double)regions;
-    printf("%s %s: %ld regions, %ld wrong\n", bad ? "FAILED" : "PASSED", argv[1], regions, bad);
-    return bad!=0;
+    for (int i = 0; i < N; ++i)
+	bad += a[i] != (double)regions;
+    bad += a[N + 1] != (double)regions;
+    printf("%s %s: %ld regions, %ld wrong\n", bad ? "FAILED" : "PASSED",
+           argv[1], regions, bad);
+    return bad != 0;
 }

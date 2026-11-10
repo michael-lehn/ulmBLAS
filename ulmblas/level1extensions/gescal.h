@@ -6,13 +6,9 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename MA>
-    void
-    gescal(IndexType    m,
-           IndexType    n,
-           const Alpha  &alpha,
-           MA           *A,
-           IndexType    incRowA,
-           IndexType    incColA);
+void
+gescal(IndexType m, IndexType n, const Alpha &alpha, MA *A, IndexType incRowA,
+       IndexType incColA);
 
 } // namespace ulmBLAS
 

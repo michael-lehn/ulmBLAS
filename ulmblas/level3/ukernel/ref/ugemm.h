@@ -3,31 +3,24 @@
 
 #include <ulmblas/config/blocksize.h>
 
-namespace ulmBLAS { namespace ref {
+namespace ulmBLAS {
+namespace ref {
 
-template <typename T>
-struct BlockSizeUGemm
+template <typename T> struct BlockSizeUGemm
 {
     static constexpr int MR = BlockSize<T>::MR;
     static constexpr int NR = BlockSize<T>::NR;
 
-    static_assert(MR>0 && NR>0, "Invalid block size.");
+    static_assert(MR > 0 && NR > 0, "Invalid block size.");
 };
 
 template <typename IndexType, typename T>
-    void
-    ugemm(IndexType   kc,
-          const T     &alpha,
-          const T     *A,
-          const T     *B,
-          const T     &beta,
-          T           *C,
-          IndexType   incRowC,
-          IndexType   incColC,
-          const T     *nextA,
-          const T     *nextB);
+void
+ugemm(IndexType kc, const T &alpha, const T *A, const T *B, const T &beta, T *C,
+      IndexType incRowC, IndexType incColC, const T *nextA, const T *nextB);
 
-} } // namespace ref, ulmBLAS
+} // namespace ref
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL3_UKERNEL_REF_UGEMM_H
 

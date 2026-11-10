@@ -33,39 +33,35 @@ namespace ulmBLAS {
 //  cache frees its blocks when the thread ends.  A block released by
 //  another thread (or not cached because the cache was full) is freed.
 //
-template <typename T>
-class MemoryPool
+template <typename T> class MemoryPool
 {
-    public:
+  public:
+    T *
+    allocate(std::size_t n);
 
-        T *
-        allocate(std::size_t n);
+    void
+    release(T *block);
 
-        void
-        release(T *block);
+  private:
+    struct Entry
+    {
+	T *block;
+	std::size_t n;
+	bool used;
+    };
 
-    private:
+    struct ThreadCache
+    {
+	static constexpr int numEntries = 16;
 
-        struct Entry
-        {
-            T            *block;
-            std::size_t  n;
-            bool         used;
-        };
+	Entry entry[numEntries] = {};
 
-        struct ThreadCache
-        {
-            static constexpr int numEntries = 16;
+	~ThreadCache();
+    };
 
-            Entry  entry[numEntries] = {};
-
-            ~ThreadCache();
-        };
-
-        static ThreadCache &
-        threadCache();
+    static ThreadCache &
+    threadCache();
 };
-
 
 } // namespace ulmBLAS
 

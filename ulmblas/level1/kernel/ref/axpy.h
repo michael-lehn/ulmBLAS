@@ -1,28 +1,21 @@
 #ifndef ULMBLAS_LEVEL1_KERNEL_REF_AXPY_H
 #define ULMBLAS_LEVEL1_KERNEL_REF_AXPY_H 1
 
-namespace ulmBLAS { namespace ref {
+namespace ulmBLAS {
+namespace ref {
 
 template <typename IndexType, typename Alpha, typename VX, typename VY>
-    void
-    axpy(IndexType      n,
-         const Alpha    &alpha,
-         const VX       *x,
-         IndexType      incX,
-         VY             *y,
-         IndexType      incY);
+void
+axpy(IndexType n, const Alpha &alpha, const VX *x, IndexType incX, VY *y,
+     IndexType incY);
 
 template <typename IndexType, typename Alpha, typename VX, typename VY>
-    void
-    acxpy(IndexType      n,
-          const Alpha    &alpha,
-          const VX       *x,
-          IndexType      incX,
-          VY             *y,
-          IndexType      incY);
+void
+acxpy(IndexType n, const Alpha &alpha, const VX *x, IndexType incX, VY *y,
+      IndexType incY);
 
-
-} } // namespace ref, ulmBLAS
+} // namespace ref
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL1_KERNEL_REF_AXPY_H 1
 

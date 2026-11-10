@@ -4,22 +4,14 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename VX, typename VY>
-    void
-    axpy(IndexType      n,
-         const Alpha    &alpha,
-         const VX       *x,
-         IndexType      incX,
-         VY             *y,
-         IndexType      incY);
+void
+axpy(IndexType n, const Alpha &alpha, const VX *x, IndexType incX, VY *y,
+     IndexType incY);
 
 template <typename IndexType, typename Alpha, typename VX, typename VY>
-    void
-    acxpy(IndexType      n,
-          const Alpha    &alpha,
-          const VX       *x,
-          IndexType      incX,
-          VY             *y,
-          IndexType      incY);
+void
+acxpy(IndexType n, const Alpha &alpha, const VX *x, IndexType incX, VY *y,
+      IndexType incY);
 
 } // namespace ulmBLAS
 

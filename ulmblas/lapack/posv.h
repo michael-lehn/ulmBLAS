@@ -10,16 +10,9 @@ namespace ulmBLAS {
 //  positive definite and B is not changed.  Any strides.
 //
 template <typename IndexType, typename T>
-    IndexType
-    posv(bool         lower,
-         IndexType    n,
-         IndexType    nrhs,
-         T            *A,
-         IndexType    incRowA,
-         IndexType    incColA,
-         T            *B,
-         IndexType    incRowB,
-         IndexType    incColB);
+IndexType
+posv(bool lower, IndexType n, IndexType nrhs, T *A, IndexType incRowA,
+     IndexType incColA, T *B, IndexType incRowB, IndexType incColB);
 
 } // namespace ulmBLAS
 

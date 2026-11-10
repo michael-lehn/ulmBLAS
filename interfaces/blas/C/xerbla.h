@@ -3,11 +3,9 @@
 
 extern "C" {
 
-void
-ULMBLAS(xerbla)(int info, const char *rout, const char *form, ...);
+void ULMBLAS(xerbla)(int info, const char *rout, const char *form, ...);
 
-void
-CBLAS(xerbla)(int info, const char *rout, const char *form, ...);
+void CBLAS(xerbla)(int info, const char *rout, const char *form, ...);
 
 } // extern "C"
 

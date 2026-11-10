@@ -4,8 +4,8 @@
 namespace ulmBLAS {
 
 template <typename T>
-    T
-    safeMin();
+T
+safeMin();
 
 } // namespace ulmBLAS
 

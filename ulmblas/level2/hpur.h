@@ -4,22 +4,13 @@
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TX, typename TA>
-    void
-    hpur(IndexType    n,
-         const Alpha  &alpha,
-         bool         conjX,
-         const TX     *x,
-         IndexType    incX,
-         TA           *A);
+void
+hpur(IndexType n, const Alpha &alpha, bool conjX, const TX *x, IndexType incX,
+     TA *A);
 
 template <typename IndexType, typename Alpha, typename TX, typename TA>
-    void
-    hpur(IndexType    n,
-         const Alpha  &alpha,
-         const TX     *x,
-         IndexType    incX,
-         TA           *A);
-
+void
+hpur(IndexType n, const Alpha &alpha, const TX *x, IndexType incX, TA *A);
 
 } // namespace ulmBLAS
 

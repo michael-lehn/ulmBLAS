@@ -22,23 +22,23 @@
 #include <cstdint>
 #include <ulmblas/level3/ukernel/sme/fpsr.h>
 
-namespace ulmBLAS { namespace sme {
+namespace ulmBLAS {
+namespace sme {
 
 //
 //  For each k: the mn <= 32 floats at X (then X + incX) into 32 floats of
 //  the buffer, the floats mn to 31 zero.
 //
-__arm_locally_streaming
-inline void
+__arm_locally_streaming inline void
 spack_copy(long mn, long k, const float *X, long incX, float *buffer)
 {
     const svcount_t pc = svptrue_c32();
     const svcount_t pm = svwhilelt_c32_s64(int64_t(0), int64_t(mn), 2);
 
-    for (long l=0; l<k; ++l) {
-        svst1_f32_x2(pc, buffer, svld1_f32_x2(pm, X));
-        buffer += 32;
-        X      += incX;
+    for (long l = 0; l < k; ++l) {
+	svst1_f32_x2(pc, buffer, svld1_f32_x2(pm, X));
+	buffer += 32;
+	X += incX;
     }
 }
 
@@ -50,26 +50,27 @@ spack_copy(long mn, long k, const float *X, long incX, float *buffer)
 //  predicated to the columns j to k-1 (inactive elements of a slice are
 //  set to zero, see pack_A_rowmajor).
 //
-__arm_new("za") __arm_locally_streaming
-inline void
-spack_transpose(long mn, long k, const float *X, long incX, float *buffer)
+__arm_new("za") __arm_locally_streaming inline void spack_transpose(
+    long mn, long k, const float *X, long incX, float *buffer)
 {
     const svbool_t p = svptrue_b32();
 
     svzero_za();
-    for (long j=0; j<k; j+=16) {
-        const long     n  = (k-j<16) ? k-j : 16;
-        const svbool_t pk = svwhilelt_b32_s64(int64_t(0), int64_t(n));
+    for (long j = 0; j < k; j += 16) {
+	const long n = (k - j < 16) ? k - j : 16;
+	const svbool_t pk = svwhilelt_b32_s64(int64_t(0), int64_t(n));
 
-        for (long c=0; c<16; ++c) {
-            if (c   <mn) svld1_hor_za32(0, c, pk, X + (c   )*incX + j);
-            if (c+16<mn) svld1_hor_za32(1, c, pk, X + (c+16)*incX + j);
-        }
-        for (long r=0; r<n; ++r) {
-            svst1_ver_za32(0, r, p, buffer + 32*r);
-            svst1_ver_za32(1, r, p, buffer + 32*r + 16);
-        }
-        buffer += 32*n;
+	for (long c = 0; c < 16; ++c) {
+	    if (c < mn)
+		svld1_hor_za32(0, c, pk, X + (c)*incX + j);
+	    if (c + 16 < mn)
+		svld1_hor_za32(1, c, pk, X + (c + 16) * incX + j);
+	}
+	for (long r = 0; r < n; ++r) {
+	    svst1_ver_za32(0, r, p, buffer + 32 * r);
+	    svst1_ver_za32(1, r, p, buffer + 32 * r + 16);
+	}
+	buffer += 32 * n;
     }
 }
 
@@ -80,31 +81,27 @@ spack_transpose(long mn, long k, const float *X, long incX, float *buffer)
 //
 template <int P, typename IndexType>
 static void
-pack_MRxk(IndexType      k,
-          bool           ,
-          const float    *A,
-          IndexType      incRowA,
-          IndexType      incColA,
-          float          *buffer)
+pack_MRxk(IndexType k, bool, const float *A, IndexType incRowA,
+          IndexType incColA, float *buffer)
 {
-    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+    const sme::FpsrRestore fpsr; // see sme/fpsr.h
 
     constexpr IndexType MR = sme::BlockSizeUGemm<float>::MR;
 
-    static_assert(MR==32, "SME packing of A requires MR = 32");
+    static_assert(MR == 32, "SME packing of A requires MR = 32");
 
-    if (incRowA!=IndexType(1) && incColA!=IndexType(1)) {
-        pack_MRxk<P, IndexType, float, float>(k, false, A, incRowA, incColA,
-                                              buffer);
-        return;
+    if (incRowA != IndexType(1) && incColA != IndexType(1)) {
+	pack_MRxk<P, IndexType, float, float>(k, false, A, incRowA, incColA,
+	                                      buffer);
+	return;
     }
-    for (IndexType p=0; p<P; ++p) {
-        if (incRowA==IndexType(1)) {
-            sme::spack_copy(MR, k, A + p*MR, incColA, buffer + p*k*MR);
-        } else {
-            sme::spack_transpose(MR, k, A + p*MR*incRowA, incRowA,
-                                 buffer + p*k*MR);
-        }
+    for (IndexType p = 0; p < P; ++p) {
+	if (incRowA == IndexType(1)) {
+	    sme::spack_copy(MR, k, A + p * MR, incColA, buffer + p * k * MR);
+	} else {
+	    sme::spack_transpose(MR, k, A + p * MR * incRowA, incRowA,
+	                         buffer + p * k * MR);
+	}
     }
 }
 
@@ -113,26 +110,22 @@ pack_MRxk(IndexType      k,
 //
 template <typename IndexType>
 static void
-pack_kxNR(IndexType      k,
-          bool           ,
-          const float    *B,
-          IndexType      incRowB,
-          IndexType      incColB,
-          float          *buffer)
+pack_kxNR(IndexType k, bool, const float *B, IndexType incRowB,
+          IndexType incColB, float *buffer)
 {
-    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+    const sme::FpsrRestore fpsr; // see sme/fpsr.h
 
     constexpr IndexType NR = sme::BlockSizeUGemm<float>::NR;
 
-    static_assert(NR==32, "SME packing of B requires NR = 32");
+    static_assert(NR == 32, "SME packing of B requires NR = 32");
 
-    if (incColB==IndexType(1)) {
-        sme::spack_copy(NR, k, B, incRowB, buffer);
-    } else if (incRowB==IndexType(1)) {
-        sme::spack_transpose(NR, k, B, incColB, buffer);
+    if (incColB == IndexType(1)) {
+	sme::spack_copy(NR, k, B, incRowB, buffer);
+    } else if (incRowB == IndexType(1)) {
+	sme::spack_transpose(NR, k, B, incColB, buffer);
     } else {
-        pack_kxNR<IndexType, float, float>(k, false, B, incRowB, incColB,
-                                           buffer);
+	pack_kxNR<IndexType, float, float>(k, false, B, incRowB, incColB,
+	                                   buffer);
     }
 }
 
@@ -141,23 +134,18 @@ pack_kxNR(IndexType      k,
 //
 template <typename IndexType>
 static bool
-pack_MRxk_partial(IndexType      mr,
-                  IndexType      k,
-                  bool           ,
-                  const float    *A,
-                  IndexType      incRowA,
-                  IndexType      incColA,
-                  float          *buffer)
+pack_MRxk_partial(IndexType mr, IndexType k, bool, const float *A,
+                  IndexType incRowA, IndexType incColA, float *buffer)
 {
-    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+    const sme::FpsrRestore fpsr; // see sme/fpsr.h
 
-    if (incRowA==IndexType(1)) {
-        sme::spack_copy(mr, k, A, incColA, buffer);
-        return true;
+    if (incRowA == IndexType(1)) {
+	sme::spack_copy(mr, k, A, incColA, buffer);
+	return true;
     }
-    if (incColA==IndexType(1)) {
-        sme::spack_transpose(mr, k, A, incRowA, buffer);
-        return true;
+    if (incColA == IndexType(1)) {
+	sme::spack_transpose(mr, k, A, incRowA, buffer);
+	return true;
     }
     return false;
 }
@@ -167,23 +155,18 @@ pack_MRxk_partial(IndexType      mr,
 //
 template <typename IndexType>
 static bool
-pack_kxNR_partial(IndexType      nr,
-                  IndexType      k,
-                  bool           ,
-                  const float    *B,
-                  IndexType      incRowB,
-                  IndexType      incColB,
-                  float          *buffer)
+pack_kxNR_partial(IndexType nr, IndexType k, bool, const float *B,
+                  IndexType incRowB, IndexType incColB, float *buffer)
 {
-    const sme::FpsrRestore fpsr;  // see sme/fpsr.h
+    const sme::FpsrRestore fpsr; // see sme/fpsr.h
 
-    if (incColB==IndexType(1)) {
-        sme::spack_copy(nr, k, B, incRowB, buffer);
-        return true;
+    if (incColB == IndexType(1)) {
+	sme::spack_copy(nr, k, B, incRowB, buffer);
+	return true;
     }
-    if (incRowB==IndexType(1)) {
-        sme::spack_transpose(nr, k, B, incColB, buffer);
-        return true;
+    if (incRowB == IndexType(1)) {
+	sme::spack_transpose(nr, k, B, incColB, buffer);
+	return true;
     }
     return false;
 }

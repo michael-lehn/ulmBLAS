@@ -11,13 +11,12 @@
 //  Selected optimized micro kernel
 //
 #if defined(USE_SSE) && !defined(USE_AVX) && !defined(USE_BLIS_DGEMM)
-#   define  SELECT_UTRLSM_KERNEL    sse
-#   include <ulmblas/level3/ukernel/sse/utrlsm.h>
+#define SELECT_UTRLSM_KERNEL sse
+#include <ulmblas/level3/ukernel/sse/utrlsm.h>
 #else
-#   define  SELECT_UTRLSM_KERNEL    ref
-#   include <ulmblas/level3/ukernel/ref/utrlsm.h>
+#define SELECT_UTRLSM_KERNEL ref
+#include <ulmblas/level3/ukernel/ref/utrlsm.h>
 #endif
-
 
 namespace ulmBLAS {
 
@@ -26,23 +25,18 @@ namespace ulmBLAS {
 //
 template <typename IndexType, typename T, typename TC>
 void
-utrlsm(IndexType    mr,
-       IndexType    nr,
-       const T      *A,
-       const T      *B,
-       TC           *C,
-       IndexType    incRowC,
-       IndexType    incColC)
+utrlsm(IndexType mr, IndexType nr, const T *A, const T *B, TC *C,
+       IndexType incRowC, IndexType incColC)
 {
     constexpr IndexType MR = BlockSizeUGemm<T>::MR;
     constexpr IndexType NR = BlockSizeUGemm<T>::NR;
 
-    T   A_[MR*MR];
-    alignas(16) T   B_[MR*NR];      //  the SSE kernels load B with movapd
-    T   C_[MR*NR];
+    T A_[MR * MR];
+    alignas(16) T B_[MR * NR]; //  the SSE kernels load B with movapd
+    T C_[MR * NR];
 
-    scal(MR*MR, T(0), A_, IndexType(1));
-    scal(MR*NR, T(0), B_, IndexType(1));
+    scal(MR * MR, T(0), A_, IndexType(1));
+    scal(MR * NR, T(0), B_, IndexType(1));
 
     gecopy(mr, mr, false, A, IndexType(1), MR, A_, IndexType(1), MR);
     gecopy(mr, nr, false, B, NR, IndexType(1), B_, NR, IndexType(1));
@@ -57,11 +51,7 @@ utrlsm(IndexType    mr,
 //
 template <typename T, typename TC, typename IndexType>
 void
-utrlsm(const T     *A,
-       const T     *B,
-       TC          *C,
-       IndexType   incRowC,
-       IndexType   incColC)
+utrlsm(const T *A, const T *B, TC *C, IndexType incRowC, IndexType incColC)
 {
     constexpr IndexType MR = BlockSizeUGemm<T>::MR;
     constexpr IndexType NR = BlockSizeUGemm<T>::NR;
@@ -74,11 +64,7 @@ utrlsm(const T     *A,
 //
 template <typename IndexType, typename T>
 void
-utrlsm(const T     *A,
-       const T     *B,
-       T           *C,
-       IndexType   incRowC,
-       IndexType   incColC)
+utrlsm(const T *A, const T *B, T *C, IndexType incRowC, IndexType incColC)
 {
     SELECT_UTRLSM_KERNEL::utrlsm(A, B, C, incRowC, incColC);
 }

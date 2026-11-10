@@ -17,14 +17,9 @@ namespace ulmBLAS {
 //  without OpenMP by the serial recursive algorithm (getrf2).
 //
 template <typename IndexType, typename T, typename PivIndex>
-    IndexType
-    getrf(IndexType    m,
-          IndexType    n,
-          T            *A,
-          IndexType    incRowA,
-          IndexType    incColA,
-          PivIndex     *piv,
-          IndexType    incPiv);
+IndexType
+getrf(IndexType m, IndexType n, T *A, IndexType incRowA, IndexType incColA,
+      PivIndex *piv, IndexType incPiv);
 
 } // namespace ulmBLAS
 

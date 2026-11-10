@@ -1,7 +1,8 @@
 #ifndef ULMBLAS_LEVEL1EXTENSIONS_KERNEL_REF_DOTAXPY_H
 #define ULMBLAS_LEVEL1EXTENSIONS_KERNEL_REF_DOTAXPY_H 1
 
-namespace ulmBLAS { namespace ref {
+namespace ulmBLAS {
+namespace ref {
 
 //
 //  Fuse the computations:
@@ -12,21 +13,13 @@ namespace ulmBLAS { namespace ref {
 //
 template <typename IndexType, typename Alpha, typename VX, typename VY,
           typename VZ, typename Rho>
-    void
-    dotaxpy(IndexType      n,
-            bool           conjX,
-            bool           conjXt,
-            bool           conjY,
-            const Alpha    &alpha,
-            const VX       *x,
-            IndexType      incX,
-            const VY       *y,
-            IndexType      incY,
-            VZ             *z,
-            IndexType      incZ,
-            Rho            &rho);
+void
+dotaxpy(IndexType n, bool conjX, bool conjXt, bool conjY, const Alpha &alpha,
+        const VX *x, IndexType incX, const VY *y, IndexType incY, VZ *z,
+        IndexType incZ, Rho &rho);
 
-} } // namespace ref, ulmBLAS
+} // namespace ref
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL1EXTENSIONS_KERNEL_REF_DOTAXPY_H 1
 

@@ -9,15 +9,8 @@ namespace ulmBLAS {
 template <typename IndexType, typename Alpha, typename VA, typename VX,
           typename VY>
 void
-axpyf(IndexType      n,
-      const Alpha    &alpha,
-      const VA       *a,
-      IndexType      incA,
-      const VX       *X,
-      IndexType      incRowX,
-      IndexType      incColX,
-      VY             *y,
-      IndexType      incY)
+axpyf(IndexType n, const Alpha &alpha, const VA *a, IndexType incA, const VX *X,
+      IndexType incRowX, IndexType incColX, VY *y, IndexType incY)
 {
     SELECT_AXPYF_KERNEL::axpyf(n, alpha, a, incA, X, incRowX, incColX, y, incY);
 }
@@ -25,20 +18,11 @@ axpyf(IndexType      n,
 template <typename IndexType, typename Alpha, typename VA, typename VX,
           typename VY>
 void
-acxpyf(IndexType      n,
-       const Alpha    &alpha,
-       const VA       *a,
-       IndexType      incA,
-       const VX       *X,
-       IndexType      incRowX,
-       IndexType      incColX,
-       VY             *y,
-       IndexType      incY)
+acxpyf(IndexType n, const Alpha &alpha, const VA *a, IndexType incA,
+       const VX *X, IndexType incRowX, IndexType incColX, VY *y, IndexType incY)
 {
-    SELECT_AXPYF_KERNEL::acxpyf(n, alpha,
-                                a, incA,
-                                X, incRowX, incColX,
-                                y, incY);
+    SELECT_AXPYF_KERNEL::acxpyf(n, alpha, a, incA, X, incRowX, incColX, y,
+                                incY);
 }
 
 } // namespace ulmBLAS

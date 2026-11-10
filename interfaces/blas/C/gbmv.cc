@@ -7,405 +7,314 @@
 extern "C" {
 
 void
-ULMBLAS(sgbmv)(enum CBLAS_TRANSPOSE  transA,
-               ULMBLAS_INDEX_TYPE    m,
-               ULMBLAS_INDEX_TYPE    n,
-               ULMBLAS_INDEX_TYPE    kl,
-               ULMBLAS_INDEX_TYPE    ku,
-               float                 alpha,
-               const float           *A,
-               ULMBLAS_INDEX_TYPE    ldA,
-               const float           *x,
-               ULMBLAS_INDEX_TYPE    incX,
-               float                 beta,
-               float                 *y,
-               ULMBLAS_INDEX_TYPE    incY)
+ULMBLAS(sgbmv)(enum CBLAS_TRANSPOSE transA, ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n, ULMBLAS_INDEX_TYPE kl,
+               ULMBLAS_INDEX_TYPE ku, float alpha, const float *A,
+               ULMBLAS_INDEX_TYPE ldA, const float *x, ULMBLAS_INDEX_TYPE incX,
+               float beta, float *y, ULMBLAS_INDEX_TYPE incY)
 {
-    if (transA==CblasNoTrans || transA==AtlasConj) {
-        if (incX<0) {
-            x -= incX*(n-1);
-        }
-        if (incY<0) {
-            y -= incY*(m-1);
-        }
+    if (transA == CblasNoTrans || transA == AtlasConj) {
+	if (incX < 0) {
+	    x -= incX * (n - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (m - 1);
+	}
     } else {
-        if (incX<0) {
-            x -= incX*(m-1);
-        }
-        if (incY<0) {
-            y -= incY*(n-1);
-        }
+	if (incX < 0) {
+	    x -= incX * (m - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (n - 1);
+	}
     }
 
-//
-//  Start the operations.
-//
-    if (transA==CblasNoTrans || transA==AtlasConj) {
-        ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
-                                      beta, y, incY);
+    //
+    //  Start the operations.
+    //
+    if (transA == CblasNoTrans || transA == AtlasConj) {
+	ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
+	                              beta, y, incY);
     } else {
-        ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
-                                       beta, y, incY);
+	ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
+	                               beta, y, incY);
     }
 }
 
 void
-ULMBLAS(dgbmv)(enum CBLAS_TRANSPOSE  transA,
-               ULMBLAS_INDEX_TYPE    m,
-               ULMBLAS_INDEX_TYPE    n,
-               ULMBLAS_INDEX_TYPE    kl,
-               ULMBLAS_INDEX_TYPE    ku,
-               double                alpha,
-               const double          *A,
-               ULMBLAS_INDEX_TYPE    ldA,
-               const double          *x,
-               ULMBLAS_INDEX_TYPE    incX,
-               double                beta,
-               double                *y,
-               ULMBLAS_INDEX_TYPE    incY)
+ULMBLAS(dgbmv)(enum CBLAS_TRANSPOSE transA, ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n, ULMBLAS_INDEX_TYPE kl,
+               ULMBLAS_INDEX_TYPE ku, double alpha, const double *A,
+               ULMBLAS_INDEX_TYPE ldA, const double *x, ULMBLAS_INDEX_TYPE incX,
+               double beta, double *y, ULMBLAS_INDEX_TYPE incY)
 {
-    if (transA==CblasNoTrans || transA==AtlasConj) {
-        if (incX<0) {
-            x -= incX*(n-1);
-        }
-        if (incY<0) {
-            y -= incY*(m-1);
-        }
+    if (transA == CblasNoTrans || transA == AtlasConj) {
+	if (incX < 0) {
+	    x -= incX * (n - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (m - 1);
+	}
     } else {
-        if (incX<0) {
-            x -= incX*(m-1);
-        }
-        if (incY<0) {
-            y -= incY*(n-1);
-        }
+	if (incX < 0) {
+	    x -= incX * (m - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (n - 1);
+	}
     }
 
-//
-//  Start the operations.
-//
-    if (transA==CblasNoTrans || transA==AtlasConj) {
-        ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
-                                      beta, y, incY);
+    //
+    //  Start the operations.
+    //
+    if (transA == CblasNoTrans || transA == AtlasConj) {
+	ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
+	                              beta, y, incY);
     } else {
-        ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
-                                       beta, y, incY);
+	ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha, A, ldA, x, incX,
+	                               beta, y, incY);
     }
 }
 
 void
-ULMBLAS(cgbmv)(enum CBLAS_TRANSPOSE  transA_,
-               ULMBLAS_INDEX_TYPE    m,
-               ULMBLAS_INDEX_TYPE    n,
-               ULMBLAS_INDEX_TYPE    kl,
-               ULMBLAS_INDEX_TYPE    ku,
-               const float           *alpha_,
-               const float           *A_,
-               ULMBLAS_INDEX_TYPE    ldA,
-               const float           *x_,
-               ULMBLAS_INDEX_TYPE    incX,
-               const float           *beta_,
-               float                 *y_,
-               ULMBLAS_INDEX_TYPE    incY)
+ULMBLAS(cgbmv)(enum CBLAS_TRANSPOSE transA_, ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n, ULMBLAS_INDEX_TYPE kl,
+               ULMBLAS_INDEX_TYPE ku, const float *alpha_, const float *A_,
+               ULMBLAS_INDEX_TYPE ldA, const float *x_, ULMBLAS_INDEX_TYPE incX,
+               const float *beta_, float *y_, ULMBLAS_INDEX_TYPE incY)
 {
-    bool transA = (transA_==CblasTrans || transA_==CblasConjTrans);
-    bool conjA  = (transA_==AtlasConj || transA_==CblasConjTrans);
+    bool transA = (transA_ == CblasTrans || transA_ == CblasConjTrans);
+    bool conjA = (transA_ == AtlasConj || transA_ == CblasConjTrans);
 
     typedef std::complex<float> fcomplex;
-    fcomplex       alpha = fcomplex(alpha_[0], alpha_[1]);
-    fcomplex       beta  = fcomplex(beta_[0], beta_[1]);
-    const fcomplex *A    = reinterpret_cast<const fcomplex *>(A_);
-    const fcomplex *x    = reinterpret_cast<const fcomplex *>(x_);
-    fcomplex       *y    = reinterpret_cast<fcomplex *>(y_);
+    fcomplex alpha = fcomplex(alpha_[0], alpha_[1]);
+    fcomplex beta = fcomplex(beta_[0], beta_[1]);
+    const fcomplex *A = reinterpret_cast<const fcomplex *>(A_);
+    const fcomplex *x = reinterpret_cast<const fcomplex *>(x_);
+    fcomplex *y = reinterpret_cast<fcomplex *>(y_);
 
     if (!transA) {
-        if (incX<0) {
-            x -= incX*(n-1);
-        }
-        if (incY<0) {
-            y -= incY*(m-1);
-        }
+	if (incX < 0) {
+	    x -= incX * (n - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (m - 1);
+	}
     } else {
-        if (incX<0) {
-            x -= incX*(m-1);
-        }
-        if (incY<0) {
-            y -= incY*(n-1);
-        }
+	if (incX < 0) {
+	    x -= incX * (m - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (n - 1);
+	}
     }
 
-
-//
-//  Start the operations.
-//
+    //
+    //  Start the operations.
+    //
     if (!transA) {
-        ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha,
-                                      conjA, A, ldA,
-                                      x, incX,
-                                      beta,
-                                      y, incY);
+	ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha, conjA, A, ldA, x,
+	                              incX, beta, y, incY);
     } else {
-        ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha,
-                                       conjA, A, ldA,
-                                       x, incX,
-                                       beta,
-                                       y, incY);
+	ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha, conjA, A, ldA, x,
+	                               incX, beta, y, incY);
     }
 }
 
 void
-ULMBLAS(zgbmv)(enum CBLAS_TRANSPOSE  transA_,
-               ULMBLAS_INDEX_TYPE    m,
-               ULMBLAS_INDEX_TYPE    n,
-               ULMBLAS_INDEX_TYPE    kl,
-               ULMBLAS_INDEX_TYPE    ku,
-               const double          *alpha_,
-               const double          *A_,
-               ULMBLAS_INDEX_TYPE    ldA,
-               const double          *x_,
-               ULMBLAS_INDEX_TYPE    incX,
-               const double          *beta_,
-               double                *y_,
-               ULMBLAS_INDEX_TYPE    incY)
+ULMBLAS(zgbmv)(enum CBLAS_TRANSPOSE transA_, ULMBLAS_INDEX_TYPE m,
+               ULMBLAS_INDEX_TYPE n, ULMBLAS_INDEX_TYPE kl,
+               ULMBLAS_INDEX_TYPE ku, const double *alpha_, const double *A_,
+               ULMBLAS_INDEX_TYPE ldA, const double *x_,
+               ULMBLAS_INDEX_TYPE incX, const double *beta_, double *y_,
+               ULMBLAS_INDEX_TYPE incY)
 {
-    bool transA = (transA_==CblasTrans || transA_==CblasConjTrans);
-    bool conjA  = (transA_==AtlasConj || transA_==CblasConjTrans);
+    bool transA = (transA_ == CblasTrans || transA_ == CblasConjTrans);
+    bool conjA = (transA_ == AtlasConj || transA_ == CblasConjTrans);
 
     typedef std::complex<double> dcomplex;
-    dcomplex       alpha = dcomplex(alpha_[0], alpha_[1]);
-    dcomplex       beta  = dcomplex(beta_[0], beta_[1]);
-    const dcomplex *A    = reinterpret_cast<const dcomplex *>(A_);
-    const dcomplex *x    = reinterpret_cast<const dcomplex *>(x_);
-    dcomplex       *y    = reinterpret_cast<dcomplex *>(y_);
+    dcomplex alpha = dcomplex(alpha_[0], alpha_[1]);
+    dcomplex beta = dcomplex(beta_[0], beta_[1]);
+    const dcomplex *A = reinterpret_cast<const dcomplex *>(A_);
+    const dcomplex *x = reinterpret_cast<const dcomplex *>(x_);
+    dcomplex *y = reinterpret_cast<dcomplex *>(y_);
 
     if (!transA) {
-        if (incX<0) {
-            x -= incX*(n-1);
-        }
-        if (incY<0) {
-            y -= incY*(m-1);
-        }
+	if (incX < 0) {
+	    x -= incX * (n - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (m - 1);
+	}
     } else {
-        if (incX<0) {
-            x -= incX*(m-1);
-        }
-        if (incY<0) {
-            y -= incY*(n-1);
-        }
+	if (incX < 0) {
+	    x -= incX * (m - 1);
+	}
+	if (incY < 0) {
+	    y -= incY * (n - 1);
+	}
     }
 
-
-//
-//  Start the operations.
-//
+    //
+    //  Start the operations.
+    //
     if (!transA) {
-        ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha,
-                                      conjA, A, ldA,
-                                      x, incX,
-                                      beta,
-                                      y, incY);
+	ulmBLAS::gbmv<std::ptrdiff_t>(m, n, kl, ku, alpha, conjA, A, ldA, x,
+	                              incX, beta, y, incY);
     } else {
-        ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha,
-                                       conjA, A, ldA,
-                                       x, incX,
-                                       beta,
-                                       y, incY);
+	ulmBLAS::gbmtv<std::ptrdiff_t>(m, n, kl, ku, alpha, conjA, A, ldA, x,
+	                               incX, beta, y, incY);
     }
 }
 
 void
-CBLAS(sgbmv)(enum CBLAS_ORDER      order,
-             enum CBLAS_TRANSPOSE  transA,
-             ULMBLAS_INDEX_TYPE    m,
-             ULMBLAS_INDEX_TYPE    n,
-             ULMBLAS_INDEX_TYPE    kl,
-             ULMBLAS_INDEX_TYPE    ku,
-             float                 alpha,
-             const float           *A,
-             ULMBLAS_INDEX_TYPE    ldA,
-             const float           *x,
-             ULMBLAS_INDEX_TYPE    incX,
-             float                 beta,
-             float                 *y,
-             ULMBLAS_INDEX_TYPE    incY)
+CBLAS(sgbmv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
+             ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n, ULMBLAS_INDEX_TYPE kl,
+             ULMBLAS_INDEX_TYPE ku, float alpha, const float *A,
+             ULMBLAS_INDEX_TYPE ldA, const float *x, ULMBLAS_INDEX_TYPE incX,
+             float beta, float *y, ULMBLAS_INDEX_TYPE incY)
 {
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
 
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (transA!=CblasNoTrans && transA!=AtlasConj
-            && transA!=CblasTrans && transA!=CblasConjTrans)
-    {
-        info = 2;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (transA != CblasNoTrans && transA != AtlasConj &&
+               transA != CblasTrans && transA != CblasConjTrans) {
+	info = 2;
     }
-    if (info==0) {
-        if (order==CblasColMajor) {
-            if (m<0) {
-                info = 3;
-            } else if (n<0) {
-                    info = 4;
-            } else if (kl<0) {
-                    info = 5;
-            } else if (ku<0) {
-                    info = 6;
-            } else if (ldA<kl+ku+1) {
-                    info = 9;
-            }
-        } else {
-            if (n<0) {
-                info = 3;
-            } else if (m<0) {
-                info = 4;
-            } else if (ku<0) {
-                info = 5;
-            } else if (kl<0) {
-                info = 6;
-            } else if (ldA<kl+ku+1) {
-                info = 9;
-            }
-        }
+    if (info == 0) {
+	if (order == CblasColMajor) {
+	    if (m < 0) {
+		info = 3;
+	    } else if (n < 0) {
+		info = 4;
+	    } else if (kl < 0) {
+		info = 5;
+	    } else if (ku < 0) {
+		info = 6;
+	    } else if (ldA < kl + ku + 1) {
+		info = 9;
+	    }
+	} else {
+	    if (n < 0) {
+		info = 3;
+	    } else if (m < 0) {
+		info = 4;
+	    } else if (ku < 0) {
+		info = 5;
+	    } else if (kl < 0) {
+		info = 6;
+	    } else if (ldA < kl + ku + 1) {
+		info = 9;
+	    }
+	}
     }
-    if (info==0) {
-        if (incX==0) {
-            info = 11;
-        } else if (incY==0) {
-            info = 14;
-        }
-    }
-
-    if (info!=0) {
-        extern int RowMajorStrg;
-
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_sgbmv", "... bla bla ...");
-        return;
+    if (info == 0) {
+	if (incX == 0) {
+	    info = 11;
+	} else if (incY == 0) {
+	    info = 14;
+	}
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(sgbmv)(transA, m, n, kl, ku,
-                                       alpha,
-                                       A, ldA,
-                                       x, incX,
-                                       beta,
-                                       y, incY);
+    if (info != 0) {
+	extern int RowMajorStrg;
+
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_sgbmv", "... bla bla ...");
+	return;
+    }
+
+    if (order == CblasColMajor) {
+	ULMBLAS(sgbmv)(transA, m, n, kl, ku, alpha, A, ldA, x, incX, beta, y,
+	               incY);
     } else {
-        transA = transpose(transA);
-        ULMBLAS(sgbmv)(transA, n, m, ku, kl,
-                                       alpha,
-                                       A, ldA,
-                                       x, incX,
-                                       beta,
-                                       y, incY);
-     }
+	transA = transpose(transA);
+	ULMBLAS(sgbmv)(transA, n, m, ku, kl, alpha, A, ldA, x, incX, beta, y,
+	               incY);
+    }
 }
 
-
 void
-CBLAS(dgbmv)(enum CBLAS_ORDER      order,
-             enum CBLAS_TRANSPOSE  transA,
-             ULMBLAS_INDEX_TYPE    m,
-             ULMBLAS_INDEX_TYPE    n,
-             ULMBLAS_INDEX_TYPE    kl,
-             ULMBLAS_INDEX_TYPE    ku,
-             double                alpha,
-             const double          *A,
-             ULMBLAS_INDEX_TYPE    ldA,
-             const double          *x,
-             ULMBLAS_INDEX_TYPE    incX,
-             double                beta,
-             double                *y,
-             ULMBLAS_INDEX_TYPE    incY)
+CBLAS(dgbmv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
+             ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n, ULMBLAS_INDEX_TYPE kl,
+             ULMBLAS_INDEX_TYPE ku, double alpha, const double *A,
+             ULMBLAS_INDEX_TYPE ldA, const double *x, ULMBLAS_INDEX_TYPE incX,
+             double beta, double *y, ULMBLAS_INDEX_TYPE incY)
 {
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
 
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (transA!=CblasNoTrans && transA!=AtlasConj
-            && transA!=CblasTrans && transA!=CblasConjTrans)
-    {
-        info = 2;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (transA != CblasNoTrans && transA != AtlasConj &&
+               transA != CblasTrans && transA != CblasConjTrans) {
+	info = 2;
     }
-    if (info==0) {
-        if (order==CblasColMajor) {
-            if (m<0) {
-                info = 3;
-            } else if (n<0) {
-                    info = 4;
-            } else if (kl<0) {
-                    info = 5;
-            } else if (ku<0) {
-                    info = 6;
-            } else if (ldA<kl+ku+1) {
-                    info = 9;
-            }
-        } else {
-            if (n<0) {
-                info = 3;
-            } else if (m<0) {
-                info = 4;
-            } else if (ku<0) {
-                info = 5;
-            } else if (kl<0) {
-                info = 6;
-            } else if (ldA<kl+ku+1) {
-                info = 9;
-            }
-        }
+    if (info == 0) {
+	if (order == CblasColMajor) {
+	    if (m < 0) {
+		info = 3;
+	    } else if (n < 0) {
+		info = 4;
+	    } else if (kl < 0) {
+		info = 5;
+	    } else if (ku < 0) {
+		info = 6;
+	    } else if (ldA < kl + ku + 1) {
+		info = 9;
+	    }
+	} else {
+	    if (n < 0) {
+		info = 3;
+	    } else if (m < 0) {
+		info = 4;
+	    } else if (ku < 0) {
+		info = 5;
+	    } else if (kl < 0) {
+		info = 6;
+	    } else if (ldA < kl + ku + 1) {
+		info = 9;
+	    }
+	}
     }
-    if (info==0) {
-        if (incX==0) {
-            info = 11;
-        } else if (incY==0) {
-            info = 14;
-        }
-    }
-
-    if (info!=0) {
-        extern int RowMajorStrg;
-
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_dgbmv", "... bla bla ...");
-        return;
+    if (info == 0) {
+	if (incX == 0) {
+	    info = 11;
+	} else if (incY == 0) {
+	    info = 14;
+	}
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(dgbmv)(transA, m, n, kl, ku,
-                                       alpha,
-                                       A, ldA,
-                                       x, incX,
-                                       beta,
-                                       y, incY);
+    if (info != 0) {
+	extern int RowMajorStrg;
+
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_dgbmv", "... bla bla ...");
+	return;
+    }
+
+    if (order == CblasColMajor) {
+	ULMBLAS(dgbmv)(transA, m, n, kl, ku, alpha, A, ldA, x, incX, beta, y,
+	               incY);
     } else {
-        transA = transpose(transA);
-        ULMBLAS(dgbmv)(transA, n, m, ku, kl,
-                                       alpha,
-                                       A, ldA,
-                                       x, incX,
-                                       beta,
-                                       y, incY);
-     }
+	transA = transpose(transA);
+	ULMBLAS(dgbmv)(transA, n, m, ku, kl, alpha, A, ldA, x, incX, beta, y,
+	               incY);
+    }
 }
 
 void
-CBLAS(cgbmv)(enum CBLAS_ORDER      order,
-             enum CBLAS_TRANSPOSE  transA,
-             ULMBLAS_INDEX_TYPE    m,
-             ULMBLAS_INDEX_TYPE    n,
-             ULMBLAS_INDEX_TYPE    kl,
-             ULMBLAS_INDEX_TYPE    ku,
-             const void            *alpha_v,
-             const void            *A_v,
-             ULMBLAS_INDEX_TYPE    ldA,
-             const void            *x_v,
-             ULMBLAS_INDEX_TYPE    incX,
-             const void            *beta_v,
-             void                  *y_v,
-             ULMBLAS_INDEX_TYPE    incY)
+CBLAS(cgbmv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
+             ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n, ULMBLAS_INDEX_TYPE kl,
+             ULMBLAS_INDEX_TYPE ku, const void *alpha_v, const void *A_v,
+             ULMBLAS_INDEX_TYPE ldA, const void *x_v, ULMBLAS_INDEX_TYPE incX,
+             const void *beta_v, void *y_v, ULMBLAS_INDEX_TYPE incY)
 {
     const float *alpha = static_cast<const float *>(alpha_v);
     const float *A = static_cast<const float *>(A_v);
@@ -413,93 +322,75 @@ CBLAS(cgbmv)(enum CBLAS_ORDER      order,
     const float *beta = static_cast<const float *>(beta_v);
     float *y = static_cast<float *>(y_v);
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
 
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (transA!=CblasNoTrans && transA!=AtlasConj
-            && transA!=CblasTrans && transA!=CblasConjTrans)
-    {
-        info = 2;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (transA != CblasNoTrans && transA != AtlasConj &&
+               transA != CblasTrans && transA != CblasConjTrans) {
+	info = 2;
     }
-    if (info==0) {
-        if (order==CblasColMajor) {
-            if (m<0) {
-                info = 3;
-            } else if (n<0) {
-                    info = 4;
-            } else if (kl<0) {
-                    info = 5;
-            } else if (ku<0) {
-                    info = 6;
-            } else if (ldA<kl+ku+1) {
-                    info = 9;
-            }
-        } else {
-            if (n<0) {
-                info = 3;
-            } else if (m<0) {
-                info = 4;
-            } else if (ku<0) {
-                info = 5;
-            } else if (kl<0) {
-                info = 6;
-            } else if (ldA<kl+ku+1) {
-                info = 9;
-            }
-        }
+    if (info == 0) {
+	if (order == CblasColMajor) {
+	    if (m < 0) {
+		info = 3;
+	    } else if (n < 0) {
+		info = 4;
+	    } else if (kl < 0) {
+		info = 5;
+	    } else if (ku < 0) {
+		info = 6;
+	    } else if (ldA < kl + ku + 1) {
+		info = 9;
+	    }
+	} else {
+	    if (n < 0) {
+		info = 3;
+	    } else if (m < 0) {
+		info = 4;
+	    } else if (ku < 0) {
+		info = 5;
+	    } else if (kl < 0) {
+		info = 6;
+	    } else if (ldA < kl + ku + 1) {
+		info = 9;
+	    }
+	}
     }
-    if (info==0) {
-        if (incX==0) {
-            info = 11;
-        } else if (incY==0) {
-            info = 14;
-        }
-    }
-
-    if (info!=0) {
-        extern int RowMajorStrg;
-
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_cgbmv", "... bla bla ...");
-        return;
+    if (info == 0) {
+	if (incX == 0) {
+	    info = 11;
+	} else if (incY == 0) {
+	    info = 14;
+	}
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(cgbmv)(transA, m, n, kl, ku,
-                                       alpha,
-                                       A, ldA,
-                                       x, incX,
-                                       beta,
-                                       y, incY);
+    if (info != 0) {
+	extern int RowMajorStrg;
+
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_cgbmv", "... bla bla ...");
+	return;
+    }
+
+    if (order == CblasColMajor) {
+	ULMBLAS(cgbmv)(transA, m, n, kl, ku, alpha, A, ldA, x, incX, beta, y,
+	               incY);
     } else {
-        transA = transpose(transA);
-        ULMBLAS(cgbmv)(transA, n, m, ku, kl,
-                                       alpha,
-                                       A, ldA,
-                                       x, incX,
-                                       beta,
-                                       y, incY);
-     }
+	transA = transpose(transA);
+	ULMBLAS(cgbmv)(transA, n, m, ku, kl, alpha, A, ldA, x, incX, beta, y,
+	               incY);
+    }
 }
 void
-CBLAS(zgbmv)(enum CBLAS_ORDER      order,
-             enum CBLAS_TRANSPOSE  transA,
-             ULMBLAS_INDEX_TYPE    m,
-             ULMBLAS_INDEX_TYPE    n,
-             ULMBLAS_INDEX_TYPE    kl,
-             ULMBLAS_INDEX_TYPE    ku,
-             const void            *alpha_v,
-             const void            *A_v,
-             ULMBLAS_INDEX_TYPE    ldA,
-             const void            *x_v,
-             ULMBLAS_INDEX_TYPE    incX,
-             const void            *beta_v,
-             void                  *y_v,
-             ULMBLAS_INDEX_TYPE    incY)
+CBLAS(zgbmv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
+             ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n, ULMBLAS_INDEX_TYPE kl,
+             ULMBLAS_INDEX_TYPE ku, const void *alpha_v, const void *A_v,
+             ULMBLAS_INDEX_TYPE ldA, const void *x_v, ULMBLAS_INDEX_TYPE incX,
+             const void *beta_v, void *y_v, ULMBLAS_INDEX_TYPE incY)
 {
     const double *alpha = static_cast<const double *>(alpha_v);
     const double *A = static_cast<const double *>(A_v);
@@ -507,77 +398,68 @@ CBLAS(zgbmv)(enum CBLAS_ORDER      order,
     const double *beta = static_cast<const double *>(beta_v);
     double *y = static_cast<double *>(y_v);
 
-//
-//  Test the input parameters
-//
+    //
+    //  Test the input parameters
+    //
     int info = 0;
 
-    if (order!=CblasColMajor && order!=CblasRowMajor) {
-        info = 1;
-    } else if (transA!=CblasNoTrans && transA!=AtlasConj
-            && transA!=CblasTrans && transA!=CblasConjTrans)
-    {
-        info = 2;
+    if (order != CblasColMajor && order != CblasRowMajor) {
+	info = 1;
+    } else if (transA != CblasNoTrans && transA != AtlasConj &&
+               transA != CblasTrans && transA != CblasConjTrans) {
+	info = 2;
     }
-    if (info==0) {
-        if (order==CblasColMajor) {
-            if (m<0) {
-                info = 3;
-            } else if (n<0) {
-                    info = 4;
-            } else if (kl<0) {
-                    info = 5;
-            } else if (ku<0) {
-                    info = 6;
-            } else if (ldA<kl+ku+1) {
-                    info = 9;
-            }
-        } else {
-            if (n<0) {
-                info = 3;
-            } else if (m<0) {
-                info = 4;
-            } else if (ku<0) {
-                info = 5;
-            } else if (kl<0) {
-                info = 6;
-            } else if (ldA<kl+ku+1) {
-                info = 9;
-            }
-        }
+    if (info == 0) {
+	if (order == CblasColMajor) {
+	    if (m < 0) {
+		info = 3;
+	    } else if (n < 0) {
+		info = 4;
+	    } else if (kl < 0) {
+		info = 5;
+	    } else if (ku < 0) {
+		info = 6;
+	    } else if (ldA < kl + ku + 1) {
+		info = 9;
+	    }
+	} else {
+	    if (n < 0) {
+		info = 3;
+	    } else if (m < 0) {
+		info = 4;
+	    } else if (ku < 0) {
+		info = 5;
+	    } else if (kl < 0) {
+		info = 6;
+	    } else if (ldA < kl + ku + 1) {
+		info = 9;
+	    }
+	}
     }
-    if (info==0) {
-        if (incX==0) {
-            info = 11;
-        } else if (incY==0) {
-            info = 14;
-        }
-    }
-
-    if (info!=0) {
-        extern int RowMajorStrg;
-
-        RowMajorStrg = (order==CblasRowMajor) ? 1 : 0;
-        CBLAS(xerbla)(info, "cblas_zgbmv", "... bla bla ...");
-        return;
+    if (info == 0) {
+	if (incX == 0) {
+	    info = 11;
+	} else if (incY == 0) {
+	    info = 14;
+	}
     }
 
-    if (order==CblasColMajor) {
-        ULMBLAS(zgbmv)(transA, m, n, kl, ku,
-                                       alpha,
-                                       A, ldA,
-                                       x, incX,
-                                       beta,
-                                       y, incY);
+    if (info != 0) {
+	extern int RowMajorStrg;
+
+	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
+	CBLAS(xerbla)(info, "cblas_zgbmv", "... bla bla ...");
+	return;
+    }
+
+    if (order == CblasColMajor) {
+	ULMBLAS(zgbmv)(transA, m, n, kl, ku, alpha, A, ldA, x, incX, beta, y,
+	               incY);
     } else {
-        transA = transpose(transA);
-        ULMBLAS(zgbmv)(transA, n, m, ku, kl,
-                                       alpha,
-                                       A, ldA,
-                                       x, incX,
-                                       beta,
-                                       y, incY);
-     }
+	transA = transpose(transA);
+	ULMBLAS(zgbmv)(transA, n, m, ku, kl, alpha, A, ldA, x, incX, beta, y,
+	               incY);
+    }
 }
 
 } // extern "C"

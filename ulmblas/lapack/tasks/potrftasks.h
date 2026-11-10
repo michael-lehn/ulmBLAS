@@ -1,7 +1,8 @@
 #ifndef ULMBLAS_LAPACK_TASKS_POTRFTASKS_H
 #define ULMBLAS_LAPACK_TASKS_POTRFTASKS_H 1
 
-namespace ulmBLAS { namespace tasks {
+namespace ulmBLAS {
+namespace tasks {
 
 //
 //  Tiled Cholesky factorization A = L L^H of the lower triangle with
@@ -12,15 +13,12 @@ namespace ulmBLAS { namespace tasks {
 //  which is a valid sequential order.
 //
 template <typename IndexType, typename T>
-    IndexType
-    potrfTasks(IndexType    n,
-               T            *A,
-               IndexType    incRowA,
-               IndexType    incColA,
-               IndexType    nb,
-               int          threads);
+IndexType
+potrfTasks(IndexType n, T *A, IndexType incRowA, IndexType incColA,
+           IndexType nb, int threads);
 
-} } // namespace tasks, ulmBLAS
+} // namespace tasks
+} // namespace ulmBLAS
 
 #endif // ULMBLAS_LAPACK_TASKS_POTRFTASKS_H
 

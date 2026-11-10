@@ -5,20 +5,11 @@ namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TA, typename TB,
           typename Beta, typename TC>
-    void
-    heumm(IndexType    m,
-          IndexType    n,
-          const Alpha  &alpha,
-          const TA     *A,
-          IndexType    incRowA,
-          IndexType    incColA,
-          const TB     *B,
-          IndexType    incRowB,
-          IndexType    incColB,
-          const Beta   &beta,
-          TC           *C,
-          IndexType    incRowC,
-          IndexType    incColC);
+void
+heumm(IndexType m, IndexType n, const Alpha &alpha, const TA *A,
+      IndexType incRowA, IndexType incColA, const TB *B, IndexType incRowB,
+      IndexType incColB, const Beta &beta, TC *C, IndexType incRowC,
+      IndexType incColC);
 
 } // namespace ulmBLAS
 
