@@ -4,6 +4,15 @@
 #
 #      libulmblas.so      (Linux)
 #      libulmblas.dylib   (macOS)
+#      libulmblas.dll     (Windows, MinGW-w64; import library libulmblas.dll.a)
+#
+#  SHARED_VERSION=0: with the version in the name, libulmblas.so.0 (soname)
+#  and libulmblas.0.dylib (install name), and a link without it; the
+#  default is no version (the backends of ../dispatch).  The platform is
+#  that of the compiler ($(CXX) -dumpmachine), so cross compilers work
+#  (e.g. CXX=x86_64-w64-mingw32-g++ CC=x86_64-w64-mingw32-gcc
+#  NM=x86_64-w64-mingw32-nm AR=x86_64-w64-mingw32-ar
+#  RANLIB=x86_64-w64-mingw32-ranlib).
 #
 #  It contains the Fortran 77 interface with 32-bit integers (LP64) and the
 #  usual names (dgemm_, ddot_, xerbla_, lsame_, ...) and the C interface (CBLAS:
@@ -33,22 +42,44 @@ SHARED_NAME ?= ulmblas
 SHARED_INDEX  = int
 SHARED_SUFFIX = _
 
-EXPORTS = $(BUILD_DIR)/exports.txt
+SHARED_VERSION ?=
+NM ?= nm
 
-ifeq ($(shell uname -s),Darwin)
-SHARED_LIB   = $(OUTDIR)/lib$(SHARED_NAME).dylib
-SHARED_LINK  = -dynamiclib -install_name @rpath/lib$(SHARED_NAME).dylib \
+TARGET_MACHINE := $(shell $(CXX) -dumpmachine)
+
+ifneq (,$(findstring mingw,$(TARGET_MACHINE)))
+#  Windows: only the names of the .def file are exported; the C++ runtime
+#  and winpthread are linked statically (the DLL depends only on DLLs of
+#  the system)
+EXPORTS      = $(BUILD_DIR)/exports.def
+SHARED_LIB   = $(OUTDIR)/lib$(SHARED_NAME).dll
+SHARED_LINK  = -shared -Wl,--out-implib,$(OUTDIR)/lib$(SHARED_NAME).dll.a \
+               $(EXPORTS) \
+               -Wl,--whole-archive $(BUILD_DIR)/libsharedblas.a \
+               $(BUILD_DIR)/libcblas.a -Wl,--no-whole-archive \
+               -static -static-libstdc++ -static-libgcc -Wl,--no-undefined
+SHARED_ALIAS =
+SYMBOL_PREFIX =
+else ifneq (,$(findstring apple-darwin,$(TARGET_MACHINE)))
+EXPORTS      = $(BUILD_DIR)/exports.txt
+SHARED_FILE  = lib$(SHARED_NAME)$(if $(SHARED_VERSION),.$(SHARED_VERSION)).dylib
+SHARED_LIB   = $(OUTDIR)/$(SHARED_FILE)
+SHARED_LINK  = -dynamiclib -install_name @rpath/$(SHARED_FILE) \
                -Wl,-force_load,$(BUILD_DIR)/libsharedblas.a \
                -Wl,-force_load,$(BUILD_DIR)/libcblas.a \
                -Wl,-exported_symbols_list,$(EXPORTS)
+SHARED_ALIAS = $(if $(SHARED_VERSION),$(OUTDIR)/lib$(SHARED_NAME).dylib)
 SYMBOL_PREFIX = _
 else
-SHARED_LIB   = $(OUTDIR)/lib$(SHARED_NAME).so
-SHARED_LINK  = -shared -Wl,-soname,lib$(SHARED_NAME).so \
+EXPORTS      = $(BUILD_DIR)/exports.txt
+SHARED_FILE  = lib$(SHARED_NAME).so$(if $(SHARED_VERSION),.$(SHARED_VERSION))
+SHARED_LIB   = $(OUTDIR)/$(SHARED_FILE)
+SHARED_LINK  = -shared -Wl,-soname,$(SHARED_FILE) \
                -Wl,--whole-archive $(BUILD_DIR)/libsharedblas.a \
                $(BUILD_DIR)/libcblas.a -Wl,--no-whole-archive \
                -static-libstdc++ -static-libgcc -Wl,--no-undefined \
                -Wl,--version-script,$(EXPORTS)
+SHARED_ALIAS = $(if $(SHARED_VERSION),$(OUTDIR)/lib$(SHARED_NAME).so)
 SYMBOL_PREFIX =
 endif
 
@@ -97,14 +128,20 @@ EXPORT_PATTERN = '^$(SYMBOL_PREFIX)([a-z0-9]+_|cblas_[a-z0-9_]+|ulmblas_[a-z0-9_
 
 $(EXPORTS) : $(BUILD_DIR)/libsharedblas.a $(BUILD_DIR)/libcblas.a \
              $(SHARED_OBJECTS)
-	nm -g $^ | awk 'NF==3 && $$2 ~ /^[TDBRSVW]$$/ {print $$3}' \
+	$(NM) -g $^ | awk 'NF==3 && $$2 ~ /^[TDBRSVW]$$/ {print $$3}' \
 	    | grep -E $(EXPORT_PATTERN) | grep -v '_sub_$$' | sort -u > $@.tmp
-	@if [ "$(SYMBOL_PREFIX)" = "" ]; then \
-	    { echo '{ global:'; sed 's/$$/;/' $@.tmp; echo 'local: *; };'; } > $@; \
-	    rm -f $@.tmp; \
-	else \
-	    mv $@.tmp $@; \
-	fi
+	@case "$@" in \
+	*.def) { echo EXPORTS; sed -e 's/^/    /' \
+	             -e 's/^    RowMajorStrg$$/& DATA/' \
+	             -e 's/^    CBLAS_CallFromC$$/& DATA/' \
+	             $@.tmp; } > $@; rm -f $@.tmp ;; \
+	*) if [ "$(SYMBOL_PREFIX)" = "" ]; then \
+	       { echo '{ global:'; sed 's/$$/;/' $@.tmp; echo 'local: *; };'; } > $@; \
+	       rm -f $@.tmp; \
+	   else \
+	       mv $@.tmp $@; \
+	   fi ;; \
+	esac
 
 #  No C++ exception may pass through the interface (it is called from C
 #  and Fortran): the objects of ulmBLAS must not refer to functions that
@@ -114,13 +151,15 @@ THROWING = '_Zn[wa][jmy](St11align_val_t)?$$|__cxa_throw$$|__cxa_rethrow$$|__cxa
 
 $(SHARED_LIB) : $(BUILD_DIR)/libsharedblas.a $(BUILD_DIR)/libcblas.a \
                 $(SHARED_OBJECTS) $(EXPORTS)
-	@if nm -u $(filter-out $(EXPORTS),$^) | grep -E $(THROWING); then \
+	@if $(NM) -u $(filter-out $(EXPORTS),$^) | grep -E $(THROWING); then \
 	    echo "error: objects refer to functions that throw (above)"; \
 	    exit 1; \
 	fi
 	@mkdir -p $(OUTDIR)
 	$(CXX) $(ARCHFLAGS) $(LDFLAGS) -o $@ $(SHARED_OBJECTS) $(SHARED_LINK) \
 	       $(OMPLIBS) -lm
+	$(if $(SHARED_ALIAS),ln -sf $(notdir $@) $(SHARED_ALIAS))
 
 clean :
-	$(RM) -r $(BUILD_DIR) $(SHARED_LIB)
+	$(RM) -r $(BUILD_DIR) $(SHARED_LIB) $(SHARED_ALIAS) \
+	      $(OUTDIR)/lib$(SHARED_NAME).dll.a
