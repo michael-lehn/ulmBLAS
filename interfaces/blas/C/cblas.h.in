@@ -73,6 +73,9 @@ typedef enum CBLAS_DIAG       CBLAS_DIAG;
 typedef enum CBLAS_SIDE       CBLAS_SIDE;
 typedef ULMBLAS_INDEX_TYPE    CBLAS_INDEX;
 
+//  bfloat16 (upper 16 bits of an IEEE float), as OpenBLAS's bfloat16
+typedef uint16_t              ulmblas_bfloat16;
+
 //
 //  Declaration of CBLAS functions currently implemented in ulmBLAS
 //
@@ -1238,6 +1241,22 @@ CBLAS(sgemm)(enum CBLAS_ORDER      order,
              const float           *A,
              ULMBLAS_INDEX_TYPE    ldA,
              const float           *B,
+             ULMBLAS_INDEX_TYPE    ldB,
+             float                 beta,
+             float                 *C,
+             ULMBLAS_INDEX_TYPE    ldC);
+
+void
+CBLAS(sbgemm)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             enum CBLAS_TRANSPOSE  transB,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
+             float                 alpha,
+             const ulmblas_bfloat16 *A,
+             ULMBLAS_INDEX_TYPE    ldA,
+             const ulmblas_bfloat16 *B,
              ULMBLAS_INDEX_TYPE    ldB,
              float                 beta,
              float                 *C,
@@ -2834,6 +2853,21 @@ ULMBLAS(sgemm)(enum CBLAS_TRANSPOSE  transA,
                const float           *A,
                ULMBLAS_INDEX_TYPE    ldA,
                const float           *B,
+               ULMBLAS_INDEX_TYPE    ldB,
+               float                 beta,
+               float                 *C,
+               ULMBLAS_INDEX_TYPE    ldC);
+
+void
+ULMBLAS(sbgemm)(enum CBLAS_TRANSPOSE  transA,
+               enum CBLAS_TRANSPOSE  transB,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
+               float                 alpha,
+               const ulmblas_bfloat16 *A,
+               ULMBLAS_INDEX_TYPE    ldA,
+               const ulmblas_bfloat16 *B,
                ULMBLAS_INDEX_TYPE    ldB,
                float                 beta,
                float                 *C,

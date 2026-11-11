@@ -146,5 +146,19 @@ for t in s d c z; do
     done
 done
 
+#  Extensions of the C interface: sbgemm (bfloat16)
+for p in sbgemm; do
+    if ! $CC $CFLAGS -I$INCDIR -o "$B/c_$p" extensions/$p.c $LINK -lm; then
+        echo "FAIL  c_$p: not built"
+        n_fail=`expr $n_fail + 1`
+    elif (cd "$B" && "./c_$p" > "c_$p.out" 2>&1); then
+        echo "PASS  c_$p"
+        n_pass=`expr $n_pass + 1`
+    else
+        echo "FAIL  c_$p: `tail -n 1 "$B/c_$p.out"` (see $B/c_$p.out)"
+        n_fail=`expr $n_fail + 1`
+    fi
+done
+
 echo "check-shared: PASS $n_pass, FAIL $n_fail"
 [ $n_fail -eq 0 ]

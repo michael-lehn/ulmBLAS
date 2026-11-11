@@ -2,6 +2,7 @@
 #define ULMBLAS_AUXILIARY_AUXILIARY_H 1
 
 #include <ulmblas/auxiliary/abs1.h>
+#include <ulmblas/auxiliary/bfloat16.h>
 #include <ulmblas/auxiliary/auxiliary.h>
 #include <ulmblas/auxiliary/conjugate.h>
 #include <ulmblas/auxiliary/isaligned.h>

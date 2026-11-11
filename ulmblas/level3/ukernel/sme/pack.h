@@ -18,6 +18,7 @@
 //  is unchanged.
 //
 #include <complex>
+#include <ulmblas/auxiliary/bfloat16.h>
 
 namespace ulmBLAS {
 
@@ -124,6 +125,28 @@ pack_kxNR_partial(IndexType nr, IndexType k, bool conj,
                   const std::complex<double> *B, IndexType incRowB,
                   IndexType incColB, std::complex<double> *buffer);
 
+//  The routines for bfloat16 with the SME2 kernel for float (bfpack.tcc):
+//  the panels are converted to float.
+template <int P, typename IndexType>
+static void
+pack_MRxk(IndexType k, bool conj, const bfloat16 *A, IndexType incRowA,
+          IndexType incColA, float *buffer);
+
+template <typename IndexType>
+static void
+pack_kxNR(IndexType k, bool conj, const bfloat16 *B, IndexType incRowB,
+          IndexType incColB, float *buffer);
+
+template <typename IndexType>
+static bool
+pack_MRxk_partial(IndexType mr, IndexType k, bool conj, const bfloat16 *A,
+                  IndexType incRowA, IndexType incColA, float *buffer);
+
+template <typename IndexType>
+static bool
+pack_kxNR_partial(IndexType nr, IndexType k, bool conj, const bfloat16 *B,
+                  IndexType incRowB, IndexType incColB, float *buffer);
+
 } // namespace ulmBLAS
 
 #endif // ULMBLAS_LEVEL3_UKERNEL_SME_PACK_H
@@ -132,3 +155,4 @@ pack_kxNR_partial(IndexType nr, IndexType k, bool conj,
 #include <ulmblas/level3/ukernel/sme/spack.tcc>
 #include <ulmblas/level3/ukernel/sme/cpack.tcc>
 #include <ulmblas/level3/ukernel/sme/zpack.tcc>
+#include <ulmblas/level3/ukernel/sme/bfpack.tcc>
