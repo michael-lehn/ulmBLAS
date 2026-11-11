@@ -76,6 +76,15 @@ gemm(IndexType m, IndexType n, IndexType k, const Alpha &alpha, bool conjA,
 	     incRowA, beta, C, incColC, incRowC);
 	return;
     }
+    //  The other kernels prefer column-major C (they update C directly only
+    //  with unit row stride): for row-major C (e.g. the strided interface
+    //  with a row-major C) also C^T = B^T A^T; about twice as fast
+    if (!UGemmRowPreference<T>::value && incColC == IndexType(1) &&
+        incRowC != IndexType(1)) {
+	gemm(n, m, k, alpha, conjB, B, incColB, incRowB, conjA, A, incColA,
+	     incRowA, beta, C, incColC, incRowC);
+	return;
+    }
     if (!conjA && !conjB &&
         gemm_direct(m, n, k, alpha, A, incRowA, incColA, B, incRowB, incColB,
                     beta, C, incRowC, incColC)) {

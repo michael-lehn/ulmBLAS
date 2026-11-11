@@ -151,6 +151,73 @@ __arm_new("za") __arm_locally_streaming inline void i8gemm_32x32_streaming(
 }
 
 //
+//  16-bit integers (signed), C int32 modulo 2^32: the same tile with the
+//  2-way outer products of 16-bit integers (SMOPA into 32-bit tiles, at
+//  the rate of FMOPA for float), panels in groups of 2 values of k.
+//
+__arm_new("za") __arm_locally_streaming inline void i16gemm_32x32_streaming(
+    long kg, std::int32_t alpha, const std::int16_t *A, const std::int16_t *B,
+    std::int32_t beta, std::int32_t *C, long ldC, long mr, long nr)
+{
+    const svbool_t p = svptrue_b16();
+    const svcount_t pc = svptrue_c16();
+    const bool direct = alpha == 1 && (beta == 0 || beta == 1);
+
+    const int64_t m = mr;
+    const svbool_t p0 = svwhilelt_b32_s64(int64_t(0), m);
+    const svbool_t p1 = svwhilelt_b32_s64(int64_t(16), m);
+    const svcount_t pcr = svwhilelt_c32_s64(int64_t(0), m, 2);
+    const long n0 = (nr < 16) ? nr : 16;
+    const long n1 = nr - n0;
+
+    svzero_za();
+    if (direct && beta == 1) {
+	i32load_32x16<0>(n0, C, ldC, p0, p1);
+	i32load_32x16<2>(n1, C + 16 * ldC, ldC, p0, p1);
+    }
+
+    for (long g = 0; g < kg; ++g) {
+	svint16x2_t a = svld1_s16_x2(pc, A);
+	svint16x2_t b = svld1_s16_x2(pc, B);
+
+	svmopa_za32_s16_m(0, p, p, svget2(b, 0), svget2(a, 0));
+	svmopa_za32_s16_m(1, p, p, svget2(b, 0), svget2(a, 1));
+	svmopa_za32_s16_m(2, p, p, svget2(b, 1), svget2(a, 0));
+	svmopa_za32_s16_m(3, p, p, svget2(b, 1), svget2(a, 1));
+
+	A += 64;
+	B += 64;
+    }
+
+    if (direct) {
+	i32store_32x16<0>(n0, C, ldC, p0, p1);
+	i32store_32x16<2>(n1, C + 16 * ldC, ldC, p0, p1);
+    } else {
+	i32update_32x16<0>(n0, std::uint32_t(alpha), std::uint32_t(beta), C,
+	                   ldC, pcr);
+	i32update_32x16<2>(n1, std::uint32_t(alpha), std::uint32_t(beta),
+	                   C + 16 * ldC, ldC, pcr);
+    }
+}
+
+struct I16Kernel : i8::KernelBase
+{
+    typedef std::int16_t P;
+    static constexpr long MR = 32, NR = 32, KG = 2;
+    static constexpr long MC = 512, KC = 2048, NC = 1024;
+    static constexpr bool partial = true;
+
+    template <bool UA, bool UB>
+    static void
+    kernel(long kg, std::int32_t alpha, const P *A, const P *B,
+           std::int32_t beta, std::int32_t *C, long ldC, long mr, long nr)
+    {
+	const FpsrRestore fpsr; // see sme/fpsr.h
+	i16gemm_32x32_streaming(kg, alpha, A, B, beta, C, ldC, mr, nr);
+    }
+};
+
+//
 //  The kernel for the driver of level3/i8gemm/driver.h (packing in groups
 //  of 4 bytes, the layout above).
 //
@@ -158,7 +225,7 @@ struct I8Kernel : i8::KernelBase
 {
     typedef std::uint8_t P;
     static constexpr long MR = 32, NR = 32, KG = 4;
-    static constexpr long MC = 512, KC = 4096, NC = 1024;
+    static constexpr long MC = 512, KC = 4096, NC = 2048;
     static constexpr bool partial = true;
 
     template <bool UA, bool UB>

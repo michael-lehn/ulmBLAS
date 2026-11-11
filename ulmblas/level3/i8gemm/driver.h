@@ -2,7 +2,8 @@
 #define ULMBLAS_LEVEL3_I8GEMM_DRIVER_H 1
 
 //
-//  Blocked driver of the 8-bit integer GEMM (C int32, modulo 2^32):
+//  Blocked driver of the 8-bit (and 16-bit) integer GEMM (C int32, modulo
+//  2^32):
 //
 //      C <- alpha*A*B + beta*C
 //
@@ -80,11 +81,21 @@ packedValue(std::uint8_t x)
                                                 : P(std::int8_t(x));
 }
 
-//  the groups g0, g0+1, ... of a panel, element by element
-template <long MR, long KG, typename P, bool U>
+//  the value of an element: 8-bit integers (stored as bytes, U: unsigned),
+//  16-bit integers (signed)
+template <typename P, bool U>
+inline P
+packedValue(std::int16_t x)
+{
+    return P(x);
+}
+
+//  the groups g0, g0+1, ... of a panel, element by element (TX: the type of
+//  the stored elements, std::uint8_t or std::int16_t)
+template <long MR, long KG, typename P, bool U, typename TX>
 void
-packGeneric(long mn, long k, const std::uint8_t *X, long incMN, long incK,
-            long g0, P *buffer)
+packGeneric(long mn, long k, const TX *X, long incMN, long incK, long g0,
+            P *buffer)
 {
     const long kg = (k + KG - 1) / KG;
     for (long g = g0; g < kg; ++g) {
@@ -158,8 +169,8 @@ pack4KContig(long k, const std::uint8_t *X, long incMN, std::uint8_t *buffer)
 	    std::memcpy(buffer + 4 * MR * g + 4 * r, X + r * incMN + 4 * g, 4);
 	}
     }
-    packGeneric<MR, 4, std::uint8_t, false>(MR, k, X, incMN, 1, 4 * k16,
-                                            buffer);
+    packGeneric<MR, 4, std::uint8_t, false, std::uint8_t>(
+        MR, k, X, incMN, 1, 4 * k16, buffer);
 }
 
 template <long MR>
@@ -237,7 +248,8 @@ pack4MNContig(long k, const std::uint8_t *X, long incK, std::uint8_t *buffer)
 	    }
 	}
     }
-    packGeneric<MR, 4, std::uint8_t, false>(MR, k, X, 1, incK, k4, buffer);
+    packGeneric<MR, 4, std::uint8_t, false, std::uint8_t>(MR, k, X, 1, incK,
+                                                          k4, buffer);
 }
 
 #endif
@@ -302,15 +314,25 @@ packPanel(long mn, long k, const std::uint8_t *X, long incMN, long incK,
 	return;
     }
 #endif
-    packGeneric<MR, KG, P, U>(mn, k, X, incMN, incK, 0, buffer);
+    packGeneric<MR, KG, P, U, std::uint8_t>(mn, k, X, incMN, incK, 0, buffer);
 }
 
-template <typename K, bool UA, bool UB>
+//  16-bit integers (signed): element by element
+template <long MR, long KG, typename P, bool U>
 void
-driver(long m, long n, long k, std::int32_t alpha, const std::uint8_t *A,
-       long incRowA, long incColA, const std::uint8_t *B, long incRowB,
-       long incColB, std::int32_t beta, std::int32_t *C, long incRowC,
-       long incColC)
+packPanel(long mn, long k, const std::int16_t *X, long incMN, long incK,
+          P *buffer)
+{
+    packGeneric<MR, KG, P, U, std::int16_t>(mn, k, X, incMN, incK, 0, buffer);
+}
+
+//  TX: the type of the elements of A and B (std::uint8_t: 8-bit integers
+//  as bytes, UA, UB their signedness; std::int16_t)
+template <typename K, bool UA, bool UB, typename TX = std::uint8_t>
+void
+driver(long m, long n, long k, std::int32_t alpha, const TX *A, long incRowA,
+       long incColA, const TX *B, long incRowB, long incColB,
+       std::int32_t beta, std::int32_t *C, long incRowC, long incColC)
 {
     typedef typename K::P P;
     constexpr long MR = K::MR, NR = K::NR, KG = K::KG;

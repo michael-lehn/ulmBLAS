@@ -8,10 +8,9 @@
  *
  *  for float, double, complex float and complex double, for the integer
  *  types int8_t, int16_t, int32_t and int64_t, with A and B in int8_t or
- *  uint8_t and C in int32_t, and with A and B in bfloat16 or IEEE half
- *  precision and C in float.  Every matrix is
- *  described by a pointer and two strides: element (i,j) of the m x n
- *  matrix X is
+ *  uint8_t (or int16_t) and C in int32_t, and with A and B in bfloat16 or
+ *  IEEE half precision and C in float.  Every matrix is described by a
+ *  pointer and two strides: element (i,j) of the m x n matrix X is
  *
  *      X[i*incRowX + j*incColX],   0 <= i < m, 0 <= j < n.
  *
@@ -142,6 +141,17 @@ ulmblas_i8i32gemm_strided(int64_t m, int64_t n, int64_t k, int32_t alpha,
                           int64_t incColA, int unsignedB, const void *B,
                           int64_t incRowB, int64_t incColB, int32_t beta,
                           int32_t *C, int64_t incRowC, int64_t incColC);
+
+//
+//  16-bit integers: C (int32) <- alpha*A*B + beta*C modulo 2^32, A and B
+//  int16_t (signed).
+//
+void
+ulmblas_i16i32gemm_strided(int64_t m, int64_t n, int64_t k, int32_t alpha,
+                           const int16_t *A, int64_t incRowA, int64_t incColA,
+                           const int16_t *B, int64_t incRowB, int64_t incColB,
+                           int32_t beta, int32_t *C, int64_t incRowC,
+                           int64_t incColC);
 
 #ifdef __cplusplus
 } // extern "C"

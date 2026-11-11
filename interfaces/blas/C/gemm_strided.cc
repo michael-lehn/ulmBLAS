@@ -211,4 +211,17 @@ ULMBLAS(i8i32gemm_strided)(std::int64_t m, std::int64_t n, std::int64_t k,
                     incColC);
 }
 
+void
+ULMBLAS(i16i32gemm_strided)(std::int64_t m, std::int64_t n, std::int64_t k,
+                            std::int32_t alpha, const std::int16_t *A,
+                            std::int64_t incRowA, std::int64_t incColA,
+                            const std::int16_t *B, std::int64_t incRowB,
+                            std::int64_t incColB, std::int32_t beta,
+                            std::int32_t *C, std::int64_t incRowC,
+                            std::int64_t incColC)
+{
+    ulmBLAS::i16gemm(m, n, k, alpha, A, incRowA, incColA, B, incRowB, incColB,
+                     beta, C, incRowC, incColC);
+}
+
 } // extern "C"

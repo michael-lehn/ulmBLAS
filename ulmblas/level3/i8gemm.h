@@ -131,6 +131,13 @@ i8gemm(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
 	       std::ptrdiff_t(incColC));
 	return;
     }
+    //  C row major (e.g. NumPy): C^T = B^T A^T, so that the kernels update C
+    //  directly (unit row stride) instead of through a local tile
+    if (incRowC != 1 && incColC == 1) {
+	i8gemm(n, m, k, alpha, unsignedB, B, incColB, incRowB, unsignedA, A,
+	       incColA, incRowA, beta, C, incColC, incRowC);
+	return;
+    }
     const FpsrScope fpsrScope; // see level3/fpsrscope.h
 
 #if defined(USE_SME)
@@ -169,6 +176,55 @@ i8gemm(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
 #else
     generic(m, n, k, alpha, unsignedA, A, incRowA, incColA, unsignedB, B,
             incRowB, incColB, beta, C, incRowC, incColC);
+#endif
+}
+
+//
+//  GEMM with A and B in 16-bit integers (signed) and C in int32, modulo 2^32
+//  (int32 with wraparound):
+//
+//      C <- alpha*A*B + beta*C
+//
+//  SME2: 32 x 32 kernel with 2-way outer products; AVX2: the int16 kernel
+//  of avx/i8gemm.tcc; otherwise the generic gemm in uint32.
+//
+inline void
+i16gemm(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
+        const std::int16_t *A, std::int64_t incRowA, std::int64_t incColA,
+        const std::int16_t *B, std::int64_t incRowB, std::int64_t incColB,
+        std::int32_t beta, std::int32_t *C, std::int64_t incRowC,
+        std::int64_t incColC)
+{
+    if (m <= 0 || n <= 0) {
+	return;
+    }
+    if (alpha == 0 || k <= 0) {
+	gescal(std::ptrdiff_t(m), std::ptrdiff_t(n), std::uint32_t(beta),
+	       reinterpret_cast<std::uint32_t *>(C), std::ptrdiff_t(incRowC),
+	       std::ptrdiff_t(incColC));
+	return;
+    }
+    if (incRowC != 1 && incColC == 1) { // C row major: C^T = B^T A^T
+	i16gemm(n, m, k, alpha, B, incColB, incRowB, A, incColA, incRowA, beta,
+	        C, incColC, incRowC);
+	return;
+    }
+    const FpsrScope fpsrScope; // see level3/fpsrscope.h
+
+#if defined(USE_SME)
+    i8::driver<sme::I16Kernel, false, false, std::int16_t>(
+        m, n, k, alpha, A, incRowA, incColA, B, incRowB, incColB, beta, C,
+        incRowC, incColC);
+#elif defined(__AVX2__)
+    i8::driver<avx::I8Kernel, false, false, std::int16_t>(
+        m, n, k, alpha, A, incRowA, incColA, B, incRowB, incColB, beta, C,
+        incRowC, incColC);
+#else
+    gemm<std::ptrdiff_t>(m, n, k, std::uint32_t(alpha), false, A, incRowA,
+                         incColA, false, B, incRowB, incColB,
+                         std::uint32_t(beta),
+                         reinterpret_cast<std::uint32_t *>(C), incRowC,
+                         incColC);
 #endif
 }
 
