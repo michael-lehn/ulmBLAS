@@ -121,7 +121,15 @@ $(BUILD_DIR)/functions.o : ../lbt/functions.c $(BUILD_DIR)/libsharedblas.a
 $(BUILD_DIR)/lsame.o : lsame.c $(BUILD_DIR)/libsharedblas.a
 	$(CC) $(ULMBLAS_CFLAGS) $(CFLAGS) -fPIC -c -o $@ $<
 
-SHARED_OBJECTS = $(BUILD_DIR)/functions.o $(BUILD_DIR)/lsame.o
+#  the name reported by ulmblas_backend()
+BACKEND_NAME ?= $(if $(filter ulmblas_%,$(SHARED_NAME)),$(SHARED_NAME:ulmblas_%=%),$(firstword $(subst -, ,$(TARGET_MACHINE))))
+
+$(BUILD_DIR)/backend.o : backend.c $(BUILD_DIR)/libsharedblas.a
+	$(CC) $(ULMBLAS_CFLAGS) $(CFLAGS) -fPIC \
+	      -DULMBLAS_BACKEND_NAME='"$(BACKEND_NAME)"' -c -o $@ $<
+
+SHARED_OBJECTS = $(BUILD_DIR)/functions.o $(BUILD_DIR)/lsame.o \
+                 $(BUILD_DIR)/backend.o
 
 #  Only the interfaces are exported: the Fortran 77 names (lowercase with
 #  one trailing underscore, without the helpers *_sub_), cblas_*,

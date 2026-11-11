@@ -94,8 +94,9 @@ $(OUTDIR)/libulmblas_%$(SO) : FORCE
 
 #  The functions of a backend, from the export list of its build (any of
 #  the three formats), without the error handlers, the functions that set
-#  them and the two variables; all backends must export the same
-EXCLUDED = '^(xerbla_|cblas_xerbla|ulmblas_set_f77_xerbla|ulmblas_set_cblas_xerbla|RowMajorStrg|CBLAS_CallFromC)$$'
+#  them, the two variables and ulmblas_backend (the front has its own);
+#  all backends must export the same
+EXCLUDED = '^(ulmblas_backend|xerbla_|cblas_xerbla|ulmblas_set_f77_xerbla|ulmblas_set_cblas_xerbla|RowMajorStrg|CBLAS_CallFromC)$$'
 
 functions_of = sed -e 's/[{};]/ /g' $(1) | tr ' \t' '\n\n' \
                | grep -E '^_?[A-Za-z][A-Za-z0-9_]*$$' \
