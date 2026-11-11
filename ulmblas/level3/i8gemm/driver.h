@@ -169,8 +169,8 @@ pack4KContig(long k, const std::uint8_t *X, long incMN, std::uint8_t *buffer)
 	    std::memcpy(buffer + 4 * MR * g + 4 * r, X + r * incMN + 4 * g, 4);
 	}
     }
-    packGeneric<MR, 4, std::uint8_t, false, std::uint8_t>(
-        MR, k, X, incMN, 1, 4 * k16, buffer);
+    packGeneric<MR, 4, std::uint8_t, false, std::uint8_t>(MR, k, X, incMN, 1,
+                                                          4 * k16, buffer);
 }
 
 template <long MR>
@@ -222,10 +222,10 @@ pack4MNContig(long k, const std::uint8_t *X, long incK, std::uint8_t *buffer)
 	    uint8x8_t c1 = vld1_u8(x + incK + i);
 	    uint8x8_t c2 = vld1_u8(x + 2 * incK + i);
 	    uint8x8_t c3 = vld1_u8(x + 3 * incK + i);
-	    uint16x8_t z01 = vreinterpretq_u16_u8(vcombine_u8(
-	        vzip1_u8(c0, c1), vzip2_u8(c0, c1)));
-	    uint16x8_t z23 = vreinterpretq_u16_u8(vcombine_u8(
-	        vzip1_u8(c2, c3), vzip2_u8(c2, c3)));
+	    uint16x8_t z01 = vreinterpretq_u16_u8(
+	        vcombine_u8(vzip1_u8(c0, c1), vzip2_u8(c0, c1)));
+	    uint16x8_t z23 = vreinterpretq_u16_u8(
+	        vcombine_u8(vzip1_u8(c2, c3), vzip2_u8(c2, c3)));
 	    std::uint8_t *bi = b + 4 * i;
 	    vst1q_u8(bi, vreinterpretq_u8_u16(vzip1q_u16(z01, z23)));
 	    vst1q_u8(bi + 16, vreinterpretq_u8_u16(vzip2q_u16(z01, z23)));
@@ -248,8 +248,8 @@ pack4MNContig(long k, const std::uint8_t *X, long incK, std::uint8_t *buffer)
 	    }
 	}
     }
-    packGeneric<MR, 4, std::uint8_t, false, std::uint8_t>(MR, k, X, 1, incK,
-                                                          k4, buffer);
+    packGeneric<MR, 4, std::uint8_t, false, std::uint8_t>(MR, k, X, 1, incK, k4,
+                                                          buffer);
 }
 
 #endif
@@ -331,8 +331,8 @@ packPanel(long mn, long k, const std::int16_t *X, long incMN, long incK,
 template <typename K, bool UA, bool UB, typename TX = std::uint8_t>
 void
 driver(long m, long n, long k, std::int32_t alpha, const TX *A, long incRowA,
-       long incColA, const TX *B, long incRowB, long incColB,
-       std::int32_t beta, std::int32_t *C, long incRowC, long incColC)
+       long incColA, const TX *B, long incRowB, long incColB, std::int32_t beta,
+       std::int32_t *C, long incRowC, long incColC)
 {
     typedef typename K::P P;
     constexpr long MR = K::MR, NR = K::NR, KG = K::KG;

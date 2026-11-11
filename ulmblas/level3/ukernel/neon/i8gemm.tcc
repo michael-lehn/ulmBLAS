@@ -115,8 +115,7 @@ template <int L> struct I8Dot<false, true, L>
 
 //  C(4 rows) <- alpha*acc + beta*C (modulo 2^32), beta = 0: C not read
 inline void
-i8store4(int32x4_t acc, std::int32_t alpha, std::int32_t beta,
-         std::int32_t *C)
+i8store4(int32x4_t acc, std::int32_t alpha, std::int32_t beta, std::int32_t *C)
 {
     uint32x4_t z = vreinterpretq_u32_s32(acc);
     if (alpha != 1) {

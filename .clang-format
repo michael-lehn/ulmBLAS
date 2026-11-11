@@ -31,4 +31,6 @@ AllowShortLoopsOnASingleLine: false
 SortIncludes: Never
 
 #  macros used as complete statements (without semicolon)
-StatementMacros: [ULMBLAS_NEON_SFMA, ULMBLAS_NEON_CFMA]
+StatementMacros: [ULMBLAS_NEON_SFMA, ULMBLAS_NEON_CFMA, ULMBLAS_I8_ROW,
+                  ULMBLAS_I8_ZERO, ULMBLAS_I8_STORE, ULMBLAS_I8_KERNEL,
+                  ULMBLAS_I8_DECLARE, ULMBLAS_I8_FINISH, ULMBLAS_SME_PACK16]

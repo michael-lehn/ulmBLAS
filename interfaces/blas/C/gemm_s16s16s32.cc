@@ -28,8 +28,8 @@ namespace {
 
 //  s[i] = sum_l X(i,l) modulo 2^32, X(i,l) at X[i*incR + l*incC]
 void
-sums16(std::int64_t r, std::int64_t k, const std::int16_t *X,
-       std::int64_t incR, std::int64_t incC, std::uint32_t *s)
+sums16(std::int64_t r, std::int64_t k, const std::int16_t *X, std::int64_t incR,
+       std::int64_t incC, std::uint32_t *s)
 {
     for (std::int64_t i = 0; i < r; ++i) {
 	s[i] = 0;
@@ -157,8 +157,8 @@ CBLAS(gemm_s16s16s32)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
                                 std::uint32_t(std::int32_t(bo)) *
                                 std::uint32_t(std::uint64_t(k));
     for (std::int64_t j = 0; j < n; ++j) {
-	colAdd[j] = (ao != 0 ? std::uint32_t(std::int32_t(ao)) * colAdd[j] : 0) +
-	            aobok;
+	colAdd[j] =
+	    (ao != 0 ? std::uint32_t(std::int32_t(ao)) * colAdd[j] : 0) + aobok;
     }
 
     const std::int64_t NB = 1024;
@@ -178,8 +178,8 @@ CBLAS(gemm_s16s16s32)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
 	                                                   : 0.0;
 	    for (std::int64_t i = 0; i < m; ++i) {
 		//  separate statements: no fused multiply-adds
-		const std::int32_t s = std::int32_t(std::uint32_t(S[i]) +
-		                                    colAdd[j] + rowAdd[i]);
+		const std::int32_t s =
+		    std::int32_t(std::uint32_t(S[i]) + colAdd[j] + rowAdd[i]);
 		double x = a * double(s);
 		if (beta != 0.0f) {
 		    const double y = b * double(Cj[i * rC]);

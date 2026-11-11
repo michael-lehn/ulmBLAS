@@ -10,8 +10,8 @@
 //
 //  The product S = op(A)*op(B) is computed exactly by ulmBLAS::i8gemm, for
 //  blocks of columns into a local buffer (in int32 for at most 65536 values
-//  of k, more are summed in int64).  The offsets ao and bo are added with the row sums of A
-//  and the column sums of B:
+//  of k, more are summed in int64).  The offsets ao and bo are added with the
+//  row sums of A and the column sums of B:
 //
 //      (A + ao)(B + bo) = S + ao*colsum(B) + bo*rowsum(A) + k*ao*bo.
 //

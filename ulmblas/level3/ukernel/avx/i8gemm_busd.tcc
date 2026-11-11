@@ -152,8 +152,7 @@ template <long MR_, long NR_> struct BusdBase : i8::KernelBase
 
 //  C (8 rows) <- alpha*acc + beta*C
 ULMBLAS_BUSD_YMM inline void
-busdStore8(__m256i acc, std::int32_t alpha, std::int32_t beta,
-           std::int32_t *C)
+busdStore8(__m256i acc, std::int32_t alpha, std::int32_t beta, std::int32_t *C)
 {
     if (alpha != 1) {
 	acc = _mm256_mullo_epi32(acc, _mm256_set1_epi32(alpha));
@@ -178,62 +177,72 @@ busdKernel16x6(long kg, std::int32_t alpha, const std::uint8_t *A,
 {
     const std::uint8_t *sumA = A + 64 * kg, *sumB = B + 24 * kg;
     const __m256i z = _mm256_setzero_si256();
-    __m256i c0_0 = z, c0_1 = z, c1_0 = z, c1_1 = z, c2_0 = z, c2_1 = z, c3_0 = z, c3_1 = z, c4_0 = z, c4_1 = z, c5_0 = z, c5_1 = z;
+    __m256i c0_0 = z, c0_1 = z, c1_0 = z, c1_1 = z, c2_0 = z, c2_1 = z,
+            c3_0 = z, c3_1 = z, c4_0 = z, c4_1 = z, c5_0 = z, c5_1 = z;
     __m256i a0, a1, b;
     for (long g = 0; g < kg; ++g) {
 	if (SA) {
 	    __asm__("vmovdqu (%[A]), %[a0]\n\t"
-		    "vmovdqu 32(%[A]), %[a1]\n\t"
-		    "vpbroadcastd 0(%[B]), %[b]\n\t"
-		    "%{vex%} vpdpbusd %[a0], %[b], %[c0_0]\n\t"
-		    "%{vex%} vpdpbusd %[a1], %[b], %[c0_1]\n\t"
-		    "vpbroadcastd 4(%[B]), %[b]\n\t"
-		    "%{vex%} vpdpbusd %[a0], %[b], %[c1_0]\n\t"
-		    "%{vex%} vpdpbusd %[a1], %[b], %[c1_1]\n\t"
-		    "vpbroadcastd 8(%[B]), %[b]\n\t"
-		    "%{vex%} vpdpbusd %[a0], %[b], %[c2_0]\n\t"
-		    "%{vex%} vpdpbusd %[a1], %[b], %[c2_1]\n\t"
-		    "vpbroadcastd 12(%[B]), %[b]\n\t"
-		    "%{vex%} vpdpbusd %[a0], %[b], %[c3_0]\n\t"
-		    "%{vex%} vpdpbusd %[a1], %[b], %[c3_1]\n\t"
-		    "vpbroadcastd 16(%[B]), %[b]\n\t"
-		    "%{vex%} vpdpbusd %[a0], %[b], %[c4_0]\n\t"
-		    "%{vex%} vpdpbusd %[a1], %[b], %[c4_1]\n\t"
-		    "vpbroadcastd 20(%[B]), %[b]\n\t"
-		    "%{vex%} vpdpbusd %[a0], %[b], %[c5_0]\n\t"
-		    "%{vex%} vpdpbusd %[a1], %[b], %[c5_1]\n\t"
-	            : [c0_0] "+x"(c0_0), [c0_1] "+x"(c0_1), [c1_0] "+x"(c1_0), [c1_1] "+x"(c1_1), [c2_0] "+x"(c2_0), [c2_1] "+x"(c2_1), [c3_0] "+x"(c3_0), [c3_1] "+x"(c3_1), [c4_0] "+x"(c4_0), [c4_1] "+x"(c4_1), [c5_0] "+x"(c5_0), [c5_1] "+x"(c5_1), [a0] "=&x"(a0), [a1] "=&x"(a1), [b] "=&x"(b)
+	            "vmovdqu 32(%[A]), %[a1]\n\t"
+	            "vpbroadcastd 0(%[B]), %[b]\n\t"
+	            "%{vex%} vpdpbusd %[a0], %[b], %[c0_0]\n\t"
+	            "%{vex%} vpdpbusd %[a1], %[b], %[c0_1]\n\t"
+	            "vpbroadcastd 4(%[B]), %[b]\n\t"
+	            "%{vex%} vpdpbusd %[a0], %[b], %[c1_0]\n\t"
+	            "%{vex%} vpdpbusd %[a1], %[b], %[c1_1]\n\t"
+	            "vpbroadcastd 8(%[B]), %[b]\n\t"
+	            "%{vex%} vpdpbusd %[a0], %[b], %[c2_0]\n\t"
+	            "%{vex%} vpdpbusd %[a1], %[b], %[c2_1]\n\t"
+	            "vpbroadcastd 12(%[B]), %[b]\n\t"
+	            "%{vex%} vpdpbusd %[a0], %[b], %[c3_0]\n\t"
+	            "%{vex%} vpdpbusd %[a1], %[b], %[c3_1]\n\t"
+	            "vpbroadcastd 16(%[B]), %[b]\n\t"
+	            "%{vex%} vpdpbusd %[a0], %[b], %[c4_0]\n\t"
+	            "%{vex%} vpdpbusd %[a1], %[b], %[c4_1]\n\t"
+	            "vpbroadcastd 20(%[B]), %[b]\n\t"
+	            "%{vex%} vpdpbusd %[a0], %[b], %[c5_0]\n\t"
+	            "%{vex%} vpdpbusd %[a1], %[b], %[c5_1]\n\t"
+	            : [c0_0] "+x"(c0_0), [c0_1] "+x"(c0_1), [c1_0] "+x"(c1_0),
+	              [c1_1] "+x"(c1_1), [c2_0] "+x"(c2_0), [c2_1] "+x"(c2_1),
+	              [c3_0] "+x"(c3_0), [c3_1] "+x"(c3_1), [c4_0] "+x"(c4_0),
+	              [c4_1] "+x"(c4_1), [c5_0] "+x"(c5_0), [c5_1] "+x"(c5_1),
+	              [a0] "=&x"(a0), [a1] "=&x"(a1), [b] "=&x"(b)
 	            : [A] "r"(A), [B] "r"(B)
 	            : "memory");
 	} else {
 	    __asm__("vmovdqu (%[A]), %[a0]\n\t"
-		    "vmovdqu 32(%[A]), %[a1]\n\t"
-		    "vpbroadcastd 0(%[B]), %[b]\n\t"
-		    "%{vex%} vpdpbusd %[b], %[a0], %[c0_0]\n\t"
-		    "%{vex%} vpdpbusd %[b], %[a1], %[c0_1]\n\t"
-		    "vpbroadcastd 4(%[B]), %[b]\n\t"
-		    "%{vex%} vpdpbusd %[b], %[a0], %[c1_0]\n\t"
-		    "%{vex%} vpdpbusd %[b], %[a1], %[c1_1]\n\t"
-		    "vpbroadcastd 8(%[B]), %[b]\n\t"
-		    "%{vex%} vpdpbusd %[b], %[a0], %[c2_0]\n\t"
-		    "%{vex%} vpdpbusd %[b], %[a1], %[c2_1]\n\t"
-		    "vpbroadcastd 12(%[B]), %[b]\n\t"
-		    "%{vex%} vpdpbusd %[b], %[a0], %[c3_0]\n\t"
-		    "%{vex%} vpdpbusd %[b], %[a1], %[c3_1]\n\t"
-		    "vpbroadcastd 16(%[B]), %[b]\n\t"
-		    "%{vex%} vpdpbusd %[b], %[a0], %[c4_0]\n\t"
-		    "%{vex%} vpdpbusd %[b], %[a1], %[c4_1]\n\t"
-		    "vpbroadcastd 20(%[B]), %[b]\n\t"
-		    "%{vex%} vpdpbusd %[b], %[a0], %[c5_0]\n\t"
-		    "%{vex%} vpdpbusd %[b], %[a1], %[c5_1]\n\t"
-	            : [c0_0] "+x"(c0_0), [c0_1] "+x"(c0_1), [c1_0] "+x"(c1_0), [c1_1] "+x"(c1_1), [c2_0] "+x"(c2_0), [c2_1] "+x"(c2_1), [c3_0] "+x"(c3_0), [c3_1] "+x"(c3_1), [c4_0] "+x"(c4_0), [c4_1] "+x"(c4_1), [c5_0] "+x"(c5_0), [c5_1] "+x"(c5_1), [a0] "=&x"(a0), [a1] "=&x"(a1), [b] "=&x"(b)
+	            "vmovdqu 32(%[A]), %[a1]\n\t"
+	            "vpbroadcastd 0(%[B]), %[b]\n\t"
+	            "%{vex%} vpdpbusd %[b], %[a0], %[c0_0]\n\t"
+	            "%{vex%} vpdpbusd %[b], %[a1], %[c0_1]\n\t"
+	            "vpbroadcastd 4(%[B]), %[b]\n\t"
+	            "%{vex%} vpdpbusd %[b], %[a0], %[c1_0]\n\t"
+	            "%{vex%} vpdpbusd %[b], %[a1], %[c1_1]\n\t"
+	            "vpbroadcastd 8(%[B]), %[b]\n\t"
+	            "%{vex%} vpdpbusd %[b], %[a0], %[c2_0]\n\t"
+	            "%{vex%} vpdpbusd %[b], %[a1], %[c2_1]\n\t"
+	            "vpbroadcastd 12(%[B]), %[b]\n\t"
+	            "%{vex%} vpdpbusd %[b], %[a0], %[c3_0]\n\t"
+	            "%{vex%} vpdpbusd %[b], %[a1], %[c3_1]\n\t"
+	            "vpbroadcastd 16(%[B]), %[b]\n\t"
+	            "%{vex%} vpdpbusd %[b], %[a0], %[c4_0]\n\t"
+	            "%{vex%} vpdpbusd %[b], %[a1], %[c4_1]\n\t"
+	            "vpbroadcastd 20(%[B]), %[b]\n\t"
+	            "%{vex%} vpdpbusd %[b], %[a0], %[c5_0]\n\t"
+	            "%{vex%} vpdpbusd %[b], %[a1], %[c5_1]\n\t"
+	            : [c0_0] "+x"(c0_0), [c0_1] "+x"(c0_1), [c1_0] "+x"(c1_0),
+	              [c1_1] "+x"(c1_1), [c2_0] "+x"(c2_0), [c2_1] "+x"(c2_1),
+	              [c3_0] "+x"(c3_0), [c3_1] "+x"(c3_1), [c4_0] "+x"(c4_0),
+	              [c4_1] "+x"(c4_1), [c5_0] "+x"(c5_0), [c5_1] "+x"(c5_1),
+	              [a0] "=&x"(a0), [a1] "=&x"(a1), [b] "=&x"(b)
 	            : [A] "r"(A), [B] "r"(B)
 	            : "memory");
 	}
 	A += 64;
 	B += 24;
     }
-    const __m256i acc[6][2] = {{c0_0, c0_1}, {c1_0, c1_1}, {c2_0, c2_1}, {c3_0, c3_1}, {c4_0, c4_1}, {c5_0, c5_1}};
+    const __m256i acc[6][2] = {{c0_0, c0_1}, {c1_0, c1_1}, {c2_0, c2_1},
+                               {c3_0, c3_1}, {c4_0, c4_1}, {c5_0, c5_1}};
     __m256i r0 = _mm256_setzero_si256(), r1 = r0;
     if (CORR == 2) {
 	r0 = _mm256_loadu_si256((const __m256i *)sumA);
@@ -265,8 +274,10 @@ struct I8KernelBusd16x6 : BusdBase<16, 6>
     kernel(long kg, std::int32_t alpha, const P *A, const P *B,
            std::int32_t beta, std::int32_t *C, long ldC, long, long)
     {
-	busdKernel16x6<!UA && UB, (!UA && !UB) ? 1 : (UA && UB) ? 2 : 0>(
-	    kg, alpha, A, B, beta, C, ldC);
+	busdKernel16x6<!UA && UB, (!UA && !UB) ? 1
+	                          : (UA && UB) ? 2
+	                                       : 0>(kg, alpha, A, B, beta, C,
+	                                            ldC);
     }
 };
 
@@ -278,8 +289,7 @@ struct I8KernelBusd16x6 : BusdBase<16, 6>
 #define ULMBLAS_BUSD_ZMM __attribute__((target("avx512f,avx512vnni")))
 
 ULMBLAS_BUSD_ZMM inline void
-busdStore16(__m512i acc, std::int32_t alpha, std::int32_t beta,
-            std::int32_t *C)
+busdStore16(__m512i acc, std::int32_t alpha, std::int32_t beta, std::int32_t *C)
 {
     if (alpha != 1) {
 	acc = _mm512_mullo_epi32(acc, _mm512_set1_epi32(alpha));
@@ -287,8 +297,9 @@ busdStore16(__m512i acc, std::int32_t alpha, std::int32_t beta,
     if (beta == 1) {
 	acc = _mm512_add_epi32(acc, _mm512_loadu_si512(C));
     } else if (beta != 0) {
-	acc = _mm512_add_epi32(acc, _mm512_mullo_epi32(_mm512_loadu_si512(C),
-	                                               _mm512_set1_epi32(beta)));
+	acc =
+	    _mm512_add_epi32(acc, _mm512_mullo_epi32(_mm512_loadu_si512(C),
+	                                             _mm512_set1_epi32(beta)));
     }
     _mm512_storeu_si512(C, acc);
 }
@@ -301,104 +312,126 @@ busdKernel32x12(long kg, std::int32_t alpha, const std::uint8_t *A,
 {
     const std::uint8_t *sumA = A + 128 * kg, *sumB = B + 48 * kg;
     const __m512i z = _mm512_setzero_si512();
-    __m512i c0_0 = z, c0_1 = z, c1_0 = z, c1_1 = z, c2_0 = z, c2_1 = z, c3_0 = z, c3_1 = z, c4_0 = z, c4_1 = z, c5_0 = z, c5_1 = z, c6_0 = z, c6_1 = z, c7_0 = z, c7_1 = z, c8_0 = z, c8_1 = z, c9_0 = z, c9_1 = z, c10_0 = z, c10_1 = z, c11_0 = z, c11_1 = z;
+    __m512i c0_0 = z, c0_1 = z, c1_0 = z, c1_1 = z, c2_0 = z, c2_1 = z,
+            c3_0 = z, c3_1 = z, c4_0 = z, c4_1 = z, c5_0 = z, c5_1 = z,
+            c6_0 = z, c6_1 = z, c7_0 = z, c7_1 = z, c8_0 = z, c8_1 = z,
+            c9_0 = z, c9_1 = z, c10_0 = z, c10_1 = z, c11_0 = z, c11_1 = z;
     __m512i a0, a1, b;
     for (long g = 0; g < kg; ++g) {
 	if (SA) {
 	    __asm__("vmovdqu32 (%[A]), %[a0]\n\t"
-		    "vmovdqu32 64(%[A]), %[a1]\n\t"
-		    "vpbroadcastd 0(%[B]), %[b]\n\t"
-		    "vpdpbusd %[a0], %[b], %[c0_0]\n\t"
-		    "vpdpbusd %[a1], %[b], %[c0_1]\n\t"
-		    "vpbroadcastd 4(%[B]), %[b]\n\t"
-		    "vpdpbusd %[a0], %[b], %[c1_0]\n\t"
-		    "vpdpbusd %[a1], %[b], %[c1_1]\n\t"
-		    "vpbroadcastd 8(%[B]), %[b]\n\t"
-		    "vpdpbusd %[a0], %[b], %[c2_0]\n\t"
-		    "vpdpbusd %[a1], %[b], %[c2_1]\n\t"
-		    "vpbroadcastd 12(%[B]), %[b]\n\t"
-		    "vpdpbusd %[a0], %[b], %[c3_0]\n\t"
-		    "vpdpbusd %[a1], %[b], %[c3_1]\n\t"
-		    "vpbroadcastd 16(%[B]), %[b]\n\t"
-		    "vpdpbusd %[a0], %[b], %[c4_0]\n\t"
-		    "vpdpbusd %[a1], %[b], %[c4_1]\n\t"
-		    "vpbroadcastd 20(%[B]), %[b]\n\t"
-		    "vpdpbusd %[a0], %[b], %[c5_0]\n\t"
-		    "vpdpbusd %[a1], %[b], %[c5_1]\n\t"
-	            : [c0_0] "+v"(c0_0), [c0_1] "+v"(c0_1), [c1_0] "+v"(c1_0), [c1_1] "+v"(c1_1), [c2_0] "+v"(c2_0), [c2_1] "+v"(c2_1), [c3_0] "+v"(c3_0), [c3_1] "+v"(c3_1), [c4_0] "+v"(c4_0), [c4_1] "+v"(c4_1), [c5_0] "+v"(c5_0), [c5_1] "+v"(c5_1), [a0] "=&v"(a0), [a1] "=&v"(a1), [b] "=&v"(b)
+	            "vmovdqu32 64(%[A]), %[a1]\n\t"
+	            "vpbroadcastd 0(%[B]), %[b]\n\t"
+	            "vpdpbusd %[a0], %[b], %[c0_0]\n\t"
+	            "vpdpbusd %[a1], %[b], %[c0_1]\n\t"
+	            "vpbroadcastd 4(%[B]), %[b]\n\t"
+	            "vpdpbusd %[a0], %[b], %[c1_0]\n\t"
+	            "vpdpbusd %[a1], %[b], %[c1_1]\n\t"
+	            "vpbroadcastd 8(%[B]), %[b]\n\t"
+	            "vpdpbusd %[a0], %[b], %[c2_0]\n\t"
+	            "vpdpbusd %[a1], %[b], %[c2_1]\n\t"
+	            "vpbroadcastd 12(%[B]), %[b]\n\t"
+	            "vpdpbusd %[a0], %[b], %[c3_0]\n\t"
+	            "vpdpbusd %[a1], %[b], %[c3_1]\n\t"
+	            "vpbroadcastd 16(%[B]), %[b]\n\t"
+	            "vpdpbusd %[a0], %[b], %[c4_0]\n\t"
+	            "vpdpbusd %[a1], %[b], %[c4_1]\n\t"
+	            "vpbroadcastd 20(%[B]), %[b]\n\t"
+	            "vpdpbusd %[a0], %[b], %[c5_0]\n\t"
+	            "vpdpbusd %[a1], %[b], %[c5_1]\n\t"
+	            : [c0_0] "+v"(c0_0), [c0_1] "+v"(c0_1), [c1_0] "+v"(c1_0),
+	              [c1_1] "+v"(c1_1), [c2_0] "+v"(c2_0), [c2_1] "+v"(c2_1),
+	              [c3_0] "+v"(c3_0), [c3_1] "+v"(c3_1), [c4_0] "+v"(c4_0),
+	              [c4_1] "+v"(c4_1), [c5_0] "+v"(c5_0), [c5_1] "+v"(c5_1),
+	              [a0] "=&v"(a0), [a1] "=&v"(a1), [b] "=&v"(b)
 	            : [A] "r"(A), [B] "r"(B)
 	            : "memory");
 	    __asm__("vpbroadcastd 24(%[B]), %[b]\n\t"
-		    "vpdpbusd %[a0], %[b], %[c6_0]\n\t"
-		    "vpdpbusd %[a1], %[b], %[c6_1]\n\t"
-		    "vpbroadcastd 28(%[B]), %[b]\n\t"
-		    "vpdpbusd %[a0], %[b], %[c7_0]\n\t"
-		    "vpdpbusd %[a1], %[b], %[c7_1]\n\t"
-		    "vpbroadcastd 32(%[B]), %[b]\n\t"
-		    "vpdpbusd %[a0], %[b], %[c8_0]\n\t"
-		    "vpdpbusd %[a1], %[b], %[c8_1]\n\t"
-		    "vpbroadcastd 36(%[B]), %[b]\n\t"
-		    "vpdpbusd %[a0], %[b], %[c9_0]\n\t"
-		    "vpdpbusd %[a1], %[b], %[c9_1]\n\t"
-		    "vpbroadcastd 40(%[B]), %[b]\n\t"
-		    "vpdpbusd %[a0], %[b], %[c10_0]\n\t"
-		    "vpdpbusd %[a1], %[b], %[c10_1]\n\t"
-		    "vpbroadcastd 44(%[B]), %[b]\n\t"
-		    "vpdpbusd %[a0], %[b], %[c11_0]\n\t"
-		    "vpdpbusd %[a1], %[b], %[c11_1]\n\t"
-	            : [c6_0] "+v"(c6_0), [c6_1] "+v"(c6_1), [c7_0] "+v"(c7_0), [c7_1] "+v"(c7_1), [c8_0] "+v"(c8_0), [c8_1] "+v"(c8_1), [c9_0] "+v"(c9_0), [c9_1] "+v"(c9_1), [c10_0] "+v"(c10_0), [c10_1] "+v"(c10_1), [c11_0] "+v"(c11_0), [c11_1] "+v"(c11_1), [b] "=&v"(b)
+	            "vpdpbusd %[a0], %[b], %[c6_0]\n\t"
+	            "vpdpbusd %[a1], %[b], %[c6_1]\n\t"
+	            "vpbroadcastd 28(%[B]), %[b]\n\t"
+	            "vpdpbusd %[a0], %[b], %[c7_0]\n\t"
+	            "vpdpbusd %[a1], %[b], %[c7_1]\n\t"
+	            "vpbroadcastd 32(%[B]), %[b]\n\t"
+	            "vpdpbusd %[a0], %[b], %[c8_0]\n\t"
+	            "vpdpbusd %[a1], %[b], %[c8_1]\n\t"
+	            "vpbroadcastd 36(%[B]), %[b]\n\t"
+	            "vpdpbusd %[a0], %[b], %[c9_0]\n\t"
+	            "vpdpbusd %[a1], %[b], %[c9_1]\n\t"
+	            "vpbroadcastd 40(%[B]), %[b]\n\t"
+	            "vpdpbusd %[a0], %[b], %[c10_0]\n\t"
+	            "vpdpbusd %[a1], %[b], %[c10_1]\n\t"
+	            "vpbroadcastd 44(%[B]), %[b]\n\t"
+	            "vpdpbusd %[a0], %[b], %[c11_0]\n\t"
+	            "vpdpbusd %[a1], %[b], %[c11_1]\n\t"
+	            : [c6_0] "+v"(c6_0), [c6_1] "+v"(c6_1), [c7_0] "+v"(c7_0),
+	              [c7_1] "+v"(c7_1), [c8_0] "+v"(c8_0), [c8_1] "+v"(c8_1),
+	              [c9_0] "+v"(c9_0), [c9_1] "+v"(c9_1), [c10_0] "+v"(c10_0),
+	              [c10_1] "+v"(c10_1), [c11_0] "+v"(c11_0),
+	              [c11_1] "+v"(c11_1), [b] "=&v"(b)
 	            : [A] "r"(A), [B] "r"(B), [a0] "v"(a0), [a1] "v"(a1)
 	            : "memory");
 	} else {
 	    __asm__("vmovdqu32 (%[A]), %[a0]\n\t"
-		    "vmovdqu32 64(%[A]), %[a1]\n\t"
-		    "vpbroadcastd 0(%[B]), %[b]\n\t"
-		    "vpdpbusd %[b], %[a0], %[c0_0]\n\t"
-		    "vpdpbusd %[b], %[a1], %[c0_1]\n\t"
-		    "vpbroadcastd 4(%[B]), %[b]\n\t"
-		    "vpdpbusd %[b], %[a0], %[c1_0]\n\t"
-		    "vpdpbusd %[b], %[a1], %[c1_1]\n\t"
-		    "vpbroadcastd 8(%[B]), %[b]\n\t"
-		    "vpdpbusd %[b], %[a0], %[c2_0]\n\t"
-		    "vpdpbusd %[b], %[a1], %[c2_1]\n\t"
-		    "vpbroadcastd 12(%[B]), %[b]\n\t"
-		    "vpdpbusd %[b], %[a0], %[c3_0]\n\t"
-		    "vpdpbusd %[b], %[a1], %[c3_1]\n\t"
-		    "vpbroadcastd 16(%[B]), %[b]\n\t"
-		    "vpdpbusd %[b], %[a0], %[c4_0]\n\t"
-		    "vpdpbusd %[b], %[a1], %[c4_1]\n\t"
-		    "vpbroadcastd 20(%[B]), %[b]\n\t"
-		    "vpdpbusd %[b], %[a0], %[c5_0]\n\t"
-		    "vpdpbusd %[b], %[a1], %[c5_1]\n\t"
-	            : [c0_0] "+v"(c0_0), [c0_1] "+v"(c0_1), [c1_0] "+v"(c1_0), [c1_1] "+v"(c1_1), [c2_0] "+v"(c2_0), [c2_1] "+v"(c2_1), [c3_0] "+v"(c3_0), [c3_1] "+v"(c3_1), [c4_0] "+v"(c4_0), [c4_1] "+v"(c4_1), [c5_0] "+v"(c5_0), [c5_1] "+v"(c5_1), [a0] "=&v"(a0), [a1] "=&v"(a1), [b] "=&v"(b)
+	            "vmovdqu32 64(%[A]), %[a1]\n\t"
+	            "vpbroadcastd 0(%[B]), %[b]\n\t"
+	            "vpdpbusd %[b], %[a0], %[c0_0]\n\t"
+	            "vpdpbusd %[b], %[a1], %[c0_1]\n\t"
+	            "vpbroadcastd 4(%[B]), %[b]\n\t"
+	            "vpdpbusd %[b], %[a0], %[c1_0]\n\t"
+	            "vpdpbusd %[b], %[a1], %[c1_1]\n\t"
+	            "vpbroadcastd 8(%[B]), %[b]\n\t"
+	            "vpdpbusd %[b], %[a0], %[c2_0]\n\t"
+	            "vpdpbusd %[b], %[a1], %[c2_1]\n\t"
+	            "vpbroadcastd 12(%[B]), %[b]\n\t"
+	            "vpdpbusd %[b], %[a0], %[c3_0]\n\t"
+	            "vpdpbusd %[b], %[a1], %[c3_1]\n\t"
+	            "vpbroadcastd 16(%[B]), %[b]\n\t"
+	            "vpdpbusd %[b], %[a0], %[c4_0]\n\t"
+	            "vpdpbusd %[b], %[a1], %[c4_1]\n\t"
+	            "vpbroadcastd 20(%[B]), %[b]\n\t"
+	            "vpdpbusd %[b], %[a0], %[c5_0]\n\t"
+	            "vpdpbusd %[b], %[a1], %[c5_1]\n\t"
+	            : [c0_0] "+v"(c0_0), [c0_1] "+v"(c0_1), [c1_0] "+v"(c1_0),
+	              [c1_1] "+v"(c1_1), [c2_0] "+v"(c2_0), [c2_1] "+v"(c2_1),
+	              [c3_0] "+v"(c3_0), [c3_1] "+v"(c3_1), [c4_0] "+v"(c4_0),
+	              [c4_1] "+v"(c4_1), [c5_0] "+v"(c5_0), [c5_1] "+v"(c5_1),
+	              [a0] "=&v"(a0), [a1] "=&v"(a1), [b] "=&v"(b)
 	            : [A] "r"(A), [B] "r"(B)
 	            : "memory");
 	    __asm__("vpbroadcastd 24(%[B]), %[b]\n\t"
-		    "vpdpbusd %[b], %[a0], %[c6_0]\n\t"
-		    "vpdpbusd %[b], %[a1], %[c6_1]\n\t"
-		    "vpbroadcastd 28(%[B]), %[b]\n\t"
-		    "vpdpbusd %[b], %[a0], %[c7_0]\n\t"
-		    "vpdpbusd %[b], %[a1], %[c7_1]\n\t"
-		    "vpbroadcastd 32(%[B]), %[b]\n\t"
-		    "vpdpbusd %[b], %[a0], %[c8_0]\n\t"
-		    "vpdpbusd %[b], %[a1], %[c8_1]\n\t"
-		    "vpbroadcastd 36(%[B]), %[b]\n\t"
-		    "vpdpbusd %[b], %[a0], %[c9_0]\n\t"
-		    "vpdpbusd %[b], %[a1], %[c9_1]\n\t"
-		    "vpbroadcastd 40(%[B]), %[b]\n\t"
-		    "vpdpbusd %[b], %[a0], %[c10_0]\n\t"
-		    "vpdpbusd %[b], %[a1], %[c10_1]\n\t"
-		    "vpbroadcastd 44(%[B]), %[b]\n\t"
-		    "vpdpbusd %[b], %[a0], %[c11_0]\n\t"
-		    "vpdpbusd %[b], %[a1], %[c11_1]\n\t"
-	            : [c6_0] "+v"(c6_0), [c6_1] "+v"(c6_1), [c7_0] "+v"(c7_0), [c7_1] "+v"(c7_1), [c8_0] "+v"(c8_0), [c8_1] "+v"(c8_1), [c9_0] "+v"(c9_0), [c9_1] "+v"(c9_1), [c10_0] "+v"(c10_0), [c10_1] "+v"(c10_1), [c11_0] "+v"(c11_0), [c11_1] "+v"(c11_1), [b] "=&v"(b)
+	            "vpdpbusd %[b], %[a0], %[c6_0]\n\t"
+	            "vpdpbusd %[b], %[a1], %[c6_1]\n\t"
+	            "vpbroadcastd 28(%[B]), %[b]\n\t"
+	            "vpdpbusd %[b], %[a0], %[c7_0]\n\t"
+	            "vpdpbusd %[b], %[a1], %[c7_1]\n\t"
+	            "vpbroadcastd 32(%[B]), %[b]\n\t"
+	            "vpdpbusd %[b], %[a0], %[c8_0]\n\t"
+	            "vpdpbusd %[b], %[a1], %[c8_1]\n\t"
+	            "vpbroadcastd 36(%[B]), %[b]\n\t"
+	            "vpdpbusd %[b], %[a0], %[c9_0]\n\t"
+	            "vpdpbusd %[b], %[a1], %[c9_1]\n\t"
+	            "vpbroadcastd 40(%[B]), %[b]\n\t"
+	            "vpdpbusd %[b], %[a0], %[c10_0]\n\t"
+	            "vpdpbusd %[b], %[a1], %[c10_1]\n\t"
+	            "vpbroadcastd 44(%[B]), %[b]\n\t"
+	            "vpdpbusd %[b], %[a0], %[c11_0]\n\t"
+	            "vpdpbusd %[b], %[a1], %[c11_1]\n\t"
+	            : [c6_0] "+v"(c6_0), [c6_1] "+v"(c6_1), [c7_0] "+v"(c7_0),
+	              [c7_1] "+v"(c7_1), [c8_0] "+v"(c8_0), [c8_1] "+v"(c8_1),
+	              [c9_0] "+v"(c9_0), [c9_1] "+v"(c9_1), [c10_0] "+v"(c10_0),
+	              [c10_1] "+v"(c10_1), [c11_0] "+v"(c11_0),
+	              [c11_1] "+v"(c11_1), [b] "=&v"(b)
 	            : [A] "r"(A), [B] "r"(B), [a0] "v"(a0), [a1] "v"(a1)
 	            : "memory");
 	}
 	A += 128;
 	B += 48;
     }
-    const __m512i acc[12][2] = {{c0_0, c0_1}, {c1_0, c1_1}, {c2_0, c2_1}, {c3_0, c3_1}, {c4_0, c4_1}, {c5_0, c5_1}, {c6_0, c6_1}, {c7_0, c7_1}, {c8_0, c8_1}, {c9_0, c9_1}, {c10_0, c10_1}, {c11_0, c11_1}};
+    const __m512i acc[12][2] = {{c0_0, c0_1}, {c1_0, c1_1},   {c2_0, c2_1},
+                                {c3_0, c3_1}, {c4_0, c4_1},   {c5_0, c5_1},
+                                {c6_0, c6_1}, {c7_0, c7_1},   {c8_0, c8_1},
+                                {c9_0, c9_1}, {c10_0, c10_1}, {c11_0, c11_1}};
     __m512i r0 = _mm512_setzero_si512(), r1 = r0;
     if (CORR == 2) {
 	r0 = _mm512_loadu_si512(sumA);
@@ -430,8 +463,10 @@ struct I8KernelBusd32x12 : BusdBase<32, 12>
     kernel(long kg, std::int32_t alpha, const P *A, const P *B,
            std::int32_t beta, std::int32_t *C, long ldC, long, long)
     {
-	busdKernel32x12<!UA && UB, (!UA && !UB) ? 1 : (UA && UB) ? 2 : 0>(
-	    kg, alpha, A, B, beta, C, ldC);
+	busdKernel32x12<!UA && UB, (!UA && !UB) ? 1
+	                           : (UA && UB) ? 2
+	                                        : 0>(kg, alpha, A, B, beta, C,
+	                                             ldC);
     }
 };
 

@@ -83,39 +83,42 @@ i8kernel_8x6(long kg, std::int32_t alpha, const std::int16_t *A,
     __m256i t;
     for (long g = 0; g < kg; ++g) {
 	__asm__("vmovdqu (%[A]), %[a0]\n\t"
-		    "vmovdqu 32(%[A]), %[a1]\n\t"
-		    "vpbroadcastq 0(%[B]), %[b]\n\t"
-		    "vpmaddwd %[b], %[a0], %[t]\n\t"
-		    "vpaddd %[t], %[c00], %[c00]\n\t"
-		    "vpmaddwd %[b], %[a1], %[t]\n\t"
-		    "vpaddd %[t], %[c01], %[c01]\n\t"
-		    "vpbroadcastq 8(%[B]), %[b]\n\t"
-		    "vpmaddwd %[b], %[a0], %[t]\n\t"
-		    "vpaddd %[t], %[c10], %[c10]\n\t"
-		    "vpmaddwd %[b], %[a1], %[t]\n\t"
-		    "vpaddd %[t], %[c11], %[c11]\n\t"
-		    "vpbroadcastq 16(%[B]), %[b]\n\t"
-		    "vpmaddwd %[b], %[a0], %[t]\n\t"
-		    "vpaddd %[t], %[c20], %[c20]\n\t"
-		    "vpmaddwd %[b], %[a1], %[t]\n\t"
-		    "vpaddd %[t], %[c21], %[c21]\n\t"
-		    "vpbroadcastq 24(%[B]), %[b]\n\t"
-		    "vpmaddwd %[b], %[a0], %[t]\n\t"
-		    "vpaddd %[t], %[c30], %[c30]\n\t"
-		    "vpmaddwd %[b], %[a1], %[t]\n\t"
-		    "vpaddd %[t], %[c31], %[c31]\n\t"
-		    "vpbroadcastq 32(%[B]), %[b]\n\t"
-		    "vpmaddwd %[b], %[a0], %[t]\n\t"
-		    "vpaddd %[t], %[c40], %[c40]\n\t"
-		    "vpmaddwd %[b], %[a1], %[t]\n\t"
-		    "vpaddd %[t], %[c41], %[c41]\n\t"
-		    "vpbroadcastq 40(%[B]), %[b]\n\t"
-		    "vpmaddwd %[b], %[a0], %[t]\n\t"
-		    "vpaddd %[t], %[c50], %[c50]\n\t"
-		    "vpmaddwd %[b], %[a1], %[t]\n\t"
-		    "vpaddd %[t], %[c51], %[c51]\n\t"
-	        : [c00] "+x"(c00), [c01] "+x"(c01), [c10] "+x"(c10), [c11] "+x"(c11), [c20] "+x"(c20), [c21] "+x"(c21), [c30] "+x"(c30), [c31] "+x"(c31), [c40] "+x"(c40), [c41] "+x"(c41), [c50] "+x"(c50), [c51] "+x"(c51), [a0] "=&x"(a0), [a1] "=&x"(a1), [b] "=&x"(b),
-	          [t] "=&x"(t)
+	        "vmovdqu 32(%[A]), %[a1]\n\t"
+	        "vpbroadcastq 0(%[B]), %[b]\n\t"
+	        "vpmaddwd %[b], %[a0], %[t]\n\t"
+	        "vpaddd %[t], %[c00], %[c00]\n\t"
+	        "vpmaddwd %[b], %[a1], %[t]\n\t"
+	        "vpaddd %[t], %[c01], %[c01]\n\t"
+	        "vpbroadcastq 8(%[B]), %[b]\n\t"
+	        "vpmaddwd %[b], %[a0], %[t]\n\t"
+	        "vpaddd %[t], %[c10], %[c10]\n\t"
+	        "vpmaddwd %[b], %[a1], %[t]\n\t"
+	        "vpaddd %[t], %[c11], %[c11]\n\t"
+	        "vpbroadcastq 16(%[B]), %[b]\n\t"
+	        "vpmaddwd %[b], %[a0], %[t]\n\t"
+	        "vpaddd %[t], %[c20], %[c20]\n\t"
+	        "vpmaddwd %[b], %[a1], %[t]\n\t"
+	        "vpaddd %[t], %[c21], %[c21]\n\t"
+	        "vpbroadcastq 24(%[B]), %[b]\n\t"
+	        "vpmaddwd %[b], %[a0], %[t]\n\t"
+	        "vpaddd %[t], %[c30], %[c30]\n\t"
+	        "vpmaddwd %[b], %[a1], %[t]\n\t"
+	        "vpaddd %[t], %[c31], %[c31]\n\t"
+	        "vpbroadcastq 32(%[B]), %[b]\n\t"
+	        "vpmaddwd %[b], %[a0], %[t]\n\t"
+	        "vpaddd %[t], %[c40], %[c40]\n\t"
+	        "vpmaddwd %[b], %[a1], %[t]\n\t"
+	        "vpaddd %[t], %[c41], %[c41]\n\t"
+	        "vpbroadcastq 40(%[B]), %[b]\n\t"
+	        "vpmaddwd %[b], %[a0], %[t]\n\t"
+	        "vpaddd %[t], %[c50], %[c50]\n\t"
+	        "vpmaddwd %[b], %[a1], %[t]\n\t"
+	        "vpaddd %[t], %[c51], %[c51]\n\t"
+	        : [c00] "+x"(c00), [c01] "+x"(c01), [c10] "+x"(c10),
+	          [c11] "+x"(c11), [c20] "+x"(c20), [c21] "+x"(c21),
+	          [c30] "+x"(c30), [c31] "+x"(c31), [c40] "+x"(c40),
+	          [c41] "+x"(c41), [c50] "+x"(c50), [c51] "+x"(c51),
+	          [a0] "=&x"(a0), [a1] "=&x"(a1), [b] "=&x"(b), [t] "=&x"(t)
 	        : [A] "r"(A), [B] "r"(B)
 	        : "memory");
 	A += 32;
@@ -123,7 +126,6 @@ i8kernel_8x6(long kg, std::int32_t alpha, const std::int16_t *A,
     }
     ULMBLAS_I8_FINISH
 }
-
 
 #undef ULMBLAS_I8_DECLARE
 #undef ULMBLAS_I8_FINISH

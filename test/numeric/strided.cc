@@ -617,10 +617,10 @@ gemm16(const ulmBLAS::bfloat16 *, std::int64_t m, std::int64_t n,
 }
 
 void
-gemm16(const ulmBLAS::float16 *, std::int64_t m, std::int64_t n,
-       std::int64_t k, float alpha, const std::uint16_t *A, std::int64_t rA,
-       std::int64_t cA, const std::uint16_t *B, std::int64_t rB,
-       std::int64_t cB, float beta, float *C, std::int64_t rC, std::int64_t cC)
+gemm16(const ulmBLAS::float16 *, std::int64_t m, std::int64_t n, std::int64_t k,
+       float alpha, const std::uint16_t *A, std::int64_t rA, std::int64_t cA,
+       const std::uint16_t *B, std::int64_t rB, std::int64_t cB, float beta,
+       float *C, std::int64_t rC, std::int64_t cC)
 {
     ulmblas_shgemm_strided(m, n, k, alpha, A, rA, cA, B, rB, cB, beta, C, rC,
                            cC);
@@ -681,19 +681,19 @@ gemm16Case(Context &ctx, Random &random, std::int64_t m, std::int64_t n,
 	    }
 	    double c = beta == 0 ? 0 : double(C(i, j));
 	    ref[i + j * m] = alpha * s + beta * c;
-	    bound[i + j * m] = std::abs(alpha) * b + std::abs(beta) * std::abs(c);
+	    bound[i + j * m] =
+	        std::abs(alpha) * b + std::abs(beta) * std::abs(c);
 	}
     }
 
     gemm16(static_cast<const T16 *>(nullptr), m, n, k, alpha, A.ptr(), A.rs,
            A.cs, B.ptr(), B.rs, B.cs, beta, C.ptr(), C.rs, C.cs);
 
-    std::string what =
-        format("%s_strided(m=%d,n=%d,k=%d,A %s,B %s,C %s,alpha=%g,beta=%g)",
-               std::is_same<T16, ulmBLAS::bfloat16>::value ? "sbgemm"
-                                                           : "shgemm",
-               int(m), int(n), int(k), layoutName(lA), layoutName(lB),
-               layoutName(lC), double(alpha), double(beta));
+    std::string what = format(
+        "%s_strided(m=%d,n=%d,k=%d,A %s,B %s,C %s,alpha=%g,beta=%g)",
+        std::is_same<T16, ulmBLAS::bfloat16>::value ? "sbgemm" : "shgemm",
+        int(m), int(n), int(k), layoutName(lA), layoutName(lB), layoutName(lC),
+        double(alpha), double(beta));
 
     std::vector<char> isC(C.buf.size(), 0);
     for (std::int64_t j = 0; j < n; ++j) {
@@ -702,8 +702,8 @@ gemm16Case(Context &ctx, Random &random, std::int64_t m, std::int64_t n,
 	    float t = float(ref[i + j * m]);
 	    if (!ctx.check(closeEnough(C(i, j), t, bound[i + j * m],
 	                               int(std::max<std::int64_t>(k, 1))),
-	                   "%s: C(%d,%d) = %g, expected %g", what.c_str(), int(i),
-	                   int(j), double(C(i, j)), double(t))) {
+	                   "%s: C(%d,%d) = %g, expected %g", what.c_str(),
+	                   int(i), int(j), double(C(i, j)), double(t))) {
 		return false;
 	    }
 	}
@@ -724,8 +724,8 @@ void
 testGemm16(Context &ctx)
 {
     Random random(0xb16f16);
-    static const int size[][3] = {{1, 1, 1},    {2, 3, 1},    {7, 5, 3},
-                                  {13, 17, 11}, {33, 31, 65}, {64, 64, 64},
+    static const int size[][3] = {{1, 1, 1},     {2, 3, 1},    {7, 5, 3},
+                                  {13, 17, 11},  {33, 31, 65}, {64, 64, 64},
                                   {97, 113, 301}};
     const float alphas[] = {1.0f, -1.5f}, betas[] = {0.0f, 0.5f};
 
@@ -762,7 +762,7 @@ testGemm16(Context &ctx)
     {
 	std::int64_t m, n, k;
 	float alpha, beta;
-    } c[] = {{9, 7, 5, 0, -2}, {9, 7, 5, 0, 0}, {9, 7, 0, 1, -2},
+    } c[] = {{9, 7, 5, 0, -2}, {9, 7, 5, 0, 0},  {9, 7, 0, 1, -2},
              {9, 7, 0, 1, 0},  {0, 7, 5, 1, -2}, {9, 0, 5, 1, -2}};
     for (const auto &x : c) {
 	if (!gemm16Case<T16>(ctx, random, x.m, x.n, x.k, RowStride2, NegRow,

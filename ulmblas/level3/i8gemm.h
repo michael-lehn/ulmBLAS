@@ -146,9 +146,9 @@ i8gemm(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
                            incColC);
 #elif defined(__aarch64__)
     if (neon::hasDotProd() && (unsignedA == unsignedB || neon::hasI8MM())) {
-	blocked<neon::I8Kernel>(m, n, k, alpha, unsignedA, A, incRowA,
-	                        incColA, unsignedB, B, incRowB, incColB, beta,
-	                        C, incRowC, incColC);
+	blocked<neon::I8Kernel>(m, n, k, alpha, unsignedA, A, incRowA, incColA,
+	                        unsignedB, B, incRowB, incColB, beta, C,
+	                        incRowC, incColC);
 	return;
     }
     generic(m, n, k, alpha, unsignedA, A, incRowA, incColA, unsignedB, B,
@@ -157,8 +157,8 @@ i8gemm(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
 #if defined(ULMBLAS_HAVE_AVX512VNNI_BUSD)
     if (avx::hasAvx512Vnni()) {
 	blocked<avx::I8KernelBusd32x12>(m, n, k, alpha, unsignedA, A, incRowA,
-	                                incColA, unsignedB, B, incRowB,
-	                                incColB, beta, C, incRowC, incColC);
+	                                incColA, unsignedB, B, incRowB, incColB,
+	                                beta, C, incRowC, incColC);
 	return;
     }
 #endif
@@ -220,11 +220,10 @@ i16gemm(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
         m, n, k, alpha, A, incRowA, incColA, B, incRowB, incColB, beta, C,
         incRowC, incColC);
 #else
-    gemm<std::ptrdiff_t>(m, n, k, std::uint32_t(alpha), false, A, incRowA,
-                         incColA, false, B, incRowB, incColB,
-                         std::uint32_t(beta),
-                         reinterpret_cast<std::uint32_t *>(C), incRowC,
-                         incColC);
+    gemm<std::ptrdiff_t>(
+        m, n, k, std::uint32_t(alpha), false, A, incRowA, incColA, false, B,
+        incRowB, incColB, std::uint32_t(beta),
+        reinterpret_cast<std::uint32_t *>(C), incRowC, incColC);
 #endif
 }
 

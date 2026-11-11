@@ -18,11 +18,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void ulmblas_i16i32gemm_strided(int64_t m, int64_t n, int64_t k, int32_t alpha,
-                                const int16_t *A, int64_t incRowA,
-                                int64_t incColA, const int16_t *B,
-                                int64_t incRowB, int64_t incColB, int32_t beta,
-                                int32_t *C, int64_t incRowC, int64_t incColC);
+void
+ulmblas_i16i32gemm_strided(int64_t m, int64_t n, int64_t k, int32_t alpha,
+                           const int16_t *A, int64_t incRowA, int64_t incColA,
+                           const int16_t *B, int64_t incRowB, int64_t incColB,
+                           int32_t beta, int32_t *C, int64_t incRowC,
+                           int64_t incColC);
 
 static uint64_t seed = 0x2545f4914f6cdd1dULL;
 
@@ -49,16 +50,25 @@ strided(int64_t m, int64_t n, int64_t k, int layout, int32_t alpha,
     int64_t rA, cA, rB, cB, rC, cC, loA, hiA, loB, hiB, loC, hiC;
     int64_t M = m > 0 ? m : 1, N = n > 0 ? n : 1, K = k > 0 ? k : 1;
     switch (layout) {
-    case 0: rA = 1, cA = M + 1, rB = 1, cB = K + 3, rC = 1, cC = M + 2; break;
-    case 1: rA = K + 1, cA = 1, rB = N, cB = 1, rC = N + 1, cC = 1; break;
-    case 2: rA = K, cA = 1, rB = 1, cB = K, rC = 1, cC = M; break;
-    default: rA = -1, cA = M, rB = 3, cB = 3 * K + 1, rC = 2, cC = 2 * M + 1;
+    case 0:
+	rA = 1, cA = M + 1, rB = 1, cB = K + 3, rC = 1, cC = M + 2;
+	break;
+    case 1:
+	rA = K + 1, cA = 1, rB = N, cB = 1, rC = N + 1, cC = 1;
+	break;
+    case 2:
+	rA = K, cA = 1, rB = 1, cB = K, rC = 1, cC = M;
+	break;
+    default:
+	rA = -1, cA = M, rB = 3, cB = 3 * K + 1, rC = 2, cC = 2 * M + 1;
     }
     extent(M, K, rA, cA, &loA, &hiA);
     extent(K, N, rB, cB, &loB, &hiB);
     extent(M, N, rC, cC, &loC, &hiC);
-    int16_t *Ab = malloc((hiA - loA + 1) * 2), *Bb = malloc((hiB - loB + 1) * 2);
-    int32_t *Cb = malloc((hiC - loC + 1) * 4), *C0 = malloc((hiC - loC + 1) * 4);
+    int16_t *Ab = malloc((hiA - loA + 1) * 2),
+            *Bb = malloc((hiB - loB + 1) * 2);
+    int32_t *Cb = malloc((hiC - loC + 1) * 4),
+            *C0 = malloc((hiC - loC + 1) * 4);
     char *in = calloc(hiC - loC + 1, 1);
     for (int64_t q = 0; q <= hiA - loA; ++q)
 	Ab[q] = (int16_t)rnd();
@@ -87,8 +97,9 @@ strided(int64_t m, int64_t n, int64_t k, int layout, int32_t alpha,
 		if (failures++ < 10)
 		    printf("i16i32gemm_strided m=%lld n=%lld k=%lld layout=%d "
 		           "alpha=%d beta=%d: C(%lld,%lld) = %d, expected %d\n",
-		           (long long)m, (long long)n, (long long)k, layout, alpha,
-		           beta, (long long)i, (long long)j, Cb[q], (int32_t)ref);
+		           (long long)m, (long long)n, (long long)k, layout,
+		           alpha, beta, (long long)i, (long long)j, Cb[q],
+		           (int32_t)ref);
 		goto done;
 	    }
 	}
@@ -166,11 +177,12 @@ mkl(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE tA_, enum CBLAS_TRANSPOSE tB_,
 	    in[q] = 1;
 	    if (C[q] != ref) {
 		if (failures++ < 10)
-		    printf("gemm_s16s16s32 %s tA=%d tB=%d off=%d m=%d n=%d k=%d "
-		           "alpha=%g ao=%d bo=%d beta=%g: C(%d,%d) = %d, "
-		           "expected %d\n",
-		           col ? "col" : "row", tA, tB, (int)offC, m, n, k, alpha,
-		           ao, bo, beta, i, j, C[q], ref);
+		    printf(
+		        "gemm_s16s16s32 %s tA=%d tB=%d off=%d m=%d n=%d k=%d "
+		        "alpha=%g ao=%d bo=%d beta=%g: C(%d,%d) = %d, "
+		        "expected %d\n",
+		        col ? "col" : "row", tA, tB, (int)offC, m, n, k, alpha,
+		        ao, bo, beta, i, j, C[q], ref);
 		goto done;
 	    }
 	}
@@ -190,8 +202,8 @@ int
 main(void)
 {
     static const int64_t size[][3] = {
-        {1, 1, 1},     {2, 3, 5},     {7, 5, 3},       {31, 33, 4},
-        {32, 32, 2},   {33, 31, 7},   {64, 64, 64},    {97, 113, 301},
+        {1, 1, 1},     {2, 3, 5},       {7, 5, 3},         {31, 33, 4},
+        {32, 32, 2},   {33, 31, 7},     {64, 64, 64},      {97, 113, 301},
         {100, 40, 17}, {530, 70, 2100}, {513, 1030, 2049}, {0, 5, 3},
         {4, 0, 3},     {4, 5, 0}};
     static const int32_t ab[][2] = {{1, 0}, {1, 1}, {-3, 5}, {7, 0}, {0, 3}};

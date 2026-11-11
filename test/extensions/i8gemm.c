@@ -19,11 +19,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-void ulmblas_i8i32gemm_strided(int64_t m, int64_t n, int64_t k, int32_t alpha,
-                               int unsignedA, const void *A, int64_t incRowA,
-                               int64_t incColA, int unsignedB, const void *B,
-                               int64_t incRowB, int64_t incColB, int32_t beta,
-                               int32_t *C, int64_t incRowC, int64_t incColC);
+void
+ulmblas_i8i32gemm_strided(int64_t m, int64_t n, int64_t k, int32_t alpha,
+                          int unsignedA, const void *A, int64_t incRowA,
+                          int64_t incColA, int unsignedB, const void *B,
+                          int64_t incRowB, int64_t incColB, int32_t beta,
+                          int32_t *C, int64_t incRowC, int64_t incColC);
 
 static uint64_t seed = 0x8a5cd789635d2dffULL;
 
@@ -74,7 +75,8 @@ strided(int64_t m, int64_t n, int64_t k, int ua, int ub, int layout,
     extent(K, N, rB, cB, &loB, &hiB);
     extent(M, N, rC, cC, &loC, &hiC);
     uint8_t *Ab = malloc(hiA - loA + 1), *Bb = malloc(hiB - loB + 1);
-    int32_t *Cb = malloc((hiC - loC + 1) * 4), *C0 = malloc((hiC - loC + 1) * 4);
+    int32_t *Cb = malloc((hiC - loC + 1) * 4),
+            *C0 = malloc((hiC - loC + 1) * 4);
     char *in = calloc(hiC - loC + 1, 1);
     for (int64_t q = 0; q <= hiA - loA; ++q)
 	Ab[q] = (uint8_t)rnd();
@@ -242,7 +244,7 @@ main(void)
 	}
     }
 
-    static const int msize[][3] = {{1, 1, 1},  {3, 2, 5},   {33, 31, 7},
+    static const int msize[][3] = {{1, 1, 1},   {3, 2, 5},     {33, 31, 7},
                                    {64, 1, 40}, {70, 90, 133}, {0, 3, 2},
                                    {3, 0, 2},   {3, 2, 0}};
     static const float alphas[] = {1.0f, 0.5f, -2.5f, 1e9f};
@@ -257,8 +259,8 @@ main(void)
 		    (t & 1) ? CblasTrans : CblasNoTrans,
 		    (t & 2) ? CblasConjTrans : CblasNoTrans, offs[c % 3],
 		    msize[s][0], msize[s][1], msize[s][2], alphas[c % 4],
-		    (int8_t)(c % 3 ? -3 : 0), (int8_t)(c % 2 ? 0 : 5), betas[c % 3],
-		    0);
+		    (int8_t)(c % 3 ? -3 : 0), (int8_t)(c % 2 ? 0 : 5),
+		    betas[c % 3], 0);
 	    }
 	}
     }

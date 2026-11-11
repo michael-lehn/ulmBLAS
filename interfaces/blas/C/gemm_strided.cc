@@ -178,9 +178,8 @@ ULMBLAS(sbgemm_strided)(std::int64_t m, std::int64_t n, std::int64_t k,
 {
     ulmBLAS::gemm<std::ptrdiff_t>(
         m, n, k, alpha, false, reinterpret_cast<const ulmBLAS::bfloat16 *>(A),
-        incRowA, incColA, false,
-        reinterpret_cast<const ulmBLAS::bfloat16 *>(B), incRowB, incColB, beta,
-        C, incRowC, incColC);
+        incRowA, incColA, false, reinterpret_cast<const ulmBLAS::bfloat16 *>(B),
+        incRowB, incColB, beta, C, incRowC, incColC);
 }
 
 void

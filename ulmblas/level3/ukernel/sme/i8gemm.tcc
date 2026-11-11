@@ -85,10 +85,10 @@ i32update_32x16(long n, std::uint32_t alpha, std::uint32_t beta,
     for (long c = 0; c < n; ++c) {
 	std::uint32_t *Cc = C + c * ldC;
 
-	svuint32_t z0 = svmul_n_u32_x(p, svread_hor_za32_u32_m(zero, p, T, c),
-	                              alpha);
-	svuint32_t z1 = svmul_n_u32_x(
-	    p, svread_hor_za32_u32_m(zero, p, T + 1, c), alpha);
+	svuint32_t z0 =
+	    svmul_n_u32_x(p, svread_hor_za32_u32_m(zero, p, T, c), alpha);
+	svuint32_t z1 =
+	    svmul_n_u32_x(p, svread_hor_za32_u32_m(zero, p, T + 1, c), alpha);
 
 	if (beta != 0) {
 	    svuint32x2_t x = svld1_u32_x2(pc, Cc);
