@@ -15,6 +15,13 @@
 //                      (the values, sign or zero extended)
 //      MC, KC, NC      block sizes (MC, NC multiples of MR, NR; KC of KG)
 //      partial         true: the kernel updates partial tiles itself
+//      extraA, extraB  elements of P after each packed panel of A (B) for
+//                      the kernel (e.g. sums of the panel), filled by
+//      prepareA<UA, UB>(kg, panel), prepareB<UA, UB>(kg, panel)
+//                      called after a panel is packed (may also modify it)
+//
+//  KernelBase provides partial = false, extraA = extraB = 0 and prepare
+//  functions that do nothing.
 //      kernel<UA, UB>(kg, alpha, A, B, beta, C, ldC, mr, nr)
 //                      C (unit row stride, column stride ldC) <- alpha*A*B
 //                      + beta*C for the rows < mr and columns < nr (all of
@@ -45,6 +52,24 @@
 
 namespace ulmBLAS {
 namespace i8 {
+
+struct KernelBase
+{
+    static constexpr bool partial = false;
+    static constexpr long extraA = 0, extraB = 0;
+
+    template <bool UA, bool UB, typename P>
+    static void
+    prepareA(long, P *)
+    {
+    }
+
+    template <bool UA, bool UB, typename P>
+    static void
+    prepareB(long, P *)
+    {
+    }
+};
 
 template <typename P, bool U>
 inline P
@@ -296,8 +321,10 @@ driver(long m, long n, long k, std::int32_t alpha, const std::uint8_t *A,
 
     static MemoryPool<P> memoryPool;
 
-    P *A_ = memoryPool.allocate(MC * KC);
-    P *B_ = memoryPool.allocate(KC * NC);
+    constexpr long XA = K::extraA, XB = K::extraB;
+
+    P *A_ = memoryPool.allocate(MC * KC + (MC / MR) * XA);
+    P *B_ = memoryPool.allocate(KC * NC + (NC / NR) * XB);
 
     for (long jc = 0; jc < n; jc += NC) {
 	const long nc = (n - jc < NC) ? n - jc : NC;
@@ -306,27 +333,33 @@ driver(long m, long n, long k, std::int32_t alpha, const std::uint8_t *A,
 	    const long kg = (kc + KG - 1) / KG;
 	    const std::int32_t beta_ = (pc == 0) ? beta : 1;
 
+	    //  panel strides (with the extra elements)
+	    const long sA = kg * KG * MR + XA, sB = kg * KG * NR + XB;
+
 	    for (long j = 0; j < nc; j += NR) {
 		const long nr = (nc - j < NR) ? nc - j : NR;
+		P *Bp = B_ + (j / NR) * sB;
 		packPanel<NR, KG, P, UB>(nr, kc,
 		                         B + pc * incRowB + (jc + j) * incColB,
-		                         incColB, incRowB,
-		                         B_ + (j / NR) * kg * KG * NR);
+		                         incColB, incRowB, Bp);
+		K::template prepareB<UA, UB>(kg, Bp);
 	    }
 	    for (long ic = 0; ic < m; ic += MC) {
 		const long mc = (m - ic < MC) ? m - ic : MC;
 		for (long i = 0; i < mc; i += MR) {
 		    const long mr = (mc - i < MR) ? mc - i : MR;
+		    P *Ap = A_ + (i / MR) * sA;
 		    packPanel<MR, KG, P, UA>(
 		        mr, kc, A + (ic + i) * incRowA + pc * incColA, incRowA,
-		        incColA, A_ + (i / MR) * kg * KG * MR);
+		        incColA, Ap);
+		    K::template prepareA<UA, UB>(kg, Ap);
 		}
 		for (long j = 0; j < nc; j += NR) {
 		    const long nr = (nc - j < NR) ? nc - j : NR;
-		    const P *Bp = B_ + (j / NR) * kg * KG * NR;
+		    const P *Bp = B_ + (j / NR) * sB;
 		    for (long i = 0; i < mc; i += MR) {
 			const long mr = (mc - i < MR) ? mc - i : MR;
-			const P *Ap = A_ + (i / MR) * kg * KG * MR;
+			const P *Ap = A_ + (i / MR) * sA;
 			std::int32_t *Ct =
 			    C + (ic + i) * incRowC + (jc + j) * incColC;
 			if (incRowC == 1 &&

@@ -154,7 +154,7 @@ __arm_new("za") __arm_locally_streaming inline void i8gemm_32x32_streaming(
 //  The kernel for the driver of level3/i8gemm/driver.h (packing in groups
 //  of 4 bytes, the layout above).
 //
-struct I8Kernel
+struct I8Kernel : i8::KernelBase
 {
     typedef std::uint8_t P;
     static constexpr long MR = 32, NR = 32, KG = 4;

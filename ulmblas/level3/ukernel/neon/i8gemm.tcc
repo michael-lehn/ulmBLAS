@@ -193,12 +193,11 @@ ULMBLAS_I8_KERNEL(i8kernel_12x8_i8mm, ULMBLAS_NEON_I8MM)
 #undef ULMBLAS_I8_STORE
 
 //  for the driver of level3/i8gemm/driver.h
-struct I8Kernel
+struct I8Kernel : i8::KernelBase
 {
     typedef std::uint8_t P;
     static constexpr long MR = 12, NR = 8, KG = 4;
     static constexpr long MC = 384, KC = 2048, NC = 2048;
-    static constexpr bool partial = false;
 
     template <bool UA, bool UB>
     static void

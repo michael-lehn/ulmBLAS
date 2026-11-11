@@ -13,8 +13,9 @@
 //      SME2 (USE_SME)       32 x 32, 4-way outer products (sme/i8gemm.tcc)
 //      AArch64              12 x 8, SDOT/UDOT; mixed signs USDOT/SUDOT if
 //                           the CPU has FEAT_I8MM (neon/i8gemm.tcc)
-//      AVX2                 8 x 6, int16 VPMADDWD, VPDPWSSD with AVX-VNNI
-//                           (avx/i8gemm.tcc)
+//      AVX512-VNNI          32 x 12, VPDPBUSD on zmm (avx/i8gemm_busd.tcc)
+//      AVX-VNNI             16 x 6, VPDPBUSD on ymm (avx/i8gemm_busd.tcc)
+//      AVX2                 8 x 6, int16 VPMADDWD (avx/i8gemm.tcc)
 //
 //  otherwise (and on AArch64 without the dot product instructions) the
 //  generic gemm computing in uint32 (the low 32 bits are those of the exact
@@ -35,6 +36,7 @@
 #endif
 #if defined(__AVX2__)
 #include <ulmblas/level3/ukernel/avx/i8gemm.tcc>
+#include <ulmblas/level3/ukernel/avx/i8gemm_busd.tcc>
 #endif
 
 namespace ulmBLAS {
@@ -145,15 +147,25 @@ i8gemm(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
     generic(m, n, k, alpha, unsignedA, A, incRowA, incColA, unsignedB, B,
             incRowB, incColB, beta, C, incRowC, incColC);
 #elif defined(__AVX2__)
-    if (avx::hasAvxVnni()) {
-	blocked<avx::I8Kernel<true>>(m, n, k, alpha, unsignedA, A, incRowA,
-	                             incColA, unsignedB, B, incRowB, incColB,
-	                             beta, C, incRowC, incColC);
-    } else {
-	blocked<avx::I8Kernel<false>>(m, n, k, alpha, unsignedA, A, incRowA,
-	                              incColA, unsignedB, B, incRowB, incColB,
-	                              beta, C, incRowC, incColC);
+#if defined(ULMBLAS_HAVE_AVX512VNNI_BUSD)
+    if (avx::hasAvx512Vnni()) {
+	blocked<avx::I8KernelBusd32x12>(m, n, k, alpha, unsignedA, A, incRowA,
+	                                incColA, unsignedB, B, incRowB,
+	                                incColB, beta, C, incRowC, incColC);
+	return;
     }
+#endif
+#if defined(ULMBLAS_HAVE_AVXVNNI_BUSD)
+    if (avx::hasAvxVnniBusd()) {
+	blocked<avx::I8KernelBusd16x6>(m, n, k, alpha, unsignedA, A, incRowA,
+	                               incColA, unsignedB, B, incRowB, incColB,
+	                               beta, C, incRowC, incColC);
+	return;
+    }
+#endif
+    blocked<avx::I8Kernel>(m, n, k, alpha, unsignedA, A, incRowA, incColA,
+                           unsignedB, B, incRowB, incColB, beta, C, incRowC,
+                           incColC);
 #else
     generic(m, n, k, alpha, unsignedA, A, incRowA, incColA, unsignedB, B,
             incRowB, incColB, beta, C, incRowC, incColC);
