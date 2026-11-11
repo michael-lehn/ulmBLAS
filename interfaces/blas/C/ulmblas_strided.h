@@ -7,8 +7,9 @@
  *      C <- alpha op(A) op(B) + beta C
  *
  *  for float, double, complex float and complex double, for the integer
- *  types int8_t, int16_t, int32_t and int64_t, and with A and B in
- *  bfloat16 or IEEE half precision and C in float.  Every matrix is
+ *  types int8_t, int16_t, int32_t and int64_t, with A and B in int8_t or
+ *  uint8_t and C in int32_t, and with A and B in bfloat16 or IEEE half
+ *  precision and C in float.  Every matrix is
  *  described by a pointer and two strides: element (i,j) of the m x n
  *  matrix X is
  *
@@ -129,6 +130,18 @@ ulmblas_shgemm_strided(int64_t m, int64_t n, int64_t k, float alpha,
                        const uint16_t *A, int64_t incRowA, int64_t incColA,
                        const uint16_t *B, int64_t incRowB, int64_t incColB,
                        float beta, float *C, int64_t incRowC, int64_t incColC);
+
+//
+//  8-bit integers: C (int32) <- alpha*A*B + beta*C modulo 2^32, A and B
+//  int8_t or uint8_t (unsignedA, unsignedB != 0: uint8_t).  With SME2 (Apple
+//  M4, M5) about twice as fast as ulmblas_sgemm_strided.
+//
+void
+ulmblas_i8i32gemm_strided(int64_t m, int64_t n, int64_t k, int32_t alpha,
+                          int unsignedA, const void *A, int64_t incRowA,
+                          int64_t incColA, int unsignedB, const void *B,
+                          int64_t incRowB, int64_t incColB, int32_t beta,
+                          int32_t *C, int64_t incRowC, int64_t incColC);
 
 #ifdef __cplusplus
 } // extern "C"

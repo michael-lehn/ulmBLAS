@@ -18,6 +18,7 @@
 #include <ulmblas/auxiliary/bfloat16.h>
 #include <ulmblas/auxiliary/float16.h>
 #include <ulmblas/ulmblas.h>
+#include <ulmblas/level3/i8gemm.h>
 
 namespace {
 
@@ -194,6 +195,20 @@ ULMBLAS(shgemm_strided)(std::int64_t m, std::int64_t n, std::int64_t k,
         m, n, k, alpha, false, reinterpret_cast<const ulmBLAS::float16 *>(A),
         incRowA, incColA, false, reinterpret_cast<const ulmBLAS::float16 *>(B),
         incRowB, incColB, beta, C, incRowC, incColC);
+}
+
+void
+ULMBLAS(i8i32gemm_strided)(std::int64_t m, std::int64_t n, std::int64_t k,
+                           std::int32_t alpha, int unsignedA, const void *A,
+                           std::int64_t incRowA, std::int64_t incColA,
+                           int unsignedB, const void *B, std::int64_t incRowB,
+                           std::int64_t incColB, std::int32_t beta,
+                           std::int32_t *C, std::int64_t incRowC,
+                           std::int64_t incColC)
+{
+    ulmBLAS::i8gemm(m, n, k, alpha, unsignedA != 0, A, incRowA, incColA,
+                    unsignedB != 0, B, incRowB, incColB, beta, C, incRowC,
+                    incColC);
 }
 
 } // extern "C"

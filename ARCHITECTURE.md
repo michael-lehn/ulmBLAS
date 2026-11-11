@@ -231,7 +231,7 @@ the BLIS code.
 | Library | Header | Contents |
 |---|---|---|
 | `libcblas.a` | `cblas.h` | CBLAS (`cblas_dgemm`, ...): levels 1, 2 and 3 for float, double, complex float and complex double |
-| `libcblas.a` | `ulmblas_strided.h` | GEMM with a row and a column stride for every matrix (`ulmblas_dgemm_strided`, ..., also `ulmblas_i64gemm_strided` for integers, `ulmblas_sbgemm_strided` and `ulmblas_shgemm_strided` for bfloat16 and half precision): any strides, also negative or zero, no transposition argument |
+| `libcblas.a` | `ulmblas_strided.h` | GEMM with a row and a column stride for every matrix (`ulmblas_dgemm_strided`, ..., also `ulmblas_i64gemm_strided` for integers, `ulmblas_sbgemm_strided` and `ulmblas_shgemm_strided` for bfloat16 and half precision, `ulmblas_i8i32gemm_strided` for 8-bit integers with int32 results): any strides, also negative or zero, no transposition argument |
 | `libclapack.a` | `clapack.h` | `ulmblas_?getrf`, `?potrf`, `?getrs`, `?gesv`, `?potrs`, `?posv`, `?trtrs`, `?trtri`, `?lauum`, `?potri`, `?getri`, `?laswp` (ATLAS style), `ulmblas_{set,get}_num_threads` |
 | `libf77lapack.a` | `f77lapack.h` | the same functions as in LAPACK (`?getrf_`, ...; `make f77lapack`) |
 | `libf77blas.a` | `f77blas.h` | Fortran 77 BLAS interface (`make f77blas`) |

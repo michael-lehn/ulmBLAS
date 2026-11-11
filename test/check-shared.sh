@@ -147,10 +147,11 @@ for t in s d c z; do
 done
 
 #  Extensions of the C interface: sbgemm (bfloat16), shgemm (float16)
-for p in sbgemm shgemm; do
-    defs=
+for p in sbgemm shgemm i8gemm; do
+    defs=; src=extensions/gemm16.c
     [ $p = shgemm ] && defs=-DFLOAT16
-    if ! $CC $CFLAGS $defs -I$INCDIR -o "$B/c_$p" extensions/gemm16.c \
+    [ $p = i8gemm ] && src=extensions/i8gemm.c
+    if ! $CC $CFLAGS $defs -I$INCDIR -o "$B/c_$p" $src \
             $LINK -lm; then
         echo "FAIL  c_$p: not built"
         n_fail=`expr $n_fail + 1`

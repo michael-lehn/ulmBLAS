@@ -317,6 +317,15 @@ and sums in float: A and B are converted when the panels are packed, the
 micro kernels are those of SGEMM.  So both are about as fast as SGEMM (on
 Apple M4/M5 from about n = 768 on, on x86 for all sizes).
 
+GEMM with A and B in 8-bit integers and C in int32, exact:
+`ulmblas_i8i32gemm_strided` (A and B signed or unsigned, any strides,
+C = alpha A B + beta C modulo 2^32) and `cblas_gemm_s8u8s32` with the
+signature and semantics of oneMKL's function (offsets of A, B and C,
+float alpha and beta, the result rounded and saturated).  On Apple M4/M5
+the SME2 int8 outer products make both about twice as fast as SGEMM (one
+core, n = 2048: about 3600 G op/s against 1600 GFLOP/s); other CPUs use
+the generic kernel for now.
+
 Element types other than the four BLAS types get the generic micro
 kernel and block sizes that are only a guess (`GenericBlockSize` in
 [blocksize.h](ulmblas/config/blocksize.h)).  Better ones you declare with

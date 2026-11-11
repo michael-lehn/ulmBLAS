@@ -78,6 +78,16 @@ typedef uint16_t              ulmblas_bfloat16;
 //  float16 (IEEE half precision), as OpenBLAS's hfloat16
 typedef uint16_t              ulmblas_float16;
 
+//  The offsets of C in cblas_gemm_s8u8s32 (values and names as in oneMKL):
+//  one offset per row (CblasColOffset: m values), per column
+//  (CblasRowOffset: n values) or one for all elements (CblasFixOffset)
+enum CBLAS_OFFSET {
+    CblasRowOffset = 171,
+    CblasColOffset = 172,
+    CblasFixOffset = 173
+};
+typedef enum CBLAS_OFFSET     CBLAS_OFFSET;
+
 //
 //  Declaration of CBLAS functions currently implemented in ulmBLAS
 //
@@ -1279,6 +1289,36 @@ CBLAS(shgemm)(enum CBLAS_ORDER      order,
              float                 beta,
              float                 *C,
              ULMBLAS_INDEX_TYPE    ldC);
+
+//
+//  8-bit integer GEMM with the signature of oneMKL's cblas_gemm_s8u8s32:
+//
+//      C <- alpha*(op(A) + ao)*(op(B) + bo) + beta*C + co
+//
+//  Column major: A int8_t, B uint8_t; row major: A uint8_t, B int8_t (as in
+//  oneMKL).  The products and sums are exact; alpha, beta and the
+//  conversion to int32 in double, rounded to nearest (halfway cases away
+//  from zero) and saturated to the range of int32.
+//
+void
+CBLAS(gemm_s8u8s32)(enum CBLAS_ORDER      order,
+                    enum CBLAS_TRANSPOSE  transA,
+                    enum CBLAS_TRANSPOSE  transB,
+                    enum CBLAS_OFFSET     offsetC,
+                    ULMBLAS_INDEX_TYPE    m,
+                    ULMBLAS_INDEX_TYPE    n,
+                    ULMBLAS_INDEX_TYPE    k,
+                    float                 alpha,
+                    const void            *A,
+                    ULMBLAS_INDEX_TYPE    ldA,
+                    int8_t                ao,
+                    const void            *B,
+                    ULMBLAS_INDEX_TYPE    ldB,
+                    int8_t                bo,
+                    float                 beta,
+                    int32_t               *C,
+                    ULMBLAS_INDEX_TYPE    ldC,
+                    const int32_t         *co);
 
 void
 CBLAS(dgemm)(enum CBLAS_ORDER      order,
