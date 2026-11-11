@@ -21,8 +21,9 @@
 //      A, B unsigned            B - 128 is signed: A (B - 128) + 128
 //                               rowsum(A)
 //
-//  The column sums of a packed panel of B (row sums of a panel of A) are
-//  computed after packing (prepareB, prepareA) and stored behind the panel;
+//  The column sums of a packed panel of B (row sums of a panel of A), times
+//  128, are computed after packing (prepareB, prepareA) and stored behind
+//  the panel;
 //  a panel is used for many tiles.  Everything modulo 2^32.  The loop over
 //  k is inline assembly (see i8gemm.tcc).
 //
@@ -106,6 +107,10 @@ busdSums(long kg, std::uint8_t *panel)
 		          : std::int32_t(std::int8_t(p[4 * i + q]));
 	    }
 	}
+    }
+    //  stored times 128 (the correction), modulo 2^32
+    for (long i = 0; i < N; ++i) {
+	s[i] = std::int32_t(std::uint32_t(s[i]) << 7);
     }
     std::memcpy(panel + 4 * N * kg, s, sizeof(s));
 }
@@ -231,16 +236,15 @@ busdKernel16x6(long kg, std::int32_t alpha, const std::uint8_t *A,
     const __m256i acc[6][2] = {{c0_0, c0_1}, {c1_0, c1_1}, {c2_0, c2_1}, {c3_0, c3_1}, {c4_0, c4_1}, {c5_0, c5_1}};
     __m256i r0 = _mm256_setzero_si256(), r1 = r0;
     if (CORR == 2) {
-	r0 = _mm256_slli_epi32(_mm256_loadu_si256((const __m256i *)sumA), 7);
-	r1 = _mm256_slli_epi32(
-	    _mm256_loadu_si256((const __m256i *)(sumA + 32)), 7);
+	r0 = _mm256_loadu_si256((const __m256i *)sumA);
+	r1 = _mm256_loadu_si256((const __m256i *)(sumA + 32));
     }
     for (int j = 0; j < 6; ++j) {
 	__m256i x0 = acc[j][0], x1 = acc[j][1];
 	if (CORR == 1) {
 	    std::int32_t s;
 	    std::memcpy(&s, sumB + 4 * j, 4);
-	    const __m256i t = _mm256_set1_epi32(std::int32_t(std::uint32_t(s) << 7));
+	    const __m256i t = _mm256_set1_epi32(s);
 	    x0 = _mm256_sub_epi32(x0, t);
 	    x1 = _mm256_sub_epi32(x1, t);
 	} else if (CORR == 2) {
@@ -397,15 +401,15 @@ busdKernel32x12(long kg, std::int32_t alpha, const std::uint8_t *A,
     const __m512i acc[12][2] = {{c0_0, c0_1}, {c1_0, c1_1}, {c2_0, c2_1}, {c3_0, c3_1}, {c4_0, c4_1}, {c5_0, c5_1}, {c6_0, c6_1}, {c7_0, c7_1}, {c8_0, c8_1}, {c9_0, c9_1}, {c10_0, c10_1}, {c11_0, c11_1}};
     __m512i r0 = _mm512_setzero_si512(), r1 = r0;
     if (CORR == 2) {
-	r0 = _mm512_slli_epi32(_mm512_loadu_si512(sumA), 7);
-	r1 = _mm512_slli_epi32(_mm512_loadu_si512(sumA + 64), 7);
+	r0 = _mm512_loadu_si512(sumA);
+	r1 = _mm512_loadu_si512(sumA + 64);
     }
     for (int j = 0; j < 12; ++j) {
 	__m512i x0 = acc[j][0], x1 = acc[j][1];
 	if (CORR == 1) {
 	    std::int32_t s;
 	    std::memcpy(&s, sumB + 4 * j, 4);
-	    const __m512i t = _mm512_set1_epi32(std::int32_t(std::uint32_t(s) << 7));
+	    const __m512i t = _mm512_set1_epi32(s);
 	    x0 = _mm512_sub_epi32(x0, t);
 	    x1 = _mm512_sub_epi32(x1, t);
 	} else if (CORR == 2) {
