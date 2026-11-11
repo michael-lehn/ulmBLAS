@@ -321,10 +321,15 @@ GEMM with A and B in 8-bit integers and C in int32, exact:
 `ulmblas_i8i32gemm_strided` (A and B signed or unsigned, any strides,
 C = alpha A B + beta C modulo 2^32) and `cblas_gemm_s8u8s32` with the
 signature and semantics of oneMKL's function (offsets of A, B and C,
-float alpha and beta, the result rounded and saturated).  On Apple M4/M5
-the SME2 int8 outer products make both about twice as fast as SGEMM (one
-core, n = 2048: about 3600 G op/s against 1600 GFLOP/s); other CPUs use
-the generic kernel for now.
+float alpha and beta, the result rounded and saturated).  Kernels and
+speed on one core (n = 2048):
+
+| CPU | int8 kernel | int8 | SGEMM |
+|---|---|---|---|
+| Apple M4/M5 | SME2 4-way outer products | about 3600 G op/s | 1600 GFLOP/s |
+| ARM with dot product (Apple M1-M3, NEON backend) | SDOT/UDOT, mixed signs USDOT/SUDOT (I8MM) | 470 (M5) | 115 |
+| x86 with AVX-VNNI (Alder Lake) | int16 VPDPWSSD | 240 | 58 |
+| x86 with AVX2 | int16 VPMADDWD | 175 (Alder Lake) | 58 |
 
 Element types other than the four BLAS types get the generic micro
 kernel and block sizes that are only a guess (`GenericBlockSize` in

@@ -163,7 +163,7 @@ i8kernel_8x6(long kg, std::int32_t alpha, const std::int16_t *A,
 }
 
 #if defined(ULMBLAS_HAVE_AVXVNNI)
-ULMBLAS_AVX_VNNI void
+ULMBLAS_AVX_VNNI inline void
 i8kernel_8x6_vnni(long kg, std::int32_t alpha, const std::int16_t *A,
                   const std::int16_t *B, std::int32_t beta, std::int32_t *C,
                   long ldC)
