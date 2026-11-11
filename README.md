@@ -306,12 +306,14 @@ ulmblas_dgemm_strided(2, 2, 3,                    /* m, n, k */
                       C, 2, 1);                   /* C = [ 7 5 ; 16 11 ] */
 ```
 
-GEMM with A and B in bfloat16 and C in float: `cblas_sbgemm` and
-`sbgemm_`, with the signature of OpenBLAS's sbgemm (`ulmblas_bfloat16`
-is `uint16_t`, as OpenBLAS's `bfloat16`).  Products and sums in float:
-A and B are converted when the panels are packed, the micro kernels are
-those of SGEMM.  So sbgemm is about as fast as SGEMM (on Apple M4/M5
-from about n = 768 on, on x86 for all sizes).
+GEMM with A and B in bfloat16 or IEEE half precision and C in float:
+`cblas_sbgemm`, `sbgemm_` and `cblas_shgemm`, `shgemm_`, with the
+signatures of OpenBLAS (`ulmblas_bfloat16` and `ulmblas_float16` are
+`uint16_t`, as OpenBLAS's `bfloat16` and `hfloat16`).  PyTorch uses
+`sbgemm_` and `shgemm_` if its BLAS has them.  Products and sums in
+float: A and B are converted when the panels are packed, the micro
+kernels are those of SGEMM.  So both are about as fast as SGEMM (on
+Apple M4/M5 from about n = 768 on, on x86 for all sizes).
 
 Element types other than the four BLAS types get the generic micro
 kernel and block sizes that are only a guess (`GenericBlockSize` in
