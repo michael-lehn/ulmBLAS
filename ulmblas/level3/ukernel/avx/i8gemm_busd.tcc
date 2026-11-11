@@ -36,9 +36,12 @@
 #include <cpuid.h>
 #endif
 
-//  AVX-VNNI: GCC 11, clang 12; AVX512-VNNI: GCC 8, clang 6
+//  AVX-VNNI (the VEX form): clang 12; GCC 11 knows it, but its assembler
+//  needs binutils 2.36 (RHEL 9: GCC 11.5 with binutils 2.35 rejects it), so
+//  GCC 12 (with binutils 2.38 or newer in the distributions and conda-forge).
+//  AVX512-VNNI (EVEX, binutils 2.30): with AVX-512F (the avx512 backend).
 #if (defined(__clang__) && __clang_major__ >= 12) ||                           \
-    (!defined(__clang__) && defined(__GNUC__) && __GNUC__ >= 11)
+    (!defined(__clang__) && defined(__GNUC__) && __GNUC__ >= 12)
 #define ULMBLAS_HAVE_AVXVNNI_BUSD 1
 #endif
 #if defined(__AVX512F__)
