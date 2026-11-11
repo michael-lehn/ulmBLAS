@@ -9,10 +9,8 @@ package:
   version: ${{ version }}
 
 source:
-  # local test builds: rattler-build build --recipe ... with ULMBLAS_SOURCE
-  # (see ../README.md); for conda-forge the release tarball
   url: https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/v${{ version }}.tar.gz
-  sha256: 0000000000000000000000000000000000000000000000000000000000000000
+  sha256: 2ff901132885162b423ae3901c2e91159b7b9c5cdd25d0d9c7d0afbcc33748cd
 
 build:
   number: ${{ build_number }}

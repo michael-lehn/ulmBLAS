@@ -12,7 +12,7 @@ class Ulmblas < Formula
   desc "BLAS and LAPACK with micro kernels selected for the CPU at load time"
   homepage "https://github.com/michael-lehn/ulmBLAS"
   url "https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/v0.4.0.tar.gz"
-  sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+  sha256 "2ff901132885162b423ae3901c2e91159b7b9c5cdd25d0d9c7d0afbcc33748cd"
   license "BSD-3-Clause"
 
   depends_on "cmake" => :build
