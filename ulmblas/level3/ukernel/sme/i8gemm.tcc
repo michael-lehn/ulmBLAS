@@ -20,15 +20,10 @@
 //  group of 4 values of k: one load of 128 bytes of A, one of B, four outer
 //  products.
 //
-//  The packed blocks are int8 (not converted to int32 as by the generic
-//  driver), so this file has its own driver (i8gemm_sme).
+//  The driver (blocks, packing) is that of level3/i8gemm/driver.h.
 //
-#include <arm_neon.h>
 #include <arm_sme.h>
 #include <cstdint>
-#include <cstring>
-#include <ulmblas/auxiliary/memorypool.h>
-#include <ulmblas/level3/fpsrscope.h>
 #include <ulmblas/level3/ukernel/sme/fpsr.h>
 
 namespace ulmBLAS {
@@ -156,177 +151,25 @@ __arm_new("za") __arm_locally_streaming inline void i8gemm_32x32_streaming(
 }
 
 //
-//  Packing of one panel: mn <= 32 rows of A (or columns of B), element
-//  (i, l) at X[i*incMN + l*incK], 0 <= l < k, into the layout above (kg =
-//  ceil(k/4) groups).  NEON for full panels with incK = 1 (rows of A, or
-//  columns of B, contiguous in k) or incMN = 1 (contiguous in i).
+//  The kernel for the driver of level3/i8gemm/driver.h (packing in groups
+//  of 4 bytes, the layout above).
 //
-inline void
-i8pack_generic(long mn, long k, const std::uint8_t *X, long incMN, long incK,
-               long g0, std::uint8_t *buffer)
+struct I8Kernel
 {
-    const long kg = (k + 3) / 4;
-    for (long g = g0; g < kg; ++g) {
-	std::uint8_t *b = buffer + 128 * g;
-	for (long i = 0; i < 32; ++i) {
-	    for (long q = 0; q < 4; ++q) {
-		const long l = 4 * g + q;
-		b[4 * i + q] = (i < mn && l < k) ? X[i * incMN + l * incK] : 0;
-	    }
-	}
+    typedef std::uint8_t P;
+    static constexpr long MR = 32, NR = 32, KG = 4;
+    static constexpr long MC = 512, KC = 4096, NC = 1024;
+    static constexpr bool partial = true;
+
+    template <bool UA, bool UB>
+    static void
+    kernel(long kg, std::int32_t alpha, const P *A, const P *B,
+           std::int32_t beta, std::int32_t *C, long ldC, long mr, long nr)
+    {
+	const FpsrRestore fpsr; // see sme/fpsr.h
+	i8gemm_32x32_streaming<UA, UB>(kg, alpha, A, B, beta, C, ldC, mr, nr);
     }
-}
-
-//  incK = 1, mn = 32: per 4 rows and 16 values of k a 4 x 4 transposition
-//  of 32-bit words
-inline void
-i8pack_kcontig(long k, const std::uint8_t *X, long incMN,
-               std::uint8_t *buffer)
-{
-    const long k16 = k / 16;
-    for (long r = 0; r < 32; r += 4) {
-	const std::uint8_t *x0 = X + r * incMN;
-	const std::uint8_t *x1 = x0 + incMN;
-	const std::uint8_t *x2 = x1 + incMN;
-	const std::uint8_t *x3 = x2 + incMN;
-	for (long c = 0; c < k16; ++c) {
-	    uint32x4_t q0 = vreinterpretq_u32_u8(vld1q_u8(x0 + 16 * c));
-	    uint32x4_t q1 = vreinterpretq_u32_u8(vld1q_u8(x1 + 16 * c));
-	    uint32x4_t q2 = vreinterpretq_u32_u8(vld1q_u8(x2 + 16 * c));
-	    uint32x4_t q3 = vreinterpretq_u32_u8(vld1q_u8(x3 + 16 * c));
-	    uint64x2_t t0 = vreinterpretq_u64_u32(vtrn1q_u32(q0, q1));
-	    uint64x2_t t1 = vreinterpretq_u64_u32(vtrn2q_u32(q0, q1));
-	    uint64x2_t t2 = vreinterpretq_u64_u32(vtrn1q_u32(q2, q3));
-	    uint64x2_t t3 = vreinterpretq_u64_u32(vtrn2q_u32(q2, q3));
-	    std::uint8_t *b = buffer + 512 * c + 4 * r;
-	    vst1q_u8(b, vreinterpretq_u8_u64(vtrn1q_u64(t0, t2)));
-	    vst1q_u8(b + 128, vreinterpretq_u8_u64(vtrn1q_u64(t1, t3)));
-	    vst1q_u8(b + 256, vreinterpretq_u8_u64(vtrn2q_u64(t0, t2)));
-	    vst1q_u8(b + 384, vreinterpretq_u8_u64(vtrn2q_u64(t1, t3)));
-	}
-    }
-    i8pack_generic(32, k, X, incMN, 1, 4 * k16, buffer);
-}
-
-//  incMN = 1, mn = 32: per group the 4 columns of 32 bytes interleaved
-//  (ZIP of bytes, then of halfwords)
-inline void
-i8pack_mncontig(long k, const std::uint8_t *X, long incK,
-                std::uint8_t *buffer)
-{
-    const long k4 = k / 4;
-    for (long g = 0; g < k4; ++g) {
-	const std::uint8_t *x = X + 4 * g * incK;
-	std::uint8_t *b = buffer + 128 * g;
-	for (long h = 0; h < 2; ++h) {
-	    uint8x16_t c0 = vld1q_u8(x + 16 * h);
-	    uint8x16_t c1 = vld1q_u8(x + incK + 16 * h);
-	    uint8x16_t c2 = vld1q_u8(x + 2 * incK + 16 * h);
-	    uint8x16_t c3 = vld1q_u8(x + 3 * incK + 16 * h);
-	    uint16x8_t z01l = vreinterpretq_u16_u8(vzip1q_u8(c0, c1));
-	    uint16x8_t z01h = vreinterpretq_u16_u8(vzip2q_u8(c0, c1));
-	    uint16x8_t z23l = vreinterpretq_u16_u8(vzip1q_u8(c2, c3));
-	    uint16x8_t z23h = vreinterpretq_u16_u8(vzip2q_u8(c2, c3));
-	    std::uint8_t *bh = b + 64 * h;
-	    vst1q_u8(bh, vreinterpretq_u8_u16(vzip1q_u16(z01l, z23l)));
-	    vst1q_u8(bh + 16, vreinterpretq_u8_u16(vzip2q_u16(z01l, z23l)));
-	    vst1q_u8(bh + 32, vreinterpretq_u8_u16(vzip1q_u16(z01h, z23h)));
-	    vst1q_u8(bh + 48, vreinterpretq_u8_u16(vzip2q_u16(z01h, z23h)));
-	}
-    }
-    i8pack_generic(32, k, X, 1, incK, k4, buffer);
-}
-
-inline void
-i8pack(long mn, long k, const std::uint8_t *X, long incMN, long incK,
-       std::uint8_t *buffer)
-{
-    if (mn == 32 && incK == 1) {
-	i8pack_kcontig(k, X, incMN, buffer);
-    } else if (mn == 32 && incMN == 1) {
-	i8pack_mncontig(k, X, incK, buffer);
-    } else {
-	i8pack_generic(mn, k, X, incMN, incK, 0, buffer);
-    }
-}
-
-//
-//  The driver: blocks of MC x KC of A and KC x NC of B (KC a multiple of 4),
-//  32 x 32 tiles of C.  C with unit row stride is updated by the kernel,
-//  otherwise through a local tile.  The products wrap around modulo 2^32;
-//  alpha*(S1 + S2) = alpha*S1 + alpha*S2 modulo 2^32, so the blocks of k
-//  are accumulated with alpha and beta = 1 after the first block.
-//
-template <bool UA, bool UB>
-void
-i8gemm_sme(long m, long n, long k, std::int32_t alpha, const std::uint8_t *A,
-           long incRowA, long incColA, const std::uint8_t *B, long incRowB,
-           long incColB, std::int32_t beta, std::int32_t *C, long incRowC,
-           long incColC)
-{
-    constexpr long MC = 512, KC = 4096, NC = 1024;
-
-    static MemoryPool<std::uint8_t> memoryPool;
-
-    const FpsrScope fpsrScope; // see level3/fpsrscope.h
-
-    std::uint8_t *A_ = memoryPool.allocate(MC * KC);
-    std::uint8_t *B_ = memoryPool.allocate(KC * NC);
-
-    for (long jc = 0; jc < n; jc += NC) {
-	const long nc = (n - jc < NC) ? n - jc : NC;
-	for (long pc = 0; pc < k; pc += KC) {
-	    const long kc = (k - pc < KC) ? k - pc : KC;
-	    const long kg = (kc + 3) / 4;
-	    const std::int32_t beta_ = (pc == 0) ? beta : 1;
-
-	    for (long j = 0; j < nc; j += 32) {
-		const long nr = (nc - j < 32) ? nc - j : 32;
-		i8pack(nr, kc, B + pc * incRowB + (jc + j) * incColB, incColB,
-		       incRowB, B_ + (j / 32) * kg * 128);
-	    }
-	    for (long ic = 0; ic < m; ic += MC) {
-		const long mc = (m - ic < MC) ? m - ic : MC;
-		for (long i = 0; i < mc; i += 32) {
-		    const long mr = (mc - i < 32) ? mc - i : 32;
-		    i8pack(mr, kc, A + (ic + i) * incRowA + pc * incColA,
-		           incRowA, incColA, A_ + (i / 32) * kg * 128);
-		}
-		for (long j = 0; j < nc; j += 32) {
-		    const long nr = (nc - j < 32) ? nc - j : 32;
-		    const std::uint8_t *Bp = B_ + (j / 32) * kg * 128;
-		    for (long i = 0; i < mc; i += 32) {
-			const long mr = (mc - i < 32) ? mc - i : 32;
-			const std::uint8_t *Ap = A_ + (i / 32) * kg * 128;
-			std::int32_t *Ct =
-			    C + (ic + i) * incRowC + (jc + j) * incColC;
-			if (incRowC == 1) {
-			    i8gemm_32x32_streaming<UA, UB>(
-			        kg, alpha, Ap, Bp, beta_, Ct, incColC, mr, nr);
-			    continue;
-			}
-			std::int32_t C_[32 * 32];
-			i8gemm_32x32_streaming<UA, UB>(kg, alpha, Ap, Bp, 0, C_,
-			                               32, 32, 32);
-			const std::uint32_t b = std::uint32_t(beta_);
-			for (long jj = 0; jj < nr; ++jj) {
-			    for (long ii = 0; ii < mr; ++ii) {
-				std::int32_t &c =
-				    Ct[ii * incRowC + jj * incColC];
-				const std::uint32_t t =
-				    std::uint32_t(C_[ii + 32 * jj]);
-				c = std::int32_t(
-				    b == 0 ? t : b * std::uint32_t(c) + t);
-			    }
-			}
-		    }
-		}
-	    }
-	}
-    }
-    memoryPool.release(A_);
-    memoryPool.release(B_);
-}
+};
 
 } // namespace sme
 } // namespace ulmBLAS

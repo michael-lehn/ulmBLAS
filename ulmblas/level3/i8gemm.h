@@ -7,17 +7,34 @@
 //      C <- alpha*A*B + beta*C      (modulo 2^32, as int32 with wraparound)
 //
 //  A and B are signed (int8_t) or unsigned (uint8_t), as given by unsignedA
-//  and unsignedB; any strides.  With the SME2 kernels the driver of
-//  ukernel/sme/i8gemm.tcc (int8 outer products), otherwise the generic gemm
-//  computing in uint32 (the low 32 bits are those of the exact result).
+//  and unsignedB; any strides.  The driver of level3/i8gemm/driver.h with
+//  the micro kernel of the build and the CPU:
+//
+//      SME2 (USE_SME)       32 x 32, 4-way outer products (sme/i8gemm.tcc)
+//      AArch64              12 x 8, SDOT/UDOT; mixed signs USDOT/SUDOT if
+//                           the CPU has FEAT_I8MM (neon/i8gemm.tcc)
+//      AVX2                 8 x 6, int16 VPMADDWD, VPDPWSSD with AVX-VNNI
+//                           (avx/i8gemm.tcc)
+//
+//  otherwise (and on AArch64 without the dot product instructions) the
+//  generic gemm computing in uint32 (the low 32 bits are those of the exact
+//  result).
 //
 #include <cstdint>
 #include <ulmblas/config/simd.h>
 #include <ulmblas/level1extensions/gescal.h>
+#include <ulmblas/level3/fpsrscope.h>
 #include <ulmblas/level3/gemm.h>
+#include <ulmblas/level3/i8gemm/driver.h>
 
 #if defined(USE_SME)
 #include <ulmblas/level3/ukernel/sme/i8gemm.tcc>
+#endif
+#if defined(__aarch64__)
+#include <ulmblas/level3/ukernel/neon/i8gemm.tcc>
+#endif
+#if defined(__AVX2__)
+#include <ulmblas/level3/ukernel/avx/i8gemm.tcc>
 #endif
 
 namespace ulmBLAS {
@@ -37,46 +54,14 @@ generic(std::int64_t m, std::int64_t n, std::int64_t k, std::uint32_t alpha,
                          incRowB, incColB, beta, C, incRowC, incColC);
 }
 
-} // namespace i8gemm_detail
-
 inline void
-i8gemm(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
-       bool unsignedA, const void *A, std::int64_t incRowA,
-       std::int64_t incColA, bool unsignedB, const void *B,
-       std::int64_t incRowB, std::int64_t incColB, std::int32_t beta,
-       std::int32_t *C, std::int64_t incRowC, std::int64_t incColC)
+generic(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
+        bool unsignedA, const void *A, std::int64_t incRowA,
+        std::int64_t incColA, bool unsignedB, const void *B,
+        std::int64_t incRowB, std::int64_t incColB, std::int32_t beta,
+        std::int32_t *C, std::int64_t incRowC, std::int64_t incColC)
 {
-    if (m <= 0 || n <= 0) {
-	return;
-    }
     std::uint32_t *Cu = reinterpret_cast<std::uint32_t *>(C);
-    if (alpha == 0 || k <= 0) {
-	gescal(std::ptrdiff_t(m), std::ptrdiff_t(n), std::uint32_t(beta), Cu,
-	       std::ptrdiff_t(incRowC), std::ptrdiff_t(incColC));
-	return;
-    }
-#if defined(USE_SME)
-    const std::uint8_t *A8 = static_cast<const std::uint8_t *>(A);
-    const std::uint8_t *B8 = static_cast<const std::uint8_t *>(B);
-    if (!unsignedA && !unsignedB) {
-	sme::i8gemm_sme<false, false>(m, n, k, alpha, A8, incRowA, incColA, B8,
-	                              incRowB, incColB, beta, C, incRowC,
-	                              incColC);
-    } else if (unsignedA && !unsignedB) {
-	sme::i8gemm_sme<true, false>(m, n, k, alpha, A8, incRowA, incColA, B8,
-	                             incRowB, incColB, beta, C, incRowC,
-	                             incColC);
-    } else if (!unsignedA && unsignedB) {
-	sme::i8gemm_sme<false, true>(m, n, k, alpha, A8, incRowA, incColA, B8,
-	                             incRowB, incColB, beta, C, incRowC,
-	                             incColC);
-    } else {
-	sme::i8gemm_sme<true, true>(m, n, k, alpha, A8, incRowA, incColA, B8,
-	                            incRowB, incColB, beta, C, incRowC,
-	                            incColC);
-    }
-#else
-    using namespace i8gemm_detail;
     const std::uint32_t a = std::uint32_t(alpha), b = std::uint32_t(beta);
     if (!unsignedA && !unsignedB) {
 	generic<std::int8_t, std::int8_t>(m, n, k, a, A, incRowA, incColA, B,
@@ -95,6 +80,83 @@ i8gemm(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
 	                                    incRowB, incColB, b, Cu, incRowC,
 	                                    incColC);
     }
+}
+
+//  the driver with kernel K for the signs
+template <typename K>
+void
+blocked(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
+        bool unsignedA, const void *A_, std::int64_t incRowA,
+        std::int64_t incColA, bool unsignedB, const void *B_,
+        std::int64_t incRowB, std::int64_t incColB, std::int32_t beta,
+        std::int32_t *C, std::int64_t incRowC, std::int64_t incColC)
+{
+    const std::uint8_t *A = static_cast<const std::uint8_t *>(A_);
+    const std::uint8_t *B = static_cast<const std::uint8_t *>(B_);
+    if (!unsignedA && !unsignedB) {
+	i8::driver<K, false, false>(m, n, k, alpha, A, incRowA, incColA, B,
+	                            incRowB, incColB, beta, C, incRowC,
+	                            incColC);
+    } else if (unsignedA && !unsignedB) {
+	i8::driver<K, true, false>(m, n, k, alpha, A, incRowA, incColA, B,
+	                           incRowB, incColB, beta, C, incRowC, incColC);
+    } else if (!unsignedA && unsignedB) {
+	i8::driver<K, false, true>(m, n, k, alpha, A, incRowA, incColA, B,
+	                           incRowB, incColB, beta, C, incRowC, incColC);
+    } else {
+	i8::driver<K, true, true>(m, n, k, alpha, A, incRowA, incColA, B,
+	                          incRowB, incColB, beta, C, incRowC, incColC);
+    }
+}
+
+} // namespace i8gemm_detail
+
+inline void
+i8gemm(std::int64_t m, std::int64_t n, std::int64_t k, std::int32_t alpha,
+       bool unsignedA, const void *A, std::int64_t incRowA,
+       std::int64_t incColA, bool unsignedB, const void *B,
+       std::int64_t incRowB, std::int64_t incColB, std::int32_t beta,
+       std::int32_t *C, std::int64_t incRowC, std::int64_t incColC)
+{
+    using namespace i8gemm_detail;
+
+    if (m <= 0 || n <= 0) {
+	return;
+    }
+    if (alpha == 0 || k <= 0) {
+	gescal(std::ptrdiff_t(m), std::ptrdiff_t(n), std::uint32_t(beta),
+	       reinterpret_cast<std::uint32_t *>(C), std::ptrdiff_t(incRowC),
+	       std::ptrdiff_t(incColC));
+	return;
+    }
+    const FpsrScope fpsrScope; // see level3/fpsrscope.h
+
+#if defined(USE_SME)
+    blocked<sme::I8Kernel>(m, n, k, alpha, unsignedA, A, incRowA, incColA,
+                           unsignedB, B, incRowB, incColB, beta, C, incRowC,
+                           incColC);
+#elif defined(__aarch64__)
+    if (neon::hasDotProd() && (unsignedA == unsignedB || neon::hasI8MM())) {
+	blocked<neon::I8Kernel>(m, n, k, alpha, unsignedA, A, incRowA,
+	                        incColA, unsignedB, B, incRowB, incColB, beta,
+	                        C, incRowC, incColC);
+	return;
+    }
+    generic(m, n, k, alpha, unsignedA, A, incRowA, incColA, unsignedB, B,
+            incRowB, incColB, beta, C, incRowC, incColC);
+#elif defined(__AVX2__)
+    if (avx::hasAvxVnni()) {
+	blocked<avx::I8Kernel<true>>(m, n, k, alpha, unsignedA, A, incRowA,
+	                             incColA, unsignedB, B, incRowB, incColB,
+	                             beta, C, incRowC, incColC);
+    } else {
+	blocked<avx::I8Kernel<false>>(m, n, k, alpha, unsignedA, A, incRowA,
+	                              incColA, unsignedB, B, incRowB, incColB,
+	                              beta, C, incRowC, incColC);
+    }
+#else
+    generic(m, n, k, alpha, unsignedA, A, incRowA, incColA, unsignedB, B,
+            incRowB, incColB, beta, C, incRowC, incColC);
 #endif
 }
 
