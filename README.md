@@ -328,8 +328,24 @@ speed on one core (n = 2048):
 |---|---|---|---|
 | Apple M4/M5 | SME2 4-way outer products | about 3600 G op/s | 1600 GFLOP/s |
 | ARM with dot product (Apple M1-M3, NEON backend) | SDOT/UDOT, mixed signs USDOT/SUDOT (I8MM) | 470 (M5) | 115 |
-| x86 with AVX-VNNI (Alder Lake) | int16 VPDPWSSD | 240 | 58 |
+| x86 with AVX512-VNNI (AMD Zen 4) | VPDPBUSD on zmm | 280 (shared login node) | – |
+| x86 with AVX-VNNI (Alder Lake) | VPDPBUSD | 460 | 58 |
 | x86 with AVX2 | int16 VPMADDWD | 175 (Alder Lake) | 58 |
+
+16-bit integers: `ulmblas_i16i32gemm_strided` (C int32 modulo 2^32) and
+`cblas_gemm_s16s16s32` (oneMKL's signature; as in oneMKL the sum is an
+int32 with wraparound).  On Apple M4/M5 (SME2) about as fast as SGEMM.
+
+NumPy multiplies these element types without BLAS (its own loops, about 2
+G op/s for int8).  [interfaces/python/ulmblas.py](interfaces/python/ulmblas.py)
+calls the functions above for NumPy arrays of any strides, without copies:
+
+```python
+import numpy as np, ulmblas      # ULMBLAS_LIBRARY=.../libulmblas.0.dylib
+
+A = np.random.randint(-128, 128, (1024, 1024), dtype=np.int8)
+C = ulmblas.matmul(A, A)         # int32; int16, float16, bfloat16 likewise
+```
 
 Element types other than the four BLAS types get the generic micro
 kernel and block sizes that are only a guess (`GenericBlockSize` in
