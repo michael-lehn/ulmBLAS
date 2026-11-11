@@ -21,7 +21,8 @@
 #  config/make.shared.inc and -fPIC; the Fortran functions (DDOT, ...)
 #  come from ../lbt/functions.c, so no Fortran compiler is needed.  The
 #  return values of the complex functions (ZDOTC, ...) follow gfortran.
-#  On Linux the C++ runtime is linked statically.  ARCHFLAGS select the
+#  On Linux the C++ runtime is linked statically if libstdc++.a exists.
+#  ARCHFLAGS select the
 #  micro kernels as for the other libraries; OUTDIR and BUILD_DIR allow
 #  several builds side by side.
 #
@@ -77,8 +78,12 @@ SHARED_LIB   = $(OUTDIR)/$(SHARED_FILE)
 SHARED_LINK  = -shared -Wl,-soname,$(SHARED_FILE) \
                -Wl,--whole-archive $(BUILD_DIR)/libsharedblas.a \
                $(BUILD_DIR)/libcblas.a -Wl,--no-whole-archive \
-               -static-libstdc++ -static-libgcc -Wl,--no-undefined \
+               $(STATIC_LIBSTDCXX) -static-libgcc -Wl,--no-undefined \
                -Wl,--version-script,$(EXPORTS)
+#  libstdc++.a is missing on some systems (RHEL: package libstdc++-static);
+#  then the C++ runtime is linked dynamically
+STATIC_LIBSTDCXX := $(if $(filter /%,$(shell $(CXX) \
+                    -print-file-name=libstdc++.a)),-static-libstdc++)
 SHARED_ALIAS = $(if $(SHARED_VERSION),$(OUTDIR)/lib$(SHARED_NAME).so)
 SYMBOL_PREFIX =
 endif
