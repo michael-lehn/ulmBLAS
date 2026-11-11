@@ -306,6 +306,13 @@ ulmblas_dgemm_strided(2, 2, 3,                    /* m, n, k */
                       C, 2, 1);                   /* C = [ 7 5 ; 16 11 ] */
 ```
 
+GEMM with A and B in bfloat16 and C in float: `cblas_sbgemm` and
+`sbgemm_`, with the signature of OpenBLAS's sbgemm (`ulmblas_bfloat16`
+is `uint16_t`, as OpenBLAS's `bfloat16`).  Products and sums in float:
+A and B are converted when the panels are packed, the micro kernels are
+those of SGEMM.  So sbgemm is about as fast as SGEMM (on Apple M4/M5
+from about n = 768 on, on x86 for all sizes).
+
 Element types other than the four BLAS types get the generic micro
 kernel and block sizes that are only a guess (`GenericBlockSize` in
 [blocksize.h](ulmblas/config/blocksize.h)).  Better ones you declare with
