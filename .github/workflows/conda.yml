@@ -71,7 +71,7 @@ jobs:
       - name: Windows, after a failed test, the test program per backend
         if: failure() && runner.os == 'Windows'
         run: |
-          cd $RUNNER_TEMP/ci-out/test/test_libulmblas*/test || exit 0
+          cd "$(cygpath -u "$RUNNER_TEMP")"/ci-out/test/test_libulmblas*/test || { ls -R "$(cygpath -u "$RUNNER_TEMP")/ci-out" | head -50; exit 0; }
           export PATH="$(cygpath -u "$PWD")/../test_run_env/Library/bin:$PATH"
           ls ../test_run_env/Library/bin/libulmblas* ../test_run_env/Library/lib/*ulmblas* || true
           t=$(ls -d ../test_run_env/etc/conda/test-files/libulmblas/0)
@@ -115,10 +115,12 @@ jobs:
           assert np.allclose(s @ np.linalg.solve(s, b), b)
           EOF
           mkdir -p $RUNNER_TEMP/np-t && cd $RUNNER_TEMP/np-t
-          #  f2py's tests need meson and a Fortran compiler
-          f2py=$($RUNNER_TEMP/np/bin/python -c "import numpy.f2py, os; print(os.path.dirname(numpy.f2py.__file__))")
+          #  not run: the tests that build extensions (meson, a Fortran
+          #  compiler) and the one that calls numpy-config
+          np=$($RUNNER_TEMP/np/bin/python -c "import numpy, os; print(os.path.dirname(numpy.__file__))")
           $RUNNER_TEMP/np/bin/python -m pytest -q -p no:cacheprovider --pyargs numpy -m "not slow" \
-            --ignore="$f2py"
+            --ignore="$np/f2py" --ignore="$np/_core/tests/test_mem_policy.py" \
+            --ignore="$np/tests/test_configtool.py"
 
       - uses: actions/upload-artifact@v4
         with:
