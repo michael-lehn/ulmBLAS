@@ -6,8 +6,9 @@
  *
  *      C <- alpha op(A) op(B) + beta C
  *
- *  for float, double, complex float and complex double, and for the
- *  integer types int8_t, int16_t, int32_t and int64_t.  Every matrix is
+ *  for float, double, complex float and complex double, for the integer
+ *  types int8_t, int16_t, int32_t and int64_t, and with A and B in
+ *  bfloat16 or IEEE half precision and C in float.  Every matrix is
  *  described by a pointer and two strides: element (i,j) of the m x n
  *  matrix X is
  *
@@ -46,6 +47,11 @@
  *  complement), as Julia's Int arithmetic.  Use the same function for
  *  unsigned integers of the same size: the bits are the same.  There are no
  *  tuned micro kernels for integers yet; the generic one is used.
+ *
+ *  bfloat16 and half precision (sbgemm, shgemm): the elements of A and B
+ *  are uint16_t holding the bits (as in cblas_sbgemm, cblas_shgemm);
+ *  alpha, beta and C are float, and the products and sums are computed in
+ *  float.
  *
  *  Semantics as in BLAS: for beta = 0, C is not read (NaN or Inf in C do
  *  not propagate); for alpha = 0 or k = 0, A and B are not read and C is
@@ -111,6 +117,18 @@ ulmblas_i64gemm_strided(int64_t m, int64_t n, int64_t k, int64_t alpha,
                         const int64_t *B, int64_t incRowB, int64_t incColB,
                         int64_t beta, int64_t *C, int64_t incRowC,
                         int64_t incColC);
+
+void
+ulmblas_sbgemm_strided(int64_t m, int64_t n, int64_t k, float alpha,
+                       const uint16_t *A, int64_t incRowA, int64_t incColA,
+                       const uint16_t *B, int64_t incRowB, int64_t incColB,
+                       float beta, float *C, int64_t incRowC, int64_t incColC);
+
+void
+ulmblas_shgemm_strided(int64_t m, int64_t n, int64_t k, float alpha,
+                       const uint16_t *A, int64_t incRowA, int64_t incColA,
+                       const uint16_t *B, int64_t incRowB, int64_t incColB,
+                       float beta, float *C, int64_t incRowC, int64_t incColC);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -1,5 +1,7 @@
 //
 //  GEMM with arbitrary strides (ulmblas_?gemm_strided, ulmblas_strided.h).
+//  Also sbgemm and shgemm (A and B in bfloat16 or half precision, C in
+//  float).
 //
 //  Every operand lives in a buffer of its own and is described by a
 //  pointer to element (0,0) and two strides (column major, row major,
@@ -11,6 +13,8 @@
 #include <type_traits>
 #include <vector>
 #include <ulmblas_strided.h>
+#include <ulmblas/auxiliary/bfloat16.h>
+#include <ulmblas/auxiliary/float16.h>
 #include <ulmblas/ulmblas.h>
 #include <test/numeric/reference.h>
 
@@ -596,6 +600,178 @@ testInt(Context &ctx)
     }
 }
 
+//
+//  ulmblas_sbgemm_strided, ulmblas_shgemm_strided: A and B in bfloat16 or
+//  half precision (uint16_t), C in float.  The reference in double from the
+//  values of A and B; the products of two 16-bit values are exact in float,
+//  so the error bound is that of sgemm.
+//
+void
+gemm16(const ulmBLAS::bfloat16 *, std::int64_t m, std::int64_t n,
+       std::int64_t k, float alpha, const std::uint16_t *A, std::int64_t rA,
+       std::int64_t cA, const std::uint16_t *B, std::int64_t rB,
+       std::int64_t cB, float beta, float *C, std::int64_t rC, std::int64_t cC)
+{
+    ulmblas_sbgemm_strided(m, n, k, alpha, A, rA, cA, B, rB, cB, beta, C, rC,
+                           cC);
+}
+
+void
+gemm16(const ulmBLAS::float16 *, std::int64_t m, std::int64_t n,
+       std::int64_t k, float alpha, const std::uint16_t *A, std::int64_t rA,
+       std::int64_t cA, const std::uint16_t *B, std::int64_t rB,
+       std::int64_t cB, float beta, float *C, std::int64_t rC, std::int64_t cC)
+{
+    ulmblas_shgemm_strided(m, n, k, alpha, A, rA, cA, B, rB, cB, beta, C, rC,
+                           cC);
+}
+
+template <typename T16>
+float
+toFloat(std::uint16_t bits)
+{
+    T16 x;
+    x.bits = bits;
+    return float(x);
+}
+
+template <typename T16>
+bool
+gemm16Case(Context &ctx, Random &random, std::int64_t m, std::int64_t n,
+           std::int64_t k, Layout lA, Layout lB, Layout lC, float alpha,
+           float beta)
+{
+    Operand<std::uint16_t> A(lA, m, k), B(lB, k, n);
+    Operand<float> C(lC, m, n);
+
+    for (auto &x : A.buf)
+	x = T16(random.value<float>()).bits;
+    for (auto &x : B.buf)
+	x = T16(random.value<float>()).bits;
+    randomize(random, C.buf);
+    if (alpha == 0) {
+	//  A and B must not be read
+	for (auto &x : A.buf)
+	    x = T16(nan<float>()).bits;
+	for (auto &x : B.buf)
+	    x = T16(nan<float>()).bits;
+    }
+    if (beta == 0) {
+	//  C must not be read
+	for (std::int64_t j = 0; j < n; ++j) {
+	    for (std::int64_t i = 0; i < m; ++i) {
+		C(i, j) = nan<float>();
+	    }
+	}
+    }
+    std::vector<float> C0 = C.buf;
+
+    std::vector<double> ref(std::size_t(std::max<std::int64_t>(m * n, 1)));
+    std::vector<double> bound(ref.size());
+    for (std::int64_t j = 0; j < n; ++j) {
+	for (std::int64_t i = 0; i < m; ++i) {
+	    double s = 0, b = 0;
+	    if (alpha != 0) {
+		for (std::int64_t l = 0; l < k; ++l) {
+		    double p = double(toFloat<T16>(A(i, l))) *
+		               double(toFloat<T16>(B(l, j)));
+		    s += p;
+		    b += std::abs(p);
+		}
+	    }
+	    double c = beta == 0 ? 0 : double(C(i, j));
+	    ref[i + j * m] = alpha * s + beta * c;
+	    bound[i + j * m] = std::abs(alpha) * b + std::abs(beta) * std::abs(c);
+	}
+    }
+
+    gemm16(static_cast<const T16 *>(nullptr), m, n, k, alpha, A.ptr(), A.rs,
+           A.cs, B.ptr(), B.rs, B.cs, beta, C.ptr(), C.rs, C.cs);
+
+    std::string what =
+        format("%s_strided(m=%d,n=%d,k=%d,A %s,B %s,C %s,alpha=%g,beta=%g)",
+               std::is_same<T16, ulmBLAS::bfloat16>::value ? "sbgemm"
+                                                           : "shgemm",
+               int(m), int(n), int(k), layoutName(lA), layoutName(lB),
+               layoutName(lC), double(alpha), double(beta));
+
+    std::vector<char> isC(C.buf.size(), 0);
+    for (std::int64_t j = 0; j < n; ++j) {
+	for (std::int64_t i = 0; i < m; ++i) {
+	    isC[std::size_t(C.base + i * C.rs + j * C.cs)] = 1;
+	    float t = float(ref[i + j * m]);
+	    if (!ctx.check(closeEnough(C(i, j), t, bound[i + j * m],
+	                               int(std::max<std::int64_t>(k, 1))),
+	                   "%s: C(%d,%d) = %g, expected %g", what.c_str(), int(i),
+	                   int(j), double(C(i, j)), double(t))) {
+		return false;
+	    }
+	}
+    }
+    for (std::size_t p = 0; p < C.buf.size(); ++p) {
+	if (!isC[p] && !ctx.check(sameBits(C.buf[p], C0[p]),
+	                          "%s: element %d of the buffer of C outside "
+	                          "of C modified",
+	                          what.c_str(), int(p))) {
+	    return false;
+	}
+    }
+    return true;
+}
+
+template <typename T16>
+void
+testGemm16(Context &ctx)
+{
+    Random random(0xb16f16);
+    static const int size[][3] = {{1, 1, 1},    {2, 3, 1},    {7, 5, 3},
+                                  {13, 17, 11}, {33, 31, 65}, {64, 64, 64},
+                                  {97, 113, 301}};
+    const float alphas[] = {1.0f, -1.5f}, betas[] = {0.0f, 0.5f};
+
+    for (const auto &s : size) {
+	for (int lA = 0; lA < NumLayouts; ++lA) {
+	    for (int lB = 0; lB < NumLayouts; ++lB) {
+		for (int lC = 0; lC < ZeroRow; ++lC) {
+		    if (lC != ColMajor && !(lA == ColMajor && lB == ColMajor) &&
+		        !(lA == NegBoth && lB == Mixed)) {
+			continue;
+		    }
+		    if (!gemm16Case<T16>(ctx, random, s[0], s[1], s[2],
+		                         Layout(lA), Layout(lB), Layout(lC),
+		                         alphas[(lA + lB) % 2],
+		                         betas[(lA + lC) % 2])) {
+			return;
+		    }
+		}
+	    }
+	}
+    }
+    //  large (several blocks), alpha = 0, k = 0, empty
+    const Layout large[][3] = {{ColMajor, ColMajor, ColMajor},
+                               {RowMajor, RowMajor, RowMajor},
+                               {RowStride2, NegRow, RowMajor},
+                               {ZeroRow, RowMajor, NegRow}};
+    for (const auto &l : large) {
+	if (!gemm16Case<T16>(ctx, random, 413, 389, 1031, l[0], l[1], l[2],
+	                     0.75f, -0.5f)) {
+	    return;
+	}
+    }
+    struct
+    {
+	std::int64_t m, n, k;
+	float alpha, beta;
+    } c[] = {{9, 7, 5, 0, -2}, {9, 7, 5, 0, 0}, {9, 7, 0, 1, -2},
+             {9, 7, 0, 1, 0},  {0, 7, 5, 1, -2}, {9, 0, 5, 1, -2}};
+    for (const auto &x : c) {
+	if (!gemm16Case<T16>(ctx, random, x.m, x.n, x.k, RowStride2, NegRow,
+	                     Mixed, x.alpha, x.beta)) {
+	    return;
+	}
+    }
+}
+
 } // namespace
 
 ULMBLAS_TEST(T0800, "strided/sgemm all layouts")
@@ -641,4 +817,9 @@ ULMBLAS_TEST(T0807, "strided/i8, i16, i32, i64 gemm: exact with wraparound")
     testInt<std::int16_t>(ctx);
     testInt<std::int32_t>(ctx);
     testInt<std::int64_t>(ctx);
+}
+ULMBLAS_TEST(T0808, "strided/sbgemm, shgemm (bfloat16, half precision)")
+{
+    testGemm16<ulmBLAS::bfloat16>(ctx);
+    testGemm16<ulmBLAS::float16>(ctx);
 }

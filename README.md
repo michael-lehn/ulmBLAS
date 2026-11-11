@@ -284,7 +284,9 @@ c++ -std=c++11 -O3 -I. examples/gemm.cc -o gemm   # add ARCHFLAGS for the
 ```
 
 The same GEMM with arbitrary strides is available from C for the four
-BLAS types and for 8, 16, 32 and 64 bit integers
+BLAS types, for 8, 16, 32 and 64 bit integers and with A and B in
+bfloat16 or half precision (`ulmblas_sbgemm_strided`,
+`ulmblas_shgemm_strided`)
 ([ulmblas_strided.h](interfaces/blas/C/ulmblas_strided.h), in
 `libcblas.a`): no transposition argument, transposed operands are passed
 with swapped strides, and strides may be negative or zero.  Integers
@@ -309,10 +311,10 @@ ulmblas_dgemm_strided(2, 2, 3,                    /* m, n, k */
 GEMM with A and B in bfloat16 or IEEE half precision and C in float:
 `cblas_sbgemm`, `sbgemm_` and `cblas_shgemm`, `shgemm_`, with the
 signatures of OpenBLAS (`ulmblas_bfloat16` and `ulmblas_float16` are
-`uint16_t`, as OpenBLAS's `bfloat16` and `hfloat16`).  PyTorch uses
-`sbgemm_` and `shgemm_` if its BLAS has them.  Products and sums in
-float: A and B are converted when the panels are packed, the micro
-kernels are those of SGEMM.  So both are about as fast as SGEMM (on
+`uint16_t`, as OpenBLAS's `bfloat16` and `hfloat16`).  PyTorch calls
+`sbgemm_` and `shgemm_` if the BLAS it is built with has them.  Products
+and sums in float: A and B are converted when the panels are packed, the
+micro kernels are those of SGEMM.  So both are about as fast as SGEMM (on
 Apple M4/M5 from about n = 768 on, on x86 for all sizes).
 
 Element types other than the four BLAS types get the generic micro

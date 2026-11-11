@@ -8,10 +8,15 @@
 //  the result is the same bit pattern as with signed wraparound (Julia's
 //  Int), without the undefined behaviour of signed overflow in C++.
 //
+//  sbgemm, shgemm: the uint16_t elements of A and B as ulmBLAS::bfloat16
+//  and ulmBLAS::float16 (computed in float, as cblas_sbgemm).
+//
 #include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
+#include <ulmblas/auxiliary/bfloat16.h>
+#include <ulmblas/auxiliary/float16.h>
 #include <ulmblas/ulmblas.h>
 
 namespace {
@@ -160,6 +165,35 @@ ULMBLAS(i64gemm_strided)(std::int64_t m, std::int64_t n, std::int64_t k,
     gemmUnsigned<std::int64_t, std::uint64_t>(m, n, k, alpha, A, incRowA,
                                               incColA, B, incRowB, incColB,
                                               beta, C, incRowC, incColC);
+}
+
+void
+ULMBLAS(sbgemm_strided)(std::int64_t m, std::int64_t n, std::int64_t k,
+                        float alpha, const std::uint16_t *A,
+                        std::int64_t incRowA, std::int64_t incColA,
+                        const std::uint16_t *B, std::int64_t incRowB,
+                        std::int64_t incColB, float beta, float *C,
+                        std::int64_t incRowC, std::int64_t incColC)
+{
+    ulmBLAS::gemm<std::ptrdiff_t>(
+        m, n, k, alpha, false, reinterpret_cast<const ulmBLAS::bfloat16 *>(A),
+        incRowA, incColA, false,
+        reinterpret_cast<const ulmBLAS::bfloat16 *>(B), incRowB, incColB, beta,
+        C, incRowC, incColC);
+}
+
+void
+ULMBLAS(shgemm_strided)(std::int64_t m, std::int64_t n, std::int64_t k,
+                        float alpha, const std::uint16_t *A,
+                        std::int64_t incRowA, std::int64_t incColA,
+                        const std::uint16_t *B, std::int64_t incRowB,
+                        std::int64_t incColB, float beta, float *C,
+                        std::int64_t incRowC, std::int64_t incColC)
+{
+    ulmBLAS::gemm<std::ptrdiff_t>(
+        m, n, k, alpha, false, reinterpret_cast<const ulmBLAS::float16 *>(A),
+        incRowA, incColA, false, reinterpret_cast<const ulmBLAS::float16 *>(B),
+        incRowB, incColB, beta, C, incRowC, incColC);
 }
 
 } // extern "C"
