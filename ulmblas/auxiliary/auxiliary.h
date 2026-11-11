@@ -5,6 +5,7 @@
 #include <ulmblas/auxiliary/bfloat16.h>
 #include <ulmblas/auxiliary/auxiliary.h>
 #include <ulmblas/auxiliary/conjugate.h>
+#include <ulmblas/auxiliary/float16.h>
 #include <ulmblas/auxiliary/isaligned.h>
 #include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/auxiliary/printmatrix.h>

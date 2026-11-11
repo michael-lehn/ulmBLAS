@@ -1144,6 +1144,21 @@ F77BLAS(sbgemm)(const char               *transA_,
                const ULMBLAS_INDEX_TYPE *ldC_);
 
 void
+F77BLAS(shgemm)(const char               *transA_,
+               const char               *transB_,
+               const ULMBLAS_INDEX_TYPE *m_,
+               const ULMBLAS_INDEX_TYPE *n_,
+               const ULMBLAS_INDEX_TYPE *k_,
+               const float              *alpha_,
+               const uint16_t           *A,
+               const ULMBLAS_INDEX_TYPE *ldA_,
+               const uint16_t           *B,
+               const ULMBLAS_INDEX_TYPE *ldB_,
+               const float              *beta_,
+               float                    *C,
+               const ULMBLAS_INDEX_TYPE *ldC_);
+
+void
 F77BLAS(dgemm)(const char               *transA_,
                const char               *transB_,
                const ULMBLAS_INDEX_TYPE *m_,

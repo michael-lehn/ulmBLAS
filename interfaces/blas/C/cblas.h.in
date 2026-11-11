@@ -75,6 +75,8 @@ typedef ULMBLAS_INDEX_TYPE    CBLAS_INDEX;
 
 //  bfloat16 (upper 16 bits of an IEEE float), as OpenBLAS's bfloat16
 typedef uint16_t              ulmblas_bfloat16;
+//  float16 (IEEE half precision), as OpenBLAS's hfloat16
+typedef uint16_t              ulmblas_float16;
 
 //
 //  Declaration of CBLAS functions currently implemented in ulmBLAS
@@ -1257,6 +1259,22 @@ CBLAS(sbgemm)(enum CBLAS_ORDER      order,
              const ulmblas_bfloat16 *A,
              ULMBLAS_INDEX_TYPE    ldA,
              const ulmblas_bfloat16 *B,
+             ULMBLAS_INDEX_TYPE    ldB,
+             float                 beta,
+             float                 *C,
+             ULMBLAS_INDEX_TYPE    ldC);
+
+void
+CBLAS(shgemm)(enum CBLAS_ORDER      order,
+             enum CBLAS_TRANSPOSE  transA,
+             enum CBLAS_TRANSPOSE  transB,
+             ULMBLAS_INDEX_TYPE    m,
+             ULMBLAS_INDEX_TYPE    n,
+             ULMBLAS_INDEX_TYPE    k,
+             float                 alpha,
+             const ulmblas_float16  *A,
+             ULMBLAS_INDEX_TYPE    ldA,
+             const ulmblas_float16  *B,
              ULMBLAS_INDEX_TYPE    ldB,
              float                 beta,
              float                 *C,
@@ -2868,6 +2886,21 @@ ULMBLAS(sbgemm)(enum CBLAS_TRANSPOSE  transA,
                const ulmblas_bfloat16 *A,
                ULMBLAS_INDEX_TYPE    ldA,
                const ulmblas_bfloat16 *B,
+               ULMBLAS_INDEX_TYPE    ldB,
+               float                 beta,
+               float                 *C,
+               ULMBLAS_INDEX_TYPE    ldC);
+
+void
+ULMBLAS(shgemm)(enum CBLAS_TRANSPOSE  transA,
+               enum CBLAS_TRANSPOSE  transB,
+               ULMBLAS_INDEX_TYPE    m,
+               ULMBLAS_INDEX_TYPE    n,
+               ULMBLAS_INDEX_TYPE    k,
+               float                 alpha,
+               const ulmblas_float16  *A,
+               ULMBLAS_INDEX_TYPE    ldA,
+               const ulmblas_float16  *B,
                ULMBLAS_INDEX_TYPE    ldB,
                float                 beta,
                float                 *C,

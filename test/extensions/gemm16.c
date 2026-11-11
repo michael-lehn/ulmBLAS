@@ -1,6 +1,7 @@
 /*
- *  cblas_sbgemm and sbgemm_ (A, B bfloat16; alpha, beta, C float) against
- *  a reference in double computed from the same bfloat16 values: both
+ *  cblas_sbgemm and sbgemm_ (A, B bfloat16; alpha, beta, C float), with
+ *  -DFLOAT16 cblas_shgemm and shgemm_ (A, B IEEE half precision), against
+ *  a reference in double computed from the same 16-bit values: both
  *  orders, all transpositions, leading dimensions with padding, several
  *  alpha and beta (beta = 0 must not read C), sizes around the block
  *  sizes.  Error bound per element of C:
@@ -15,15 +16,64 @@
 #include <stdlib.h>
 #include <string.h>
 
-void
-sbgemm_(const char *, const char *, const ULMBLAS_INDEX_TYPE *,
-        const ULMBLAS_INDEX_TYPE *, const ULMBLAS_INDEX_TYPE *, const float *,
-        const uint16_t *, const ULMBLAS_INDEX_TYPE *, const uint16_t *,
-        const ULMBLAS_INDEX_TYPE *, const float *, float *,
-        const ULMBLAS_INDEX_TYPE *);
+#ifdef FLOAT16
+#define GEMM16_F77 shgemm_
+#define GEMM16_C cblas_shgemm
 
+/*  IEEE half precision <-> float (round to nearest even), as in
+ *  ulmblas/auxiliary/float16.h */
 static float
-bf2f(uint16_t h)
+to_f(uint16_t h)
+{
+    uint32_t sign = (uint32_t)(h & 0x8000u) << 16, e = (h >> 10) & 0x1fu,
+             m = h & 0x3ffu, u;
+    float x;
+    if (e == 0) {
+	x = (float)m * 5.9604644775390625e-8f;
+	memcpy(&u, &x, 4);
+	u |= sign;
+    } else if (e == 0x1fu) {
+	u = sign | 0x7f800000u | (m << 13);
+    } else {
+	u = sign | ((e + 112u) << 23) | (m << 13);
+    }
+    memcpy(&x, &u, 4);
+    return x;
+}
+
+static uint16_t
+from_f(float x)
+{
+    uint32_t u, sign, a;
+    memcpy(&u, &x, 4);
+    sign = (u >> 16) & 0x8000u;
+    a = u & 0x7fffffffu;
+    if (a > 0x7f800000u)
+	return (uint16_t)(sign | 0x7e00u | ((a >> 13) & 0x3ffu));
+    if (a >= 0x477ff000u)
+	return (uint16_t)(sign | 0x7c00u);
+    if (a >= 0x38800000u) {
+	uint32_t r = a - 0x38000000u;
+	r += 0xfffu + ((r >> 13) & 1u);
+	return (uint16_t)(sign | (r >> 13));
+    }
+    if (a >= 0x33000001u) {
+	int shift = 126 - (int)(a >> 23);
+	uint32_t m = (a & 0x7fffffu) | 0x800000u, r = m >> shift,
+	         rest = m & ((1u << shift) - 1u), half = 1u << (shift - 1);
+	if (rest > half || (rest == half && (r & 1u)))
+	    ++r;
+	return (uint16_t)(sign | r);
+    }
+    return (uint16_t)sign;
+}
+#else
+#define GEMM16_F77 sbgemm_
+#define GEMM16_C cblas_sbgemm
+
+/*  bfloat16 <-> float (round to nearest even) */
+static float
+to_f(uint16_t h)
 {
     uint32_t u = (uint32_t)h << 16;
     float x;
@@ -32,13 +82,21 @@ bf2f(uint16_t h)
 }
 
 static uint16_t
-f2bf(float x)
+from_f(float x)
 {
     uint32_t u;
     memcpy(&u, &x, 4);
     u += 0x7fff + ((u >> 16) & 1);
     return (uint16_t)(u >> 16);
 }
+#endif
+
+void
+GEMM16_F77(const char *, const char *, const ULMBLAS_INDEX_TYPE *,
+           const ULMBLAS_INDEX_TYPE *, const ULMBLAS_INDEX_TYPE *,
+           const float *, const uint16_t *, const ULMBLAS_INDEX_TYPE *,
+           const uint16_t *, const ULMBLAS_INDEX_TYPE *, const float *, float *,
+           const ULMBLAS_INDEX_TYPE *);
 
 static double
 urand(void)
@@ -50,7 +108,7 @@ urand(void)
 static double
 opget(const uint16_t *X, int ld, int trans, int i, int j)
 {
-    return bf2f(trans ? X[j + (size_t)i * ld] : X[i + (size_t)j * ld]);
+    return to_f(trans ? X[j + (size_t)i * ld] : X[i + (size_t)j * ld]);
 }
 
 static int failures = 0, checks = 0;
@@ -84,22 +142,21 @@ check(int rowmajor, int tA, int tB, int m, int n, int k, float alpha,
     uint16_t *A = malloc(sA * 2), *B = malloc(sB * 2);
     float *C = malloc(sC * 4), *C0 = malloc(sC * 4);
     for (size_t i = 0; i < sA; ++i)
-	A[i] = f2bf((float)urand());
+	A[i] = from_f((float)urand());
     for (size_t i = 0; i < sB; ++i)
-	B[i] = f2bf((float)urand());
+	B[i] = from_f((float)urand());
     //  beta = 0: C is NaN, which must not reach the result
     for (size_t i = 0; i < sC; ++i)
 	C0[i] = C[i] = (beta == 0.0f) ? NAN : (float)urand();
 
     if (f77) {
 	ULMBLAS_INDEX_TYPE m_ = m, n_ = n, k_ = k, lA = ldA, lB = ldB, lC = ldC;
-	sbgemm_(tA ? "T" : "N", tB ? "T" : "N", &m_, &n_, &k_, &alpha, A, &lA,
-	        B, &lB, &beta, C, &lC);
+	GEMM16_F77(tA ? "T" : "N", tB ? "T" : "N", &m_, &n_, &k_, &alpha, A,
+	           &lA, B, &lB, &beta, C, &lC);
     } else {
-	cblas_sbgemm(rowmajor ? CblasRowMajor : CblasColMajor,
-	             tA ? CblasTrans : CblasNoTrans,
-	             tB ? CblasTrans : CblasNoTrans, m, n, k, alpha, A, ldA, B,
-	             ldB, beta, C, ldC);
+	GEMM16_C(rowmajor ? CblasRowMajor : CblasColMajor,
+	         tA ? CblasTrans : CblasNoTrans, tB ? CblasTrans : CblasNoTrans,
+	         m, n, k, alpha, A, ldA, B, ldB, beta, C, ldC);
     }
     double maxq = 0;
     int bad = 0;
@@ -113,10 +170,10 @@ check(int rowmajor, int tA, int tB, int m, int n, int k, float alpha,
 		    b = opget(B, ldB, tB, l, j);
 		} else {
 		    //  row major A(i,l) = colmajor A^T: stored at (l,i)
-		    a = tA ? bf2f(A[i + (size_t)l * ldA])
-		           : bf2f(A[l + (size_t)i * ldA]);
-		    b = tB ? bf2f(B[l + (size_t)j * ldB])
-		           : bf2f(B[j + (size_t)l * ldB]);
+		    a = tA ? to_f(A[i + (size_t)l * ldA])
+		           : to_f(A[l + (size_t)i * ldA]);
+		    b = tB ? to_f(B[l + (size_t)j * ldB])
+		           : to_f(B[j + (size_t)l * ldB]);
 		}
 		s += a * b;
 		sa += fabs(a * b);

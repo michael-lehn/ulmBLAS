@@ -146,9 +146,12 @@ for t in s d c z; do
     done
 done
 
-#  Extensions of the C interface: sbgemm (bfloat16)
-for p in sbgemm; do
-    if ! $CC $CFLAGS -I$INCDIR -o "$B/c_$p" extensions/$p.c $LINK -lm; then
+#  Extensions of the C interface: sbgemm (bfloat16), shgemm (float16)
+for p in sbgemm shgemm; do
+    defs=
+    [ $p = shgemm ] && defs=-DFLOAT16
+    if ! $CC $CFLAGS $defs -I$INCDIR -o "$B/c_$p" extensions/gemm16.c \
+            $LINK -lm; then
         echo "FAIL  c_$p: not built"
         n_fail=`expr $n_fail + 1`
     elif (cd "$B" && "./c_$p" > "c_$p.out" 2>&1); then
