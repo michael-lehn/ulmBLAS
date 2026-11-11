@@ -88,11 +88,8 @@ jobs:
           $gcc $t/test_ulmblas.c -I../test_run_env/Library/include/ulmblas $B/libulmblas_sse3.dll -o direct.exe && ./direct.exe; echo "test, linked to the sse3 backend: exit $?"
           $gcc $t/test_ulmblas.c -I../test_run_env/Library/include/ulmblas $L/ulmblas.lib -o vialib.exe && ./vialib.exe; echo "test, ulmblas.lib: exit $?"
           $gcc $t/test_ulmblas.c -I../test_run_env/Library/include/ulmblas -L$L -lulmblas -O0 -g -o viaa.exe && ./viaa.exe; echo "test, libulmblas.dll.a, -O0: exit $?"
-          for f in $B/libulmblas.dll $B/libulmblas_sse3.dll $t/test_ulmblas.exe; do
-              echo "== $f"; objdump -p $f | grep -E 'DLL Name|ImageBase|SizeOfStackReserve|DllCharacteristics' | sort -u
-          done
-          objdump -d $B/libulmblas.dll | grep -A40 '<ulmblas_dispatch_slow>:' | head -60
-          objdump -d $B/libulmblas.dll | grep -B2 -A12 '<cblas_dgemm>:' | head -20
+          cdb="/c/Program Files (x86)/Windows Kits/10/Debuggers/x64/cdb.exe"
+          ls "$cdb" && "$cdb" -g -c ".lastevent; r; kn 25; u @rip-0x30 L24; q" ./direct.exe 2>&1 | tail -80
 
       - name: conda-forge NumPy on libulmblas
         if: runner.os != 'Windows'
