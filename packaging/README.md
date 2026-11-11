@@ -71,7 +71,9 @@ and macOS), [.github/workflows/windows-shared.yml](../.github/workflows/windows-
   passed, 1 failed (below).
 - Windows: cross-built with MinGW-w64 GCC 16 on macOS (exports, imports:
   only system DLLs); not yet run (CI).
-- AVX-512 backend: built, not yet run.
+- AVX-512 (bwUniCluster, AMD EPYC 9454, RHEL 9, GCC 11): front selects
+  `avx512`; Netlib tests 25/25 per backend, 17/17 through the front.
+  Without `libstdc++.a` (RHEL) the C++ runtime is linked dynamically.
 
 ## Known issue
 
