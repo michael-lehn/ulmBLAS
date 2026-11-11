@@ -86,9 +86,9 @@ template <long MR>
 void
 pack4KContig(long k, const std::uint8_t *X, long incMN, std::uint8_t *buffer)
 {
-    static_assert(MR % 4 == 0, "MR must be a multiple of 4");
     const long k16 = k / 16;
-    for (long r = 0; r < MR; r += 4) {
+    long r = 0;
+    for (; r + 4 <= MR; r += 4) {
 	const std::uint8_t *x0 = X + r * incMN;
 	const std::uint8_t *x1 = x0 + incMN;
 	const std::uint8_t *x2 = x1 + incMN;
@@ -127,6 +127,12 @@ pack4KContig(long k, const std::uint8_t *X, long incMN, std::uint8_t *buffer)
 #endif
 	}
     }
+    //  the remaining rows (MR not a multiple of 4): per group 4 bytes
+    for (; MR % 4 != 0 && r < MR; ++r) {
+	for (long g = 0; g < 4 * k16; ++g) {
+	    std::memcpy(buffer + 4 * MR * g + 4 * r, X + r * incMN + 4 * g, 4);
+	}
+    }
     packGeneric<MR, 4, std::uint8_t, false>(MR, k, X, incMN, 1, 4 * k16,
                                             buffer);
 }
@@ -135,7 +141,6 @@ template <long MR>
 void
 pack4MNContig(long k, const std::uint8_t *X, long incK, std::uint8_t *buffer)
 {
-    static_assert(MR % 4 == 0, "MR must be a multiple of 4");
     const long k4 = k / 4;
     for (long g = 0; g < k4; ++g) {
 	const std::uint8_t *x = X + 4 * g * incK;

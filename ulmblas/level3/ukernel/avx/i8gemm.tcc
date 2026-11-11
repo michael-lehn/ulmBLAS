@@ -17,17 +17,25 @@
 //  With AVX-VNNI (VPDPWSSD: the multiply and the addition in one
 //  instruction, e.g. Intel Alder Lake) the same kernel with the fused
 //  instruction, selected at run time (hasAvxVnni; target attribute, so the
-//  avx2 backend needs no extra flags).
+//  avx2 backend needs no extra flags).  The loop over k is inline assembly
+//  (GCC, clang).
 //
 //  Not used for the mixed signs with VPDPBUSD (unsigned x signed bytes,
 //  twice the products per instruction) yet.
 //
 #include <cstdint>
+#include <cstring>
 #include <immintrin.h>
 #include <type_traits>
 
 #if defined(__GNUC__)
 #include <cpuid.h>
+#endif
+
+//  AVX-VNNI is known to GCC 11 and clang 12 (and their assemblers)
+#if (defined(__clang__) && __clang_major__ >= 12) ||                           \
+    (!defined(__clang__) && defined(__GNUC__) && __GNUC__ >= 11)
+#define ULMBLAS_HAVE_AVXVNNI 1
 #endif
 
 #define ULMBLAS_AVX_VNNI __attribute__((target("avx2,avxvnni")))
@@ -40,7 +48,7 @@ namespace avx {
 inline bool
 hasAvxVnni()
 {
-#if defined(ULMBLAS_I8GEMM_NO_VNNI)
+#if defined(ULMBLAS_I8GEMM_NO_VNNI) || !defined(ULMBLAS_HAVE_AVXVNNI)
     return false;
 #elif defined(__GNUC__)
     static const bool has = [] {
@@ -56,26 +64,10 @@ hasAvxVnni()
 #endif
 }
 
-struct MaddPlain
-{
-    static inline __m256i
-    madd(__m256i acc, __m256i a, __m256i b)
-    {
-	return _mm256_add_epi32(acc, _mm256_madd_epi16(a, b));
-    }
-};
-
-struct MaddVnni
-{
-    ULMBLAS_AVX_VNNI static inline __m256i
-    madd(__m256i acc, __m256i a, __m256i b)
-    {
-	return _mm256_dpwssd_avx_epi32(acc, a, b);
-    }
-};
+#define ULMBLAS_AVX_INLINE inline __attribute__((always_inline))
 
 //  the 8 rows of a column from the two accumulators (pairs of lanes)
-inline __m256i
+ULMBLAS_AVX_INLINE __m256i
 i8column(__m256i lo, __m256i hi)
 {
     //  hadd: lo pairs 0..3 | hi pairs 0..3 in the low 128 bits, lo pairs 4..7
@@ -84,7 +76,7 @@ i8column(__m256i lo, __m256i hi)
     return _mm256_permute4x64_epi64(h, 0xD8); // rows 0 1 2 3 | 4 5 6 7
 }
 
-inline void
+ULMBLAS_AVX_INLINE void
 i8store8(__m256i acc, std::int32_t alpha, std::int32_t beta, std::int32_t *C)
 {
     if (alpha != 1) {
@@ -100,47 +92,116 @@ i8store8(__m256i acc, std::int32_t alpha, std::int32_t beta, std::int32_t *C)
     _mm256_storeu_si256((__m256i *)C, acc);
 }
 
-#define ULMBLAS_I8_COL(j)                                                      \
-    {                                                                          \
-	const __m256i b = _mm256_set1_epi64x(*(const long long *)(B + 4 * j)); \
-	c##j##0 = M::madd(c##j##0, a0, b);                                     \
-	c##j##1 = M::madd(c##j##1, a1, b);                                     \
+//
+//  The loop over the groups in inline assembly: compilers (GCC 12) stored
+//  the 12 accumulators to the stack in every iteration.  12 accumulators,
+//  the two registers of A, the broadcast of B (and a temporary without
+//  VNNI): all 16 registers.
+//
+#define ULMBLAS_I8_DECLARE                                                     \
+    __m256i c00 = _mm256_setzero_si256(), c01 = c00, c10 = c00, c11 = c00,     \
+            c20 = c00, c21 = c00, c30 = c00, c31 = c00, c40 = c00, c41 = c00,  \
+            c50 = c00, c51 = c00;                                              \
+    __m256i a0, a1, b;
+
+#define ULMBLAS_I8_FINISH                                                      \
+    i8store8(i8column(c00, c01), alpha, beta, C);                              \
+    i8store8(i8column(c10, c11), alpha, beta, C + ldC);                        \
+    i8store8(i8column(c20, c21), alpha, beta, C + 2 * ldC);                    \
+    i8store8(i8column(c30, c31), alpha, beta, C + 3 * ldC);                    \
+    i8store8(i8column(c40, c41), alpha, beta, C + 4 * ldC);                    \
+    i8store8(i8column(c50, c51), alpha, beta, C + 5 * ldC);
+
+inline void
+i8kernel_8x6(long kg, std::int32_t alpha, const std::int16_t *A,
+             const std::int16_t *B, std::int32_t beta, std::int32_t *C,
+             long ldC)
+{
+    ULMBLAS_I8_DECLARE
+    __m256i t;
+    for (long g = 0; g < kg; ++g) {
+	__asm__("vmovdqu (%[A]), %[a0]\n\t"
+		    "vmovdqu 32(%[A]), %[a1]\n\t"
+		    "vpbroadcastq 0(%[B]), %[b]\n\t"
+		    "vpmaddwd %[b], %[a0], %[t]\n\t"
+		    "vpaddd %[t], %[c00], %[c00]\n\t"
+		    "vpmaddwd %[b], %[a1], %[t]\n\t"
+		    "vpaddd %[t], %[c01], %[c01]\n\t"
+		    "vpbroadcastq 8(%[B]), %[b]\n\t"
+		    "vpmaddwd %[b], %[a0], %[t]\n\t"
+		    "vpaddd %[t], %[c10], %[c10]\n\t"
+		    "vpmaddwd %[b], %[a1], %[t]\n\t"
+		    "vpaddd %[t], %[c11], %[c11]\n\t"
+		    "vpbroadcastq 16(%[B]), %[b]\n\t"
+		    "vpmaddwd %[b], %[a0], %[t]\n\t"
+		    "vpaddd %[t], %[c20], %[c20]\n\t"
+		    "vpmaddwd %[b], %[a1], %[t]\n\t"
+		    "vpaddd %[t], %[c21], %[c21]\n\t"
+		    "vpbroadcastq 24(%[B]), %[b]\n\t"
+		    "vpmaddwd %[b], %[a0], %[t]\n\t"
+		    "vpaddd %[t], %[c30], %[c30]\n\t"
+		    "vpmaddwd %[b], %[a1], %[t]\n\t"
+		    "vpaddd %[t], %[c31], %[c31]\n\t"
+		    "vpbroadcastq 32(%[B]), %[b]\n\t"
+		    "vpmaddwd %[b], %[a0], %[t]\n\t"
+		    "vpaddd %[t], %[c40], %[c40]\n\t"
+		    "vpmaddwd %[b], %[a1], %[t]\n\t"
+		    "vpaddd %[t], %[c41], %[c41]\n\t"
+		    "vpbroadcastq 40(%[B]), %[b]\n\t"
+		    "vpmaddwd %[b], %[a0], %[t]\n\t"
+		    "vpaddd %[t], %[c50], %[c50]\n\t"
+		    "vpmaddwd %[b], %[a1], %[t]\n\t"
+		    "vpaddd %[t], %[c51], %[c51]\n\t"
+	        : [c00] "+x"(c00), [c01] "+x"(c01), [c10] "+x"(c10), [c11] "+x"(c11), [c20] "+x"(c20), [c21] "+x"(c21), [c30] "+x"(c30), [c31] "+x"(c31), [c40] "+x"(c40), [c41] "+x"(c41), [c50] "+x"(c50), [c51] "+x"(c51), [a0] "=&x"(a0), [a1] "=&x"(a1), [b] "=&x"(b),
+	          [t] "=&x"(t)
+	        : [A] "r"(A), [B] "r"(B)
+	        : "memory");
+	A += 32;
+	B += 24;
     }
+    ULMBLAS_I8_FINISH
+}
 
-#define ULMBLAS_I8_KERNEL(NAME, TARGET)                                        \
-    template <typename M>                                                      \
-    TARGET void NAME(long kg, std::int32_t alpha, const std::int16_t *A,       \
-                     const std::int16_t *B, std::int32_t beta,                 \
-                     std::int32_t *C, long ldC)                                \
-    {                                                                          \
-	__m256i c00 = _mm256_setzero_si256(), c01 = c00, c10 = c00, c11 = c00, \
-	        c20 = c00, c21 = c00, c30 = c00, c31 = c00, c40 = c00,         \
-	        c41 = c00, c50 = c00, c51 = c00;                               \
-	for (long g = 0; g < kg; ++g) {                                        \
-	    const __m256i a0 = _mm256_loadu_si256((const __m256i *)A);         \
-	    const __m256i a1 = _mm256_loadu_si256((const __m256i *)(A + 16));  \
-	    ULMBLAS_I8_COL(0)                                                  \
-	    ULMBLAS_I8_COL(1)                                                  \
-	    ULMBLAS_I8_COL(2)                                                  \
-	    ULMBLAS_I8_COL(3)                                                  \
-	    ULMBLAS_I8_COL(4)                                                  \
-	    ULMBLAS_I8_COL(5)                                                  \
-	    A += 32;                                                           \
-	    B += 24;                                                           \
-	}                                                                      \
-	i8store8(i8column(c00, c01), alpha, beta, C);                          \
-	i8store8(i8column(c10, c11), alpha, beta, C + ldC);                    \
-	i8store8(i8column(c20, c21), alpha, beta, C + 2 * ldC);                \
-	i8store8(i8column(c30, c31), alpha, beta, C + 3 * ldC);                \
-	i8store8(i8column(c40, c41), alpha, beta, C + 4 * ldC);                \
-	i8store8(i8column(c50, c51), alpha, beta, C + 5 * ldC);                \
+#if defined(ULMBLAS_HAVE_AVXVNNI)
+ULMBLAS_AVX_VNNI void
+i8kernel_8x6_vnni(long kg, std::int32_t alpha, const std::int16_t *A,
+                  const std::int16_t *B, std::int32_t beta, std::int32_t *C,
+                  long ldC)
+{
+    ULMBLAS_I8_DECLARE
+    for (long g = 0; g < kg; ++g) {
+	__asm__("vmovdqu (%[A]), %[a0]\n\t"
+		    "vmovdqu 32(%[A]), %[a1]\n\t"
+		    "vpbroadcastq 0(%[B]), %[b]\n\t"
+		    "%{vex%} vpdpwssd %[b], %[a0], %[c00]\n\t"
+		    "%{vex%} vpdpwssd %[b], %[a1], %[c01]\n\t"
+		    "vpbroadcastq 8(%[B]), %[b]\n\t"
+		    "%{vex%} vpdpwssd %[b], %[a0], %[c10]\n\t"
+		    "%{vex%} vpdpwssd %[b], %[a1], %[c11]\n\t"
+		    "vpbroadcastq 16(%[B]), %[b]\n\t"
+		    "%{vex%} vpdpwssd %[b], %[a0], %[c20]\n\t"
+		    "%{vex%} vpdpwssd %[b], %[a1], %[c21]\n\t"
+		    "vpbroadcastq 24(%[B]), %[b]\n\t"
+		    "%{vex%} vpdpwssd %[b], %[a0], %[c30]\n\t"
+		    "%{vex%} vpdpwssd %[b], %[a1], %[c31]\n\t"
+		    "vpbroadcastq 32(%[B]), %[b]\n\t"
+		    "%{vex%} vpdpwssd %[b], %[a0], %[c40]\n\t"
+		    "%{vex%} vpdpwssd %[b], %[a1], %[c41]\n\t"
+		    "vpbroadcastq 40(%[B]), %[b]\n\t"
+		    "%{vex%} vpdpwssd %[b], %[a0], %[c50]\n\t"
+		    "%{vex%} vpdpwssd %[b], %[a1], %[c51]\n\t"
+	        : [c00] "+x"(c00), [c01] "+x"(c01), [c10] "+x"(c10), [c11] "+x"(c11), [c20] "+x"(c20), [c21] "+x"(c21), [c30] "+x"(c30), [c31] "+x"(c31), [c40] "+x"(c40), [c41] "+x"(c41), [c50] "+x"(c50), [c51] "+x"(c51), [a0] "=&x"(a0), [a1] "=&x"(a1), [b] "=&x"(b)
+	        : [A] "r"(A), [B] "r"(B)
+	        : "memory");
+	A += 32;
+	B += 24;
     }
+    ULMBLAS_I8_FINISH
+}
+#endif
 
-ULMBLAS_I8_KERNEL(i8kernel_8x6, )
-ULMBLAS_I8_KERNEL(i8kernel_8x6_vnni, ULMBLAS_AVX_VNNI)
-
-#undef ULMBLAS_I8_KERNEL
-#undef ULMBLAS_I8_COL
+#undef ULMBLAS_I8_DECLARE
+#undef ULMBLAS_I8_FINISH
 
 //  for the driver of level3/i8gemm/driver.h; Vnni: VPDPWSSD
 template <bool Vnni> struct I8Kernel
@@ -163,14 +224,18 @@ template <bool Vnni> struct I8Kernel
     run(std::false_type, long kg, std::int32_t alpha, const P *A, const P *B,
         std::int32_t beta, std::int32_t *C, long ldC)
     {
-	i8kernel_8x6<MaddPlain>(kg, alpha, A, B, beta, C, ldC);
+	i8kernel_8x6(kg, alpha, A, B, beta, C, ldC);
     }
 
     static void
     run(std::true_type, long kg, std::int32_t alpha, const P *A, const P *B,
         std::int32_t beta, std::int32_t *C, long ldC)
     {
-	i8kernel_8x6_vnni<MaddVnni>(kg, alpha, A, B, beta, C, ldC);
+#if defined(ULMBLAS_HAVE_AVXVNNI)
+	i8kernel_8x6_vnni(kg, alpha, A, B, beta, C, ldC);
+#else
+	i8kernel_8x6(kg, alpha, A, B, beta, C, ldC);
+#endif
     }
 };
 
@@ -178,5 +243,7 @@ template <bool Vnni> struct I8Kernel
 } // namespace ulmBLAS
 
 #undef ULMBLAS_AVX_VNNI
+#undef ULMBLAS_HAVE_AVXVNNI
+#undef ULMBLAS_AVX_INLINE
 
 #endif // ULMBLAS_LEVEL3_UKERNEL_AVX_I8GEMM_TCC
