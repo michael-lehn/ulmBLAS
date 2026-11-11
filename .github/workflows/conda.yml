@@ -40,7 +40,7 @@ jobs:
       - name: CPU
         run: |
           case "$RUNNER_OS" in
-            Linux)   grep -m1 "model name" /proc/cpuinfo;
+            Linux)   grep -m1 -E "model name|CPU part" /proc/cpuinfo || true;
                      grep -o -w -m1 -E "avx512f" /proc/cpuinfo || echo "no AVX-512" ;;
             macOS)   sysctl -n machdep.cpu.brand_string ;;
             Windows) wmic cpu get name || true ;;
