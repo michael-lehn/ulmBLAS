@@ -10,6 +10,20 @@
 #include <stdlib.h>
 #if defined(_WIN32)
 #include <malloc.h>
+#include <new>
+
+//  Fiber local storage of kernel32 (declared here, not by <windows.h>,
+//  whose macros could clash with names of ulmBLAS)
+extern "C" {
+__declspec(dllimport) unsigned long __stdcall
+FlsAlloc(void(__stdcall *)(void *));
+__declspec(dllimport) int __stdcall
+FlsFree(unsigned long);
+__declspec(dllimport) void *__stdcall
+FlsGetValue(unsigned long);
+__declspec(dllimport) int __stdcall
+FlsSetValue(unsigned long, void *);
+}
 #endif
 
 namespace ulmBLAS {
@@ -116,6 +130,8 @@ free(T *block)
 #endif
 }
 
+#if !defined(_WIN32)
+
 template <typename T>
 typename MemoryPool<T>::ThreadCache &
 MemoryPool<T>::threadCache()
@@ -123,6 +139,80 @@ MemoryPool<T>::threadCache()
     thread_local ThreadCache cache;
     return cache;
 }
+
+#else
+
+//
+//  Windows: the cache of a thread is kept in fiber local storage, whose
+//  callback frees it when the thread ends; FlsFree (when the library is
+//  unloaded or the process ends) frees the caches of all threads.  A
+//  thread_local object with a destructor is destroyed by libstdc++'s
+//  __cxa_thread_atexit, which with some MinGW-w64 runtimes (conda-forge's
+//  GCC 15) runs the destructors a second time at process exit, on freed
+//  memory.
+//
+namespace memorypool {
+
+template <typename Cache>
+void __stdcall
+releaseCache(void *cache)
+{
+    if (cache) {
+	static_cast<Cache *>(cache)->~Cache();
+	std::free(cache);
+    }
+}
+
+struct FlsSlot
+{
+    static constexpr unsigned long none = 0xFFFFFFFFul; // FLS_OUT_OF_INDEXES
+
+    unsigned long index;
+
+    explicit FlsSlot(void(__stdcall *callback)(void *))
+        : index(FlsAlloc(callback))
+    {
+    }
+
+    ~FlsSlot()
+    {
+	if (index != none) {
+	    FlsFree(index);
+	    index = none;
+	}
+    }
+};
+
+} // namespace memorypool
+
+template <typename T>
+typename MemoryPool<T>::ThreadCache &
+MemoryPool<T>::threadCache()
+{
+    static memorypool::FlsSlot slot(&memorypool::releaseCache<ThreadCache>);
+    //  without a slot (none left, or freed at process exit) the cache of
+    //  the thread is not freed
+    thread_local ThreadCache *unmanaged = nullptr;
+
+    ThreadCache *cache = unmanaged;
+    if (!cache && slot.index != memorypool::FlsSlot::none) {
+	cache = static_cast<ThreadCache *>(FlsGetValue(slot.index));
+    }
+    if (!cache) {
+	void *p = std::malloc(sizeof(ThreadCache));
+	if (!p) {
+	    outOfMemory(1, sizeof(ThreadCache));
+	}
+	cache = new (p) ThreadCache();
+	if (slot.index == memorypool::FlsSlot::none ||
+	    !FlsSetValue(slot.index, cache)) {
+	    unmanaged = cache;
+	}
+    }
+    return *cache;
+}
+
+#endif
 
 template <typename T> MemoryPool<T>::ThreadCache::~ThreadCache()
 {
