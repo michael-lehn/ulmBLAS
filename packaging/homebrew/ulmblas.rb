@@ -31,7 +31,10 @@ class Ulmblas < Formula
   def install
     ENV["LAPACK_TARBALL"] = resource("lapack").cached_download
     ENV["FC"] = formula_opt_bin("gcc")/"gfortran"
-    ENV["MAKE"] = "make -j#{ENV.make_jobs}"
+    # the make of the system, not Homebrew's make wrapper: under it the
+    # compiler wrapper removes -O3 and -mcpu=apple-m4 (no SME code in the
+    # SME backend, everything at -Os)
+    ENV["MAKE"] = "#{which("make", ORIGINAL_PATHS)} -j#{ENV.make_jobs}"
     ENV["ULMBLAS_INCLUDEDIR"] = include/"ulmblas"
     system "sh", "interfaces/install-shared.sh", prefix
   end
