@@ -32,8 +32,9 @@ LIBNAME=${4:-ulmblas}
 ONLY_F77=${5:-}
 case `uname -s` in
     MINGW*|MSYS*)
-        #  Windows: the import library at link time, the DLLs by PATH
-        LINK="-L$LIBDIR -l$LIBNAME"
+        #  Windows: the import library at link time, the DLLs by PATH; the
+        #  program exports its XERBLA so that the library finds it
+        LINK="-L$LIBDIR -l$LIBNAME -Wl,--export-all-symbols"
         PATH="$LIBDIR:$PATH"; export PATH ;;
     *)  LINK="-L$LIBDIR -l$LIBNAME -Wl,-rpath,$LIBDIR" ;;
 esac

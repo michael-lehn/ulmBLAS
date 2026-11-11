@@ -2,16 +2,28 @@
 #include <cstdio>
 #include <cstring>
 
+#if defined(ULMBLAS_REPLACEABLE_XERBLA) && defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
+
 extern "C" {
 
 //
 //  In the shared library (interfaces/blas/shared) the error handler is a
 //  weak definition, so that a program can replace it (the Netlib test
 //  programs do): on macOS calls inside a library are otherwise bound to
-//  its own definition.
+//  its own definition.  On Windows see ../F77/xerbla.cc.
 //
 #if defined(ULMBLAS_REPLACEABLE_XERBLA)
+#if defined(_WIN32)
+#define ULMBLAS_XERBLA_ATTRIBUTE
+#else
 #define ULMBLAS_XERBLA_ATTRIBUTE __attribute__((weak))
+#endif
 
 typedef void (*ulmblas_cblas_xerbla_t)(int, const char *, const char *, ...);
 
@@ -47,8 +59,16 @@ CBLAS(xerbla)(int info, const char *rout, const char *form, ...)
 
 #if defined(ULMBLAS_REPLACEABLE_XERBLA)
     //  the interface passes no arguments after form
-    if (cblas_xerbla_replacement) {
-	cblas_xerbla_replacement(info, rout, form);
+    ulmblas_cblas_xerbla_t handler = cblas_xerbla_replacement;
+#if defined(_WIN32)
+    if (!handler) {
+	handler = reinterpret_cast<ulmblas_cblas_xerbla_t>(
+	    reinterpret_cast<void *>(
+	        GetProcAddress(GetModuleHandleW(nullptr), "cblas_xerbla")));
+    }
+#endif
+    if (handler) {
+	handler(info, rout, form);
 	return;
     }
 #endif

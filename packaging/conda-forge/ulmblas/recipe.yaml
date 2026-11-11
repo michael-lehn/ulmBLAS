@@ -75,7 +75,7 @@ tests:
           - if: linux and aarch64
             then:
               - test -f $PREFIX/lib/libulmblas.so.0
-          - $CC $CFLAGS test_ulmblas.c $(pkg-config --cflags --libs ulmblas) -o test_ulmblas
+          - $CC $CFLAGS test_ulmblas.c $(pkg-config --cflags --libs ulmblas) -lm -o test_ulmblas
           - ./test_ulmblas
       - if: win
         then:

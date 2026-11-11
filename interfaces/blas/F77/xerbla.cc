@@ -2,6 +2,14 @@
 #include <interfaces/blas/F77/xerbla.h>
 #include <cstdio>
 
+#if defined(ULMBLAS_REPLACEABLE_XERBLA) && defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
+
 extern "C" {
 
 //
@@ -11,10 +19,16 @@ extern "C" {
 //  its own definition.  A library that loads this one at run time (the
 //  dispatching library, interfaces/blas/dispatch) passes the handler of
 //  the program with ulmblas_set_f77_xerbla: the weak definition is not
-//  replaced then.
+//  replaced then.  On Windows a DLL always calls its own definition; the
+//  handler of the program is used if the program exports it (MinGW:
+//  -Wl,--export-all-symbols).
 //
 #if defined(ULMBLAS_REPLACEABLE_XERBLA)
+#if defined(_WIN32)
+#define ULMBLAS_XERBLA_ATTRIBUTE
+#else
 #define ULMBLAS_XERBLA_ATTRIBUTE __attribute__((weak))
+#endif
 
 typedef void (*ulmblas_f77_xerbla_t)(const char *, const ULMBLAS_INDEX_TYPE *,
                                      std::size_t);
@@ -35,8 +49,16 @@ F77BLAS(xerbla)(const char *rout, const ULMBLAS_INDEX_TYPE *info,
                 std::size_t len)
 {
 #if defined(ULMBLAS_REPLACEABLE_XERBLA)
-    if (f77_xerbla_replacement) {
-	f77_xerbla_replacement(rout, info, len);
+    ulmblas_f77_xerbla_t handler = f77_xerbla_replacement;
+#if defined(_WIN32)
+    if (!handler) {
+	handler = reinterpret_cast<ulmblas_f77_xerbla_t>(
+	    reinterpret_cast<void *>(
+	        GetProcAddress(GetModuleHandleW(nullptr), "xerbla_")));
+    }
+#endif
+    if (handler) {
+	handler(rout, info, len);
 	return;
     }
 #endif

@@ -30,8 +30,9 @@
  *  macOS and Linux a handler defined by the program (or a library loaded
  *  before this one) is passed to the backend (ulmblas_set_f77_xerbla,
  *  ulmblas_set_cblas_xerbla: weak definitions of a library loaded with
- *  dlopen are not replaced by the program's); otherwise, and on Windows,
- *  the backend uses its own.
+ *  dlopen are not replaced by the program's); otherwise the backend uses
+ *  its own.  On Windows the backend calls the handlers the program
+ *  exports, if any (../F77/xerbla.cc).
  *
  *  Any failure (backend not found, a function missing) terminates the
  *  program with a message: a BLAS that silently does nothing would be
