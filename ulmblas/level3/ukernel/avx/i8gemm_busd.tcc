@@ -169,10 +169,8 @@ busdKernel16x6(long kg, std::int32_t alpha, const std::uint8_t *A,
                long ldC)
 {
     const std::uint8_t *sumA = A + 64 * kg, *sumB = B + 24 * kg;
-    __m256i c[6][2];
-    for (int j = 0; j < 6; ++j) {
-	c[j][0] = c[j][1] = _mm256_setzero_si256();
-    }
+    const __m256i z = _mm256_setzero_si256();
+    __m256i c0_0 = z, c0_1 = z, c1_0 = z, c1_1 = z, c2_0 = z, c2_1 = z, c3_0 = z, c3_1 = z, c4_0 = z, c4_1 = z, c5_0 = z, c5_1 = z;
     __m256i a0, a1, b;
     for (long g = 0; g < kg; ++g) {
 	if (SA) {
@@ -196,7 +194,7 @@ busdKernel16x6(long kg, std::int32_t alpha, const std::uint8_t *A,
 		    "vpbroadcastd 20(%[B]), %[b]\n\t"
 		    "%{vex%} vpdpbusd %[a0], %[b], %[c5_0]\n\t"
 		    "%{vex%} vpdpbusd %[a1], %[b], %[c5_1]\n\t"
-	            : [c0_0] "+x"(c[0][0]), [c0_1] "+x"(c[0][1]), [c1_0] "+x"(c[1][0]), [c1_1] "+x"(c[1][1]), [c2_0] "+x"(c[2][0]), [c2_1] "+x"(c[2][1]), [c3_0] "+x"(c[3][0]), [c3_1] "+x"(c[3][1]), [c4_0] "+x"(c[4][0]), [c4_1] "+x"(c[4][1]), [c5_0] "+x"(c[5][0]), [c5_1] "+x"(c[5][1]), [a0] "=&x"(a0), [a1] "=&x"(a1), [b] "=&x"(b)
+	            : [c0_0] "+x"(c0_0), [c0_1] "+x"(c0_1), [c1_0] "+x"(c1_0), [c1_1] "+x"(c1_1), [c2_0] "+x"(c2_0), [c2_1] "+x"(c2_1), [c3_0] "+x"(c3_0), [c3_1] "+x"(c3_1), [c4_0] "+x"(c4_0), [c4_1] "+x"(c4_1), [c5_0] "+x"(c5_0), [c5_1] "+x"(c5_1), [a0] "=&x"(a0), [a1] "=&x"(a1), [b] "=&x"(b)
 	            : [A] "r"(A), [B] "r"(B)
 	            : "memory");
 	} else {
@@ -220,13 +218,14 @@ busdKernel16x6(long kg, std::int32_t alpha, const std::uint8_t *A,
 		    "vpbroadcastd 20(%[B]), %[b]\n\t"
 		    "%{vex%} vpdpbusd %[b], %[a0], %[c5_0]\n\t"
 		    "%{vex%} vpdpbusd %[b], %[a1], %[c5_1]\n\t"
-	            : [c0_0] "+x"(c[0][0]), [c0_1] "+x"(c[0][1]), [c1_0] "+x"(c[1][0]), [c1_1] "+x"(c[1][1]), [c2_0] "+x"(c[2][0]), [c2_1] "+x"(c[2][1]), [c3_0] "+x"(c[3][0]), [c3_1] "+x"(c[3][1]), [c4_0] "+x"(c[4][0]), [c4_1] "+x"(c[4][1]), [c5_0] "+x"(c[5][0]), [c5_1] "+x"(c[5][1]), [a0] "=&x"(a0), [a1] "=&x"(a1), [b] "=&x"(b)
+	            : [c0_0] "+x"(c0_0), [c0_1] "+x"(c0_1), [c1_0] "+x"(c1_0), [c1_1] "+x"(c1_1), [c2_0] "+x"(c2_0), [c2_1] "+x"(c2_1), [c3_0] "+x"(c3_0), [c3_1] "+x"(c3_1), [c4_0] "+x"(c4_0), [c4_1] "+x"(c4_1), [c5_0] "+x"(c5_0), [c5_1] "+x"(c5_1), [a0] "=&x"(a0), [a1] "=&x"(a1), [b] "=&x"(b)
 	            : [A] "r"(A), [B] "r"(B)
 	            : "memory");
 	}
 	A += 64;
 	B += 24;
     }
+    const __m256i acc[6][2] = {{c0_0, c0_1}, {c1_0, c1_1}, {c2_0, c2_1}, {c3_0, c3_1}, {c4_0, c4_1}, {c5_0, c5_1}};
     __m256i r0 = _mm256_setzero_si256(), r1 = r0;
     if (CORR == 2) {
 	r0 = _mm256_slli_epi32(_mm256_loadu_si256((const __m256i *)sumA), 7);
@@ -234,7 +233,7 @@ busdKernel16x6(long kg, std::int32_t alpha, const std::uint8_t *A,
 	    _mm256_loadu_si256((const __m256i *)(sumA + 32)), 7);
     }
     for (int j = 0; j < 6; ++j) {
-	__m256i x0 = c[j][0], x1 = c[j][1];
+	__m256i x0 = acc[j][0], x1 = acc[j][1];
 	if (CORR == 1) {
 	    std::int32_t s;
 	    std::memcpy(&s, sumB + 4 * j, 4);
@@ -294,10 +293,8 @@ busdKernel32x12(long kg, std::int32_t alpha, const std::uint8_t *A,
                 long ldC)
 {
     const std::uint8_t *sumA = A + 128 * kg, *sumB = B + 48 * kg;
-    __m512i c[12][2];
-    for (int j = 0; j < 12; ++j) {
-	c[j][0] = c[j][1] = _mm512_setzero_si512();
-    }
+    const __m512i z = _mm512_setzero_si512();
+    __m512i c0_0 = z, c0_1 = z, c1_0 = z, c1_1 = z, c2_0 = z, c2_1 = z, c3_0 = z, c3_1 = z, c4_0 = z, c4_1 = z, c5_0 = z, c5_1 = z, c6_0 = z, c6_1 = z, c7_0 = z, c7_1 = z, c8_0 = z, c8_1 = z, c9_0 = z, c9_1 = z, c10_0 = z, c10_1 = z, c11_0 = z, c11_1 = z;
     __m512i a0, a1, b;
     for (long g = 0; g < kg; ++g) {
 	if (SA) {
@@ -321,7 +318,10 @@ busdKernel32x12(long kg, std::int32_t alpha, const std::uint8_t *A,
 		    "vpbroadcastd 20(%[B]), %[b]\n\t"
 		    "vpdpbusd %[a0], %[b], %[c5_0]\n\t"
 		    "vpdpbusd %[a1], %[b], %[c5_1]\n\t"
-		    "vpbroadcastd 24(%[B]), %[b]\n\t"
+	            : [c0_0] "+v"(c0_0), [c0_1] "+v"(c0_1), [c1_0] "+v"(c1_0), [c1_1] "+v"(c1_1), [c2_0] "+v"(c2_0), [c2_1] "+v"(c2_1), [c3_0] "+v"(c3_0), [c3_1] "+v"(c3_1), [c4_0] "+v"(c4_0), [c4_1] "+v"(c4_1), [c5_0] "+v"(c5_0), [c5_1] "+v"(c5_1), [a0] "=&v"(a0), [a1] "=&v"(a1), [b] "=&v"(b)
+	            : [A] "r"(A), [B] "r"(B)
+	            : "memory");
+	    __asm__("vpbroadcastd 24(%[B]), %[b]\n\t"
 		    "vpdpbusd %[a0], %[b], %[c6_0]\n\t"
 		    "vpdpbusd %[a1], %[b], %[c6_1]\n\t"
 		    "vpbroadcastd 28(%[B]), %[b]\n\t"
@@ -339,8 +339,8 @@ busdKernel32x12(long kg, std::int32_t alpha, const std::uint8_t *A,
 		    "vpbroadcastd 44(%[B]), %[b]\n\t"
 		    "vpdpbusd %[a0], %[b], %[c11_0]\n\t"
 		    "vpdpbusd %[a1], %[b], %[c11_1]\n\t"
-	            : [c0_0] "+v"(c[0][0]), [c0_1] "+v"(c[0][1]), [c1_0] "+v"(c[1][0]), [c1_1] "+v"(c[1][1]), [c2_0] "+v"(c[2][0]), [c2_1] "+v"(c[2][1]), [c3_0] "+v"(c[3][0]), [c3_1] "+v"(c[3][1]), [c4_0] "+v"(c[4][0]), [c4_1] "+v"(c[4][1]), [c5_0] "+v"(c[5][0]), [c5_1] "+v"(c[5][1]), [c6_0] "+v"(c[6][0]), [c6_1] "+v"(c[6][1]), [c7_0] "+v"(c[7][0]), [c7_1] "+v"(c[7][1]), [c8_0] "+v"(c[8][0]), [c8_1] "+v"(c[8][1]), [c9_0] "+v"(c[9][0]), [c9_1] "+v"(c[9][1]), [c10_0] "+v"(c[10][0]), [c10_1] "+v"(c[10][1]), [c11_0] "+v"(c[11][0]), [c11_1] "+v"(c[11][1]), [a0] "=&v"(a0), [a1] "=&v"(a1), [b] "=&v"(b)
-	            : [A] "r"(A), [B] "r"(B)
+	            : [c6_0] "+v"(c6_0), [c6_1] "+v"(c6_1), [c7_0] "+v"(c7_0), [c7_1] "+v"(c7_1), [c8_0] "+v"(c8_0), [c8_1] "+v"(c8_1), [c9_0] "+v"(c9_0), [c9_1] "+v"(c9_1), [c10_0] "+v"(c10_0), [c10_1] "+v"(c10_1), [c11_0] "+v"(c11_0), [c11_1] "+v"(c11_1), [b] "=&v"(b)
+	            : [A] "r"(A), [B] "r"(B), [a0] "v"(a0), [a1] "v"(a1)
 	            : "memory");
 	} else {
 	    __asm__("vmovdqu32 (%[A]), %[a0]\n\t"
@@ -363,7 +363,10 @@ busdKernel32x12(long kg, std::int32_t alpha, const std::uint8_t *A,
 		    "vpbroadcastd 20(%[B]), %[b]\n\t"
 		    "vpdpbusd %[b], %[a0], %[c5_0]\n\t"
 		    "vpdpbusd %[b], %[a1], %[c5_1]\n\t"
-		    "vpbroadcastd 24(%[B]), %[b]\n\t"
+	            : [c0_0] "+v"(c0_0), [c0_1] "+v"(c0_1), [c1_0] "+v"(c1_0), [c1_1] "+v"(c1_1), [c2_0] "+v"(c2_0), [c2_1] "+v"(c2_1), [c3_0] "+v"(c3_0), [c3_1] "+v"(c3_1), [c4_0] "+v"(c4_0), [c4_1] "+v"(c4_1), [c5_0] "+v"(c5_0), [c5_1] "+v"(c5_1), [a0] "=&v"(a0), [a1] "=&v"(a1), [b] "=&v"(b)
+	            : [A] "r"(A), [B] "r"(B)
+	            : "memory");
+	    __asm__("vpbroadcastd 24(%[B]), %[b]\n\t"
 		    "vpdpbusd %[b], %[a0], %[c6_0]\n\t"
 		    "vpdpbusd %[b], %[a1], %[c6_1]\n\t"
 		    "vpbroadcastd 28(%[B]), %[b]\n\t"
@@ -381,20 +384,21 @@ busdKernel32x12(long kg, std::int32_t alpha, const std::uint8_t *A,
 		    "vpbroadcastd 44(%[B]), %[b]\n\t"
 		    "vpdpbusd %[b], %[a0], %[c11_0]\n\t"
 		    "vpdpbusd %[b], %[a1], %[c11_1]\n\t"
-	            : [c0_0] "+v"(c[0][0]), [c0_1] "+v"(c[0][1]), [c1_0] "+v"(c[1][0]), [c1_1] "+v"(c[1][1]), [c2_0] "+v"(c[2][0]), [c2_1] "+v"(c[2][1]), [c3_0] "+v"(c[3][0]), [c3_1] "+v"(c[3][1]), [c4_0] "+v"(c[4][0]), [c4_1] "+v"(c[4][1]), [c5_0] "+v"(c[5][0]), [c5_1] "+v"(c[5][1]), [c6_0] "+v"(c[6][0]), [c6_1] "+v"(c[6][1]), [c7_0] "+v"(c[7][0]), [c7_1] "+v"(c[7][1]), [c8_0] "+v"(c[8][0]), [c8_1] "+v"(c[8][1]), [c9_0] "+v"(c[9][0]), [c9_1] "+v"(c[9][1]), [c10_0] "+v"(c[10][0]), [c10_1] "+v"(c[10][1]), [c11_0] "+v"(c[11][0]), [c11_1] "+v"(c[11][1]), [a0] "=&v"(a0), [a1] "=&v"(a1), [b] "=&v"(b)
-	            : [A] "r"(A), [B] "r"(B)
+	            : [c6_0] "+v"(c6_0), [c6_1] "+v"(c6_1), [c7_0] "+v"(c7_0), [c7_1] "+v"(c7_1), [c8_0] "+v"(c8_0), [c8_1] "+v"(c8_1), [c9_0] "+v"(c9_0), [c9_1] "+v"(c9_1), [c10_0] "+v"(c10_0), [c10_1] "+v"(c10_1), [c11_0] "+v"(c11_0), [c11_1] "+v"(c11_1), [b] "=&v"(b)
+	            : [A] "r"(A), [B] "r"(B), [a0] "v"(a0), [a1] "v"(a1)
 	            : "memory");
 	}
 	A += 128;
 	B += 48;
     }
+    const __m512i acc[12][2] = {{c0_0, c0_1}, {c1_0, c1_1}, {c2_0, c2_1}, {c3_0, c3_1}, {c4_0, c4_1}, {c5_0, c5_1}, {c6_0, c6_1}, {c7_0, c7_1}, {c8_0, c8_1}, {c9_0, c9_1}, {c10_0, c10_1}, {c11_0, c11_1}};
     __m512i r0 = _mm512_setzero_si512(), r1 = r0;
     if (CORR == 2) {
 	r0 = _mm512_slli_epi32(_mm512_loadu_si512(sumA), 7);
 	r1 = _mm512_slli_epi32(_mm512_loadu_si512(sumA + 64), 7);
     }
     for (int j = 0; j < 12; ++j) {
-	__m512i x0 = c[j][0], x1 = c[j][1];
+	__m512i x0 = acc[j][0], x1 = acc[j][1];
 	if (CORR == 1) {
 	    std::int32_t s;
 	    std::memcpy(&s, sumB + 4 * j, 4);
