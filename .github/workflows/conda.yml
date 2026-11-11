@@ -68,6 +68,21 @@ jobs:
             --variant-config $RUNNER_TEMP/ci-pin/conda_build_config.yaml \
             --output-dir $RUNNER_TEMP/ci-out
 
+      - name: Windows, after a failed test, the test program per backend
+        if: failure() && runner.os == 'Windows'
+        run: |
+          cd $RUNNER_TEMP/ci-out/test/test_libulmblas*/test || exit 0
+          export PATH="$(cygpath -u "$PWD")/../test_run_env/Library/bin:$PATH"
+          ls ../test_run_env/Library/bin/libulmblas* ../test_run_env/Library/lib/*ulmblas* || true
+          t=$(ls -d ../test_run_env/etc/conda/test-files/libulmblas/0)
+          ls $t
+          for b in sse3 avx2 avx512; do
+              ULMBLAS_BACKEND=$b $t/test_ulmblas.exe; echo "$b: exit $?"
+          done
+          printf '#include <stdio.h>\nconst char *ulmblas_backend(void);\nint main(void){puts(ulmblas_backend());return 0;}\n' > be.c
+          gcc=$(ls ../test_run_env/Library/bin/x86_64-w64-mingw32-gcc.exe)
+          $gcc be.c -L../test_run_env/Library/lib -lulmblas -o be.exe && ./be.exe; echo "ulmblas_backend: exit $?"
+
       - name: conda-forge NumPy on libulmblas
         if: runner.os != 'Windows'
         run: |
@@ -100,8 +115,10 @@ jobs:
           assert np.allclose(s @ np.linalg.solve(s, b), b)
           EOF
           mkdir -p $RUNNER_TEMP/np-t && cd $RUNNER_TEMP/np-t
+          #  f2py's tests need meson and a Fortran compiler
+          f2py=$($RUNNER_TEMP/np/bin/python -c "import numpy.f2py, os; print(os.path.dirname(numpy.f2py.__file__))")
           $RUNNER_TEMP/np/bin/python -m pytest -q -p no:cacheprovider --pyargs numpy -m "not slow" \
-            --ignore-glob="*/f2py/*"
+            --ignore="$f2py"
 
       - uses: actions/upload-artifact@v4
         with:
