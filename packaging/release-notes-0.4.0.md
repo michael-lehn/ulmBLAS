@@ -11,7 +11,10 @@ every other program that links a system BLAS.
   AVX2/FMA or SSE3 on x86-64 (Linux, Windows).  `ULMBLAS_BACKEND`
   overrides the choice, `ulmblas_backend()` reports it.
 - Windows: `libulmblas.dll` (MinGW-w64), import libraries for MinGW and
-  MSVC; depends only on system DLLs.
+  MSVC; depends only on system DLLs.  A program replaces `XERBLA` or
+  `cblas_xerbla` by exporting it.
+- Without `libstdc++.a` (e.g. RHEL) the C++ runtime is linked
+  dynamically.
 - `interfaces/python/numpy.sh PREFIX VENV`: NumPy built from source on
   these libraries.  NumPy and SciPy that link `libblas.so.3` (conda-forge,
   Linux distributions) run on ulmBLAS without being rebuilt.
