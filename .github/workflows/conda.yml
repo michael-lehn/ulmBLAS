@@ -76,12 +76,23 @@ jobs:
           ls ../test_run_env/Library/bin/libulmblas* ../test_run_env/Library/lib/*ulmblas* || true
           t=$(ls -d ../test_run_env/etc/conda/test-files/libulmblas/0)
           ls $t
+          set +e
           for b in sse3 avx2 avx512; do
               ULMBLAS_BACKEND=$b $t/test_ulmblas.exe; echo "$b: exit $?"
           done
+          gcc=$(find ../test_run_env -name x86_64-w64-mingw32-gcc.exe | head -1)
+          echo "gcc: $gcc"; $gcc --version | head -1
+          B=../test_run_env/Library/bin; L=../test_run_env/Library/lib
           printf '#include <stdio.h>\nconst char *ulmblas_backend(void);\nint main(void){puts(ulmblas_backend());return 0;}\n' > be.c
-          gcc=$(ls ../test_run_env/Library/bin/x86_64-w64-mingw32-gcc.exe)
-          $gcc be.c -L../test_run_env/Library/lib -lulmblas -o be.exe && ./be.exe; echo "ulmblas_backend: exit $?"
+          $gcc be.c -L$L -lulmblas -o be.exe && ./be.exe; echo "ulmblas_backend via front: exit $?"
+          $gcc $t/test_ulmblas.c -I../test_run_env/Library/include/ulmblas $B/libulmblas_sse3.dll -o direct.exe && ./direct.exe; echo "test, linked to the sse3 backend: exit $?"
+          $gcc $t/test_ulmblas.c -I../test_run_env/Library/include/ulmblas $L/ulmblas.lib -o vialib.exe && ./vialib.exe; echo "test, ulmblas.lib: exit $?"
+          $gcc $t/test_ulmblas.c -I../test_run_env/Library/include/ulmblas -L$L -lulmblas -O0 -g -o viaa.exe && ./viaa.exe; echo "test, libulmblas.dll.a, -O0: exit $?"
+          for f in $B/libulmblas.dll $B/libulmblas_sse3.dll $t/test_ulmblas.exe; do
+              echo "== $f"; objdump -p $f | grep -E 'DLL Name|ImageBase|SizeOfStackReserve|DllCharacteristics' | sort -u
+          done
+          objdump -d $B/libulmblas.dll | grep -A40 '<ulmblas_dispatch_slow>:' | head -60
+          objdump -d $B/libulmblas.dll | grep -B2 -A12 '<cblas_dgemm>:' | head -20
 
       - name: conda-forge NumPy on libulmblas
         if: runner.os != 'Windows'
