@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <ulmblas/lapack/buffer.h>
 #include <ulmblas/lapack/lauum.h>
+#include <ulmblas/lapack/lauumimpl.h>
 #include <ulmblas/lapack/tasks/inversetasks.h>
 #include <ulmblas/lapack/tasks/sync.h>
 #include <ulmblas/lapack/trtri.h>
