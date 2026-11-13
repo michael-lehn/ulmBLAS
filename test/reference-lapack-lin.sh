@@ -88,28 +88,10 @@ cp liblapack.a liblapack_ulmblas.a \
     && ar d liblapack_ulmblas.a $OBJECTS \
     && ranlib liblapack_ulmblas.a || exit 2
 
-#  xGEMMTR (new in LAPACK 3.12, not part of ulmBLAS) is referenced by
-#  routines of other paths; stubs that abort satisfy the linker
-cat > gemmtr_stub.f <<'EOF'
-      SUBROUTINE SGEMMTR
-      STOP 'SGEMMTR called'
-      END
-      SUBROUTINE DGEMMTR
-      STOP 'DGEMMTR called'
-      END
-      SUBROUTINE CGEMMTR
-      STOP 'CGEMMTR called'
-      END
-      SUBROUTINE ZGEMMTR
-      STOP 'ZGEMMTR called'
-      END
-EOF
-$FC -c -o gemmtr_stub.o gemmtr_stub.f || exit 2
-
 echo "building xlintst[sdcz] with the LAPACK functions and BLAS of ulmBLAS"
 rm -f TESTING/LIN/xlintst?
 make -j$JOBS -C TESTING/LIN LAPACKLIB=$SRC/liblapack_ulmblas.a \
-     "BLASLIB=$LIBDIR/libf77lapack.a $LIBDIR/libf77blas.a $SRC/gemmtr_stub.o" \
+     "BLASLIB=$LIBDIR/libf77lapack.a $LIBDIR/libf77blas.a" \
      "LDFLAGS=$LDLIBS" xlintsts xlintstd xlintstc xlintstz \
      > $BUILD/lin.log 2>&1 || { echo "error: see $BUILD/lin.log" >&2; exit 2; }
 
