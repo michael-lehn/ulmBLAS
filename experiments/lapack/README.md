@@ -690,7 +690,8 @@ Ruled out along the way:
   inside `task if(0)` + `taskwait`) did not remove our wrong results
   (17 in 44,161 and 4 in 45,359 calls, vs. 10 in 48,560 without).
 
-Not reported to LLVM yet.
+Reported to LLVM as
+[llvm#239958](https://github.com/llvm/llvm-project/issues/239958).
 
 ## Reproduce
 
