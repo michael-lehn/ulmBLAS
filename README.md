@@ -232,6 +232,15 @@ how to select faster micro kernels for your CPU.  Everything I skipped
 here (requirements, choosing micro kernels, tests, installing into a
 directory) is in [INSTALL.md](INSTALL.md).
 
+On a Mac you can also install ulmBLAS with Homebrew from its tap:
+
+```sh
+brew install michael-lehn/ulmblas/ulmblas
+```
+
+The formula builds ulmBLAS from source (a few minutes) with the SME and
+NEON kernels.
+
 ## How to Use
 
 You can use ulmBLAS like any other CBLAS implementation
