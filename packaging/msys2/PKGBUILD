@@ -17,7 +17,7 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
              "${MINGW_PACKAGE_PREFIX}-fc"
              'make')
 source=("${_realname}-${pkgver}.tar.gz::https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('SKIP')
+sha256sums=('7b8f961438a00ddb35e258fba6322a249e9dc9d889831b454372cb0dd68883d2')
 
 _setup() {
   cd "${srcdir}/ulmBLAS-${pkgver}"

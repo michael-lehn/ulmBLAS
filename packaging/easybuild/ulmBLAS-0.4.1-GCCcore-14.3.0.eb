@@ -13,7 +13,7 @@ toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
 
 source_urls = ['https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/']
 sources = ['v%(version)s.tar.gz']
-checksums = ['0000000000000000000000000000000000000000000000000000000000000000']
+checksums = ['7b8f961438a00ddb35e258fba6322a249e9dc9d889831b454372cb0dd68883d2']
 
 builddependencies = [('binutils', '2.44')]
 

@@ -20,7 +20,7 @@ class Ulmblas(MakefilePackage):
 
     license("BSD-3-Clause")
 
-    version("0.4.1", sha256="0000000000000000000000000000000000000000000000000000000000000000")
+    version("0.4.1", sha256="7b8f961438a00ddb35e258fba6322a249e9dc9d889831b454372cb0dd68883d2")
 
     provides("blas")
 

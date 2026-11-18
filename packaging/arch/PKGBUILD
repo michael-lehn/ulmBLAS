@@ -17,7 +17,7 @@ makedepends=(gcc-fortran)
 # the assembly kernels and the dispatching library are not built for LTO
 options=(!lto)
 source=("ulmblas-$pkgver.tar.gz::https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('SKIP')
+sha256sums=('7b8f961438a00ddb35e258fba6322a249e9dc9d889831b454372cb0dd68883d2')
 
 _setup() {
   cd "ulmBLAS-$pkgver"

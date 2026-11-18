@@ -24,7 +24,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = fetchurl {
     url = "https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/v${finalAttrs.version}.tar.gz";
-    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    hash = "sha256-e4+WFDigDds14lj7pjIqJJ6dydiJgxtFQ3LLDdaIg9I=";
   };
 
   nativeCheckInputs = [ gfortran ];

@@ -2,7 +2,7 @@ class Ulmblas < Formula
   desc "BLAS with micro kernels selected for the CPU at load time"
   homepage "https://github.com/michael-lehn/ulmBLAS"
   url "https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/v0.4.1.tar.gz"
-  sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+  sha256 "7b8f961438a00ddb35e258fba6322a249e9dc9d889831b454372cb0dd68883d2"
   license "BSD-3-Clause"
 
   depends_on "pkgconf" => :test

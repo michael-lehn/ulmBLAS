@@ -38,4 +38,4 @@ package() {
 	install -Dm644 -t "$pkgdir"/usr/share/licenses/$pkgname LICENSE NOTICE
 }
 
-sha512sums="SKIP"
+sha512sums="fb144848fbea7288651106ce6a292bfc3ba47a0ed3f779657a868d55b1ca8ee7567bf364e760d237c54ce3436fc3d329c4655c270d2200ab650b983ff7e176ab  ulmblas-0.4.1.tar.gz"
