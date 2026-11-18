@@ -4,6 +4,7 @@
 #include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/config/simd.h>
 
+#include <atomic>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -48,6 +49,62 @@ outOfMemory(std::size_t n, std::size_t size)
 }
 
 //
+//  The alignment of the blocks in bytes: the packed panels are read with
+//  aligned loads by the micro kernels.  The kernels of ulmblas/level3/
+//  ukernel/kernels.h (vmovapd/vmovaps from the packed panels) need the
+//  width of their registers (ALIGN of the kernel): 32 bytes for the AVX
+//  kernels, compiled whenever __AVX__ is defined (also without USE_AVX:
+//  USE_TESTPARAM configurations, AVX without FMA), and 64 bytes for the
+//  AVX-512 kernels (zmm registers), compiled whenever __AVX512F__ is
+//  defined: the selection tables use them, whichever kernel the
+//  configuration names (e.g. -march=native on an AVX-512 machine).
+//  KernelBackend checks this at compile time (ulmblas/level3/ukernel/
+//  kernelbackend.h).  A vendored kernel (BLIS, AOCL, OpenBLAS) chosen by
+//  the configuration may need more (e.g. 32 bytes for the AVX kernel
+//  sandybridge_8x4 built without FMA, i.e. with the SSE kernel set).
+//
+#if defined(__AVX512F__)
+constexpr std::size_t memoryPoolBaseAlign = 64;
+#elif defined(USE_AVX) || defined(__AVX__)
+constexpr std::size_t memoryPoolBaseAlign = 32;
+#else
+constexpr std::size_t memoryPoolBaseAlign = 16;
+#endif
+
+#if defined(USE_BLIS_DGEMM)
+constexpr std::size_t memoryPoolDAlign = ULMBLAS_BLIS_DGEMM_ALIGN;
+#else
+constexpr std::size_t memoryPoolDAlign = 0;
+#endif
+#if defined(USE_BLIS_ZGEMM)
+constexpr std::size_t memoryPoolZAlign = ULMBLAS_BLIS_ZGEMM_ALIGN;
+#else
+constexpr std::size_t memoryPoolZAlign = 0;
+#endif
+#if defined(USE_BLIS_SGEMM)
+constexpr std::size_t memoryPoolSAlign = ULMBLAS_BLIS_SGEMM_ALIGN;
+#else
+constexpr std::size_t memoryPoolSAlign = 0;
+#endif
+#if defined(USE_BLIS_CGEMM)
+constexpr std::size_t memoryPoolCAlign = ULMBLAS_BLIS_CGEMM_ALIGN;
+#else
+constexpr std::size_t memoryPoolCAlign = 0;
+#endif
+
+constexpr std::size_t
+memoryPoolMax(std::size_t a, std::size_t b)
+{
+    return a > b ? a : b;
+}
+
+//  the alignment of all blocks (any element type)
+constexpr std::size_t memoryPoolAlign = memoryPoolMax(
+    memoryPoolMax(memoryPoolBaseAlign, memoryPoolDAlign),
+    memoryPoolMax(memoryPoolMax(memoryPoolZAlign, memoryPoolSAlign),
+                  memoryPoolCAlign));
+
+//
 //  Allocates a block of n elements with posix_memalign (_aligned_malloc on
 //  Windows, which has no posix_memalign); does not throw, never returns
 //  null.
@@ -56,47 +113,9 @@ template <typename T>
 T *
 malloc(std::size_t n)
 {
-//  A vendored kernel (BLIS, AOCL, OpenBLAS) may need a larger alignment of
-//  the packed panels than the kernel set it is combined with (e.g. 32 bytes
-//  for the AVX kernel sandybridge_8x4 built without FMA, i.e. with the SSE
-//  kernel set; 64 bytes for aligned loads of zmm registers).
-#if defined(USE_BLIS_DGEMM) || defined(USE_BLIS_XGEMM)
-#if defined(USE_AVX)
-    constexpr std::size_t base = 32;
-#else
-    constexpr std::size_t base = 16;
-#endif
-#if defined(USE_BLIS_DGEMM)
-    constexpr std::size_t dalign = ULMBLAS_BLIS_DGEMM_ALIGN;
-#else
-    constexpr std::size_t dalign = 0;
-#endif
-#if defined(USE_BLIS_ZGEMM)
-    constexpr std::size_t zalign = ULMBLAS_BLIS_ZGEMM_ALIGN;
-#else
-    constexpr std::size_t zalign = 0;
-#endif
-#if defined(USE_BLIS_SGEMM)
-    constexpr std::size_t salign = ULMBLAS_BLIS_SGEMM_ALIGN;
-#else
-    constexpr std::size_t salign = 0;
-#endif
-#if defined(USE_BLIS_CGEMM)
-    constexpr std::size_t calign = ULMBLAS_BLIS_CGEMM_ALIGN;
-#else
-    constexpr std::size_t calign = 0;
-#endif
-    constexpr std::size_t align0 = (dalign > base) ? dalign : base;
-    constexpr std::size_t align1 = (zalign > align0) ? zalign : align0;
-    constexpr std::size_t align2 = (salign > align1) ? salign : align1;
-    constexpr std::size_t align = (calign > align2) ? calign : align2;
-#elif defined(USE_AVX)
-    constexpr std::size_t align = 32;
-#else
-    //  At least the alignment of T, a multiple of sizeof(void *) as required by
-    //  posix_memalign.
-    constexpr std::size_t align = (alignof(T) > 16) ? alignof(T) : 16;
-#endif
+    //  at least the alignment of T, a multiple of sizeof(void *) as
+    //  required by posix_memalign
+    constexpr std::size_t align = memoryPoolMax(memoryPoolAlign, alignof(T));
     void *block = nullptr;
 
     if (n == 0) {
@@ -223,10 +242,45 @@ template <typename T> MemoryPool<T>::ThreadCache::~ThreadCache()
     }
 }
 
+namespace memorypool {
+
+inline std::atomic<std::size_t> &
+largest()
+{
+    static std::atomic<std::size_t> bytes(0);
+    return bytes;
+}
+
+//  a relaxed load per call; a store only for a new maximum
+inline void
+recordSize(std::size_t bytes)
+{
+    std::atomic<std::size_t> &l = largest();
+    std::size_t current = l.load(std::memory_order_relaxed);
+    while (bytes > current && !l.compare_exchange_weak(
+                                  current, bytes, std::memory_order_relaxed)) {
+    }
+}
+
+} // namespace memorypool
+
+inline std::size_t
+memoryPoolLargest()
+{
+    return memorypool::largest().load(std::memory_order_relaxed);
+}
+
+inline void
+memoryPoolResetLargest()
+{
+    memorypool::largest().store(0, std::memory_order_relaxed);
+}
+
 template <typename T>
 T *
 MemoryPool<T>::allocate(std::size_t n)
 {
+    memorypool::recordSize(n > SIZE_MAX / sizeof(T) ? SIZE_MAX : n * sizeof(T));
     ThreadCache &cache = threadCache();
 
     for (Entry &e : cache.entry) {

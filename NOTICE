@@ -1,0 +1,95 @@
+ulmBLAS
+Copyright (c) 2014-2026, Michael C. Lehn and the ulmBLAS contributors.
+Licensed under the BSD (Berkeley Software Distribution) 3-Clause License.
+
+This file lists the third-party components of ulmBLAS.  The full license
+texts are in the file LICENSE (section numbers below), so that a package
+that installs LICENSE carries all notices.  The machine-readable form is
+packaging/common/copyright (Debian copyright format 1.0).
+
+Third-party code in the libraries (libulmblas and its backends)
+-----------------------------------------------------------------
+
+BLIS (BLAS-like Library Instantiation Software; BLAS: Basic Linear
+Algebra Subprograms) and AOCL-BLAS (AMD Optimizing CPU Libraries, BLAS;
+AMD: Advanced Micro Devices; CPU: central processing unit), BSD 3-Clause
+License:
+
+  ulmblas/level3/ukernel/avx/ugemm.tcc       LICENSE section 2
+      Copyright (C) 2014, The University of Texas at Austin
+      Copyright (C) 2018 - 2019, Advanced Micro Devices, Inc.
+  ulmblas/level3/ukernel/neon/ugemm.tcc      LICENSE section 3
+  ulmblas/level3/ukernel/sme/ugemm.tcc       LICENSE section 4
+      Copyright (C) 2014, The University of Texas at Austin
+      Copyright (C) 2021, The University of Tokyo
+  ulmblas/level3/ukernel/blis/kernel/*.h,
+  ulmblas/level3/ukernel/blis/asm/*.h        LICENSE section 7
+      Copyright (C) 2014 - 2018, The University of Texas at Austin
+      Copyright (C) 2018 - 2025, Advanced Micro Devices, Inc.
+      (the notice of each file is listed in LICENSE section 7)
+
+  Compiled into: the x86-64 backends (avx2, avx512; blis/), the AVX/FMA
+  (Advanced Vector Extensions, fused multiply-add) kernel, the AArch64
+  NEON kernel and the SME2 (Scalable Matrix Extension 2) kernel.
+
+OpenBLAS, BSD 3-Clause License:
+
+  ulmblas/level3/ukernel/openblas/kernel/*.h (except haswell_4x8.h),
+  ulmblas/level3/ukernel/openblas/asm/*.S    LICENSE section 8
+      Copyright (c) 2011-2014, The OpenBLAS Project
+      Copyright (c) 2015, The OpenBLAS Project (asm/haswell_4x8.S)
+      Copyright (c) 2021, The OpenBLAS Project (kernel/d_small_*.h)
+
+  Compiled into: the x86-64 backends avx2 and avx512.
+
+Third-party code in the source tarball only (tests)
+---------------------------------------------------
+
+The BLAS test programs of Netlib and of
+Reference-LAPACK (LAPACK: Linear Algebra PACKage), license of LAPACK
+(modified BSD 3-Clause License, SPDX (Software Package Data Exchange)
+identifier BSD-3-Clause-Open-MPI; MPI: Message Passing Interface):
+
+  test/F77/*, test/C/*                       LICENSE section 6
+      Copyright (c) 1992-2023 The University of Tennessee and The
+                              University of Tennessee Research Foundation
+      Copyright (c) 2000-2023 The University of California Berkeley
+      Copyright (c) 2006-2023 The University of Colorado Denver
+
+  Used by the tests only (make check); not in the libraries.
+
+Downloaded at build time (not in the source tarball)
+-----------------------------------------------------
+
+Reference-LAPACK 3.12.1 (https://github.com/Reference-LAPACK/lapack,
+license of LAPACK as above, LICENSE section 6):
+
+  - interfaces/lapack/reference/fetch.sh downloads it (checksum verified)
+    for libulmlapack (interfaces/install-shared.sh with a Fortran
+    compiler) and for the LAPACK test programs
+    (test/reference-lapack.sh, test/reference-lapack-lin.sh).
+  - libulmlapack is Reference-LAPACK compiled on top of libulmblas: a
+    package that ships it must also ship the LAPACK license (LICENSE
+    section 6).  The distribution recipes in packaging/ build with
+    FC=none and do not ship libulmlapack (except the Homebrew tap,
+    packaging/homebrew).
+
+Runtime libraries linked statically
+------------------------------------
+
+On Linux and Windows the shared libraries link the C++ runtime
+(libstdc++) and libgcc statically by default (Windows also winpthread).
+These are licensed under the GPL (GNU General Public License; GNU: GNU's
+Not Unix) version 3 with the GCC (GNU Compiler Collection) Runtime Library Exception 3.1,
+which allows this without conditions on ulmBLAS; winpthread (MinGW-w64)
+is under the MIT (Massachusetts Institute of Technology) and BSD 3-Clause
+licenses.  ULMBLAS_STATIC_LIBSTDCXX=no
+links libstdc++ dynamically (distribution packages).
+
+Git repository only (not in the release tarballs)
+--------------------------------------------------
+
+The benchmark programs (bench/, with files of ATLAS, the Automatically
+Tuned Linear Algebra Software, LICENSE section 5) and the reference BLAS
+for benchmarks (refblas/, LICENSE section 6) are in the Git repository
+but not in the release tarballs (.gitattributes, export-ignore).

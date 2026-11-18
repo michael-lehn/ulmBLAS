@@ -61,13 +61,13 @@ struct KernelBase
 
     template <bool UA, bool UB, typename P>
     static void
-    prepareA(long, P *)
+    prepareA(long kg, P *panel)
     {
     }
 
     template <bool UA, bool UB, typename P>
     static void
-    prepareB(long, P *)
+    prepareB(long kg, P *panel)
     {
     }
 };
@@ -144,7 +144,7 @@ pack4KContig(long k, const std::uint8_t *X, long incMN, std::uint8_t *buffer)
 	    vst1q_u8(b + 4 * MR, vreinterpretq_u8_u64(vtrn1q_u64(t1, t3)));
 	    vst1q_u8(b + 8 * MR, vreinterpretq_u8_u64(vtrn2q_u64(t0, t2)));
 	    vst1q_u8(b + 12 * MR, vreinterpretq_u8_u64(vtrn2q_u64(t1, t3)));
-#else
+#elif defined(__SSE2__)
 	    __m128i q0 = _mm_loadu_si128((const __m128i *)(x0 + 16 * c));
 	    __m128i q1 = _mm_loadu_si128((const __m128i *)(x1 + 16 * c));
 	    __m128i q2 = _mm_loadu_si128((const __m128i *)(x2 + 16 * c));
@@ -160,6 +160,8 @@ pack4KContig(long k, const std::uint8_t *X, long incMN, std::uint8_t *buffer)
 	                     _mm_unpacklo_epi64(t1, t3));
 	    _mm_storeu_si128((__m128i *)(b + 12 * MR),
 	                     _mm_unpackhi_epi64(t1, t3));
+#else
+#error "pack4KContig: no vector code for this architecture"
 #endif
 	}
     }
@@ -197,7 +199,7 @@ pack4MNContig(long k, const std::uint8_t *X, long incK, std::uint8_t *buffer)
 	    vst1q_u8(bi + 16, vreinterpretq_u8_u16(vzip2q_u16(z01l, z23l)));
 	    vst1q_u8(bi + 32, vreinterpretq_u8_u16(vzip1q_u16(z01h, z23h)));
 	    vst1q_u8(bi + 48, vreinterpretq_u8_u16(vzip2q_u16(z01h, z23h)));
-#else
+#elif defined(__SSE2__)
 	    __m128i c0 = _mm_loadu_si128((const __m128i *)(x + i));
 	    __m128i c1 = _mm_loadu_si128((const __m128i *)(x + incK + i));
 	    __m128i c2 = _mm_loadu_si128((const __m128i *)(x + 2 * incK + i));
@@ -214,6 +216,8 @@ pack4MNContig(long k, const std::uint8_t *X, long incK, std::uint8_t *buffer)
 	                     _mm_unpacklo_epi16(z01h, z23h));
 	    _mm_storeu_si128((__m128i *)(bi + 48),
 	                     _mm_unpackhi_epi16(z01h, z23h));
+#else
+#error "pack4MNContig: no vector code for this architecture"
 #endif
 	}
 	for (; i + 8 <= MR; i += 8) {
@@ -229,7 +233,7 @@ pack4MNContig(long k, const std::uint8_t *X, long incK, std::uint8_t *buffer)
 	    std::uint8_t *bi = b + 4 * i;
 	    vst1q_u8(bi, vreinterpretq_u8_u16(vzip1q_u16(z01, z23)));
 	    vst1q_u8(bi + 16, vreinterpretq_u8_u16(vzip2q_u16(z01, z23)));
-#else
+#elif defined(__SSE2__)
 	    __m128i c0 = _mm_loadl_epi64((const __m128i *)(x + i));
 	    __m128i c1 = _mm_loadl_epi64((const __m128i *)(x + incK + i));
 	    __m128i c2 = _mm_loadl_epi64((const __m128i *)(x + 2 * incK + i));
@@ -240,6 +244,8 @@ pack4MNContig(long k, const std::uint8_t *X, long incK, std::uint8_t *buffer)
 	    _mm_storeu_si128((__m128i *)bi, _mm_unpacklo_epi16(z01, z23));
 	    _mm_storeu_si128((__m128i *)(bi + 16),
 	                     _mm_unpackhi_epi16(z01, z23));
+#else
+#error "pack4MNContig: no vector code for this architecture"
 #endif
 	}
 	for (; i < MR; ++i) {

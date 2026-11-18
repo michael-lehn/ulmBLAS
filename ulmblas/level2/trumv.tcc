@@ -41,18 +41,19 @@ trumv(IndexType n, bool unitDiag, bool conjA, const TA *A, IndexType incRowA,
 	const IndexType nl = n % bf;
 
 	for (IndexType j = 0; j < nb; j += bf) {
-	    gemv(j, bf, T(1), conjA, &A[0 * UnitStride + j * incColA],
-	         UnitStride, incColA, &x[j * incX], incX, T(1), &x[0 * incX],
-	         incX);
+	    gemvSerial(j, bf, T(1), conjA, &A[0 * UnitStride + j * incColA],
+	               UnitStride, incColA, &x[j * incX], incX, T(1),
+	               &x[0 * incX], incX);
 
 	    trumv_unblk(bf, unitDiag, conjA, &A[j * UnitStride + j * incColA],
 	                UnitStride, incColA, &x[j * incX], incX);
 	}
 
 	if (nl) {
-	    gemv(n - nl, nl, T(1), conjA,
-	         &A[0 * UnitStride + (n - nl) * incColA], UnitStride, incColA,
-	         &x[(n - nl) * incX], incX, T(1), &x[0 * incX], incX);
+	    gemvSerial(n - nl, nl, T(1), conjA,
+	               &A[0 * UnitStride + (n - nl) * incColA], UnitStride,
+	               incColA, &x[(n - nl) * incX], incX, T(1), &x[0 * incX],
+	               incX);
 
 	    trumv_unblk(nl, unitDiag, conjA,
 	                &A[(n - nl) * UnitStride + (n - nl) * incColA],
@@ -68,9 +69,10 @@ trumv(IndexType n, bool unitDiag, bool conjA, const TA *A, IndexType incRowA,
 	    trumv_unblk(bf, unitDiag, conjA, &A[j * incRowA + j * UnitStride],
 	                incRowA, UnitStride, &x[j * incX], incX);
 
-	    gemv(bf, n - j - bf, T(1), conjA,
-	         &A[j * incRowA + (j + bf) * incColA], incRowA, UnitStride,
-	         &x[(j + bf) * incX], incX, T(1), &x[j * incX], incX);
+	    gemvSerial(bf, n - j - bf, T(1), conjA,
+	               &A[j * incRowA + (j + bf) * incColA], incRowA,
+	               UnitStride, &x[(j + bf) * incX], incX, T(1),
+	               &x[j * incX], incX);
 	}
 
 	trumv_unblk(nl, unitDiag, conjA,

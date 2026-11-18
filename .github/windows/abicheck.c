@@ -18,26 +18,32 @@
 
 typedef int64_t idx;
 
-typedef idx (*idamax_t)(const idx *, const double *, const idx *);
-typedef void (*dgemm_t)(const char *, const char *, const idx *, const idx *,
-                        const idx *, const double *, const double *,
-                        const idx *, const double *, const idx *,
-                        const double *, double *, const idx *, size_t, size_t);
-typedef void (*sgemm_t)(const char *, const char *, const idx *, const idx *,
-                        const idx *, const float *, const float *, const idx *,
-                        const float *, const idx *, const float *, float *,
-                        const idx *, size_t, size_t);
-typedef void (*xgemm_t)(const char *, const char *, const idx *, const idx *,
-                        const idx *, const void *, const void *, const idx *,
-                        const void *, const idx *, const void *, void *,
-                        const idx *, size_t, size_t);
-typedef void (*dtrsm_t)(const char *, const char *, const char *, const char *,
-                        const idx *, const idx *, const double *,
-                        const double *, const idx *, double *, const idx *,
-                        size_t, size_t, size_t, size_t);
-typedef void (*dgemm_strided_t)(idx, idx, idx, double, const double *, idx, idx,
-                                const double *, idx, idx, double, double *, idx,
-                                idx);
+typedef idx (*idamax_t)(const idx *n, const double *x, const idx *incX);
+typedef void (*dgemm_t)(const char *transA, const char *transB, const idx *m,
+                        const idx *n, const idx *k, const double *alpha,
+                        const double *A, const idx *ldA, const double *B,
+                        const idx *ldB, const double *beta, double *C,
+                        const idx *ldC, size_t lenTransA, size_t lenTransB);
+typedef void (*sgemm_t)(const char *transA, const char *transB, const idx *m,
+                        const idx *n, const idx *k, const float *alpha,
+                        const float *A, const idx *ldA, const float *B,
+                        const idx *ldB, const float *beta, float *C,
+                        const idx *ldC, size_t lenTransA, size_t lenTransB);
+typedef void (*xgemm_t)(const char *transA, const char *transB, const idx *m,
+                        const idx *n, const idx *k, const void *alpha,
+                        const void *A, const idx *ldA, const void *B,
+                        const idx *ldB, const void *beta, void *C,
+                        const idx *ldC, size_t lenTransA, size_t lenTransB);
+typedef void (*dtrsm_t)(const char *side, const char *uplo, const char *transA,
+                        const char *diag, const idx *m, const idx *n,
+                        const double *alpha, const double *A, const idx *ldA,
+                        double *B, const idx *ldB, size_t lenSide,
+                        size_t lenUplo, size_t lenTransA, size_t lenDiag);
+typedef void (*dgemm_strided_t)(idx m, idx n, idx k, double alpha,
+                                const double *A, idx incRowA, idx incColA,
+                                const double *B, idx incRowB, idx incColB,
+                                double beta, double *C, idx incRowC,
+                                idx incColC);
 
 int
 xmmcall(void (*f)(void));

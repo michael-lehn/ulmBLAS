@@ -12,9 +12,10 @@ namespace ulmBLAS {
 template <typename IndexType, typename Alpha, typename TA, typename TB,
           typename Beta, typename TC>
 bool
-gemm_direct(IndexType, IndexType, IndexType, const Alpha &, const TA *,
-            IndexType, IndexType, const TB *, IndexType, IndexType,
-            const Beta &, TC *, IndexType, IndexType)
+gemm_direct(IndexType m, IndexType n, IndexType k, const Alpha &alpha,
+            const TA *A, IndexType incRowA, IndexType incColA, const TB *B,
+            IndexType incRowB, IndexType incColB, const Beta &beta, TC *C,
+            IndexType incRowC, IndexType incColC)
 {
     return false;
 }

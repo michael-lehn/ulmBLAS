@@ -21,6 +21,11 @@
 //  Note: where no optimized kernel exists for a type (and on platforms
 //  without an optimized kernel) ugemm is ref::ugemm.
 //
+#include <complex>
+#include <cstddef>
+#include <cstdio>
+#include <limits>
+#include <string>
 #include <ulmblas/ulmblas.h>
 #include <test/numeric/reference.h>
 #include <test/numeric/testing.h>
@@ -896,4 +901,714 @@ ULMBLAS_TEST(T0348, "ukernel/gepack_A and gepack_B, k = 1 ... 25, all "
                                   11, 12, 13, 14, 15, 16, 17, 23, 24, 25};
 
     testGepack<double>(ctx, kcs) && testGepack<float>(ctx, kcs);
+}
+
+//
+//  The frame algorithm of DGEMM with the SME2 macro kernels in one
+//  streaming section per block (ulmblas/level3/ukernel/sme/macrokernel.h),
+//  with and without prefetching of C, called directly: gemm selects the
+//  variant with prefetching only for large problems (gemmSelect,
+//  ulmblas/level3/gemm/select.h).  Partial tiles and blocks, column major C
+//  (streaming macro kernel) and row major C (portable macro kernel).
+//
+#if defined(USE_SME)
+template <bool PrefetchC>
+bool
+testSmeFrame(Context &ctx)
+{
+    typedef ulmBLAS::GemmTable<double> Table;
+    if (!Table::useSme) {
+	return true;
+    }
+    typedef typename Table::template Frame<PrefetchC> Frame;
+
+    struct Dims
+    {
+	int m, n, k;
+    };
+    const Dims dims[] = {{1, 1, 1},    {31, 15, 13}, {32, 16, 12},
+                         {33, 17, 25}, {70, 50, 30}, {100, 97, 40},
+                         {65, 49, 13}, {129, 113, 7}};
+    const double alphas[] = {1, -1.5, 1};
+    const double betas[] = {0, 0.5, 1};
+
+    Random random(23);
+
+    for (const Dims &d : dims) {
+	for (int o = 0; o < 2; ++o) {
+	    for (int s = 0; s < 3; ++s) {
+		Matrix<double> A(d.m, d.k, false), B(d.k, d.n, false);
+		Matrix<double> C(d.m, d.n, o == 1);
+		A.randomize(random);
+		B.randomize(random);
+		C.randomize(random);
+		Result ref =
+		    multiply(alphas[s], full(A), full(B), betas[s], full(C));
+
+		std::ptrdiff_t incRowC = C.rowMajor ? C.ld : 1;
+		std::ptrdiff_t incColC = C.rowMajor ? 1 : C.ld;
+		Frame::run(std::ptrdiff_t(d.m), std::ptrdiff_t(d.n),
+		           std::ptrdiff_t(d.k), alphas[s], false, A.data.data(),
+		           std::ptrdiff_t(1), std::ptrdiff_t(A.ld), false,
+		           B.data.data(), std::ptrdiff_t(1),
+		           std::ptrdiff_t(B.ld), betas[s], C.data.data(),
+		           incRowC, incColC);
+
+		char what[100];
+		std::snprintf(what, sizeof(what),
+		              "SME frame (prefetch %d) m=%d n=%d k=%d %s",
+		              int(PrefetchC), d.m, d.n, d.k,
+		              o == 1 ? "row major C" : "column major C");
+		if (!checkMatrix(ctx, C, ref, d.k, 'A', what)) {
+		    return false;
+		}
+	    }
+	}
+    }
+    return true;
+}
+#endif
+
+ULMBLAS_TEST(T0362, "ukernel/SME2 DGEMM frame, one streaming section per "
+                    "block, with and without prefetching of C; gemmSelect")
+{
+    bool sme = false;
+#if defined(USE_SME)
+    sme = ulmBLAS::GemmTable<double>::useSme;
+    if (!(testSmeFrame<false>(ctx) && testSmeFrame<true>(ctx))) {
+	return;
+    }
+#endif
+    typedef ulmBLAS::GemmProblem<std::ptrdiff_t> Problem;
+    const Problem small = {64, 64, 64, 1, 64, 1, 64, 1, 64, false, false, 1};
+    const Problem large = {2048, 2048, 2048, 1,     2048,  1,
+                           2048, 1,    2048, false, false, 1};
+    const char *nameSmall = ulmBLAS::gemmSelect<std::ptrdiff_t, double, double,
+                                                double, double, double>(small)
+                                .name;
+    const char *nameLarge = ulmBLAS::gemmSelect<std::ptrdiff_t, double, double,
+                                                double, double, double>(large)
+                                .name;
+#if defined(USE_TESTPARAM)
+    //  the default table of the build (with the block sizes of the test
+    //  configuration no generated table is used); with AVX-512F the plan of
+    //  OpenBLAS's kernels for small matrices, which falls back to the frame
+    //  algorithm itself (OpenBLAS's permit function)
+    std::string expectSmall = "default", expectLarge = "default";
+#if defined(ULMBLAS_OPENBLAS_SMALL) && !defined(USE_SME)
+    expectSmall = expectLarge = "openblas-small";
+#elif defined(ULMBLAS_AVX_SMALL) && !defined(USE_SME)
+    expectSmall = "avx-small";
+#endif
+    ctx.check(std::string(nameSmall) == (sme ? "sme-small" : expectSmall),
+              "plan for 64^3: %s", nameSmall);
+    ctx.check(std::string(nameLarge) ==
+                  (sme ? "sme-block-prefetch" : expectLarge),
+              "plan for 2048^3: %s", nameLarge);
+#else
+    //  possibly a table generated for the platform (make tune)
+    (void)sme;
+    ctx.check(nameSmall != nullptr && nameLarge != nullptr,
+              "plans without names");
+#endif
+}
+
+//
+//  The frame algorithm with maximum block sizes larger than the block sizes
+//  (GemmBlocks, ulmblas/level3/gemm/frame.h): dimensions just below, at and
+//  above the block sizes and their maxima, so that a rest is taken as a
+//  whole or split off.  The block sizes of the configuration (small in the
+//  test configurations).
+//
+template <typename T>
+bool
+testFrameMaxBlocks(Context &ctx)
+{
+    typedef ulmBLAS::DefaultBackend<T> Backend;
+    typedef ulmBLAS::BlockSize<T> BS;
+    constexpr std::ptrdiff_t MR = Backend::MR, NR = Backend::NR;
+    constexpr std::ptrdiff_t MCmax = BS::MC + 2 * MR;
+    constexpr std::ptrdiff_t KCmax = BS::KC + BS::KC / 2;
+    constexpr std::ptrdiff_t NCmax = BS::NC + NR;
+    typedef ulmBLAS::GemmFrame<
+        Backend,
+        ulmBLAS::GemmBlocks<BS::MC, BS::KC, BS::NC, MCmax, KCmax, NCmax>>
+        Frame;
+
+    const int ms[] = {1,          int(BS::MC) - 1, int(BS::MC) + 1,
+                      int(MCmax), int(MCmax) + 1,  int(2 * BS::MC + 3)};
+    const int ns[] = {1, int(BS::NC) + 1, int(NCmax), int(NCmax) + 1};
+    const int ks[] = {1, int(BS::KC) + 1, int(KCmax), int(KCmax) + 1,
+                      int(2 * BS::KC + 1)};
+
+    Random random(29);
+    int count = 0;
+    for (int m : ms) {
+	for (int n : ns) {
+	    for (int k : ks) {
+		//  large problems only with small block sizes (test
+		//  configurations), every third with the large ones
+		if (std::size_t(m) * n * k > 4000000 && (count++ % 3) != 0) {
+		    continue;
+		}
+		Matrix<T> A(m, k, false), B(k, n, false), C(m, n, false);
+		A.randomize(random);
+		B.randomize(random);
+		C.randomize(random);
+		const T alpha = fromCdouble<T>(cdouble(1.5, 0));
+		const T beta = fromCdouble<T>(cdouble(-0.5, 0));
+		Result ref = multiply(toCdouble(alpha), full(A), full(B),
+		                      toCdouble(beta), full(C));
+		Frame::run(std::ptrdiff_t(m), std::ptrdiff_t(n),
+		           std::ptrdiff_t(k), alpha, false, A.data.data(),
+		           std::ptrdiff_t(1), std::ptrdiff_t(A.ld), false,
+		           B.data.data(), std::ptrdiff_t(1),
+		           std::ptrdiff_t(B.ld), beta, C.data.data(),
+		           std::ptrdiff_t(1), std::ptrdiff_t(C.ld));
+		char what[100];
+		std::snprintf(what, sizeof(what),
+		              "frame with maximum block sizes m=%d n=%d k=%d",
+		              m, n, k);
+		if (!checkMatrix(ctx, C, ref, k, 'A', what)) {
+		    return false;
+		}
+	    }
+	}
+    }
+    return true;
+}
+
+ULMBLAS_TEST(T0363, "ukernel/gemm frame with maximum block sizes, rests "
+                    "taken as a whole and split off")
+{
+    testFrameMaxBlocks<double>(ctx) && testFrameMaxBlocks<float>(ctx);
+}
+
+//
+//  The SME2 kernel for small matrices (ulmblas/level3/ukernel/sme/small.h)
+//  called directly: shapes with partial tiles of every kind (rows 1 ... 8,
+//  9 ... 16, 17 ... 24, 25 ... 31, more than 32; columns of partial
+//  slivers and blocks of 64), and four layouts: unit row strides (used in
+//  place), A row major, B with row stride 2, C row major (copied).
+//
+#if defined(USE_SME)
+bool
+testSmall(Context &ctx)
+{
+    const int ms[] = {1, 7, 8, 9, 16, 17, 24, 25, 31, 32, 33, 40, 63, 65, 100};
+    const int ns[] = {1, 5, 8, 15, 16, 17, 33, 64, 65, 80};
+    const int ks[] = {1, 2, 7, 33, 70};
+    const double alphas[] = {1, 1.5, 1, 1.5};
+    const double betas[] = {1, 0, -0.5, 0.25};
+
+    Random random(31);
+    for (int m : ms) {
+	for (int n : ns) {
+	    for (int k : ks) {
+		for (int layout = 0; layout < 4; ++layout) {
+		    Matrix<double> A(m, k, layout == 1), B(k, n, false);
+		    Matrix<double> C(m, n, layout == 3);
+		    A.randomize(random);
+		    B.randomize(random);
+		    C.randomize(random);
+		    const double alpha = alphas[layout], beta = betas[layout];
+		    Result ref =
+		        multiply(alpha, full(A), full(B), beta, full(C));
+
+		    std::ptrdiff_t rA = A.rowMajor ? A.ld : 1;
+		    std::ptrdiff_t cA = A.rowMajor ? 1 : A.ld;
+		    //  layout 2: every second row of B (a matrix of 2k rows)
+		    std::vector<double> B2(2 * k * n + 1, 0.0);
+		    const double *pB = B.data.data();
+		    std::ptrdiff_t rB = 1, cB = B.ld;
+		    if (layout == 2) {
+			for (int j = 0; j < n; ++j) {
+			    for (int l = 0; l < k; ++l) {
+				B2[2 * l + j * 2 * k] = B(l, j);
+			    }
+			}
+			pB = B2.data();
+			rB = 2;
+			cB = 2 * k;
+		    }
+		    std::ptrdiff_t rC = C.rowMajor ? C.ld : 1;
+		    std::ptrdiff_t cC = C.rowMajor ? 1 : C.ld;
+		    ulmBLAS::sme::small::dgemm(
+		        std::ptrdiff_t(m), std::ptrdiff_t(n), std::ptrdiff_t(k),
+		        alpha, A.data.data(), rA, cA, pB, rB, cB, beta,
+		        C.data.data(), rC, cC);
+
+		    char what[100];
+		    std::snprintf(what, sizeof(what),
+		                  "small kernel m=%d n=%d k=%d layout %d", m, n,
+		                  k, layout);
+		    if (!checkMatrix(ctx, C, ref, k, 'A', what)) {
+			return false;
+		    }
+		}
+	    }
+	}
+    }
+    return true;
+}
+#endif
+
+ULMBLAS_TEST(T0364, "ukernel/SME2 DGEMM for small matrices, partial tiles, "
+                    "unit and other strides")
+{
+#if defined(USE_SME)
+    if (ulmBLAS::GemmTable<double>::useSme) {
+	testSmall(ctx);
+	return;
+    }
+#endif
+    ctx.check(true, "no SME2 kernel in this configuration");
+}
+
+//
+//  OpenBLAS's DGEMM kernels for small matrices (SKYLAKEX, AVX-512F;
+//  ulmblas/level3/ukernel/openblas/small.h) through their plan: the four
+//  layouts NN, NT, TN, TT (A and B column or row major), beta = 0 (kernels
+//  that do not read C) and beta != 0, sizes with all remainders of the
+//  kernels (m mod 32, 16, 8, 4, 2; n mod 4, 2), and sizes the permit
+//  function rejects (then the frame algorithm).
+//
+#if defined(ULMBLAS_OPENBLAS_SMALL)
+bool
+testOpenBlasSmall(Context &ctx)
+{
+    typedef ulmBLAS::openblas::SmallGemm<
+        typename ulmBLAS::DefaultGemm<double>::Frame>
+        Small;
+    struct Dims
+    {
+	int m, n, k;
+    };
+    const Dims dims[] = {{1, 1, 1},   {3, 2, 5},       {7, 9, 33},
+                         {17, 5, 40}, {31, 13, 31},    {33, 34, 35},
+                         {63, 7, 64}, {100, 100, 100}, {120, 110, 90}};
+    const double alphas[] = {1, -1.5};
+    const double betas[] = {0, 1, 0.5};
+
+    Random random(37);
+    for (const Dims &d : dims) {
+	for (int ta = 0; ta < 2; ++ta) {
+	    for (int tb = 0; tb < 2; ++tb) {
+		for (int s = 0; s < 3; ++s) {
+		    Matrix<double> A(d.m, d.k, ta == 1), B(d.k, d.n, tb == 1);
+		    Matrix<double> C(d.m, d.n, false);
+		    A.randomize(random);
+		    B.randomize(random);
+		    C.randomize(random);
+		    if (betas[s] == 0) {
+			//  C is not read for beta = 0
+			for (double &x : C.data) {
+			    x = std::numeric_limits<double>::quiet_NaN();
+			}
+		    }
+		    const double alpha = alphas[(ta + tb + s) % 2];
+		    Result ref =
+		        multiply(alpha, full(A), full(B), betas[s], full(C));
+		    Small::run(
+		        std::ptrdiff_t(d.m), std::ptrdiff_t(d.n),
+		        std::ptrdiff_t(d.k), alpha, false, A.data.data(),
+		        std::ptrdiff_t(A.rowMajor ? A.ld : 1),
+		        std::ptrdiff_t(A.rowMajor ? 1 : A.ld), false,
+		        B.data.data(), std::ptrdiff_t(B.rowMajor ? B.ld : 1),
+		        std::ptrdiff_t(B.rowMajor ? 1 : B.ld), betas[s],
+		        C.data.data(), std::ptrdiff_t(1), std::ptrdiff_t(C.ld));
+		    char what[100];
+		    std::snprintf(what, sizeof(what),
+		                  "OpenBLAS small m=%d n=%d k=%d %c%c beta=%g",
+		                  d.m, d.n, d.k, ta ? 'T' : 'N', tb ? 'T' : 'N',
+		                  betas[s]);
+		    if (!checkMatrix(ctx, C, ref, d.k, 'A', what)) {
+			return false;
+		    }
+		}
+	    }
+	}
+    }
+    return true;
+}
+#endif
+
+ULMBLAS_TEST(T0365, "ukernel/OpenBLAS DGEMM kernels for small matrices "
+                    "(SKYLAKEX), layouts NN, NT, TN, TT, beta = 0")
+{
+#if defined(ULMBLAS_OPENBLAS_SMALL)
+    testOpenBlasSmall(ctx);
+#else
+    ctx.check(true, "no AVX-512F in this configuration");
+#endif
+}
+
+//
+//  The instruction set of the vector kernel for small matrices
+//  (ulmblas/level3/ukernel/simd/small.h) in this configuration, if any.
+//
+#if defined(ULMBLAS_NEON_SMALL)
+#define ULMBLAS_TEST_SIMD_SMALL 1
+typedef ulmBLAS::neon::Isa SmallIsa;
+#elif defined(ULMBLAS_AVX_SMALL)
+#define ULMBLAS_TEST_SIMD_SMALL 1
+typedef ulmBLAS::avx::Isa SmallIsa;
+#endif
+
+//
+//  The vector kernel for small matrices (ulmblas/level3/ukernel/simd/
+//  small.h, NEON or AVX2/AVX-512) called directly, float and double: shapes
+//  with remainders of its tiles (rows in vectors of 2 to 16, tiles of 1 to
+//  4 vectors, 6 or 8 columns; dot products, k in vectors), and the
+//  layouts: unit row strides, A row major (dot products), B row major, C
+//  row major, A and B row major (transposed problem for k >= n, else A
+//  copied), all three row major.
+//
+#if defined(ULMBLAS_TEST_SIMD_SMALL)
+template <typename T>
+bool
+testSimdSmall(Context &ctx)
+{
+    const std::ptrdiff_t ms[] = {1, 2, 3, 4, 5, 7, 8, 9, 13, 16, 17, 33, 64};
+    const std::ptrdiff_t ns[] = {1, 2, 3, 4, 5, 6, 7, 11, 13, 64};
+    const std::ptrdiff_t ks[] = {1, 2, 3, 5, 8, 33};
+    const T alphas[] = {1, T(1.5), 1, T(1.5), 1, T(-0.5)};
+    const T betas[] = {1, 0, T(-0.5), T(0.25), 0, 1};
+
+    Random random(43);
+    for (std::ptrdiff_t m : ms) {
+	for (std::ptrdiff_t n : ns) {
+	    for (std::ptrdiff_t k : ks) {
+		for (std::ptrdiff_t layout = 0; layout < 6; ++layout) {
+		    const bool rowA = layout == 1 || layout >= 4;
+		    const bool rowB = layout == 2 || layout >= 4;
+		    const bool rowC = layout == 3 || layout == 5;
+		    Matrix<T> A(m, k, rowA), B(k, n, rowB), C(m, n, rowC);
+		    A.randomize(random);
+		    B.randomize(random);
+		    C.randomize(random);
+		    const T alpha = alphas[layout], beta = betas[layout];
+		    if (beta == T(0)) {
+			//  C is not read for beta = 0
+			for (T &x : C.data) {
+			    x = std::numeric_limits<T>::quiet_NaN();
+			}
+		    }
+		    Result ref =
+		        multiply(alpha, full(A), full(B), beta, full(C));
+		    ulmBLAS::simd::small::gemm<SmallIsa>(
+		        m, n, k, alpha, A.data.data(),
+		        std::ptrdiff_t(A.rowMajor ? A.ld : 1),
+		        std::ptrdiff_t(A.rowMajor ? 1 : A.ld), B.data.data(),
+		        std::ptrdiff_t(B.rowMajor ? B.ld : 1),
+		        std::ptrdiff_t(B.rowMajor ? 1 : B.ld), beta,
+		        C.data.data(), std::ptrdiff_t(C.rowMajor ? C.ld : 1),
+		        std::ptrdiff_t(C.rowMajor ? 1 : C.ld));
+		    char what[100];
+		    std::snprintf(
+		        what, sizeof(what),
+		        "vector small kernel %s m=%td n=%td k=%td layout "
+		        "%td",
+		        sizeof(T) == 4 ? "float" : "double", m, n, k, layout);
+		    if (!checkMatrix(ctx, C, ref, int(k), 'A', what)) {
+			return false;
+		    }
+		}
+	    }
+	}
+    }
+    return true;
+}
+#endif
+
+ULMBLAS_TEST(T0367, "ukernel/vector GEMM kernel for small matrices (NEON, "
+                    "AVX), float and double, partial tiles, all layouts")
+{
+#if defined(ULMBLAS_TEST_SIMD_SMALL)
+    testSimdSmall<float>(ctx) && testSimdSmall<double>(ctx);
+#else
+    ctx.check(true, "no NEON or AVX2 in this configuration");
+#endif
+}
+
+//
+//  The complex part of the vector kernel (simd/small.h, cgemm) called directly,
+//  complex float and double: remainders of its tiles (rows in vectors of 2 or
+//  1, tiles of 1 to 4 vectors, 3 columns), all conjugations, the layouts as in
+//  T0367 (A and B row major: transposed problem for k >= n, else A copied).
+//
+#if defined(ULMBLAS_TEST_SIMD_SMALL)
+template <typename T>
+bool
+testSimdSmallComplex(Context &ctx)
+{
+    typedef std::complex<T> CT;
+    const std::ptrdiff_t ms[] = {1, 2, 3, 4, 5, 7, 8, 9, 17};
+    const std::ptrdiff_t ns[] = {1, 2, 3, 4, 5, 7};
+    const std::ptrdiff_t ks[] = {1, 2, 5, 9};
+    const CT alphas[] = {CT(1), CT(T(1.5), T(-0.5)), CT(0, 1)};
+    const CT betas[] = {CT(0), CT(1), CT(T(-0.5), T(0.25))};
+
+    Random random(47);
+    std::ptrdiff_t count = 0;
+    for (std::ptrdiff_t m : ms) {
+	for (std::ptrdiff_t n : ns) {
+	    for (std::ptrdiff_t k : ks) {
+		for (std::ptrdiff_t layout = 0; layout < 6; ++layout) {
+		    for (std::ptrdiff_t conj = 0; conj < 4; ++conj, ++count) {
+			const bool conjA = conj & 1, conjB = conj & 2;
+			const bool rowA = layout == 1 || layout >= 4;
+			const bool rowB = layout == 2 || layout >= 4;
+			const bool rowC = layout == 3 || layout == 5;
+			Matrix<CT> A(m, k, rowA), B(k, n, rowB), C(m, n, rowC);
+			A.randomize(random);
+			B.randomize(random);
+			C.randomize(random);
+			const CT alpha = alphas[count % 3];
+			const CT beta = betas[(count / 3) % 3];
+			if (beta == CT(0)) {
+			    for (CT &x : C.data) {
+				x = CT(std::numeric_limits<T>::quiet_NaN());
+			    }
+			}
+			Full fA = full(A), fB = full(B);
+			for (cdouble &x : fA.a) {
+			    x = conjA ? std::conj(x) : x;
+			}
+			for (cdouble &x : fB.a) {
+			    x = conjB ? std::conj(x) : x;
+			}
+			Result ref = multiply(alpha, fA, fB, beta, full(C));
+			ulmBLAS::simd::small::cgemm<SmallIsa>(
+			    m, n, k, alpha, conjA, A.data.data(),
+			    std::ptrdiff_t(A.rowMajor ? A.ld : 1),
+			    std::ptrdiff_t(A.rowMajor ? 1 : A.ld), conjB,
+			    B.data.data(),
+			    std::ptrdiff_t(B.rowMajor ? B.ld : 1),
+			    std::ptrdiff_t(B.rowMajor ? 1 : B.ld), beta,
+			    C.data.data(),
+			    std::ptrdiff_t(C.rowMajor ? C.ld : 1),
+			    std::ptrdiff_t(C.rowMajor ? 1 : C.ld));
+			char what[120];
+			std::snprintf(
+			    what, sizeof(what),
+			    "vector small kernel complex %s m=%td n=%td "
+			    "k=%td layout %td conj %td",
+			    sizeof(T) == 4 ? "float" : "double", m, n, k,
+			    layout, conj);
+			if (!checkMatrix(ctx, C, ref, int(k), 'A', what)) {
+			    return false;
+			}
+		    }
+		}
+	    }
+	}
+    }
+    return true;
+}
+#endif
+
+ULMBLAS_TEST(T0368, "ukernel/vector GEMM kernel for small matrices (NEON, "
+                    "AVX), complex, partial tiles, conjugations, layouts")
+{
+#if defined(ULMBLAS_TEST_SIMD_SMALL)
+    testSimdSmallComplex<float>(ctx) && testSimdSmallComplex<double>(ctx);
+#else
+    ctx.check(true, "no NEON or AVX2 in this configuration");
+#endif
+}
+
+//
+//  Every vendored micro kernel the configuration's instruction set allows
+//  (ulmblas/level3/ukernel/kernels.h) through KernelBackend and the frame
+//  algorithm, with small blocks (several blocks of A and B, partial tiles,
+//  KC below the kernels' KMAX): shapes, the layouts of A, B and C,
+//  conjugations (complex), beta 0 (C NaN), 1 and other values.
+//
+template <typename K>
+bool
+testKernelBackend(Context &ctx)
+{
+    typedef typename K::T T;
+    typedef ulmBLAS::KernelBackend<K> Backend;
+    typedef ulmBLAS::GemmBlocks<3 * K::MR, 48, 4 * K::NR, 4 * K::MR, 56,
+                                5 * K::NR>
+        Blocks;
+    typedef ulmBLAS::GemmFrame<Backend, Blocks> Frame;
+
+    const std::ptrdiff_t ms[] = {1, K::MR - 1, K::MR + 1, 5 * K::MR + 3};
+    const std::ptrdiff_t ns[] = {1, K::NR + 1, 6 * K::NR - 1};
+    const std::ptrdiff_t ks[] = {1, 47, 130};
+    const T alphas[] = {T(1), T(-0.5), T(1.5)};
+    const T betas[] = {T(0), T(1), T(0.25)};
+
+    Random random(53);
+    std::ptrdiff_t count = 0;
+    for (std::ptrdiff_t m : ms) {
+	for (std::ptrdiff_t n : ns) {
+	    for (std::ptrdiff_t k : ks) {
+		for (std::ptrdiff_t layout = 0; layout < 6; ++layout, ++count) {
+		    if (m < 1 || n < 1) {
+			continue;
+		    }
+		    const bool rowA = layout == 1 || layout >= 4;
+		    const bool rowB = layout == 2 || layout >= 4;
+		    const bool rowC = layout == 3 || layout == 5;
+		    const bool conjA = IsComplex<T>::value && (count % 4) & 1;
+		    const bool conjB = IsComplex<T>::value && (count % 4) & 2;
+		    Matrix<T> A(int(m), int(k), rowA), B(int(k), int(n), rowB),
+		        C(int(m), int(n), rowC);
+		    A.randomize(random);
+		    B.randomize(random);
+		    C.randomize(random);
+		    const T alpha = alphas[count % 3];
+		    const T beta = betas[(count / 3) % 3];
+		    if (beta == T(0)) {
+			for (T &x : C.data) {
+			    x = T(std::numeric_limits<double>::quiet_NaN());
+			}
+		    }
+		    Full fA = full(A), fB = full(B);
+		    for (cdouble &x : fA.a) {
+			x = conjA ? std::conj(x) : x;
+		    }
+		    for (cdouble &x : fB.a) {
+			x = conjB ? std::conj(x) : x;
+		    }
+		    Result ref = multiply(alpha, fA, fB, beta, full(C));
+		    Frame::run(
+		        m, n, k, alpha, conjA, A.data.data(),
+		        std::ptrdiff_t(A.rowMajor ? A.ld : 1),
+		        std::ptrdiff_t(A.rowMajor ? 1 : A.ld), conjB,
+		        B.data.data(), std::ptrdiff_t(B.rowMajor ? B.ld : 1),
+		        std::ptrdiff_t(B.rowMajor ? 1 : B.ld), beta,
+		        C.data.data(), std::ptrdiff_t(C.rowMajor ? C.ld : 1),
+		        std::ptrdiff_t(C.rowMajor ? 1 : C.ld));
+		    char what[160];
+		    std::snprintf(
+		        what, sizeof(what),
+		        "kernel %s m=%td n=%td k=%td layout %td conj %d%d",
+		        K::name(), m, n, k, layout, int(conjA), int(conjB));
+		    if (!checkMatrix(ctx, C, ref, int(k), 'A', what)) {
+			return false;
+		    }
+		}
+	    }
+	}
+    }
+    return true;
+}
+
+ULMBLAS_TEST(T0369, "ukernel/every vendored micro kernel of the instruction "
+                    "set through KernelBackend and the frame algorithm")
+{
+    std::ptrdiff_t tested = 0;
+#define ULMBLAS_TEST_KERNEL(name)                                              \
+    if (!testKernelBackend<ulmBLAS::kernels::name>(ctx)) {                     \
+	return;                                                                \
+    }                                                                          \
+    ++tested;
+    ULMBLAS_KERNELS_d(ULMBLAS_TEST_KERNEL);
+    ULMBLAS_KERNELS_s(ULMBLAS_TEST_KERNEL);
+    ULMBLAS_KERNELS_c(ULMBLAS_TEST_KERNEL);
+    ULMBLAS_KERNELS_z(ULMBLAS_TEST_KERNEL);
+#undef ULMBLAS_TEST_KERNEL
+    ctx.check(true, tested > 0 ? "kernels tested" : "no vendored kernels");
+}
+
+//
+//  The frame algorithm of gemm on several threads (GemmFrame::runParallel,
+//  ulmblas/level3/gemm/frame.h) with 2, 3, 4 and 7 threads as far as the
+//  pool has them: shapes with few rows or few columns (one group, or one
+//  thread per group), several blocks of B and of k (small blocks), all
+//  layouts, conjugations (complex), beta 0 (C NaN) and others.
+//
+template <typename T>
+bool
+testParallelFrame(Context &ctx)
+{
+    typedef ulmBLAS::DefaultBackend<T> Backend;
+    constexpr std::ptrdiff_t MR = Backend::MR, NR = Backend::NR;
+    typedef ulmBLAS::GemmBlocks<4 * MR, 40, 6 * NR, 5 * MR, 48, 7 * NR> Blocks;
+    typedef ulmBLAS::GemmFrame<Backend, Blocks> Frame;
+
+    const std::ptrdiff_t pool = ulmBLAS::ThreadPool::instance().size();
+    const std::ptrdiff_t threads[] = {2, 3, 4, 7};
+    const std::ptrdiff_t ms[] = {1, MR + 1, 9 * MR + 5};
+    const std::ptrdiff_t ns[] = {1, NR - 1, 15 * NR + 3};
+    const std::ptrdiff_t ks[] = {1, 41, 100};
+
+    Random random(59);
+    std::ptrdiff_t count = 0;
+    for (std::ptrdiff_t nt : threads) {
+	if (nt > pool) {
+	    continue;
+	}
+	for (std::ptrdiff_t m : ms) {
+	    for (std::ptrdiff_t n : ns) {
+		for (std::ptrdiff_t k : ks) {
+		    const std::ptrdiff_t layout = count % 6;
+		    const bool rowA = layout == 1 || layout >= 4;
+		    const bool rowB = layout == 2 || layout >= 4;
+		    const bool rowC = layout == 3 || layout == 5;
+		    const bool conjA = IsComplex<T>::value && (count % 4) & 1;
+		    const bool conjB = IsComplex<T>::value && (count % 4) & 2;
+		    const T alpha = count % 2 ? T(1) : T(-0.75);
+		    const T beta = count % 3 == 0 ? T(0) : T(0.5);
+		    ++count;
+		    Matrix<T> A(int(m), int(k), rowA), B(int(k), int(n), rowB),
+		        C(int(m), int(n), rowC);
+		    A.randomize(random);
+		    B.randomize(random);
+		    C.randomize(random);
+		    if (beta == T(0)) {
+			for (T &x : C.data) {
+			    x = T(std::numeric_limits<double>::quiet_NaN());
+			}
+		    }
+		    Full fA = full(A), fB = full(B);
+		    for (cdouble &x : fA.a) {
+			x = conjA ? std::conj(x) : x;
+		    }
+		    for (cdouble &x : fB.a) {
+			x = conjB ? std::conj(x) : x;
+		    }
+		    Result ref = multiply(alpha, fA, fB, beta, full(C));
+		    Frame::runParallel(
+		        nt, m, n, k, alpha, conjA, A.data.data(),
+		        std::ptrdiff_t(A.rowMajor ? A.ld : 1),
+		        std::ptrdiff_t(A.rowMajor ? 1 : A.ld), conjB,
+		        B.data.data(), std::ptrdiff_t(B.rowMajor ? B.ld : 1),
+		        std::ptrdiff_t(B.rowMajor ? 1 : B.ld), beta,
+		        C.data.data(), std::ptrdiff_t(C.rowMajor ? C.ld : 1),
+		        std::ptrdiff_t(C.rowMajor ? 1 : C.ld));
+		    char what[160];
+		    std::snprintf(
+		        what, sizeof(what),
+		        "parallel frame %td threads m=%td n=%td k=%td "
+		        "layout %td",
+		        nt, m, n, k, layout);
+		    if (!checkMatrix(ctx, C, ref, int(k), 'A', what)) {
+			return false;
+		    }
+		}
+	    }
+	}
+    }
+    return true;
+}
+
+ULMBLAS_TEST(T0370, "gemm/frame algorithm on 2, 3, 4 and 7 threads, all "
+                    "types, partitions of rows and columns, layouts")
+{
+    //  at least 8 threads, also if the environment sets one (e.g.
+    //  OMP_NUM_THREADS=1 in batch jobs); the default afterwards
+    ulmBLAS::ThreadPool &pool = ulmBLAS::ThreadPool::instance();
+    if (pool.size() < 8) {
+	pool.setSize(8);
+    }
+    testParallelFrame<float>(ctx) && testParallelFrame<double>(ctx) &&
+        testParallelFrame<std::complex<float>>(ctx) &&
+        testParallelFrame<std::complex<double>>(ctx);
+    pool.setSize(0);
 }

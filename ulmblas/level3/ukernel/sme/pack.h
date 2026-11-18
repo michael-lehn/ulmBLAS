@@ -5,7 +5,7 @@
 //  Packing of a single panel for the SME2 micro kernels (double, MR = 32,
 //  NR = 16; float, MR = NR = 32; complex float, MR = 32, NR = 16; complex
 //  double, MR = NR = 16): the packing layout of the portable routines
-//  pack_MRxk and pack_kxNR of ulmblas/level3/pack/gepack.tcc, packed in
+//  pack_MRxk and pack_kxNR of ulmblas/level3/pack/panel.h, packed in
 //  streaming mode with ZA as transpose buffer where needed (see pack.tcc,
 //  spack.tcc, cpack.tcc and zpack.tcc).
 //
@@ -23,7 +23,7 @@
 
 namespace ulmBLAS {
 
-//  The portable routines (defined in ulmblas/level3/pack/gepack.tcc).
+//  The portable routines (defined in ulmblas/level3/pack/panel.h).
 template <int P, typename IndexType, typename TA, typename Buffer>
 static void
 pack_MRxk(IndexType k, bool conj, const TA *A, IndexType incRowA,

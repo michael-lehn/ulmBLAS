@@ -13,7 +13,7 @@ class Ulmblas < Formula
   homepage "https://github.com/michael-lehn/ulmBLAS"
   url "https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/v0.4.0.tar.gz"
   sha256 "2ff901132885162b423ae3901c2e91159b7b9c5cdd25d0d9c7d0afbcc33748cd"
-  license "BSD-3-Clause"
+  license all_of: ["BSD-3-Clause", "BSD-3-Clause-Open-MPI"]
 
   depends_on "cmake" => :build
   depends_on "pkgconf" => :test

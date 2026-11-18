@@ -6,9 +6,12 @@
  *      macOS on Apple Silicon   libulmblas_sme   SME2 with FEAT_SME_F64F64
  *                                                (Apple M4 and later)
  *                               libulmblas_neon  every Apple Silicon CPU
- *      x86-64 (Linux, Windows)  libulmblas_avx512  AVX-512F, AVX2 and FMA
+ *      x86-64 (Linux, Windows)  libulmblas_avx512  AVX-512F, -DQ and -VL,
+ *                                                  AVX2 and FMA
  *                               libulmblas_avx2    AVX2 and FMA
  *                               libulmblas_sse3    SSE3
+ *                               libulmblas_generic every x86-64 CPU
+ *                                                  (portable kernels)
  *
  *  The first backend of the list that the CPU (and the operating system)
  *  supports is used; ULMBLAS_BACKEND=name overrides the choice (a backend
@@ -26,10 +29,12 @@
  *  an empty entry makes the trampoline call ulmblas_dispatch_resolve
  *  (once, InitOnceExecuteOnce) with all argument registers saved.
  *
- *  The error handlers xerbla_ and cblas_xerbla are not forwarded.  On
- *  macOS and Linux a handler defined by the program (or a library loaded
- *  before this one) is passed to the backend (ulmblas_set_f77_xerbla,
- *  ulmblas_set_cblas_xerbla: weak definitions of a library loaded with
+ *  The error handlers xerbla_ and cblas_xerbla (and xerbla_64_ and
+ *  cblas_xerbla_64 of the ILP64 interfaces) are not forwarded.  On macOS
+ *  and Linux a handler defined by the program (or a library loaded before
+ *  this one) is passed to the backend (ulmblas_set_f77_xerbla,
+ *  ulmblas_set_cblas_xerbla, ulmblas_set_f77_xerbla_64,
+ *  ulmblas_set_cblas_xerbla_64: weak definitions of a library loaded with
  *  dlopen are not replaced by the program's); otherwise the backend uses
  *  its own.  On Windows the backend calls the handlers the program
  *  exports, if any (../F77/xerbla.cc).
@@ -50,6 +55,7 @@
 #if defined(__APPLE__)
 #include <sys/sysctl.h>
 #endif
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,11 +97,30 @@ has_feature(const char *name)
     return value != 0;
 }
 
+/*
+ *  The SME2 kernels need a streaming vector length (SVL) of 512 bits (64
+ *  bytes, e.g. 8 doubles per vector; Apple M4, M5).  macOS reports the
+ *  maximal SVL in hw.optional.arm.sme_max_svl_b; other lengths (or none
+ *  reported) select the NEON backend.
+ */
+static int
+sme_svl_512(void)
+{
+    int value = 0;
+    size_t size = sizeof(value);
+
+    if (sysctlbyname("hw.optional.arm.sme_max_svl_b", &value, &size, NULL,
+                     0) != 0) {
+	return 0;
+    }
+    return value == 64;
+}
+
 static int
 cpu_sme(void)
 {
     return has_feature("hw.optional.arm.FEAT_SME2") &&
-           has_feature("hw.optional.arm.FEAT_SME_F64F64");
+           has_feature("hw.optional.arm.FEAT_SME_F64F64") && sme_svl_512();
 }
 
 static int
@@ -160,12 +185,25 @@ cpu_avx2(void)
 static int
 cpu_avx512(void)
 {
-    return cpu_avx2() && (cpuid_reg(7, 0, 1) & (1u << 16)) /* AVX512F */
+    const unsigned ebx = cpuid_reg(7, 0, 1);
+    return cpu_avx2() && (ebx & (1u << 16))      /* AVX512F */
+           && (ebx & (1u << 17))                 /* AVX512DQ */
+           && (ebx & (1u << 31))                 /* AVX512VL */
            && (xcr0() & 0xe6) == 0xe6;
 }
 
-static const struct backend backends[] = {
-    {"avx512", cpu_avx512}, {"avx2", cpu_avx2}, {"sse3", cpu_sse3}};
+/*  the portable kernels for every x86-64 CPU (the baseline of the
+ *  distributions: SSE2) */
+static int
+cpu_x86_64(void)
+{
+    return 1;
+}
+
+static const struct backend backends[] = {{"avx512", cpu_avx512},
+                                          {"avx2", cpu_avx2},
+                                          {"sse3", cpu_sse3},
+                                          {"generic", cpu_x86_64}};
 #if defined(_WIN32)
 #define ULMBLAS_SO ".dll"
 #else
@@ -277,19 +315,84 @@ ulmblas_dispatch_resolve(void)
  *  On macOS all symbols of the program are visible to dlsym.  */
 extern void xerbla_(void) __attribute__((weak));
 extern void cblas_xerbla(void) __attribute__((weak));
+extern void xerbla_64_(void) __attribute__((weak));
+extern void cblas_xerbla_64(void) __attribute__((weak));
 #endif
 
+/*  required: the setter must exist (LP64); the setters of the ILP64
+ *  interfaces exist only if the backend has them (not with ILP64=0) */
 static void
-set_handler(void *handle, const char *setter, void *handler)
+set_handler(void *handle, const char *setter, void *handler, bool required)
 {
     if (!handler) {
 	return;
     }
-    void (*set)(void *) = (void (*)(void *))dlsym(handle, setter);
+    void (*set)(void *handler) = (void (*)(void *))dlsym(handle, setter);
     if (!set) {
+	if (!required) {
+	    return;
+	}
 	fail("function missing in the backend", setter);
     }
     set(handler);
+}
+
+/*
+ *  The backend: libulmblas_NAME.so (.dylib) in the first of these
+ *  directories where it can be loaded:
+ *
+ *  1. the environment variable ULMBLAS_BACKEND_DIR (tests, unusual
+ *     installations);
+ *  2. ULMBLAS_BACKEND_DIR of the build (-DULMBLAS_BACKEND_DIR=\"...\", for
+ *     packages whose library is copied away from its backends, e.g.
+ *     nixpkgs);
+ *  3. the directory of this library after resolving links (realpath): with
+ *     a link libblas.so.3 to libulmblas.so.0 in another directory, e.g. the
+ *     alternatives of Debian and openSUSE, the directory of the library;
+ *  4. the directory of the file that was loaded (the link itself).
+ */
+static void *
+load_backend(const char *backend, const char *loaded)
+{
+    char dirs[4][PATH_MAX];
+    int ndirs = 0;
+    const char *slash;
+
+    const char *env = getenv("ULMBLAS_BACKEND_DIR");
+    if (env && *env) {
+	snprintf(dirs[ndirs++], PATH_MAX, "%s/", env);
+    }
+#if defined(ULMBLAS_BACKEND_DIR)
+    snprintf(dirs[ndirs++], PATH_MAX, "%s/", ULMBLAS_BACKEND_DIR);
+#endif
+    char real[PATH_MAX];
+    if (realpath(loaded, real)) {
+	slash = strrchr(real, '/');
+	snprintf(dirs[ndirs++], PATH_MAX, "%.*s",
+	         slash ? (int)(slash - real) + 1 : 0, real);
+    }
+    slash = strrchr(loaded, '/');
+    snprintf(dirs[ndirs++], PATH_MAX, "%.*s",
+             slash ? (int)(slash - loaded) + 1 : 0, loaded);
+
+    char path[PATH_MAX + 64];
+    /*  the message of the first attempt (dlerror's string is overwritten
+     *  by the next dlopen) */
+    char error[PATH_MAX + 256] = "";
+    for (int i = 0; i < ndirs; ++i) {
+	snprintf(path, sizeof(path), "%slibulmblas_%s" ULMBLAS_SO, dirs[i],
+	         backend);
+	void *handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
+	if (handle) {
+	    return handle;
+	}
+	if (!error[0]) {
+	    const char *e = dlerror();
+	    snprintf(error, sizeof(error), "%s", e ? e : path);
+	}
+    }
+    fail("cannot load the backend", error);
+    return NULL;
 }
 
 __attribute__((constructor)) static void
@@ -297,19 +400,11 @@ ulmblas_dispatch_init(void)
 {
     const char *backend = choose();
 
-    /*  the backend is in the directory of this library (of the file that
-     *  was loaded: with a link such as libblas.so.3 to libulmblas.so.0 its
-     *  directory) */
     Dl_info info;
     if (!dladdr((const void *)&ulmblas_dispatch_init, &info) ||
         !info.dli_fname) {
 	fail("cannot determine the path of libulmblas", NULL);
     }
-    char path[PATH_MAX];
-    const char *slash = strrchr(info.dli_fname, '/');
-    int dir = slash ? (int)(slash - info.dli_fname) + 1 : 0;
-    snprintf(path, sizeof(path), "%.*slibulmblas_%s" ULMBLAS_SO, dir,
-             info.dli_fname, backend);
 
     /*  Error handlers defined by the program (or a library loaded before
      *  this one), searched before the backend is loaded; this library
@@ -317,17 +412,20 @@ ulmblas_dispatch_init(void)
 #if defined(__APPLE__)
     void *f77_xerbla = dlsym(RTLD_DEFAULT, "xerbla_");
     void *c_xerbla = dlsym(RTLD_DEFAULT, "cblas_xerbla");
+    void *f77_xerbla_64 = dlsym(RTLD_DEFAULT, "xerbla_64_");
+    void *c_xerbla_64 = dlsym(RTLD_DEFAULT, "cblas_xerbla_64");
 #else
     void *f77_xerbla = (void *)&xerbla_;
     void *c_xerbla = (void *)&cblas_xerbla;
+    void *f77_xerbla_64 = (void *)&xerbla_64_;
+    void *c_xerbla_64 = (void *)&cblas_xerbla_64;
 #endif
 
-    void *handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
-    if (!handle) {
-	fail("cannot load the backend", dlerror());
-    }
-    set_handler(handle, "ulmblas_set_f77_xerbla", f77_xerbla);
-    set_handler(handle, "ulmblas_set_cblas_xerbla", c_xerbla);
+    void *handle = load_backend(backend, info.dli_fname);
+    set_handler(handle, "ulmblas_set_f77_xerbla", f77_xerbla, true);
+    set_handler(handle, "ulmblas_set_cblas_xerbla", c_xerbla, true);
+    set_handler(handle, "ulmblas_set_f77_xerbla_64", f77_xerbla_64, false);
+    set_handler(handle, "ulmblas_set_cblas_xerbla_64", c_xerbla_64, false);
     for (int i = 0; i < ULMBLAS_DISPATCH_COUNT; ++i) {
 	void *f = dlsym(handle, ulmblas_dispatch_names[i]);
 	if (!f) {

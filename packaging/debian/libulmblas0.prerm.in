@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = remove ] || [ "$1" = deconfigure ]; then
+    update-alternatives --remove libblas.so.3-@MULTIARCH@ \
+        /usr/lib/@MULTIARCH@/ulmblas/libblas.so.3 || true
+fi
+
+#DEBHELPER#

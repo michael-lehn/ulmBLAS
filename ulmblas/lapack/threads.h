@@ -2,11 +2,13 @@
 #define ULMBLAS_LAPACK_THREADS_H 1
 
 //
-//  Number of threads of the task-based LAPACK functions (getrf, potrf).
+//  Number of threads of the task-based LAPACK functions (getrf, potrf) and
+//  of the thread pool of the BLAS functions (ThreadPool, e.g. gemm).
 //
 //      setNumThreads(n)   n > 0: use n threads; n <= 0: the default
-//      numThreads()       the number used: the value set, by default
-//                         omp_get_max_threads(); 1 without OpenMP
+//      numThreads()       the number of the LAPACK functions: the value
+//                         set, by default omp_get_max_threads(); 1 without
+//                         OpenMP
 //
 //  The setting is global (all threads of the program), unlike
 //  omp_set_num_threads, which only affects the calling thread.  The C and
@@ -16,6 +18,7 @@
 //
 
 #include <atomic>
+#include <ulmblas/auxiliary/threadpool.h>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -34,6 +37,7 @@ inline void
 setNumThreads(int n)
 {
     numThreadsSetting().store(n > 0 ? n : 0, std::memory_order_relaxed);
+    ThreadPool::instance().setSize(n);
 }
 
 inline int

@@ -1,0 +1,529 @@
+#
+#  Packaging dry run: builds the release tarball (git archive, as GitHub
+#  does), then builds, installs and tests the recipes of packaging/ in the
+#  container or runner of each distribution.  Nothing is published: no
+#  tags, releases, uploads or pull requests.  Started only by hand:
+#
+#      gh workflow run packaging-dryrun.yml --ref BRANCH [-f job=NAME]
+#
+#  job selects one job (default: all).
+#
+name: packaging-dryrun
+
+on:
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'the job to run (all: every job)'
+        type: choice
+        default: all
+        options: [all, debian, fedora, opensuse, arch, alpine, nix, spack,
+                  easybuild, brew, msys2, conda]
+
+concurrency:
+  group: packaging-dryrun-${{ github.ref }}-${{ inputs.job }}
+  cancel-in-progress: true
+
+env:
+  #  the version in the recipes; the tarball is named as GitHub's for the
+  #  tag vVERSION
+  VERSION: 0.4.1
+
+jobs:
+  tarball:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: release tarball (git archive)
+        run: |
+          mkdir dist
+          git archive --prefix=ulmBLAS-$VERSION/ -o dist/v$VERSION.tar.gz HEAD
+          ls -l dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+  debian:
+    needs: tarball
+    if: inputs.job == 'all' || inputs.job == 'debian'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ['debian:stable', 'ubuntu:24.04']
+    container: ${{ matrix.image }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: /tmp/dist
+      - name: build tools
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -q
+          apt-get install -y -q --no-install-recommends build-essential \
+              debhelper dh-exec devscripts gfortran pkgconf lintian ca-certificates
+      - name: build (dpkg-buildpackage)
+        run: |
+          mkdir /tmp/deb && cd /tmp/deb
+          cp /tmp/dist/v$VERSION.tar.gz ulmblas_$VERSION.orig.tar.gz
+          tar xzf ulmblas_$VERSION.orig.tar.gz
+          cd ulmBLAS-$VERSION
+          cp -rL packaging/debian debian
+          dpkg-buildpackage -us -uc -j$(nproc)
+          ls -l /tmp/deb
+      - name: lintian (report only)
+        run: lintian --info /tmp/deb/*.changes || true
+      - name: install and test
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get install -y -q /tmp/deb/libulmblas0_*.deb /tmp/deb/libulmblas-dev_*.deb
+          ldconfig
+          ma=$(dpkg-architecture -qDEB_HOST_MULTIARCH)
+          update-alternatives --display libblas.so.3-$ma
+          dpkg -L libulmblas0 libulmblas-dev
+          cd /tmp/deb/ulmBLAS-$VERSION
+          AUTOPKGTEST_TMP=$(mktemp -d) sh debian/tests/cblas
+          sh packaging/ci/test-installed.sh libblas
+      - name: Debian's LAPACK and NumPy on ulmBLAS
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          ma=$(dpkg-architecture -qDEB_HOST_MULTIARCH)
+          apt-get install -y -q liblapack3 python3-numpy
+          #  the reference BLAS came with liblapack3: back to ulmBLAS
+          update-alternatives --set libblas.so.3-$ma /usr/lib/$ma/ulmblas/libblas.so.3
+          ldconfig
+          update-alternatives --display libblas.so.3-$ma
+          cd /tmp/deb/ulmBLAS-$VERSION
+          cc packaging/ci/libblas-test.c -o /tmp/libblas-test -ldl
+          /tmp/libblas-test
+          python3 - << 'EOF'
+          import numpy as np
+          rng = np.random.default_rng(1)
+          a = rng.standard_normal((400, 400))
+          b = rng.standard_normal((400, 3))
+          x = np.linalg.solve(a, b)
+          r = np.abs(a @ x - b).max()
+          print("solve: residual", r)
+          assert r < 1e-10
+          maps = open("/proc/self/maps").read().splitlines()
+          libs = sorted({l.split()[-1] for l in maps if "blas" in l or "lapack" in l})
+          print("\n".join(libs))
+          assert any("libulmblas_" in l for l in libs)
+          EOF
+
+  fedora:
+    needs: tarball
+    if: inputs.job == 'all' || inputs.job == 'fedora'
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - name: tar and gzip
+        run: dnf install -y -q tar gzip
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: /tmp/dist
+      - name: build tools
+        run: |
+          dnf install -y -q rpm-build rpmlint gcc gcc-c++ gcc-gfortran make \
+              pkgconf flexiblas flexiblas-devel flexiblas-netlib
+      - name: build (rpmbuild)
+        run: |
+          mkdir -p ~/rpmbuild/SOURCES ~/rpmbuild/SPECS
+          cp /tmp/dist/v$VERSION.tar.gz ~/rpmbuild/SOURCES/ulmBLAS-$VERSION.tar.gz
+          tar xzf /tmp/dist/v$VERSION.tar.gz -C /tmp
+          cp /tmp/ulmBLAS-$VERSION/packaging/fedora/ulmblas.conf ~/rpmbuild/SOURCES/
+          cp /tmp/ulmBLAS-$VERSION/packaging/fedora/ulmblas.spec ~/rpmbuild/SPECS/
+          rpmbuild -ba ~/rpmbuild/SPECS/ulmblas.spec
+          find ~/rpmbuild/RPMS ~/rpmbuild/SRPMS -name '*.rpm'
+      - name: rpmlint (report only)
+        run: rpmlint ~/rpmbuild/SPECS/ulmblas.spec ~/rpmbuild/RPMS/*/*.rpm || true
+      - name: install and test
+        run: |
+          dnf install -y -q $(find ~/rpmbuild/RPMS -name '*.rpm' ! -name '*debug*')
+          rpm -ql ulmblas ulmblas-devel flexiblas-ulmblas
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/ci/test-installed.sh
+      - name: FlexiBLAS with the backend ULMBLAS
+        run: |
+          flexiblas list
+          cd /tmp/ulmBLAS-$VERSION
+          cc packaging/ci/flexiblas-test.c $(pkg-config --cflags --libs flexiblas) \
+              -o /tmp/flexiblas-test
+          FLEXIBLAS=ULMBLAS FLEXIBLAS_VERBOSE=1 /tmp/flexiblas-test 2>&1 | tail -30
+          FLEXIBLAS=ULMBLAS /tmp/flexiblas-test
+
+  opensuse:
+    needs: tarball
+    if: inputs.job == 'all' || inputs.job == 'opensuse'
+    runs-on: ubuntu-latest
+    container: opensuse/tumbleweed
+    steps:
+      - name: tar and gzip
+        run: zypper -n install tar gzip
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: /tmp/dist
+      - name: build tools
+        run: |
+          zypper -n install rpm-build gcc-c++ gcc-fortran make pkg-config \
+              update-alternatives
+      - name: build (rpmbuild)
+        run: |
+          mkdir -p ~/rpmbuild/SOURCES ~/rpmbuild/SPECS
+          cp /tmp/dist/v$VERSION.tar.gz ~/rpmbuild/SOURCES/ulmBLAS-$VERSION.tar.gz
+          tar xzf /tmp/dist/v$VERSION.tar.gz -C /tmp
+          cp /tmp/ulmBLAS-$VERSION/packaging/opensuse/ulmblas.spec ~/rpmbuild/SPECS/
+          rpmbuild --define "_topdir $HOME/rpmbuild" -ba ~/rpmbuild/SPECS/ulmblas.spec
+          find ~/rpmbuild/RPMS -name '*.rpm'
+      - name: install and test
+        run: |
+          zypper -n --no-gpg-checks install $(find ~/rpmbuild/RPMS -name '*.rpm' ! -name '*debug*')
+          update-alternatives --display libblas.so.3_x86_64
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/ci/test-installed.sh libblas
+      #  openSUSE's liblapack.so.3 also calls the ILP64 BLAS names
+      #  (cdotc_64_ ...), exported by ulmBLAS's libblas.so.3 (ILP64=1)
+      - name: openSUSE's LAPACK on ulmBLAS
+        run: |
+          zypper -n install liblapack3
+          update-alternatives --display libblas.so.3_x86_64
+          update-alternatives --set libblas.so.3_x86_64 /usr/lib64/ulmblas/libblas.so.3
+          ldconfig
+          cd /tmp/ulmBLAS-$VERSION
+          cc packaging/ci/libblas-test.c -o /tmp/libblas-test -ldl
+          /tmp/libblas-test
+
+  arch:
+    needs: tarball
+    if: inputs.job == 'all' || inputs.job == 'arch'
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: build tools
+        run: pacman -Syu --noconfirm --needed base-devel gcc-fortran pkgconf
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: /tmp/dist
+      - name: build (makepkg)
+        run: |
+          useradd -m builder
+          tar xzf /tmp/dist/v$VERSION.tar.gz -C /tmp
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/set-version.sh $VERSION /tmp/dist/v$VERSION.tar.gz
+          mkdir /tmp/arch
+          cp packaging/arch/PKGBUILD /tmp/arch/
+          #  the source file of the PKGBUILD: makepkg does not download it
+          cp /tmp/dist/v$VERSION.tar.gz /tmp/arch/ulmblas-$VERSION.tar.gz
+          chown -R builder /tmp/arch
+          su builder -c "cd /tmp/arch && MAKEFLAGS=-j$(nproc) makepkg --noconfirm"
+          ls -l /tmp/arch/*.pkg.tar.zst
+      - name: install and test
+        run: |
+          pacman -U --noconfirm /tmp/arch/*.pkg.tar.zst
+          pacman -Ql ulmblas blas-ulmblas
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/ci/test-installed.sh libblas
+      #  Arch's liblapack.so.3 also calls the ILP64 BLAS names (cherk_64_
+      #  ...), exported by ulmBLAS's libblas.so.3 (ILP64=1)
+      - name: Arch's LAPACK on ulmBLAS (blas provided by blas-ulmblas)
+        run: |
+          pacman -S --noconfirm lapack
+          cd /tmp/ulmBLAS-$VERSION
+          cc packaging/ci/libblas-test.c -o /tmp/libblas-test -ldl
+          /tmp/libblas-test
+
+  alpine:
+    needs: tarball
+    if: inputs.job == 'all' || inputs.job == 'alpine'
+    runs-on: ubuntu-latest
+    container: alpine:latest
+    steps:
+      - name: build tools
+        run: apk add --no-cache alpine-sdk gfortran linux-headers pkgconf tar
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: /tmp/dist
+      - name: build (abuild)
+        run: |
+          tar xzf /tmp/dist/v$VERSION.tar.gz -C /tmp
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/set-version.sh $VERSION /tmp/dist/v$VERSION.tar.gz
+          mkdir -p /tmp/alpine/ulmblas /var/cache/distfiles
+          cp packaging/alpine/APKBUILD /tmp/alpine/ulmblas/
+          #  the source file: abuild does not download it
+          cp /tmp/dist/v$VERSION.tar.gz /var/cache/distfiles/ulmblas-$VERSION.tar.gz
+          abuild-keygen -a -n
+          cp ~/.abuild/*.rsa.pub /etc/apk/keys/
+          cd /tmp/alpine/ulmblas
+          #  the dependencies are installed (above)
+          JOBS=$(nproc) abuild -F
+          find ~/packages -name '*.apk'
+      - name: install and test
+        run: |
+          apk add --allow-untrusted $(find ~/packages -name '*.apk')
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/ci/test-installed.sh
+
+  nix:
+    needs: tarball
+    if: inputs.job == 'all' || inputs.job == 'nix'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: /tmp/dist
+      - uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: build ulmblas and nixpkgs' blas with blasProvider = ulmblas
+        run: |
+          tar xzf /tmp/dist/v$VERSION.tar.gz -C /tmp
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/set-version.sh $VERSION /tmp/dist/v$VERSION.tar.gz
+          #  the tarball in the store under the name and hash of fetchurl
+          nix-prefetch-url file:///tmp/dist/v$VERSION.tar.gz
+          cat > /tmp/ci.nix << EOF
+          let
+            pkgs = import <nixpkgs> { };
+            ulmblas = pkgs.callPackage /tmp/ulmBLAS-$VERSION/packaging/nix/package.nix { };
+          in
+          {
+            inherit ulmblas;
+            blas = pkgs.blas.override { blasProvider = ulmblas; };
+          }
+          EOF
+          nix-build /tmp/ci.nix -A ulmblas -o /tmp/result-ulmblas
+          nix-build /tmp/ci.nix -A blas -o /tmp/result-blas
+          ls -lR /tmp/result-ulmblas/lib /tmp/result-blas/lib
+      - name: test through the blas wrapper (its libblas.so.3 is a copy)
+        run: |
+          cd /tmp/ulmBLAS-$VERSION
+          nix-shell -p gcc --run "cc packaging/ci/libblas-test.c -o /tmp/libblas-test -ldl \
+              && LD_LIBRARY_PATH=/tmp/result-blas/lib /tmp/libblas-test"
+
+  spack:
+    needs: tarball
+    if: inputs.job == 'all' || inputs.job == 'spack'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: /tmp/dist
+      - name: spack
+        run: |
+          sudo apt-get install -y -q gfortran
+          git clone --depth 1 https://github.com/spack/spack.git /tmp/spack
+      - name: build (spack install)
+        run: |
+          . /tmp/spack/share/spack/setup-env.sh
+          tar xzf /tmp/dist/v$VERSION.tar.gz -C /tmp
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/set-version.sh $VERSION /tmp/dist/v$VERSION.tar.gz file:///tmp/dist/
+          spack repo create /tmp/ulmrepo ulmtest
+          r=$(find /tmp/ulmrepo -type d -name packages | head -1)
+          mkdir -p $r/ulmblas
+          cp packaging/spack/package.py $r/ulmblas/
+          spack repo add $(dirname $r)
+          spack compiler find
+          spack install --test=root ulmblas || {
+              find /tmp/runner /tmp/spack -name spack-build-out.txt \
+                  -exec tail -20 {} \; 2> /dev/null
+              find /tmp/runner /tmp/spack -name 'install-time-test-log.txt' \
+                  -exec tail -80 {} \; 2> /dev/null
+              exit 1
+          }
+      - name: test
+        run: |
+          . /tmp/spack/share/spack/setup-env.sh
+          export PKG_CONFIG_PATH=$(spack location -i ulmblas)/lib/pkgconfig
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/ci/test-installed.sh
+
+  easybuild:
+    needs: tarball
+    if: inputs.job == 'all' || inputs.job == 'easybuild'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: /tmp/dist
+      - name: EasyBuild and Lmod
+        run: |
+          sudo apt-get install -y -q lmod gfortran
+          python3 -m venv /tmp/ebvenv
+          /tmp/ebvenv/bin/pip install -q easybuild
+      - name: build (eb), with the system toolchain instead of GCCcore
+        run: |
+          . /etc/profile.d/lmod.sh
+          export PATH=/tmp/ebvenv/bin:$PATH
+          tar xzf /tmp/dist/v$VERSION.tar.gz -C /tmp
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/set-version.sh $VERSION /tmp/dist/v$VERSION.tar.gz
+          mkdir -p /tmp/ebsrc/u/ulmBLAS /tmp/ec
+          cp /tmp/dist/v$VERSION.tar.gz /tmp/ebsrc/u/ulmBLAS/
+          for f in packaging/easybuild/*.eb; do
+              sed -e "s/^toolchain = .*/toolchain = SYSTEM/" \
+                  -e "/^builddependencies/d" "$f" > /tmp/ec/ulmBLAS-$VERSION.eb
+          done
+          cat /tmp/ec/ulmBLAS-$VERSION.eb
+          eb /tmp/ec/ulmBLAS-$VERSION.eb --sourcepath=/tmp/ebsrc \
+              --installpath=/tmp/eb --buildpath=/tmp/ebbuild --modules-tool=Lmod \
+              || { cat /tmp/eb*-*.log 2>/dev/null | tail -50; find /tmp -name 'easybuild-*.log' -exec tail -80 {} \; ; exit 1; }
+      - name: test
+        run: |
+          . /etc/profile.d/lmod.sh
+          module use /tmp/eb/modules/all
+          module load ulmBLAS
+          export PKG_CONFIG_PATH=$EBROOTULMBLAS/lib/pkgconfig
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/ci/test-installed.sh
+
+  brew:
+    needs: tarball
+    if: inputs.job == 'all' || inputs.job == 'brew'
+    runs-on: macos-15
+    env:
+      HOMEBREW_NO_INSTALL_FROM_API: 1
+      HOMEBREW_NO_AUTO_UPDATE: 1
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: /tmp/dist
+      - name: the formula for homebrew-core in a local tap
+        run: |
+          tar xzf /tmp/dist/v$VERSION.tar.gz -C /tmp
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/set-version.sh $VERSION /tmp/dist/v$VERSION.tar.gz file:///tmp/dist/
+          brew tap-new --no-git local/dryrun
+          cp packaging/homebrew-core/ulmblas.rb "$(brew --repository local/dryrun)/Formula/"
+      - name: build (brew install --build-from-source) and brew test
+        run: |
+          sysctl -n machdep.cpu.brand_string
+          #  brew test refuses outdated test dependencies
+          brew install pkgconf && brew upgrade pkgconf
+          brew install --build-from-source --verbose local/dryrun/ulmblas
+          brew test --verbose local/dryrun/ulmblas
+      - name: audit and style (report only)
+        run: |
+          brew audit --strict --formula local/dryrun/ulmblas || true
+          brew style local/dryrun/ulmblas || true
+      - name: the SME backend contains SME code, the NEON backend none
+        run: |
+          lib=$(brew --prefix ulmblas)/lib
+          ls -l $lib
+          n=$(otool -tv $lib/libulmblas_sme.dylib | grep -c smstart || true)
+          m=$(otool -tv $lib/libulmblas_neon.dylib | grep -c smstart || true)
+          echo "smstart: sme $n, neon $m"
+          test "$n" -gt 0 && test "$m" -eq 0
+      - name: test
+        run: |
+          brew install gcc pkgconf
+          export PKG_CONFIG_PATH=$(brew --prefix ulmblas)/lib/pkgconfig
+          export FC=$(ls $(brew --prefix gcc)/bin/gfortran-[0-9]* | head -1)
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/ci/test-installed.sh
+
+  msys2:
+    needs: tarball
+    if: inputs.job == 'all' || inputs.job == 'msys2'
+    runs-on: windows-2022
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            base-devel
+            mingw-w64-ucrt-x86_64-cc
+            mingw-w64-ucrt-x86_64-fc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-pkgconf
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: build (makepkg-mingw)
+        run: |
+          d=$(cygpath -u "$GITHUB_WORKSPACE")/dist
+          tar xzf $d/v$VERSION.tar.gz -C /tmp
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/set-version.sh $VERSION $d/v$VERSION.tar.gz
+          mkdir -p /tmp/msys2
+          cp packaging/msys2/PKGBUILD /tmp/msys2/
+          cp $d/v$VERSION.tar.gz /tmp/msys2/ulmblas-$VERSION.tar.gz
+          cd /tmp/msys2
+          MINGW_ARCH=ucrt64 makepkg-mingw -sCLf --noconfirm
+          ls -l *.pkg.tar.zst
+      - name: install and test (exports with DGEMM and dgemm)
+        run: |
+          pacman -U --noconfirm /tmp/msys2/*.pkg.tar.zst
+          pacman -Ql mingw-w64-ucrt-x86_64-ulmblas
+          objdump -p /ucrt64/bin/libulmblas.dll > /tmp/objdump.txt
+          sed -n '/\[Ordinal\/Name Pointer\] Table/,/^$/p' /tmp/objdump.txt \
+              | awk 'NF{print $NF}' | sort > /tmp/exports.txt
+          echo "exports: $(wc -l < /tmp/exports.txt)"
+          grep -x -E "dgemm_|dgemm|DGEMM|cblas_dgemm|ulmblas_backend" /tmp/exports.txt
+          test $(grep -c -x -E "dgemm_|dgemm|DGEMM" /tmp/exports.txt) = 3
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/ci/test-installed.sh
+      - name: LAPACK DLL (libulmlapack.dll) and the LAPACK test suite
+        run: |
+          mkdir -p /tmp/lapack
+          cp /ucrt64/bin/libulmblas*.dll /ucrt64/lib/libulmblas.dll.a /tmp/lapack/
+          cd /tmp/ulmBLAS-$VERSION
+          export PATH=/tmp/lapack:$PATH CMAKE_GENERATOR=Ninja
+          FC=gfortran sh interfaces/lapack/reference/build.sh /tmp/lapack /tmp/lapack-build test \
+              || { tail -60 /tmp/lapack-build/*.log; exit 1; }
+          ls -l /tmp/lapack
+          objdump -p /tmp/lapack/libulmlapack.dll | grep "DLL Name"
+          echo "WIN_LAPACK=$(cygpath -w /tmp/lapack)" >> $GITHUB_ENV
+          echo "WIN_UCRT64=$(cygpath -w /ucrt64)" >> $GITHUB_ENV
+          echo "WIN_SRC=$(cygpath -w /tmp/ulmBLAS-$VERSION)" >> $GITHUB_ENV
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: an MSVC program with ulmblas.lib and ulmlapack.lib
+        shell: cmd
+        run: |
+          cl /nologo /DLAPACK %WIN_SRC%\packaging\ci\msvc-test.c %WIN_UCRT64%\lib\ulmblas.lib %WIN_LAPACK%\ulmlapack.lib /Fe:msvc-test.exe
+          if errorlevel 1 exit 1
+          set PATH=%WIN_LAPACK%;%WIN_UCRT64%\bin;%PATH%
+          msvc-test.exe
+
+  conda:
+    needs: tarball
+    if: inputs.job == 'all' || inputs.job == 'conda'
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: /tmp/dist
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: tools
+          create-args: rattler-build conda-forge-pinning
+          init-shell: bash
+      - name: build and test (rattler-build)
+        run: |
+          tar xzf /tmp/dist/v$VERSION.tar.gz -C /tmp
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/set-version.sh $VERSION /tmp/dist/v$VERSION.tar.gz file:///tmp/dist/
+          rattler-build build --recipe packaging/conda-forge/ulmblas/recipe.yaml \
+              --variant-config "$CONDA_PREFIX/conda_build_config.yaml" \
+              --output-dir /tmp/conda-out

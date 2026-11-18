@@ -161,14 +161,14 @@ update_32x8(long n, double alpha, double beta, double *C, long ldC,
 
 //
 //  The rows 0 to mr-1 and columns 0 to nr-1 of the 32 x 16 tile of C (mr
-//  <= 32, nr <= 16) with unit row stride and column stride ldC, in streaming
-//  mode (see ugemm_32x16).
+//  <= 32, nr <= 16) with unit row stride and column stride ldC, called in
+//  streaming mode with ZA enabled (e.g. by a macro kernel that runs in
+//  streaming mode as a whole; ZA is overwritten).
 //
-__arm_new("za") __arm_locally_streaming
 inline void
-ugemm_32x16_streaming(long kc, double alpha, const double *A,
-                      const double *B, double beta, double *C, long ldC,
-                      long mr, long nr)
+ugemm_32x16_za(long kc, double alpha, const double *A, const double *B,
+               double beta, double *C, long ldC, long mr, long nr)
+    __arm_streaming __arm_inout("za")
 {
     const svbool_t  p  = svptrue_b64();
     const svcount_t pc = svptrue_c64();
@@ -216,6 +216,18 @@ ugemm_32x16_streaming(long kc, double alpha, const double *A,
 }
 
 //
+//  The same in a streaming section of its own with new ZA state.
+//
+__arm_new("za") __arm_locally_streaming
+inline void
+ugemm_32x16_streaming(long kc, double alpha, const double *A,
+                      const double *B, double beta, double *C, long ldC,
+                      long mr, long nr)
+{
+    ugemm_32x16_za(kc, alpha, A, B, beta, C, ldC, mr, nr);
+}
+
+//
 //  The same, called from ordinary code.  Before entering streaming mode the
 //  tile of C below is prefetched (into L2), the tile of the next call of
 //  the macro kernel (mgemm): C comes from memory, and loading it into ZA
@@ -239,18 +251,11 @@ ugemm_32x16(long kc, double alpha, const double *A, const double *B,
 }
 
 template <typename IndexType>
-static typename std::enable_if<std::is_convertible<IndexType,long>::value,
-void>::type
-ugemm(IndexType      kc,
-      const double   &alpha,
-      const double   *A,
-      const double   *B,
-      const double   &beta,
-      double         *C,
-      IndexType      incRowC,
-      IndexType      incColC,
-      const double   *,
-      const double   *)
+static typename std::enable_if<std::is_convertible<IndexType, long>::value,
+                               void>::type
+ugemm(IndexType kc, const double &alpha, const double *A, const double *B,
+      const double &beta, double *C, IndexType incRowC, IndexType incColC,
+      const double *nextA, const double *nextB)
 {
     constexpr IndexType MR = BlockSizeUGemm<double>::MR;
     constexpr IndexType NR = BlockSizeUGemm<double>::NR;
@@ -282,18 +287,10 @@ ugemm(IndexType      kc,
 
 template <typename IndexType>
 void
-ugemm(IndexType      mr,
-      IndexType      nr,
-      IndexType      kc,
-      const double   &alpha,
-      const double   *A,
-      const double   *B,
-      const double   &beta,
-      double         *C,
-      IndexType      incRowC,
-      IndexType      incColC,
-      const double   *,
-      const double   *)
+ugemm(IndexType mr, IndexType nr, IndexType kc, const double &alpha,
+      const double *A, const double *B, const double &beta, double *C,
+      IndexType incRowC, IndexType incColC, const double *nextA,
+      const double *nextB)
 {
     constexpr IndexType MR = sme::BlockSizeUGemm<double>::MR;
     constexpr IndexType NR = sme::BlockSizeUGemm<double>::NR;

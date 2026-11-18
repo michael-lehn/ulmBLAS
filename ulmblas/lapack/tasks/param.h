@@ -4,10 +4,13 @@
 //
 //  Parameters of the task-based factorizations.  The defaults were tuned
 //  for double on one socket of a Xeon Platinum 8358 (Ice Lake, 32 cores);
-//  see experiments/lapack/README.md (Tuning).
+//  see experiments/lapack/README.md (Tuning).  potrf and the inverses: the
+//  parameters of the platform (tuned(), ulmblas/config/tuned.h; measured by
+//  make tune, otherwise these defaults).
 //
 
 #include <algorithm>
+#include <ulmblas/config/tuned.h>
 
 namespace ulmBLAS {
 namespace tasks {
@@ -25,18 +28,16 @@ struct Param
 inline Param
 potrfParam(long n, int threads)
 {
+    const Tuned &t = tuned();
     Param p;
-    p.nb = (n < 250)    ? 32
-           : (n < 600)  ? 48
-           : (n < 900)  ? 64
-           : (n < 2200) ? 96
-                        : 128;
+    p.nb = std::max(1L, long(t.potrfNb(std::int64_t(n))));
     p.ib = 0;
     p.panelThreads = 1;
-    p.serialN = 100;
-    //  about one thread per 64 rows (at least 4): more threads only add
-    //  idle time and synchronization for small and medium n
-    p.threads = std::max(1, std::min(threads, std::max(4, int(n / 64))));
+    p.serialN = long(t.potrfSerialN);
+    //  about one thread per 64 rows (potrfRowsPerThread, at least 4): more
+    //  threads only add idle time and synchronization for small and medium n
+    const long rows = std::max(1L, long(t.potrfRowsPerThread));
+    p.threads = std::max(1, std::min(threads, std::max(4, int(n / rows))));
     //  more threads than tiles of the trailing matrix do not help
     const long nt = (n + p.nb - 1) / p.nb;
     const long tiles = nt * (nt + 1) / 2;
@@ -65,7 +66,7 @@ inline Param
 inverseParam(long n, int threads)
 {
     Param p = potrfParam(n, threads);
-    p.serialN = 128;
+    p.serialN = long(tuned().inverseSerialN);
     return p;
 }
 

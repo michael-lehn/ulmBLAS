@@ -30,7 +30,7 @@ matrix product) is explained in more detail in my tutorial
 It is based on the BLIS paper by Van Zee and van de Geijn (see
 [Background and citation](#background-and-citation)).  I am working on a
 similar tutorial for a GEMM implemented with CUDA:
-[cULMblas](cuda/README.md).
+[cULMblas](https://github.com/michael-lehn/ulmBLAS/blob/master/cuda/README.md).
 
 It implements the complete BLAS (Basic Linear Algebra Subprograms), all
 routines of levels 1, 2 and 3 for single and double precision, real and
@@ -114,7 +114,7 @@ documented, reproducible benchmarks.  It is also listed in
 ## Work in Progress
 
 - **CUDA:** Playing with CUDA kernels and GPU performance, GEMM step by
-  step.  See the [CUDA tutorial](cuda/) in this repository and
+  step.  See the [CUDA tutorial](https://github.com/michael-lehn/ulmBLAS/tree/master/cuda) in this repository and
   [cuda-tutorial](https://github.com/michael-lehn/cuda-tutorial).
 - **LAPACK:** LU and Cholesky (`?getrf`, `?potrf`), solves and inverses
   (`?getrs`, `?gesv`, `?potrs`, `?posv`, `?trtrs`, `?trtri`, `?lauum`,
@@ -123,16 +123,16 @@ documented, reproducible benchmarks.  It is also listed in
   (`ulmblas/lapack/`), and in the C and Fortran 77 interfaces.  With
   `OPENMP=1` larger matrices are factored and solved with PLASMA-like
   OpenMP tasks, in place.
-  [Experiments and benchmarks](experiments/lapack/),
+  [Experiments and benchmarks](https://github.com/michael-lehn/ulmBLAS/tree/master/experiments/lapack),
   [build and use](INSTALL.md#lapack-functions).
 
 ## Performance
 
 I benchmark ulmBLAS on the machines I have access to.  The results are in
-[PERFORMANCE.md](PERFORMANCE.md), sorted by operation and data type and
+[PERFORMANCE.md](https://github.com/michael-lehn/ulmBLAS/blob/master/PERFORMANCE.md), sorted by operation and data type and
 with a list of the machines.  My experiments with the SME2 backend on the
-Apple M5 are in [M5_EXPERIMENTS.md](M5_EXPERIMENTS.md), and the
-[benchmark archive](benchmark_results/README.md) has every campaign with
+Apple M5 are in [M5_EXPERIMENTS.md](https://github.com/michael-lehn/ulmBLAS/blob/master/M5_EXPERIMENTS.md), and the
+[benchmark archive](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/README.md) has every campaign with
 its raw data.  If you run the benchmarks on a machine I don't have
 ([How to Run Your Own Benchmarks](ARCHITECTURE.md#how-to-run-your-own-benchmarks)), I'd
 be glad to hear about the results.
@@ -140,9 +140,9 @@ be glad to hear about the results.
 A benchmark plot takes some space, but people expect one on the front page
 of an HPC BLAS library, so here we go.  This is DGEMM on one performance
 core of an Apple M5 (MacBook Air) with the SME2 backend of ulmBLAS
-([campaign 007](benchmark_results/007-2026-10-26-macbook-m5-sme-small/README.md)):
+([campaign 007](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/007-2026-10-26-macbook-m5-sme-small/README.md)):
 
-![Square DGEMM n = 50 ... 4000 on an Apple M5: ulmBLAS SME2, Apple Accelerate, BLIS PR #921](benchmark_results/007-2026-10-26-macbook-m5-sme-small/plots/sweep.svg)
+![Square DGEMM n = 50 ... 4000 on an Apple M5: ulmBLAS SME2, Apple Accelerate, BLIS PR #921](https://raw.githubusercontent.com/michael-lehn/ulmBLAS/master/benchmark_results/007-2026-10-26-macbook-m5-sme-small/plots/sweep.svg)
 
 The plot shows how fast the product C ← A B + C of two square n x n
 matrices of double precision numbers is computed, for n from 50 to 4000.
@@ -155,12 +155,12 @@ it, the better the hardware is used.  For large matrices ulmBLAS reaches
 up to 490 GFLOP/s and is 1.06 to 1.15 times as fast as Apple Accelerate
 (n ≥ 1050).  For medium sizes (n = 36 … 850) Accelerate is still faster.
 
-In the [cULMblas tutorial](cuda/README.md) (work in progress) you will
+In the [cULMblas tutorial](https://github.com/michael-lehn/ulmBLAS/blob/master/cuda/README.md) (work in progress) you will
 find a whole bunch of benchmarks for GEMM with CUDA, where we start with a
 simple implementation, try to make progress step by step, and sometimes
 hit a wall and have to reconsider:
 
-![DGEMM on an NVIDIA A100: the steps of the cULMblas tutorial, cuBLAS and MAGMA](cuda/step14/bench.svg)
+![DGEMM on an NVIDIA A100: the steps of the cULMblas tutorial, cuBLAS and MAGMA](https://raw.githubusercontent.com/michael-lehn/ulmBLAS/master/cuda/step14/bench.svg)
 
 ## Supported Platforms
 
@@ -451,7 +451,7 @@ Computing* (MATH9367, Ulm University).  The current lecture is
 sessions build a blocked GEMM step by step, as described in
 [ARCHITECTURE.md](ARCHITECTURE.md).  Its last sessions turn to CUDA, and
 that is where my new side project starts: a tutorial on BLAS with CUDA in
-[cuda/](cuda/README.md), so far with a simple GEMM kernel, tested and
+[cuda/](https://github.com/michael-lehn/ulmBLAS/blob/master/cuda/README.md), so far with a simple GEMM kernel, tested and
 benchmarked against cuBLAS.  There is also a
 [course page for ulmBLAS](http://www.mathematik.uni-ulm.de/~lehn/ulmBLAS),
 the [general course page](http://www.mathematik.uni-ulm.de/~lehn/sghpc),

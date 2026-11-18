@@ -1084,6 +1084,166 @@ testNrm2InfNaN(Context &ctx)
     }
 }
 
+//
+//  NRM2 and IAMAX of long vectors (partial sums, peeled first elements,
+//  blocks of iamax) with NaN, Inf and huge values at different positions,
+//  for positive increments and with the first element at different
+//  alignments.  Expected: nrm2 is NaN if a part is NaN, otherwise Inf if a
+//  part is infinite, otherwise as referenceNrm2; iamax as the scalar
+//  algorithms below (Reference-LAPACK after 3.12.1).
+//
+template <typename R>
+int
+referenceIamax(int n, const R *x, int inc)
+{
+    int iMax = 0;
+    R absMax = -1;
+    for (int i = 0; i < n; ++i) {
+	R a = std::abs(x[i * inc]);
+	if (std::isnan(a)) {
+	    return i;
+	}
+	if (a > absMax) {
+	    absMax = a;
+	    iMax = i;
+	}
+    }
+    return iMax;
+}
+
+template <typename R>
+int
+referenceIamax(int n, const std::complex<R> *x, int inc)
+{
+    const R hugeVal = std::numeric_limits<R>::max();
+    int iMax = 0;
+    R absMax = -1;
+    bool scaled = false;
+
+    for (int i = 0; i < n; ++i) {
+	R re = std::abs(x[i * inc].real()), im = std::abs(x[i * inc].imag());
+	if (std::isnan(re) || std::isnan(im)) {
+	    return i;
+	}
+	if (re > hugeVal || im > hugeVal) {
+	    for (int j = i + 1; j < n; ++j) {
+		if (std::isnan(x[j * inc].real()) ||
+		    std::isnan(x[j * inc].imag())) {
+		    return j;
+		}
+	    }
+	    return i;
+	}
+	R a = scaled ? R(0.25) * re + R(0.25) * im : re + im;
+	if (!scaled && a > hugeVal) {
+	    scaled = true;
+	    iMax = i;
+	    absMax = R(0.25) * re + R(0.25) * im;
+	} else if (a > absMax) {
+	    iMax = i;
+	    absMax = a;
+	}
+    }
+    return iMax;
+}
+
+template <typename T>
+void
+testLongNrm2Iamax(Context &ctx)
+{
+    typedef typename Real<T>::type R;
+
+    const double I = std::numeric_limits<double>::infinity();
+    const double N = std::numeric_limits<double>::quiet_NaN();
+    const double H = double(std::numeric_limits<R>::max()) * 0.75;
+    const bool cplx = IsComplex<T>::value;
+    //  special values (real and imaginary part) at two positions; 'n':
+    //  none
+    struct Special
+    {
+	double re, im;
+    };
+    const Special special[] = {{N, 0}, {I, 0},  {-I, 0}, {0, N}, {2, -I},
+                               {H, H}, {-H, 0}, {5, 0},  {0, 0}};
+    const int numSpecial = sizeof(special) / sizeof(special[0]);
+    const int sizes[] = {2, 40, 100, 1500, 3000};
+    const int incs[] = {1, 2};
+
+    Random random;
+    for (int d = 0; d < 5; ++d) {
+	for (int c = 0; c < 2; ++c) {
+	    for (int offset = 0; offset < 4; ++offset) {
+		const int n = sizes[d], inc = incs[c];
+		const int pos[] = {0, 1, n / 3, n - 2, n - 1};
+		for (int s1 = 0; s1 < numSpecial; ++s1) {
+		    for (int s2 = 0; s2 < numSpecial; s2 += 2) {
+			for (int k = 0; k < 5; ++k) {
+			    if (!cplx &&
+			        (special[s1].im != 0 || special[s2].im != 0)) {
+				continue;
+			    }
+			    std::vector<T> v(offset + 1 + (n - 1) * inc);
+			    T *x = &v[offset];
+			    for (int i = 0; i < n; ++i) {
+				x[i * inc] = random.value<T>();
+			    }
+			    const int p = pos[k], q = pos[(k + 2) % 5];
+			    x[p * inc] = fromCdouble<T>(
+			        cdouble(special[s1].re, special[s1].im));
+			    x[q * inc] = fromCdouble<T>(
+			        cdouble(special[s2].re, special[s2].im));
+
+			    bool nan = false, inf = false;
+			    for (int i = 0; i < n; ++i) {
+				const R re = std::real(x[i * inc]);
+				const R im = std::imag(x[i * inc]);
+				nan = nan || std::isnan(re) || std::isnan(im);
+				inf = inf || std::isinf(re) || std::isinf(im);
+			    }
+			    const R r = blas::nrm2(n, x, inc);
+			    bool ok;
+			    if (nan) {
+				ok = std::isnan(r);
+			    } else if (inf) {
+				ok = std::isinf(r) && r > 0;
+			    } else {
+				Vector<T> y(n, 1);
+				for (int i = 0; i < n; ++i) {
+				    y(i) = x[i * inc];
+				}
+				const double e = referenceNrm2(y);
+				ok =
+				    std::abs(double(r) - e) <=
+				        tolerance<T>(n) * e ||
+				    (std::isinf(r) &&
+				     e > double(std::numeric_limits<R>::max()));
+			    }
+			    const int i = blas::iamax(n, x, inc);
+			    const int e = referenceIamax(n, x, inc);
+			    if (!ctx.check(
+			            ok,
+			            "nrm2(n=%d,incX=%d), offset %d, x(%d)=%s, "
+			            "x(%d)=%s: %g, %s",
+			            n, inc, offset, p, str(x[p * inc]).c_str(),
+			            q, str(x[q * inc]).c_str(), double(r),
+			            typeName<T>()) ||
+			        !ctx.check(
+			            i == e,
+			            "iamax(n=%d,incX=%d), offset %d, x(%d)=%s, "
+			            "x(%d)=%s: %d, expected %d, %s",
+			            n, inc, offset, p, str(x[p * inc]).c_str(),
+			            q, str(x[q * inc]).c_str(), i, e,
+			            typeName<T>())) {
+				return;
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+}
+
 } // namespace
 
 ULMBLAS_TEST(T0100, "level1/axpy")
@@ -1230,4 +1390,13 @@ ULMBLAS_TEST(T0120, "level1/nrm2 with Inf and NaN")
     testNrm2InfNaN<double>(ctx);
     testNrm2InfNaN<cfloat>(ctx);
     testNrm2InfNaN<cdouble>(ctx);
+}
+
+ULMBLAS_TEST(T0121, "level1/nrm2, iamax of long vectors with NaN, Inf and "
+                    "huge values")
+{
+    testLongNrm2Iamax<float>(ctx);
+    testLongNrm2Iamax<double>(ctx);
+    testLongNrm2Iamax<cfloat>(ctx);
+    testLongNrm2Iamax<cdouble>(ctx);
 }

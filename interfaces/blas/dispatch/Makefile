@@ -18,7 +18,10 @@
 #  exports the functions of the backends (generated trampolines) and
 #  ulmblas_backend() (the name of the selected backend).  Not forwarded:
 #  the two variables of the reference CBLAS (RowMajorStrg, CBLAS_CallFromC)
-#  and the error handlers xerbla_ and cblas_xerbla (see dispatch.c).
+#  and the error handlers xerbla_ and cblas_xerbla, and xerbla_64_ and
+#  cblas_xerbla_64 of the ILP64 interfaces (see dispatch.c).  The
+#  backends have the ILP64 interfaces unless they are built with ILP64=0
+#  (../shared); the front then forwards them as well.
 #
 #  The platform is that of the compiler ($(CXX) -dumpmachine), so cross
 #  compilers work (CC, CXX, AR, RANLIB, NM, as for ../shared).  On other
@@ -40,7 +43,7 @@ X86_SSE3 = -msse3 -mfpmath=sse
 
 ifneq (,$(findstring mingw,$(TARGET_MACHINE)))
 FORMAT         = coff-x86_64
-BACKENDS       = sse3 avx2 avx512
+BACKENDS       = sse3 avx2 avx512 generic
 SO             = .dll
 DISPATCH_LIB   = $(OUTDIR)/libulmblas.dll
 DISPATCH_ALIAS =
@@ -60,29 +63,45 @@ DISPATCH_LINK  = -dynamiclib -install_name @rpath/libulmblas.0.dylib \
 SYMBOL_PREFIX  = _
 else ifneq (,$(filter x86_64-%,$(TARGET_MACHINE)))
 FORMAT         = elf-x86_64
-BACKENDS       = sse3 avx2 avx512
+BACKENDS       = sse3 avx2 avx512 generic
 SO             = .so
 DISPATCH_LIB   = $(OUTDIR)/libulmblas.so.0
 DISPATCH_ALIAS = $(OUTDIR)/libulmblas.so
 DISPATCH_LINK  = -shared -Wl,-soname,libulmblas.so.0 -static-libgcc \
                  -Wl,--version-script,$(BUILD_DIR)/exports.txt -ldl
 SYMBOL_PREFIX  =
-else
+else ifeq (,$(filter clean,$(MAKECMDGOALS)))
 $(error no dispatching library for $(TARGET_MACHINE): use make shared SHARED_VERSION=0)
 endif
 
 #  ARCHFLAGS of the backends
 ARCHFLAGS_neon   =
-ARCHFLAGS_sme    = -mcpu=apple-m4
+#  sme: overridable, e.g. ARCHFLAGS_sme='-march=armv9.2-a+sme2+sme-f64f64+nosve'
+#  where -mcpu is removed by the build tool (Homebrew's compiler shim)
+ARCHFLAGS_sme   ?= -mcpu=apple-m4
 ARCHFLAGS_sse3   = $(X86_SSE3)
-ARCHFLAGS_avx2   = $(X86_SSE3) -mavx -mfma -mavx2
-ARCHFLAGS_avx512 = $(X86_SSE3) -mavx -mfma -mavx2 -mavx512f \
-                   -DULMBLAS_DGEMM_UKERNEL_openblas_skylakex_16x12
+#  generic: the portable kernels, for every x86-64 CPU (SSE2)
+ARCHFLAGS_generic =
+#  and their micro kernels for float, complex float and complex double (the
+#  fastest in the campaigns 027, 030, 031, 033, 034, PERFORMANCE.md; double:
+#  avx2 the own AVX kernel, avx512 OpenBLAS SKYLAKEX)
+ARCHFLAGS_avx2   = $(X86_SSE3) -mavx -mfma -mavx2 \
+                   -DULMBLAS_SGEMM_UKERNEL_openblas_haswell_8x4 \
+                   -DULMBLAS_CGEMM_UKERNEL_openblas_haswell_8x2 \
+                   -DULMBLAS_ZGEMM_UKERNEL_openblas_haswell_4x2
+ARCHFLAGS_avx512 = $(X86_SSE3) -mavx -mfma -mavx2 -mavx512f -mavx512dq \
+                   -mavx512vl \
+                   -DULMBLAS_DGEMM_UKERNEL_openblas_skylakex_16x12 \
+                   -DULMBLAS_SGEMM_UKERNEL_openblas_skylakex_16x4 \
+                   -DULMBLAS_CGEMM_UKERNEL_openblas_skylakex_8x2 \
+                   -DULMBLAS_ZGEMM_UKERNEL_blis_zen4_12x4
 
 BACKEND_LIBS = $(foreach b,$(BACKENDS),$(OUTDIR)/libulmblas_$(b)$(SO))
 
 .DELETE_ON_ERROR :
-.PHONY : all clean FORCE
+.PHONY : all clean sonames FORCE
+
+COMMA := ,
 
 all : $(DISPATCH_LIB) $(BACKEND_LIBS) $(DISPATCH_IMPLIB)
 
@@ -96,7 +115,7 @@ $(OUTDIR)/libulmblas_%$(SO) : FORCE
 #  the three formats), without the error handlers, the functions that set
 #  them, the two variables and ulmblas_backend (the front has its own);
 #  all backends must export the same
-EXCLUDED = '^(ulmblas_backend|xerbla_|cblas_xerbla|ulmblas_set_f77_xerbla|ulmblas_set_cblas_xerbla|RowMajorStrg|CBLAS_CallFromC)$$'
+EXCLUDED = '^(ulmblas_backend|xerbla_|cblas_xerbla|ulmblas_set_f77_xerbla|ulmblas_set_cblas_xerbla|xerbla_64_|cblas_xerbla_64|ulmblas_set_f77_xerbla_64|ulmblas_set_cblas_xerbla_64|RowMajorStrg|CBLAS_CallFromC)$$'
 
 functions_of = sed -e 's/[{};]/ /g' $(1) | tr ' \t' '\n\n' \
                | grep -E '^_?[A-Za-z][A-Za-z0-9_]*$$' \
@@ -109,8 +128,9 @@ $(BUILD_DIR)/functions.txt : $(BACKEND_LIBS)
 	    e=`ls $(BUILD_DIR)/$$b/exports.txt $(BUILD_DIR)/$$b/exports.def 2>/dev/null | head -1`; \
 	    $(call functions_of,$$e) > $@.$$b; \
 	    if [ -z "$$first" ]; then first=$$b; \
-	    elif ! cmp -s $@.$$first $@.$$b; then \
+	    elif [ "`cat $@.$$first`" != "`cat $@.$$b`" ]; then \
 	        echo "error: the backends $$first and $$b export different functions"; \
+	        cat $@.$$first $@.$$b | sort | uniq -u | head -20; \
 	        exit 1; \
 	    fi; \
 	done; mv $@.$$first $@; rm -f $@.*
@@ -129,8 +149,12 @@ $(BUILD_DIR)/exports.txt : $(BUILD_DIR)/functions.txt
 	      echo 'local: *; };'; } > $@; \
 	fi
 
+#  BACKEND_DIR (optional): the directory of the installed backends, for
+#  packages that install them in a directory of their own
 $(BUILD_DIR)/dispatch.o : dispatch.c $(BUILD_DIR)/names.h
-	$(CC) $(CFLAGS) -O2 -fPIC -I$(BUILD_DIR) -c -o $@ $<
+	$(CC) $(CFLAGS) -O2 -fPIC -I$(BUILD_DIR) \
+	      $(if $(BACKEND_DIR),-DULMBLAS_BACKEND_DIR='"$(BACKEND_DIR)"') \
+	      -c -o $@ $<
 
 $(BUILD_DIR)/trampolines.o : $(BUILD_DIR)/trampolines.S
 	$(CC) -c -o $@ $<
@@ -141,16 +165,46 @@ $(DISPATCH_LIB) : $(BUILD_DIR)/dispatch.o $(BUILD_DIR)/trampolines.o \
 	      $(BUILD_DIR)/trampolines.o $(DISPATCH_LINK)
 	$(if $(DISPATCH_ALIAS),ln -sf $(notdir $@) $(DISPATCH_ALIAS))
 
+#  For distribution packages (Linux): the dispatching library once more as
+#  libblas.so.3 and libcblas.so.3, the SONAMEs of the BLAS of the
+#  distributions (Debian's and openSUSE's alternatives, Gentoo's
+#  providers), so that programs built against them record these names.
+#  They are installed in a directory of their own (e.g.
+#  .../x86_64-linux-gnu/ulmblas/), so they find the backends through
+#  BACKEND_DIR, the directory where the backends are installed (make
+#  sonames BACKEND_DIR=...; see ULMBLAS_BACKEND_DIR in dispatch.c).
+#
+SONAME_LIBS = $(OUTDIR)/libblas.so.3 $(OUTDIR)/libcblas.so.3
+
+sonames : $(SONAME_LIBS) $(BACKEND_LIBS)
+
+$(BUILD_DIR)/dispatch-sonames.o : dispatch.c $(BUILD_DIR)/names.h FORCE
+	@test -n "$(BACKEND_DIR)" || \
+	    { echo "make sonames: BACKEND_DIR (the installed backends) is missing"; exit 2; }
+	$(CC) $(CFLAGS) -O2 -fPIC -I$(BUILD_DIR) \
+	      -DULMBLAS_BACKEND_DIR='"$(BACKEND_DIR)"' -c -o $@ $<
+
+$(SONAME_LIBS) : $(BUILD_DIR)/dispatch-sonames.o $(BUILD_DIR)/trampolines.o \
+                 $(BUILD_DIR)/exports.txt
+	$(CC) $(LDFLAGS) -o $@ $(BUILD_DIR)/dispatch-sonames.o \
+	      $(BUILD_DIR)/trampolines.o \
+	      $(subst -soname$(COMMA)libulmblas.so.0,-soname$(COMMA)$(notdir $@),$(DISPATCH_LINK))
+
 #  Windows: the exports of libulmblas.dll as a .def file, and from it the
-#  import library ulmblas.lib (for MSVC; MinGW uses libulmblas.dll.a)
+#  import library ulmblas.lib (for MSVC; MinGW uses libulmblas.dll.a); the
+#  Fortran 77 names also as DGEMM and dgemm (see gen.sh)
 $(BUILD_DIR)/exports.def : $(BUILD_DIR)/functions.txt
 	{ echo LIBRARY libulmblas.dll; echo EXPORTS; \
-	  sed 's/^/    /' $<; echo '    ulmblas_backend'; } > $@
+	  awk '{ print "    " $$1 } \
+	       /^[a-z][a-z0-9]*_$$/ { f = substr($$1, 1, length($$1) - 1); \
+	                              print "    " f; print "    " toupper(f) }' $<; \
+	  echo '    ulmblas_backend'; } > $@
 
 $(OUTDIR)/ulmblas.lib : $(BUILD_DIR)/exports.def $(DISPATCH_LIB)
 	$(DLLTOOL) -d $< -D libulmblas.dll -l $@
 
 clean :
 	$(RM) -r $(BUILD_DIR) $(DISPATCH_LIB) $(DISPATCH_ALIAS) $(BACKEND_LIBS) \
+	      $(OUTDIR)/libblas.so.3 $(OUTDIR)/libcblas.so.3 \
 	      $(OUTDIR)/libulmblas.dll.a $(DISPATCH_IMPLIB) \
 	      $(foreach b,$(BACKENDS),$(OUTDIR)/libulmblas_$(b).dll.a)

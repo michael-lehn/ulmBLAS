@@ -3411,6 +3411,25 @@ ULMBLAS(ztrsm)(enum CBLAS_SIDE       side,
                ULMBLAS_INDEX_TYPE    ldB);
 
 //
+//  Threads (ulmBLAS extension): the number of threads of the BLAS functions
+//  and of the task-based LAPACK functions (n > 0 sets it, n <= 0 restores
+//  the default), and their affinity (Linux only; 1: one CPU per thread,
+//  one per core first; 2, the default: as 1 for one call, then unpinned
+//  (placed once); 0: none).  Global settings, effective at the next call.
+//
+void
+ULMBLAS(set_num_threads)(int n);
+
+int
+ULMBLAS(get_num_threads)(void);
+
+void
+ULMBLAS(set_affinity)(ptrdiff_t mode);
+
+ptrdiff_t
+ULMBLAS(get_affinity)(void);
+
+//
 //  Functions NOT implemented
 //
 

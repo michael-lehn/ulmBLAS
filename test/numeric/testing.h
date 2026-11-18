@@ -188,23 +188,23 @@ class Random
 
   private:
     float
-    make(float *)
+    make(float *tag)
     {
 	return float(uniform());
     }
     double
-    make(double *)
+    make(double *tag)
     {
 	return uniform();
     }
     cfloat
-    make(cfloat *)
+    make(cfloat *tag)
     {
 	float re = float(uniform());
 	return cfloat(re, float(uniform()));
     }
     cdouble
-    make(cdouble *)
+    make(cdouble *tag)
     {
 	double re = uniform();
 	return cdouble(re, uniform());
@@ -258,7 +258,7 @@ class Context
 //
 //  Registry of test cases
 //
-typedef void (*TestFunction)(Context &);
+typedef void (*TestFunction)(Context &ctx);
 
 struct TestCase
 {
@@ -287,7 +287,7 @@ struct Registrar
 };
 
 #define ULMBLAS_TEST_DESIGN(ID, NAME, ISSUE, RECORDED)                         \
-    static void test_##ID(test::Context &);                                    \
+    static void test_##ID(test::Context &ctx);                                 \
     static test::Registrar registrar_##ID(#ID, NAME, test_##ID, ISSUE,         \
                                           RECORDED);                           \
     static void test_##ID(test::Context &ctx)

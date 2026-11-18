@@ -14,6 +14,16 @@ extern "C" {
 void F77BLAS(xerbla)(const char *rout, const ULMBLAS_INDEX_TYPE *info,
                      std::size_t len);
 
+//
+//  SUBROUTINE XERBLA_ARRAY( SRNAME_ARRAY, SRNAME_LEN, INFO ) of the
+//  Reference BLAS, for callers that have the name as an array of
+//  characters (e.g. C): calls XERBLA with the first min(SRNAME_LEN, 32)
+//  characters.  The hidden length (of one element) follows.
+//
+void F77BLAS(xerbla_array)(const char *srname_array,
+                           const ULMBLAS_INDEX_TYPE *srname_len,
+                           const ULMBLAS_INDEX_TYPE *info, std::size_t len);
+
 } // extern "C"
 
 #endif // INTERFACE_BLAS_F77_XERBLA_H

@@ -10,12 +10,12 @@ TOPDIR = .
 
 include $(TOPDIR)/make.inc
 
-.PHONY : all cblas atlblas clapack atllapack f77blas f77lapack refblas lbt shared \
+.PHONY : tune tune-params all cblas atlblas clapack atllapack f77blas f77lapack refblas lbt shared \
          install-shared \
          check-shared shared-dispatch \
          check check-numeric check-netlib check-reference-lapack \
          check-reference-lapack-lin \
-         check-conformance \
+         check-conformance check-protocol \
          check_cblas check_f77blas \
          bench bench-gemm benchmark-suite add_benchmark_result \
          check_benchmark_results check_arch clean help
@@ -75,6 +75,8 @@ check-shared : tool-ar
 	        BUILD_DIR=$(abspath test/build/shared-lib/build)
 	FC="$(FC)" CC="$(CC)" $(SHELL) test/check-shared.sh test/build/shared-lib \
 	         test/build/shared-lib/build test/build/shared
+	$(if $(filter 0,$(ILP64)),,FC="$(FC)" CC="$(CC)" NM="$(NM)" \
+	    $(SHELL) test/check-ilp64.sh test/build/shared-lib test/build/ilp64)
 
 #
 #  Tests (see test/Makefile)
@@ -82,6 +84,11 @@ check-shared : tool-ar
 check check-numeric check-netlib check-reference-lapack check-conformance \
 check-reference-lapack-lin :
 	$(MAKE) -C test $@
+
+#  The synchronization of the parallel gemm frame, all interleavings of
+#  small cases (test/protocol/frame.py; FULL=1: larger cases, about a minute)
+check-protocol :
+	python3 test/protocol/frame.py $(if $(filter 1,$(FULL)),--full)
 
 check_cblas :
 	$(MAKE) -C test check-netlib NETLIB_SUITES=C
@@ -124,6 +131,37 @@ bench-gemm : cblas tool-cxx-link tool-cc
 	 ARCHFLAGS='$(ARCHFLAGS)' $(SHELL) $(TOPDIR)/bench/gemm/run.sh
 
 #
+#  Tuning (tune/README.md): measures the GEMM candidates of this build
+#  (ARCHFLAGS) on this machine and generates the selection table of its
+#  platform (ulmblas/level3/gemm/tables/) and a report (tune/results/).
+#  Takes several minutes; the machine should be idle.  Settings: PASSES,
+#  ROUNDS, CHUNK, LOADMAX, PAUSE, PLATFORM, GRID.
+#
+tune : tool-cxx-link
+	@CXX='$(CXX)' ARCHFLAGS='$(ARCHFLAGS)' OPTFLAGS='$(OPTFLAGS)' \
+	 PASSES='$(PASSES)' ROUNDS='$(ROUNDS)' CHUNK='$(CHUNK)' \
+	 LOADMAX='$(LOADMAX)' PAUSE='$(PAUSE)' PLATFORM='$(PLATFORM)' \
+	 GRID='$(GRID)' \
+	 $(SHELL) $(TOPDIR)/tune/tune.sh
+
+#
+#  Tuning of the other parameters (tune/README.md): threads, variants and
+#  block sizes of ulmblas/config/tuned.h, measured on this machine group
+#  by group; generates ulmblas/config/tuned/PLATFORM.h and a report
+#  (tune/results/PLATFORM/params.md).  Settings: TUNEGROUPS, TYPES, PASSES,
+#  ROUNDS, CHUNK, LOADMAX, PAUSE, PLATFORM, VERIFY; OPENMP=1 also measures
+#  the tasks of potrf.
+#
+tune-params : tool-cxx-link
+	@CXX='$(CXX)' ARCHFLAGS='$(ARCHFLAGS)' OPTFLAGS='$(OPTFLAGS)' \
+	 SIMDFLAGS='$(SIMDFLAGS)' OMPFLAGS='$(OMPFLAGS)' OMPLIBS='$(OMPLIBS)' \
+	 TUNEGROUPS='$(TUNEGROUPS)' TYPES='$(TYPES)' \
+	 PASSES='$(PASSES)' ROUNDS='$(ROUNDS)' CHUNK='$(CHUNK)' \
+	 LOADMAX='$(LOADMAX)' PAUSE='$(PAUSE)' PLATFORM='$(PLATFORM)' \
+	 VERIFY='$(VERIFY)' \
+	 $(SHELL) $(TOPDIR)/tune/params.sh
+
+#
 #  Benchmark archive (benchmark_results/, see the README.md there): adds a
 #  completed benchmark campaign, regenerates its plots (Gnuplot) and the
 #  index.  Independent of the build and of 'make check'; benchmarks are not
@@ -141,12 +179,12 @@ clean :
 	$(MAKE) -C interfaces/blas/F77 clean
 	$(MAKE) -C interfaces/lapack/C clean
 	$(MAKE) -C interfaces/lapack/F77 clean
-	$(MAKE) -C refblas clean
+	$(if $(wildcard refblas/Makefile),$(MAKE) -C refblas clean)
 	$(MAKE) -C interfaces/blas/lbt clean
 	$(MAKE) -C interfaces/blas/shared clean
 	$(MAKE) -C interfaces/blas/dispatch clean
 	$(MAKE) -C test clean
-	$(MAKE) -C bench clean
+	$(if $(wildcard bench/Makefile),$(MAKE) -C bench clean)
 
 help :
 	@echo 'Targets (GNU Make $(ULMBLAS_MAKE_MIN) or newer):'
@@ -162,7 +200,8 @@ help :
 	@echo '  lbt              shared library for Julia (libblastrampoline): ILP64'
 	@echo '                   Fortran 77 interface, libulmblas_lbt.so / .dylib'
 	@echo '  shared           shared library with the standard interfaces: Fortran 77'
-	@echo '                   (LP64, dgemm_) and CBLAS, libulmblas.so / .dylib'
+	@echo '                   (LP64, dgemm_) and CBLAS, libulmblas.so / .dylib; also'
+	@echo '                   ILP64 (dgemm_64_, cblas_dgemm_64) unless ILP64=0'
 	@echo '  shared-dispatch  macOS, Apple Silicon: libulmblas.dylib selects the NEON or'
 	@echo '                   SME2 backend (libulmblas_neon / _sme.dylib) at load time'
 	@echo '  check-shared     Netlib test programs against libulmblas (needs FC)'
@@ -177,8 +216,12 @@ help :
 	@echo '  check-conformance'
 	@echo '                   all BLAS routines compared with the reference BLAS'
 	@echo '                   and CBLAS of LAPACK 3.12.1 (downloaded)'
+	@echo '  check-protocol   synchronization of the parallel gemm, all interleavings'
+	@echo '                   of small cases (python3; FULL=1: larger cases)'
 	@echo '  check_arch       ARCHFLAGS this machine and CXX support, with a suggestion'
 	@echo '  bench-gemm       GEMM benchmark of ulmBLAS and the BLAS libraries found'
+	@echo '  tune             measure GEMM on this machine, generate its selection table'
+	@echo '  tune-params      measure threads, variants, block sizes (ulmblas/config/tuned.h)'
 	@echo '                   (PREC=s|d|c|z LIBS=auto|"ulmblas openblas ..." SIZES=...,'
 	@echo '                   see bench/gemm/README.md)'
 	@echo '  bench            ATLAS timing programs (long running, see bench/)'

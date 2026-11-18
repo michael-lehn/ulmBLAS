@@ -44,6 +44,9 @@ REPO = ('OpenBLAS', 'https://github.com/OpenMathLib/OpenBLAS', 'v0.3.34',
 #  SKYLAKEX), macros defined before the code
 WHAT = {}
 DEFINES = {}
+#  name: (regular expression of the definition of the kernel function, number
+#  of definitions); default: one definition int __attribute__((noinline)) CNAME(
+KERNEL_DEF = {}
 
 #  name: (path, function name for CNAME, patches, description of patches)
 KERNELS = {
@@ -113,6 +116,57 @@ for _name, _file, _cname, _target in (
     WHAT[_name] = 'the SGEMM kernel of %(label)s for ' + _target
 
 
+#  Kernels for small matrices of OpenBLAS for SKYLAKEX (DGEMM, AVX-512):
+#  C = beta C + alpha op(A) op(B) without packing, for the four layouts
+#  NN, NT, TN, TT (op = transposed, column-major C), each compiled with and
+#  without B0 (beta = 0), and the permit function that decides when
+#  OpenBLAS uses them.  The kernel function is "int CNAME(" (twice, for B0
+#  and otherwise; once in the permit function).
+SMALL_DEF = r'^int CNAME\('
+_AVX512 = ('defined(__AVX512CD__)',
+           'defined(__AVX512F__) && defined(__AVX512VL__)')
+_AVX512DOC = ('//  - The condition of the code: AVX-512F and AVX-512VL instead of\n'
+              '//    AVX512CD (OpenBLAS builds the file for SKYLAKEX, which has all\n'
+              '//    three; the code uses AVX-512F and, with 256-bit vectors,\n'
+              '//    AVX-512VL instructions).')
+_MALLOC = [('(FLOAT *) malloc(sizeof(FLOAT)*mm*K)', 'ulmBLAS::malloc<FLOAT>(mm*K)'),
+           ('free(mbuf);', 'ulmBLAS::free(mbuf);')]
+_MALLOCDOC = ('//  - The buffer of A: ulmBLAS::malloc and ulmBLAS::free instead of\n'
+              '//    malloc and free (ulmblas/auxiliary/memorypool.h: abort with a\n'
+              '//    message if it cannot be allocated, as all buffers of ulmBLAS).')
+for _layout in ('nn', 'nt', 'tn', 'tt'):
+    _file = 'kernel/x86_64/dgemm_small_kernel_%s_skylakex.c' % _layout
+    _patches, _doc = [], []
+    if _layout in ('nn', 'tn'):
+        _patches.append(_AVX512)
+        _doc.append(_AVX512DOC)
+    if _layout == 'nn':
+        _patches += _MALLOC
+        _doc.append(_MALLOCDOC)
+    if _layout in ('nn', 'nt'):
+        _mask = '__mmask8' if _layout == 'nn' else '__mmask16'
+        _patches.append(('register %s mask' % _mask, '%s mask' % _mask))
+        _doc.append('//  - "register" removed (not allowed in C++17).')
+    for _b0 in (False, True):
+        _name = 'd_small_%s%s_skylakex' % (_layout, '_b0' if _b0 else '')
+        KERNELS[_name] = (_file, 'dgemm_small_kernel', list(_patches),
+                          '\n'.join(_doc + ['//  - FLOAT is double%s.' % (
+                              ', B0 is defined (beta = 0)' if _b0 else '')]))
+        WHAT[_name] = ('the DGEMM kernel for small matrices (%s%s) of %%(label)s '
+                       'for SKYLAKEX (AVX-512)'
+                       % (_layout.upper(), ', beta = 0' if _b0 else ''))
+        DEFINES[_name] = ('FLOAT double',) + (('B0',) if _b0 else ())
+        KERNEL_DEF[_name] = (SMALL_DEF, 2)
+KERNELS['d_small_permit_skylakex'] = (
+    'kernel/x86_64/dgemm_small_kernel_permit_skylakex.c',
+    'dgemm_small_kernel_permit', [], '//  - FLOAT is double.')
+WHAT['d_small_permit_skylakex'] = ('the permit function of the DGEMM kernels '
+                                   'for small matrices of %(label)s for '
+                                   'SKYLAKEX')
+DEFINES['d_small_permit_skylakex'] = ('FLOAT double',)
+KERNEL_DEF['d_small_permit_skylakex'] = (SMALL_DEF, 1)
+
+
 #  name: (path, symbol, description).  The kernels are assembled unchanged
 #  (see asm/compat.h for the definitions of OpenBLAS's common headers).
 ASM_KERNELS = {
@@ -149,11 +203,12 @@ def vendor(name, path, cname, patches, patchdoc, src):
             sys.exit('%s: patch target occurs %d times: %s'
                      % (path, body.count(old), old))
         body = body.replace(old, new)
-    body, k = re.subn(r'^int __attribute__ \(\(noinline\)\)\nCNAME\(',
-                      'inline int __attribute__ ((noinline))\nCNAME(',
-                      body, flags=re.M)
-    if k != 1:
-        sys.exit('%s: kernel function not found' % path)
+    pattern, count = KERNEL_DEF.get(
+        name, (r'^int __attribute__ \(\(noinline\)\)\nCNAME\(', 1))
+    body, k = re.subn(pattern, lambda m: 'inline ' + m.group(0), body,
+                      flags=re.M)
+    if k != count:
+        sys.exit('%s: kernel function found %d times' % (path, k))
     label, url, tag, commit = REPO
     guard = 'ULMBLAS_LEVEL3_UKERNEL_OPENBLAS_KERNEL_%s_H' % name.upper()
     undef = macros(body)
@@ -207,7 +262,8 @@ using std::int64_t;
                      '\n//    namespace.' % ', '.join(l.strip()[9:] for l in sysinc)))
     out.append(body.strip('\n') + '\n')
     out.append('\n#undef CNAME\n')
-    out.append(''.join('#undef %s\n' % d for d in DEFINES.get(name, ())))
+    out.append(''.join('#undef %s\n' % d.split()[0]
+                       for d in DEFINES.get(name, ())))
     out.append('\n} } } } // namespace %s, kernel, openblas, ulmBLAS\n\n' % name)
     out.append(''.join('#undef %s\n' % m for m in undef if m != 'CNAME'))
     out.append('\n#endif // %s\n' % guard)

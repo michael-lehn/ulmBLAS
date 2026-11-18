@@ -354,7 +354,7 @@ her2kReadOnlyAlpha()
 sigjmp_buf writeFault;
 
 extern "C" void
-onWriteFault(int)
+onWriteFault(int sig)
 {
     siglongjmp(writeFault, 1);
 }

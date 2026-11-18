@@ -7,8 +7,9 @@ namespace tasks {
 //
 //  A step of a solve with the n x nrhs matrix B (getrs, potrs, trtrs):
 //
-//      SwapForward   rows i and piv[i] of B are interchanged for i = 0,
-//                    ..., n-1 (piv 0-based)
+//      SwapForward   rows i and piv[i*incPiv] - pivBase of B are
+//                    interchanged for i = 0, ..., n-1 (pivBase 0: piv
+//                    0-based, 1: 1-based)
 //      SwapBackward  the same for i = n-1, ..., 0
 //      Solve         B := op(A)^{-1} B with the triangular n x n matrix A
 //                    (upper or lower, conj: conjugated elements, unitDiag:
@@ -16,7 +17,8 @@ namespace tasks {
 //
 //  A transposed A is passed as a view: strides exchanged, upper <-> lower.
 //
-template <typename IndexType, typename T> struct SolveStep
+template <typename IndexType, typename T, typename PivIndex = IndexType>
+struct SolveStep
 {
     enum Kind
     {
@@ -26,7 +28,8 @@ template <typename IndexType, typename T> struct SolveStep
     };
 
     Kind kind;
-    const IndexType *piv; // swaps
+    const PivIndex *piv = nullptr; // swaps
+    IndexType incPiv = 1, pivBase = 0;
     bool upper, conj, unitDiag;
     const T *A; // solve
     IndexType incRowA, incColA;
@@ -41,21 +44,22 @@ template <typename IndexType, typename T> struct SolveStep
 //  tiles are done).  Otherwise the steps run one after the other with the
 //  serial BLAS routines on all of B.
 //
-template <typename IndexType, typename T>
+template <typename IndexType, typename T, typename PivIndex>
 void
-solveSteps(IndexType n, IndexType nrhs, const SolveStep<IndexType, T> *steps,
-           int numSteps, T *B, IndexType incRowB, IndexType incColB,
-           IndexType nb, int threads);
+solveSteps(IndexType n, IndexType nrhs,
+           const SolveStep<IndexType, T, PivIndex> *steps, int numSteps, T *B,
+           IndexType incRowB, IndexType incColB, IndexType nb, int threads);
 
 //
 //  solveSteps with the threads and tile size of solveParam (param.h): with
 //  OpenMP and enough work as tasks, inside a parallel region and without
 //  OpenMP serial.
 //
-template <typename IndexType, typename T>
+template <typename IndexType, typename T, typename PivIndex>
 void
-solve(IndexType n, IndexType nrhs, const SolveStep<IndexType, T> *steps,
-      int numSteps, T *B, IndexType incRowB, IndexType incColB);
+solve(IndexType n, IndexType nrhs,
+      const SolveStep<IndexType, T, PivIndex> *steps, int numSteps, T *B,
+      IndexType incRowB, IndexType incColB);
 
 } // namespace tasks
 } // namespace ulmBLAS

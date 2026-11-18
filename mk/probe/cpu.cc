@@ -1,9 +1,9 @@
 //
 //  probe.sh cpu: exit status 0 if the CPU and the operating system support
-//  all features given as arguments (sse3, avx, fma, avx2, avx512f, avx512dq on
-//  x86, neon and sme on AArch64), 1 if one of them is not supported, 2 for an
-//  unknown feature. neon: an AArch64 (LP64) target, which always has AdvSIMD.
-//  sme: the experimental SME2 micro kernel can be used (see
+//  all features given as arguments (sse3, avx, fma, avx2, avx512f, avx512dq,
+//  avx512vl on x86, neon and sme on AArch64), 1 if one of them is not
+//  supported, 2 for an unknown feature. neon: an AArch64 (LP64) target, which
+//  always has AdvSIMD. sme: the experimental SME2 micro kernel can be used (see
 //  ulmblas/config/simd.h: SME2 enabled for clang) and the CPU has SME2 and
 //  FEAT_SME_F64F64 with a streaming vector length of 512 bits (checked on
 //  macOS).
@@ -36,8 +36,9 @@ sysctlIs(const char *name, long value)
 int
 main(int argc, char **argv)
 {
-    static const char *known[] = {"sse3",    "avx",      "fma",  "avx2",
-                                  "avx512f", "avx512dq", "neon", "sme"};
+    static const char *known[] = {"sse3",     "avx",     "fma",
+                                  "avx2",     "avx512f", "avx512dq",
+                                  "avx512vl", "neon",    "sme"};
     bool supported = true;
 
     for (int i = 1; i < argc; ++i) {
@@ -77,7 +78,9 @@ main(int argc, char **argv)
 	    (std::strcmp(argv[i], "avx512f") ||
 	     __builtin_cpu_supports("avx512f")) &&
 	    (std::strcmp(argv[i], "avx512dq") ||
-	     __builtin_cpu_supports("avx512dq"));
+	     __builtin_cpu_supports("avx512dq")) &&
+	    (std::strcmp(argv[i], "avx512vl") ||
+	     __builtin_cpu_supports("avx512vl"));
 #else
 	supported = false;
 #endif

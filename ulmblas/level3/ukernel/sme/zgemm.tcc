@@ -188,8 +188,8 @@ static typename std::enable_if<std::is_convertible<IndexType, long>::value,
 ugemm(IndexType kc, const std::complex<double> &alpha,
       const std::complex<double> *A, const std::complex<double> *B,
       const std::complex<double> &beta, std::complex<double> *C,
-      IndexType incRowC, IndexType incColC, const std::complex<double> *,
-      const std::complex<double> *)
+      IndexType incRowC, IndexType incColC, const std::complex<double> *nextA,
+      const std::complex<double> *nextB)
 {
     if (incRowC == IndexType(1)) {
 	zgemm_16x16(long(kc), alpha, A, B, beta, C, long(incColC), 16, 16);
@@ -214,7 +214,7 @@ ugemm(IndexType mr, IndexType nr, IndexType kc,
       const std::complex<double> &alpha, const std::complex<double> *A,
       const std::complex<double> *B, const std::complex<double> &beta,
       std::complex<double> *C, IndexType incRowC, IndexType incColC,
-      const std::complex<double> *, const std::complex<double> *)
+      const std::complex<double> *nextA, const std::complex<double> *nextB)
 {
     if (incRowC == IndexType(1)) {
 	sme::zgemm_16x16(long(kc), alpha, A, B, beta, C, long(incColC),

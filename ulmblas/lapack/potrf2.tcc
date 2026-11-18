@@ -48,10 +48,22 @@ trsmRightLowerConjTrans(IndexType m, IndexType n, const T *L, IndexType rs,
     trlsm(m, n, T(1), true, false, L, rs, cs, B, bcs, brs);
 }
 
+//
+//  Neither stride 1: the largest blocks that fit into a copy
+//  (lapackCopyFits) are factored on a column-major copy, the updates of
+//  the larger levels work on the strides of A (trsm and herk pack their
+//  operands themselves).
+//
 template <typename IndexType, typename T>
 IndexType
 rec(IndexType n, T *A, IndexType rs, IndexType cs)
 {
+    if (rs != 1 && cs != 1 && lapackCopyFits<T>(n, n)) {
+	return withUnitStride(n, n, A, rs, cs, true,
+	                      [n](T *B, IndexType brs, IndexType bcs) {
+	                          return rec(n, B, brs, bcs);
+	                      });
+    }
     if (n <= ULMBLAS_POTRF2_BASE) {
 	return potf2(n, A, rs, cs);
     }
@@ -83,10 +95,7 @@ potrf2(IndexType n, T *A, IndexType incRowA, IndexType incColA)
     if (n <= 0) {
 	return 0;
     }
-    return withUnitStride(n, n, A, incRowA, incColA, true,
-                          [n](T *B, IndexType rs, IndexType cs) {
-	                      return potrf2_impl::rec(n, B, rs, cs);
-                          });
+    return potrf2_impl::rec(n, A, incRowA, incColA);
 }
 
 } // namespace ulmBLAS

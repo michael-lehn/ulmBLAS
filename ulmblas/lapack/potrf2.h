@@ -12,8 +12,10 @@ namespace ulmBLAS {
 //
 //  L11 = chol(A11),  L21 = A21 L11^{-H},  L22 = chol(A22 - L21 L21^H).
 //
-//  Any strides.  Returns 0 or i if the leading minor of order i (1-based)
-//  is not positive definite.
+//  Any strides; with neither stride 1 the largest diagonal blocks of the
+//  recursion that fit into a bounded copy (lapackCopyMax, unitstride.h)
+//  are factored on column-major copies.  Returns 0 or i if the leading
+//  minor of order i (1-based) is not positive definite.
 //
 template <typename IndexType, typename T>
 IndexType

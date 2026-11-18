@@ -178,7 +178,7 @@ pack_B_rowmajor(long nr, long k, const double *B, long incRowB, double *buffer)
 //
 template <int P, typename IndexType>
 static void
-pack_MRxk(IndexType k, bool, const double *A, IndexType incRowA,
+pack_MRxk(IndexType k, bool conj, const double *A, IndexType incRowA,
           IndexType incColA, double *buffer)
 {
     const sme::FpsrRestore fpsr; // see sme/fpsr.h
@@ -208,7 +208,7 @@ pack_MRxk(IndexType k, bool, const double *A, IndexType incRowA,
 //
 template <typename IndexType>
 static void
-pack_kxNR(IndexType k, bool, const double *B, IndexType incRowB,
+pack_kxNR(IndexType k, bool conj, const double *B, IndexType incRowB,
           IndexType incColB, double *buffer)
 {
     const sme::FpsrRestore fpsr; // see sme/fpsr.h
@@ -232,7 +232,7 @@ pack_kxNR(IndexType k, bool, const double *B, IndexType incRowB,
 //
 template <typename IndexType>
 static bool
-pack_MRxk_partial(IndexType mr, IndexType k, bool, const double *A,
+pack_MRxk_partial(IndexType mr, IndexType k, bool conj, const double *A,
                   IndexType incRowA, IndexType incColA, double *buffer)
 {
     const sme::FpsrRestore fpsr; // see sme/fpsr.h
@@ -253,7 +253,7 @@ pack_MRxk_partial(IndexType mr, IndexType k, bool, const double *A,
 //
 template <typename IndexType>
 static bool
-pack_kxNR_partial(IndexType nr, IndexType k, bool, const double *B,
+pack_kxNR_partial(IndexType nr, IndexType k, bool conj, const double *B,
                   IndexType incRowB, IndexType incColB, double *buffer)
 {
     const sme::FpsrRestore fpsr; // see sme/fpsr.h

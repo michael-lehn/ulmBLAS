@@ -161,8 +161,9 @@ testCrossThread(Context &ctx)
 
 //
 //  The packing buffers come from MemoryPool.  The AVX micro kernel loads the
-//  packed B with vmovapd (32 bytes), the SSE kernels load A and B with
-//  movapd (16 bytes); the other kernels need the alignment of T only.  A
+//  packed B with vmovapd (32 bytes), the AVX-512 kernels (compiled with
+//  __AVX512F__) use aligned zmm loads (64 bytes), the SSE kernels load A and B
+//  with movapd (16 bytes); the other kernels need the alignment of T only.  A
 //  vendored kernel (USE_BLIS_DGEMM, USE_BLIS_SGEMM, USE_BLIS_CGEMM,
 //  USE_BLIS_ZGEMM) may need more (ULMBLAS_BLIS_..._ALIGN, e.g. 64 bytes for
 //  aligned zmm loads).
@@ -204,7 +205,11 @@ maxOf(std::size_t a, std::size_t b)
 constexpr std::size_t
 requiredAlignment(std::size_t alignOfT)
 {
-#if defined(USE_AVX)
+#if defined(__AVX512F__)
+    //  the AVX-512 kernels of the selection tables (aligned zmm loads),
+    //  whichever kernel the configuration names (e.g. -march=native)
+    return maxOf(maxOf(64, vendoredDgemmAlign), vendoredZgemmAlign);
+#elif defined(USE_AVX) || defined(__AVX__)
     return maxOf(maxOf(32, vendoredDgemmAlign), vendoredZgemmAlign);
 #elif defined(USE_SSE)
     return maxOf(maxOf(16, vendoredDgemmAlign), vendoredZgemmAlign);
@@ -250,8 +255,8 @@ ULMBLAS_TEST(T0350,
 }
 
 ULMBLAS_TEST(T0353, "auxiliary/MemoryPool: blocks aligned as the micro kernels "
-                    "require (32 bytes with AVX, 16 with SSE, more for some "
-                    "vendored kernels)")
+                    "require (64 bytes with AVX-512, 32 with AVX, 16 with "
+                    "SSE, more for some vendored kernels)")
 {
     if (testAlignment<float>(ctx, "float") &&
         testAlignment<double>(ctx, "double") &&

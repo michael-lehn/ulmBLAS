@@ -1,31 +1,23 @@
 #ifndef ULMBLAS_LEVEL3_GEMMTR_TCC
 #define ULMBLAS_LEVEL3_GEMMTR_TCC 1
 
-#include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/level3/fpsrscope.h>
-#include <ulmblas/level1extensions/trlaxpy.h>
 #include <ulmblas/level1extensions/trlscal.h>
-#include <ulmblas/level1extensions/truaxpy.h>
 #include <ulmblas/level1extensions/truscal.h>
-#include <ulmblas/level3/gemm.h>
+#include <ulmblas/level3/gemm/default.h>
+#include <ulmblas/level3/gemm/frametr.h>
+#include <ulmblas/level3/gemm/select.h>
+#include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level3/gemmtr.h>
 
 namespace ulmBLAS {
 
 //
-//  C is processed in block columns of NB columns.  For each block column:
-//
-//  - the part of the triangle outside the diagonal block (below it for the
-//    lower, above it for the upper triangle) is an ordinary product and is
-//    computed by gemm directly in C;
-//  - the diagonal block D = alpha*A(rows of the block,:)*B(:,columns of
-//    the block) is computed by gemm in a buffer (beta = 0: the buffer is
-//    not read), then the triangle of the block of C is scaled by beta and
-//    the triangle of D is added.
-//
-//  So the products use the kernels of gemm, and C outside the triangle is
-//  not accessed.  The diagonal blocks cost NB*NB*k multiplications more
-//  than necessary (half of each diagonal block), about NB/n of the total.
+//  C <- beta C + alpha A B for the lower (upper) triangle of the n x n
+//  matrix C: the special cases here, then the frame algorithm of gemmt
+//  (ulmblas/level3/gemm/frametr.h) with the frame that the selection table
+//  of gemm has for an n x n x k product (gemm/select.h; level3Select with
+//  GemmtOp); C outside the triangle is not accessed.
 //
 template <typename IndexType, typename Alpha, typename TA, typename TB,
           typename Beta, typename TC>
@@ -39,10 +31,6 @@ gemmtr(bool lower, IndexType n, IndexType k, const Alpha &alpha, bool conjA,
 
     typedef decltype(Alpha(0) * TA(0) * TB(0)) T;
 
-    constexpr IndexType NB = 64;
-
-    static MemoryPool<T> memoryPool;
-
     if (n <= 0) {
 	return;
     }
@@ -54,40 +42,21 @@ gemmtr(bool lower, IndexType n, IndexType k, const Alpha &alpha, bool conjA,
 	}
 	return;
     }
-
-    T *D = memoryPool.allocate(NB * NB);
-
-    for (IndexType j = 0; j < n; j += NB) {
-	const IndexType nb = (n - j < NB) ? n - j : NB;
-
-	//  the block column outside the diagonal block
-	if (lower && j + nb < n) {
-	    gemm(n - j - nb, nb, k, alpha, conjA, &A[(j + nb) * incRowA],
-	         incRowA, incColA, conjB, &B[j * incColB], incRowB, incColB,
-	         beta, &C[(j + nb) * incRowC + j * incColC], incRowC, incColC);
-	} else if (!lower && j > 0) {
-	    gemm(j, nb, k, alpha, conjA, A, incRowA, incColA, conjB,
-	         &B[j * incColB], incRowB, incColB, beta, &C[j * incColC],
-	         incRowC, incColC);
-	}
-
-	//  the diagonal block: D = alpha*A(j:j+nb,:)*B(:,j:j+nb), then
-	//  C(triangle) = beta*C(triangle) + D(triangle)
-	TC *Cjj = &C[j * incRowC + j * incColC];
-	gemm(nb, nb, k, alpha, conjA, &A[j * incRowA], incRowA, incColA, conjB,
-	     &B[j * incColB], incRowB, incColB, T(0), D, IndexType(1), nb);
-	if (lower) {
-	    trlscal(nb, nb, false, beta, Cjj, incRowC, incColC);
-	    trlaxpy(nb, nb, false, T(1), D, IndexType(1), nb, Cjj, incRowC,
-	            incColC);
-	} else {
-	    truscal(nb, nb, false, beta, Cjj, incRowC, incColC);
-	    truaxpy(nb, nb, false, T(1), D, IndexType(1), nb, Cjj, incRowC,
-	            incColC);
-	}
+    //  as gemm (ulmblas/level3/gemm.tcc): C^T = B^T A^T, the other
+    //  triangle, if the kernels prefer row-major C and C is column major,
+    //  or the other way round
+    const bool rowPref = UGemmRowPreference<T>::value;
+    if ((rowPref && incRowC == IndexType(1) && incColC != IndexType(1)) ||
+        (!rowPref && incColC == IndexType(1) && incRowC != IndexType(1))) {
+	gemmtr(!lower, n, k, alpha, conjB, B, incColB, incRowB, conjA, A,
+	       incColA, incRowA, beta, C, incColC, incRowC);
+	return;
     }
-
-    memoryPool.release(D);
+    const GemmtPlan<IndexType, Alpha, TA, TB, Beta, TC> plan =
+        level3Select<T, GemmtOp<IndexType, Alpha, TA, TB, Beta, TC>>(
+            std::ptrdiff_t(n), std::ptrdiff_t(n), std::ptrdiff_t(k));
+    plan.run(lower, n, k, alpha, conjA, A, incRowA, incColA, conjB, B, incRowB,
+             incColB, beta, C, incRowC, incColC);
 }
 
 } // namespace ulmBLAS

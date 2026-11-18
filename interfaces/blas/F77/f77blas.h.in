@@ -1616,6 +1616,21 @@ F77BLAS(ztrsm)(const char               *side_,
 void
 F77BLAS(xerbla)(const char *rout, const ULMBLAS_INDEX_TYPE *info, size_t len);
 
+//
+//  Threads (ulmBLAS extension, arguments by value): see the C interface
+//
+void
+F77BLAS(ulmblas_set_num_threads)(int n);
+
+int
+F77BLAS(ulmblas_get_num_threads)(void);
+
+void
+F77BLAS(ulmblas_set_affinity)(ptrdiff_t mode);
+
+ptrdiff_t
+F77BLAS(ulmblas_get_affinity)(void);
+
 VERBOSE(#ifdef) __cplusplus
 } // extern "C"
 VERBOSE(#endif)

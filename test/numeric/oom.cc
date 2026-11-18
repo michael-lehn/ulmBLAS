@@ -12,6 +12,13 @@
 //  ulmBLAS.  The first and the second allocation of a call fail (the
 //  second after the first has succeeded).
 //
+//  A call may need fewer buffers: the kernels for small matrices compute
+//  without packing (the AVX-512 table of an Ice Lake selects them for gemm
+//  with n = 300 on one thread, e.g. with OMP_NUM_THREADS=1 in batch jobs)
+//  or with one buffer (the SME2 kernel).  The child reports the number of
+//  allocations if the call returns; returning is right if the k-th
+//  allocation did not happen.
+//
 //  POSIX only (fork, waitpid, the library's posix_memalign); not built on
 //  Windows, where the library allocates with _aligned_malloc.
 //
@@ -20,8 +27,10 @@
 #include <test/numeric/blas.h>
 #include <test/numeric/testing.h>
 
+#include <ulmblas/auxiliary/threadpool.h>
 #include <ulmblas/ulmblas.h>
 
+#include <algorithm>
 #include <atomic>
 #include <cerrno>
 #include <complex>
@@ -29,6 +38,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <functional>
 #include <string>
 #include <thread>
@@ -82,7 +92,11 @@ struct ChildResult
     bool aborted;
     bool exited;
     std::string err;
+    long allocations; // if exited: the calls of posix_memalign, else -1
 };
+
+//  the line with the number of allocations that the child writes to stderr
+const char *const allocationsTag = "test: allocations ";
 
 //
 //  Runs f in a new thread of a child process in which the k-th call of
@@ -92,7 +106,7 @@ template <typename F>
 ChildResult
 inChild(long k, F f)
 {
-    ChildResult result = {false, false, std::string()};
+    ChildResult result = {false, false, std::string(), -1};
     int fd[2];
 
     std::fflush(stdout);
@@ -109,6 +123,8 @@ inChild(long k, F f)
 	failAt = k;
 	std::thread t(f);
 	t.join();
+	std::fprintf(stderr, "%s%ld\n", allocationsTag, allocCalls.load());
+	std::fflush(stderr);
 	_exit(0);
     }
     close(fd[1]);
@@ -125,14 +141,25 @@ inChild(long k, F f)
     }
     result.aborted = WIFSIGNALED(status) && WTERMSIG(status) == SIGABRT;
     result.exited = WIFEXITED(status) && WEXITSTATUS(status) == 0;
+    const std::size_t tag = result.err.rfind(allocationsTag);
+    if (result.exited && tag != std::string::npos) {
+	result.allocations =
+	    std::strtol(result.err.c_str() + tag + std::strlen(allocationsTag),
+	                nullptr, 10);
+    }
     return result;
 }
 
+//  the k-th allocation (k > 0) fails: the child ends with the message, or
+//  the call returns without a k-th allocation (fewer buffers)
 bool
 terminates(Context &ctx, const char *what, long k,
            const std::function<void()> &f)
 {
     ChildResult r = inChild(k, f);
+    if (k > 0 && r.exited && r.allocations >= 0 && r.allocations < k) {
+	return true;
+    }
     return ctx.check(
         r.aborted && r.err.find("ulmBLAS: out of memory") != std::string::npos,
         "%s, allocation %ld fails: %s, stderr: %s", what, k,
@@ -262,6 +289,25 @@ cases()
     return v;
 }
 
+//
+//  dgemm with A of 32 MB, for the allocation failures: the frame algorithm
+//  with its buffers on all platforms (n = 300 may need fewer, see above)
+//
+void
+largeDgemm()
+{
+    static Operands<double> large(2048);
+    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 2048, 2048, 2048, 1,
+                large.A.data(), 2048, large.B.data(), 2048, 0, large.C.data(),
+                2048);
+}
+
+bool
+isDgemm(const char *name)
+{
+    return std::string(name) == "dgemm";
+}
+
 template <typename T>
 void
 hugeBlock()
@@ -318,16 +364,71 @@ ULMBLAS_TEST(T0358,
 	ChildResult r = inChild(0, c.second);
 	ok = ok && ctx.check(r.exited, "%s without failure: %s", c.first,
 	                     r.err.c_str());
-	ok = ok && terminates(ctx, c.first, 1, c.second);
+	if (isDgemm(c.first)) {
+	    ok = ok && terminates(ctx, "dgemm (n = 2048)", 1, largeDgemm);
+	} else {
+	    ok = ok && terminates(ctx, c.first, 1, c.second);
+	}
     }
     // the second allocation of a call (the first one succeeded)
     for (auto &c : cases()) {
-	if (std::string(c.first).find("gemv") == std::string::npos &&
-	    std::string(c.first).find("ger") == std::string::npos) {
+	if (isDgemm(c.first)) {
+	    ok = ok && terminates(ctx, "dgemm (n = 2048)", 2, largeDgemm);
+	} else if (std::string(c.first).find("gemv") == std::string::npos &&
+	           std::string(c.first).find("ger") == std::string::npos) {
 	    ok = ok && terminates(ctx, c.first, 2, c.second);
 	}
     }
     if (ok) {
+	ctx.pass();
+    }
+}
+
+ULMBLAS_TEST(T0371,
+             "auxiliary/ThreadPool: workers started after earlier jobs (more "
+             "threads; after fork() in the child, where the parent's do not "
+             "exist) run only new jobs, multithreaded dgemm right")
+{
+    ulmBLAS::ThreadPool &pool = ulmBLAS::ThreadPool::instance();
+    static Operands<double> d(512);
+    auto product = [] {
+	const int n = d.n;
+	std::fill(d.C.begin(), d.C.end(), 0.0);
+	cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, n, n, n, 1.0,
+	            d.A.data(), n, d.B.data(), n, 0.0, d.C.data(), n);
+	//  A: n on the diagonal, ones elsewhere; B: ones
+	for (double c : d.C) {
+	    if (c != double(2 * n - 1)) {
+		std::abort();
+	    }
+	}
+    };
+    //  2 threads, then 4: new workers after a job (in a child, as a
+    //  failure ends the process)
+    ChildResult grow = inChild(0, [&pool, &product] {
+	alarm(60);
+	pool.setSize(2);
+	product();
+	pool.setSize(4);
+	product();
+    });
+    bool ok = ctx.check(grow.exited, "dgemm on 2, then 4 threads: %s",
+                        grow.err.c_str());
+    //  at least 4 threads, workers started in this process
+    if (pool.size() < 4) {
+	pool.setSize(4);
+    }
+    product();
+    //  in the child: a hang ends with SIGALRM, a wrong result with SIGABRT
+    ChildResult r = inChild(0, [&product] {
+	alarm(60);
+	product();
+    });
+    pool.setSize(0);
+    if (ok &&
+        ctx.check(r.exited, "dgemm (n = 512) in a child after fork: %s%s",
+                  r.aborted ? "aborted (wrong result) " : "crash or hang ",
+                  r.err.c_str())) {
 	ctx.pass();
     }
 }

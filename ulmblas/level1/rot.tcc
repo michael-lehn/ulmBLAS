@@ -5,14 +5,88 @@
 #include <cmath>
 #include <complex>
 #include <limits>
+#include <type_traits>
+#include <ulmblas/level1/kernel/simd.h>
 #include <ulmblas/level1/rot.h>
 
 namespace ulmBLAS {
+
+//
+//  Contiguous vectors of real numbers (also complex x, y with real c, s):
+//  vectorized by the compiler, long vectors in blocks (ulmblas/level1/
+//  kernel/simd.h)
+//
+template <typename IndexType, typename T>
+void
+rotBlocks(IndexType n, T *x, T *y, T c, T s)
+{
+    const int B = InPlaceBlocks::size;
+    IndexType i = 0;
+
+    for (const IndexType p = storePeel(n, x); i < p; ++i) {
+	T x_ = c * x[i] + s * y[i];
+	T y_ = -s * x[i] + c * y[i];
+	x[i] = x_;
+	y[i] = y_;
+    }
+    if (n >= IndexType(InPlaceBlocks::minN)) {
+	for (; i + B <= n; i += B) {
+	    T xs[B], ys[B];
+	    ULMBLAS_SIMD
+	    for (int k = 0; k < B; ++k) {
+		xs[k] = c * x[i + k] + s * y[i + k];
+		ys[k] = -s * x[i + k] + c * y[i + k];
+	    }
+	    ULMBLAS_SIMD
+	    for (int k = 0; k < B; ++k) {
+		x[i + k] = xs[k];
+		y[i + k] = ys[k];
+	    }
+	}
+    }
+    for (; i < n; ++i) {
+	T x_ = c * x[i] + s * y[i];
+	T y_ = -s * x[i] + c * y[i];
+	x[i] = x_;
+	y[i] = y_;
+    }
+}
+
+template <typename IndexType, typename VX, typename VY, typename T>
+bool
+rotContiguous(IndexType n, VX *x, VY *y, T c, T s)
+{
+    return false;
+}
+
+template <typename IndexType, typename T>
+bool
+rotContiguous(IndexType n, T *x, T *y, const T &c, const T &s)
+{
+    rotBlocks(n, x, y, c, s);
+    return true;
+}
+
+template <typename IndexType, typename T>
+bool
+rotContiguous(IndexType n, std::complex<T> *x, std::complex<T> *y, const T &c,
+              const T &s)
+{
+    rotBlocks(2 * n, reinterpret_cast<T *>(x), reinterpret_cast<T *>(y), c, s);
+    return true;
+}
 
 template <typename IndexType, typename VX, typename VY, typename T>
 void
 rot(IndexType n, VX *x, IndexType incX, VY *y, IndexType incY, T c, T s)
 {
+    //  clang, real numbers: the strided loop of before (see copy)
+    const bool contiguous =
+        !(SimpleLoops::value && std::is_arithmetic<VX>::value);
+    if (contiguous && incX == IndexType(1) && incY == IndexType(1) &&
+        rotContiguous(n, x, y, c, s)) {
+	return;
+    }
     for (IndexType i = 0; i < n; ++i) {
 	VX x_ = c * x[i * incX] + s * y[i * incY];
 	VY y_ = -s * x[i * incX] + c * y[i * incY];
@@ -255,46 +329,107 @@ rotg(std::complex<TA> &a, std::complex<TB> &b, T &c, std::complex<T> &s)
 //  Other values of flag are classified by their sign as in the Reference
 //  BLAS.
 //
+//  (x_i, y_i) = H*(x_i, y_i) for the three forms of H
+template <typename T> struct RotmFull
+{
+    T h11, h21, h12, h22;
+
+    template <typename VX, typename VY>
+    void
+    operator()(const VX &w, const VY &z, VX &x, VY &y) const
+    {
+	x = w * h11 + z * h12;
+	y = w * h21 + z * h22;
+    }
+};
+
+template <typename T> struct RotmOffDiagonal
+{
+    T h21, h12;
+
+    template <typename VX, typename VY>
+    void
+    operator()(const VX &w, const VY &z, VX &x, VY &y) const
+    {
+	x = w + z * h12;
+	y = w * h21 + z;
+    }
+};
+
+template <typename T> struct RotmDiagonal
+{
+    T h11, h22;
+
+    template <typename VX, typename VY>
+    void
+    operator()(const VX &w, const VY &z, VX &x, VY &y) const
+    {
+	x = w * h11 + z;
+	y = -w + h22 * z;
+    }
+};
+
+//  contiguous: vectorized by the compiler, long vectors in blocks
+//  (ulmblas/level1/kernel/simd.h)
+template <typename IndexType, typename VX, typename VY, typename H>
+void
+rotmLoop(IndexType n, VX *x, IndexType incX, VY *y, IndexType incY, H h)
+{
+    const int B = InPlaceBlocks::size;
+    IndexType i = 0;
+
+    if (incX == IndexType(1) && incY == IndexType(1)) {
+	for (const IndexType p = storePeel(n, x); i < p; ++i) {
+	    const VX w = x[i];
+	    const VY z = y[i];
+	    h(w, z, x[i], y[i]);
+	}
+	if (n >= IndexType(InPlaceBlocks::minN)) {
+	    for (; i + B <= n; i += B) {
+		VX xs[B];
+		VY ys[B];
+		ULMBLAS_SIMD
+		for (int k = 0; k < B; ++k) {
+		    h(x[i + k], y[i + k], xs[k], ys[k]);
+		}
+		ULMBLAS_SIMD
+		for (int k = 0; k < B; ++k) {
+		    x[i + k] = xs[k];
+		    y[i + k] = ys[k];
+		}
+	    }
+	}
+	for (; i < n; ++i) {
+	    const VX w = x[i];
+	    const VY z = y[i];
+	    h(w, z, x[i], y[i]);
+	}
+    } else {
+	for (; i < n; ++i) {
+	    const VX w = x[i * incX];
+	    const VY z = y[i * incY];
+	    h(w, z, x[i * incX], y[i * incY]);
+	}
+    }
+}
+
 template <typename IndexType, typename VX, typename VY, typename T>
 void
 rotm(IndexType n, VX *x, IndexType incX, VY *y, IndexType incY, const T *param)
 {
-    const T flag = param[0];
-
-    if (n <= 0 || flag == T(-2)) {
+    if (n <= 0 || param[0] == T(-2)) {
 	return;
     }
-
-    T h11, h12, h21, h22;
+    const T flag = param[0];
     if (flag < T(0)) {
-	h11 = param[1];
-	h21 = param[2];
-	h12 = param[3];
-	h22 = param[4];
-	for (IndexType i = 0; i < n; ++i) {
-	    const VX w = x[i * incX];
-	    const VY z = y[i * incY];
-	    x[i * incX] = w * h11 + z * h12;
-	    y[i * incY] = w * h21 + z * h22;
-	}
+	RotmFull<T> h = {param[1], param[2], param[3], param[4]};
+	rotmLoop(n, x, incX, y, incY, h);
     } else if (flag == T(0)) {
-	h21 = param[2];
-	h12 = param[3];
-	for (IndexType i = 0; i < n; ++i) {
-	    const VX w = x[i * incX];
-	    const VY z = y[i * incY];
-	    x[i * incX] = w + z * h12;
-	    y[i * incY] = w * h21 + z;
-	}
+	RotmOffDiagonal<T> h = {param[2], param[3]};
+	rotmLoop(n, x, incX, y, incY, h);
     } else {
-	h11 = param[1];
-	h22 = param[4];
-	for (IndexType i = 0; i < n; ++i) {
-	    const VX w = x[i * incX];
-	    const VY z = y[i * incY];
-	    x[i * incX] = w * h11 + z;
-	    y[i * incY] = -w + h22 * z;
-	}
+	RotmDiagonal<T> h = {param[1], param[4]};
+	rotmLoop(n, x, incX, y, incY, h);
     }
 }
 

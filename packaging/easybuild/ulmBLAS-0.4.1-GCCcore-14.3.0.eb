@@ -1,0 +1,35 @@
+easyblock = 'Binary'
+
+name = 'ulmBLAS'
+version = '0.4.1'
+
+homepage = 'https://github.com/michael-lehn/ulmBLAS'
+description = """BLAS (Fortran 77 and CBLAS interface) with micro kernels
+ selected for the CPU at load time (x86-64: AVX-512, AVX2, SSE3 or generic;
+ aarch64: NEON).  As a backend of FlexiBLAS:
+ FLEXIBLAS=$EBROOTULMBLAS/lib/libulmblas.so.0"""
+
+toolchain = {'name': 'GCCcore', 'version': '14.3.0'}
+
+source_urls = ['https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['0000000000000000000000000000000000000000000000000000000000000000']
+
+builddependencies = [('binutils', '2.44')]
+
+extract_sources = True
+install_cmd = ' '.join([
+    'cd %(builddir)s/ulmBLAS-%(version)s &&',
+    'ULMBLAS_VERSION=%(version)s ULMBLAS_STATIC_LIBSTDCXX=no FC=none',
+    'ULMBLAS_INCLUDEDIR=%(installdir)s/include/ulmblas',
+    'MAKE="make -j %(parallel)s"',
+    'sh interfaces/install-shared.sh %(installdir)s',
+])
+
+sanity_check_paths = {
+    'files': ['lib/libulmblas.%s.0' % SHLIB_EXT, 'lib/libulmblas.%s' % SHLIB_EXT,
+              'include/ulmblas/cblas.h', 'lib/pkgconfig/ulmblas.pc'],
+    'dirs': [],
+}
+
+moduleclass = 'numlib'

@@ -6,7 +6,7 @@ namespace ulmBLAS {
 template <typename IndexType, typename Alpha, typename TA, typename TB,
           typename Beta, typename TC>
 void
-helr2k(IndexType n, IndexType k, bool conj, const Alpha &alpha, const TA *A,
+helr2k(IndexType n, IndexType k, const Alpha &alpha, const TA *A,
        IndexType incRowA, IndexType incColA, const TB *B, IndexType incRowB,
        IndexType incColB, const Beta &beta, TC *C, IndexType incRowC,
        IndexType incColC);

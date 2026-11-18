@@ -8,12 +8,16 @@
 //  hold a marker and must not change (bitwise); for potrf also the triangle
 //  that is not referenced.  Residuals are computed in complex<double>.
 //
+//  T0425 calls ulmBLAS::getrfLookahead directly (panel widths, adaptive
+//  widths, chunks, threads; wide, tall and singular matrices).
+//
 //  T0415-T0417 call the C interface (ULMLAPACK(?getrf), ULMLAPACK(?potrf))
 //  with column- and row-major matrices and invalid arguments.
 //
-//  Built with OpenMP the larger cases run the task-based algorithms; the
-//  sizes cross their thresholds (min(m,n) > 150 for getrf, n > 100 for
-//  potrf).
+//  getrf with more than one thread: min(m,n) >= 256 runs the lookahead
+//  (getrfSelect; built with OpenMP and 9 or more threads the task-based
+//  algorithm, min(m,n) > 150), potrf built with OpenMP the task-based
+//  algorithm for n > 100; the sizes cross these thresholds.
 //
 #include <algorithm>
 #include <cmath>
@@ -23,6 +27,7 @@
 #include <vector>
 #include <ulmblas/ulmblas.h>
 #include <ulmblas/lapack/getrf.h>
+#include <ulmblas/lapack/getrfla.h>
 #include <ulmblas/lapack/potrf.h>
 #include LAPACK_HEADER
 #include <test/numeric/reference.h>
@@ -40,17 +45,28 @@ using namespace test::lapacktest;
 //  has the largest |re| + |im|, so only |L| <= sqrt(2)), the pivots against
 //  expect (if not null), INFO, and that the rest of the buffer is unchanged.
 //
+//  la: getrfLookahead with these parameters instead of getrf
+struct LookaheadParam
+{
+    Index nb, nbMin, chunk;
+    std::ptrdiff_t threads;
+};
+
 template <typename T>
 bool
 getrfCheck(Context &ctx, const char *what, const Full &A0, Strided<T> &A,
-           const std::vector<Index> *expectPiv, Index expectInfo)
+           const std::vector<Index> *expectPiv, Index expectInfo,
+           const LookaheadParam *la = nullptr)
 {
     const Index m = A.m, n = A.n, k = std::min(m, n);
     const Strided<T> before = A;
     std::vector<Index> piv(std::size_t(std::max<Index>(k, 1)), -1);
 
     const Index info =
-        ulmBLAS::getrf(m, n, A.ptr(), A.rs, A.cs, piv.data(), Index(1));
+        la ? ulmBLAS::getrfLookahead(m, n, A.ptr(), A.rs, A.cs, piv.data(),
+	                             Index(1), la->nb, la->nbMin, la->chunk,
+	                             la->threads)
+	   : ulmBLAS::getrf(m, n, A.ptr(), A.rs, A.cs, piv.data(), Index(1));
 
     char tag[160];
     std::snprintf(tag, sizeof(tag), "%s m=%lld n=%lld rs=%lld cs=%lld", what,
@@ -203,6 +219,39 @@ testGetrfKnownPivots(Context &ctx)
 	    }
 	    if (!getrfCheck(ctx, "P0 L0 U0", A0, A, &p0, 0)) {
 		return;
+	    }
+	}
+    }
+}
+
+//  getrfLookahead: random and singular (zero column) matrices, square, wide
+//  (m > nb) and tall, for fixed and adaptive panel widths and several
+//  numbers of threads (at most the pool)
+template <typename T>
+void
+testGetrfLookahead(Context &ctx)
+{
+    Random random(0x1a4d);
+    const LookaheadParam param[] = {
+        {32, 0, 0, 3}, {64, 16, 8, 4}, {48, 8, 16, 7}};
+    //  m, n, zero column (-1: none)
+    const Index cases[][3] = {
+        {300, 300, -1}, {160, 420, -1}, {420, 160, -1}, {250, 250, 101}};
+    for (const auto &la : param) {
+	for (const auto &c : cases) {
+	    for (const auto &l : layouts(c[0], c[1])) {
+		Full A0{int(c[0]), int(c[1])};
+		Strided<T> A(c[0], c[1], l.first, l.second);
+		fill(A0, A, random);
+		if (c[2] >= 0) {
+		    for (Index i = 0; i < c[0]; ++i) {
+			A(i, c[2]) = T(0);
+			A0(int(i), int(c[2])) = 0;
+		    }
+		}
+		if (!getrfCheck(ctx, "lookahead", A0, A, 0, c[2] + 1, &la)) {
+		    return;
+		}
 	    }
 	}
     }
@@ -618,4 +667,12 @@ ULMBLAS_TEST(T0417, "lapack/C interface ?getrf, ?potrf: invalid arguments")
     testArgsC<double>(ctx);
     testArgsC<cfloat>(ctx);
     testArgsC<cdouble>(ctx);
+}
+
+ULMBLAS_TEST(T0425, "lapack/ulmBLAS::getrfLookahead, widths, threads")
+{
+    testGetrfLookahead<float>(ctx);
+    testGetrfLookahead<double>(ctx);
+    testGetrfLookahead<cfloat>(ctx);
+    testGetrfLookahead<cdouble>(ctx);
 }

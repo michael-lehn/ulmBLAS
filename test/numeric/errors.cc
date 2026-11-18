@@ -110,7 +110,7 @@ checkCase(test::Context &ctx, const char *name, int info, bool same)
 } // namespace
 
 extern "C" void
-cblas_xerbla(int info, const char *rout, const char *, ...)
+cblas_xerbla(int info, const char *rout, const char *form, ...)
 {
     extern int RowMajorStrg;
 

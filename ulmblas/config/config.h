@@ -4,6 +4,7 @@
 #include <ulmblas/config/blocksize.h>
 #include <ulmblas/config/config.h>
 #include <ulmblas/config/fusefactor.h>
+#include <ulmblas/config/level2.h>
 #include <ulmblas/config/simd.h>
 
 #endif // ULMBLAS_CONFIG_CONFIG_H

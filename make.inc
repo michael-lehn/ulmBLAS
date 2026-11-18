@@ -176,12 +176,20 @@ OMPLIBS    =
 endif
 
 #
+#  SIMDFLAGS: the SIMD directives of OpenMP (#pragma omp simd), for the
+#  vectorized sums of level 1 (ulmblas/level1/kernel/reduce.h); no OpenMP
+#  runtime, independent of OPENMP.  SIMDFLAGS= turns them off (the sums are
+#  then computed in order).
+#
+SIMDFLAGS ?= -fopenmp-simd
+
+#
 #  Flags that are always used.  ULMBLAS_CPPFLAGS is extended by the
 #  makefiles (include paths, interface macros), CONFIG_CPPFLAGS by
 #  configuration files (e.g. block sizes of the test configurations).
 #
 DEPFLAGS          = -MMD -MP
-ULMBLAS_CXXFLAGS  = $(CXXSTD) $(ARCHFLAGS) $(OPTFLAGS) $(OMPFLAGS)
+ULMBLAS_CXXFLAGS  = $(CXXSTD) $(ARCHFLAGS) $(OPTFLAGS) $(SIMDFLAGS) $(OMPFLAGS)
 ULMBLAS_CFLAGS    = $(COPTFLAGS)
 
 CXXCOMPILE = $(CXX) $(ULMBLAS_CPPFLAGS) $(ULMBLAS_INDEX_DEFS) \
@@ -193,7 +201,7 @@ FCOMPILE   = $(FC) $(FOPTFLAGS) $(FFLAGS)
 #  Micro kernels that are assembly files (ulmblas/level3/ukernel/openblas/
 #  asm/*.S) are assembled into every library if they are selected, i.e. if
 #  the flags (ARCHFLAGS, CPPFLAGS, CXXFLAGS or the CONFIG_CPPFLAGS of a
-#  configuration) define their selection macro.  The library makefiles add
+#  configuration) define their selection macro, or if the build has AVX2.  The library makefiles add
 #  $(ULMBLAS_ASM_OBJECTS) to their objects and build them with ASCOMPILE
 #  (the C++ compiler driver preprocesses *.S files and runs the assembler).
 #  Recursively expanded: CONFIG_CPPFLAGS and BUILD_DIR are set after this
@@ -204,7 +212,16 @@ ULMBLAS_KERNEL_FLAGS = $(ARCHFLAGS) $(CONFIG_CPPFLAGS) $(CPPFLAGS) $(CXXFLAGS)
 ULMBLAS_ASM_SELECTED = $(filter -DULMBLAS_DGEMM_UKERNEL_openblas_$1 \
                                 -DULMBLAS_DGEMM_UKERNEL_openblas_$1=%, \
                                 $(ULMBLAS_KERNEL_FLAGS))
-ULMBLAS_ASM_SOURCES  = $(if $(call ULMBLAS_ASM_SELECTED,haswell_4x8), \
+#  the build has AVX2 (x86-64): every vendored kernel of the instruction
+#  set is compiled in (ulmblas/level3/ukernel/kernels.h), also the assembly
+#  kernels
+ULMBLAS_ASM_AVX2     = $(shell echo | $(CXX) $(ULMBLAS_KERNEL_FLAGS) -dM -E \
+                               -x c++ - 2>/dev/null | grep -q '__AVX2__ 1' \
+                       && echo | $(CXX) $(ULMBLAS_KERNEL_FLAGS) -dM -E \
+                               -x c++ - 2>/dev/null | grep -q '__x86_64__ 1' \
+                       && echo yes)
+ULMBLAS_ASM_SOURCES  = $(if $(or $(call ULMBLAS_ASM_SELECTED,haswell_4x8), \
+                                 $(ULMBLAS_ASM_AVX2)), \
                             $(ULMBLAS_ASM_DIR)/haswell_4x8.S)
 ULMBLAS_ASM_OBJECTS  = $(patsubst %.S, $(BUILD_DIR)/%.o, \
                                   $(notdir $(ULMBLAS_ASM_SOURCES)))

@@ -24,6 +24,7 @@
 //  0: C is not read; NaN in alpha, beta, A, B or C propagates.
 //
 #include <arm_neon.h>
+#include <cstddef>
 #include <complex>
 
 namespace ulmBLAS {
@@ -45,13 +46,14 @@ cmul(float r, float im, float32x4_t x)
 }
 
 inline void
-cgemm_4x6(long kc, const std::complex<float> &alpha, const float *A,
+cgemm_4x6(std::ptrdiff_t kc, const std::complex<float> &alpha, const float *A,
           const float *B, const std::complex<float> &beta,
-          std::complex<float> *C_, long incRowC, long incColC)
+          std::complex<float> *C_, std::ptrdiff_t incRowC,
+          std::ptrdiff_t incColC)
 {
     float32x4_t r[6][2], im[6][2];
 
-    for (int j = 0; j < 6; ++j) {
+    for (std::ptrdiff_t j = 0; j < 6; ++j) {
 	r[j][0] = r[j][1] = im[j][0] = im[j][1] = vdupq_n_f32(0);
     }
 
@@ -61,7 +63,7 @@ cgemm_4x6(long kc, const std::complex<float> &alpha, const float *A,
     im[j][0] = vfmaq_laneq_f32(im[j][0], a0, b, l + 1);                        \
     im[j][1] = vfmaq_laneq_f32(im[j][1], a1, b, l + 1);
 
-    for (long l = 0; l < kc; ++l) {
+    for (std::ptrdiff_t l = 0; l < kc; ++l) {
 	const float32x4_t a0 = vld1q_f32(A), a1 = vld1q_f32(A + 4);
 	const float32x4_t b0 = vld1q_f32(B), b1 = vld1q_f32(B + 4),
 	                  b2 = vld1q_f32(B + 8);
@@ -82,10 +84,10 @@ cgemm_4x6(long kc, const std::complex<float> &alpha, const float *A,
     const float br = beta.real(), bi = beta.imag();
     const bool beta0 = br == 0.0f && bi == 0.0f;
     float *C = reinterpret_cast<float *>(C_);
-    const long rs = 2 * incRowC, cs = 2 * incColC;
+    const std::ptrdiff_t rs = 2 * incRowC, cs = 2 * incColC;
 
-    for (int j = 0; j < 6; ++j) {
-	for (int h = 0; h < 2; ++h) {
+    for (std::ptrdiff_t j = 0; j < 6; ++j) {
+	for (std::ptrdiff_t h = 0; h < 2; ++h) {
 	    float *p0 = C + 2 * h * rs + j * cs;
 	    float *p1 = p0 + rs;
 	    float32x4_t c = cmul(ar, ai, vaddq_f32(r[j][h], mul_i(im[j][h])));
@@ -108,17 +110,17 @@ cgemm_4x6(long kc, const std::complex<float> &alpha, const float *A,
 }
 
 template <typename IndexType>
-static typename std::enable_if<std::is_convertible<IndexType, long>::value,
-                               void>::type
+static typename std::enable_if<
+    std::is_convertible<IndexType, std::ptrdiff_t>::value, void>::type
 ugemm(IndexType kc, const std::complex<float> &alpha,
       const std::complex<float> *A, const std::complex<float> *B,
       const std::complex<float> &beta, std::complex<float> *C,
-      IndexType incRowC, IndexType incColC, const std::complex<float> *,
-      const std::complex<float> *)
+      IndexType incRowC, IndexType incColC, const std::complex<float> *nextA,
+      const std::complex<float> *nextB)
 {
-    cgemm_4x6(long(kc), alpha, reinterpret_cast<const float *>(A),
-              reinterpret_cast<const float *>(B), beta, C, long(incRowC),
-              long(incColC));
+    cgemm_4x6(std::ptrdiff_t(kc), alpha, reinterpret_cast<const float *>(A),
+              reinterpret_cast<const float *>(B), beta, C,
+              std::ptrdiff_t(incRowC), std::ptrdiff_t(incColC));
 }
 
 } // namespace neon

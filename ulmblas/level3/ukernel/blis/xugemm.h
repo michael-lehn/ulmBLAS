@@ -152,7 +152,7 @@ isNan(const std::complex<T> &x)
 //
 template <typename IndexType, typename T>
 static void
-xcall(std::integral_constant<int,1>, IndexType kc, const T &alpha,
+xcall(std::integral_constant<int, 1> api, IndexType kc, const T &alpha,
       const T *A, const T *B, const T &beta, T *C, IndexType incRowC,
       IndexType incColC, const T *nextA, const T *nextB)
 {
@@ -171,7 +171,7 @@ xcall(std::integral_constant<int,1>, IndexType kc, const T &alpha,
 
 template <typename IndexType, typename T>
 static void
-xcall(std::integral_constant<int,0>, IndexType kc, const T &alpha,
+xcall(std::integral_constant<int, 0> api, IndexType kc, const T &alpha,
       const T *A, const T *B, const T &beta, T *C, IndexType incRowC,
       IndexType incColC, const T *nextA, const T *nextB)
 {
@@ -235,9 +235,9 @@ obscal(IndexType m, IndexType n, const T &beta, T *C, IndexType incColC)
 
 template <typename IndexType, typename T>
 static void
-xcall(std::integral_constant<int,2>, IndexType kc, const T &alpha,
-      const T *A, const T *B, const T &beta, T *C, IndexType /*incRowC*/,
-      IndexType incColC, const T *, const T *)
+xcall(std::integral_constant<int, 2> api, IndexType kc, const T &alpha,
+      const T *A, const T *B, const T &beta, T *C, IndexType incRowC,
+      IndexType incColC, const T *nextA, const T *nextB)
 {
     constexpr IndexType MR = Kernel<T>::MR;
     constexpr IndexType NR = Kernel<T>::NR;

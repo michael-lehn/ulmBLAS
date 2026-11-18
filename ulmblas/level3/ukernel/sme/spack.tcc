@@ -81,7 +81,7 @@ __arm_new("za") __arm_locally_streaming inline void spack_transpose(
 //
 template <int P, typename IndexType>
 static void
-pack_MRxk(IndexType k, bool, const float *A, IndexType incRowA,
+pack_MRxk(IndexType k, bool conj, const float *A, IndexType incRowA,
           IndexType incColA, float *buffer)
 {
     const sme::FpsrRestore fpsr; // see sme/fpsr.h
@@ -110,7 +110,7 @@ pack_MRxk(IndexType k, bool, const float *A, IndexType incRowA,
 //
 template <typename IndexType>
 static void
-pack_kxNR(IndexType k, bool, const float *B, IndexType incRowB,
+pack_kxNR(IndexType k, bool conj, const float *B, IndexType incRowB,
           IndexType incColB, float *buffer)
 {
     const sme::FpsrRestore fpsr; // see sme/fpsr.h
@@ -134,7 +134,7 @@ pack_kxNR(IndexType k, bool, const float *B, IndexType incRowB,
 //
 template <typename IndexType>
 static bool
-pack_MRxk_partial(IndexType mr, IndexType k, bool, const float *A,
+pack_MRxk_partial(IndexType mr, IndexType k, bool conj, const float *A,
                   IndexType incRowA, IndexType incColA, float *buffer)
 {
     const sme::FpsrRestore fpsr; // see sme/fpsr.h
@@ -155,7 +155,7 @@ pack_MRxk_partial(IndexType mr, IndexType k, bool, const float *A,
 //
 template <typename IndexType>
 static bool
-pack_kxNR_partial(IndexType nr, IndexType k, bool, const float *B,
+pack_kxNR_partial(IndexType nr, IndexType k, bool conj, const float *B,
                   IndexType incRowB, IndexType incColB, float *buffer)
 {
     const sme::FpsrRestore fpsr; // see sme/fpsr.h

@@ -33,6 +33,18 @@ namespace ulmBLAS {
 //  cache frees its blocks when the thread ends.  A block released by
 //  another thread (or not cached because the cache was full) is freed.
 //
+//  Design rule: the size of every block is bounded by a constant (block
+//  sizes of the configuration, number of threads), never proportional to
+//  the dimensions of a problem.  memoryPoolLargest() is the largest block
+//  in bytes requested since the last memoryPoolResetLargest() (all element
+//  types and threads), for the tests of this rule.
+//
+inline std::size_t
+memoryPoolLargest();
+
+inline void
+memoryPoolResetLargest();
+
 template <typename T> class MemoryPool
 {
   public:

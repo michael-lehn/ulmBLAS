@@ -11,7 +11,7 @@ conjugate(const T &x);
 
 template <typename T>
 typename std::enable_if<std::is_fundamental<T>::value, const T &>::type
-conjugate(const T &x, bool);
+conjugate(const T &x, bool conj);
 
 template <typename T>
 typename std::enable_if<!std::is_fundamental<T>::value, const T>::type

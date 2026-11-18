@@ -86,17 +86,17 @@ panel of B for all full 16-row tiles of the block (m = 16·tiles, n = 12;
 `blisk::ugemm_panel`), as OpenBLAS's driver calls it for a block; partial
 tiles and the other level 3 routines use the per-tile adapter.  Calling it
 once per tile costs 2-3%
-([016-2026-10-27-uc3-icelake-openblas-kernel-prof](../../../../benchmark_results/016-2026-10-27-uc3-icelake-openblas-kernel-prof/README.md)).
+([016-2026-10-27-uc3-icelake-openblas-kernel-prof](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/016-2026-10-27-uc3-icelake-openblas-kernel-prof/README.md)).
 `-DULMBLAS_DGEMM_NO_PANEL` switches the panel calls off.  DGEMM
 (`ulmblas/level3/gemm.tcc`) also packs B interleaved with the computation
 for the first block of A, as OpenBLAS does: each panel of 12 columns is
 packed and used right away; `-DULMBLAS_DGEMM_NO_INTERLEAVE` packs the
 whole block of B first.  With both, ulmBLAS reaches 0.970 of native
 OpenBLAS
-([021-2026-10-27-uc3-icelake-openblas-kernel-interleave](../../../../benchmark_results/021-2026-10-27-uc3-icelake-openblas-kernel-interleave/README.md)).  With the panel
+([021-2026-10-27-uc3-icelake-openblas-kernel-interleave](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/021-2026-10-27-uc3-icelake-openblas-kernel-interleave/README.md)).  With the panel
 calls ulmBLAS reaches 0.962 of native OpenBLAS on an Intel Xeon Platinum
 8358 for n ≥ 1000, with one call per tile 0.940
-([020-2026-10-27-uc3-icelake-openblas-kernel-panel](../../../../benchmark_results/020-2026-10-27-uc3-icelake-openblas-kernel-panel/README.md)).
+([020-2026-10-27-uc3-icelake-openblas-kernel-panel](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/020-2026-10-27-uc3-icelake-openblas-kernel-panel/README.md)).
 
 ## The Haswell kernel (`haswell_4x8`)
 
@@ -158,7 +158,7 @@ called once per panel of B (n = 8, the mechanism of `skylakex_16x12`) it
 uses its 4 x 8 path for every tile, which made ulmBLAS 13% slower than
 native OpenBLAS on an Intel Core i5-12500 (0.86-0.87 for n ≥ 256; with
 the block calls 0.98-1.00;
-[024-2026-10-27-heim-openblas-haswell-kernel](../../../../benchmark_results/024-2026-10-27-heim-openblas-haswell-kernel/README.md),
+[024-2026-10-27-heim-openblas-haswell-kernel](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/024-2026-10-27-heim-openblas-haswell-kernel/README.md),
 which also compares the loop nesting of both drivers).  `-DULMBLAS_DGEMM_NO_PANEL` switches the
 block calls off (one call per tile).
 

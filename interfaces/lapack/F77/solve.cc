@@ -4,7 +4,6 @@
 #include <utility>
 #include LAPACK_HEADER
 #include <interfaces/blas/F77/xerbla.h>
-#include <ulmblas/lapack/buffer.h>
 #include <ulmblas/lapack/gesv.h>
 #include <ulmblas/lapack/getri.h>
 #include <ulmblas/lapack/getrs.h>
@@ -53,18 +52,6 @@ error(const char *name, F77Int info, F77Int *info_)
     return false;
 }
 
-//  1-based IPIV(1:n) to 0-based
-struct Pivots
-{
-    Pivots(const F77Int *ipiv, F77Int n) : p(std::size_t(n > 0 ? n : 0))
-    {
-	for (F77Int i = 0; i < n; ++i) {
-	    p[i] = Idx(ipiv[i] - 1);
-	}
-    }
-    ulmBLAS::Buffer<Idx> p;
-};
-
 template <typename T>
 void
 getrs(const char *name, const char *trans_, const F77Int *n_,
@@ -87,9 +74,9 @@ getrs(const char *name, const char *trans_, const F77Int *n_,
     if (error(name, info, info_) || n == 0 || nrhs == 0) {
 	return;
     }
-    Pivots p(ipiv, n);
-    ulmBLAS::getrs<Idx>(t != 'N', t == 'C', n, nrhs, A, 1, ldA, p.p.data(), 1,
-                        B, 1, ldB);
+    //  IPIV is 1-based (pivot base 1)
+    ulmBLAS::getrs<Idx>(t != 'N', t == 'C', n, nrhs, A, 1, ldA, ipiv, 1, B, 1,
+                        ldB, 1);
 }
 
 template <typename T>
@@ -136,8 +123,8 @@ getri(const char *name, const F77Int *n_, T *A, const F77Int *ldA_,
     if (lwork == -1 || n == 0) {
 	return;
     }
-    Pivots p(ipiv, n);
-    *info_ = ulmBLAS::getri<Idx>(n, A, 1, ldA, p.p.data(), 1);
+    //  IPIV is 1-based (pivot base 1)
+    *info_ = ulmBLAS::getri<Idx>(n, A, 1, ldA, ipiv, 1, 1);
 }
 
 template <typename T>

@@ -201,7 +201,7 @@ struct I8Kernel : i8::KernelBase
     template <bool UA, bool UB>
     static void
     kernel(long kg, std::int32_t alpha, const P *A, const P *B,
-           std::int32_t beta, std::int32_t *C, long ldC, long, long)
+           std::int32_t beta, std::int32_t *C, long ldC, long mr, long nr)
     {
 	run<UA, UB>(std::integral_constant<bool, UA == UB>(), kg, alpha, A, B,
 	            beta, C, ldC);
@@ -210,16 +210,16 @@ struct I8Kernel : i8::KernelBase
     //  only the variant for the signs is instantiated
     template <bool UA, bool UB>
     static void
-    run(std::true_type, long kg, std::int32_t alpha, const P *A, const P *B,
-        std::int32_t beta, std::int32_t *C, long ldC)
+    run(std::true_type sameSign, long kg, std::int32_t alpha, const P *A,
+        const P *B, std::int32_t beta, std::int32_t *C, long ldC)
     {
 	i8kernel_12x8_dot<UA, UB>(kg, alpha, A, B, beta, C, ldC);
     }
 
     template <bool UA, bool UB>
     static void
-    run(std::false_type, long kg, std::int32_t alpha, const P *A, const P *B,
-        std::int32_t beta, std::int32_t *C, long ldC)
+    run(std::false_type sameSign, long kg, std::int32_t alpha, const P *A,
+        const P *B, std::int32_t beta, std::int32_t *C, long ldC)
     {
 	i8kernel_12x8_i8mm<UA, UB>(kg, alpha, A, B, beta, C, ldC);
     }

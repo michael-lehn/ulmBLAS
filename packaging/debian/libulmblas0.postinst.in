@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+# libblas.so.3 of ulmBLAS (amd64) as an alternative: priority 50, below
+# OpenBLAS (100) and BLIS (70-80), above the reference BLAS (10)
+if [ "$1" = configure ] && [ -e /usr/lib/@MULTIARCH@/ulmblas/libblas.so.3 ]; then
+    update-alternatives --install /usr/lib/@MULTIARCH@/libblas.so.3 \
+        libblas.so.3-@MULTIARCH@ /usr/lib/@MULTIARCH@/ulmblas/libblas.so.3 50
+fi
+
+#DEBHELPER#

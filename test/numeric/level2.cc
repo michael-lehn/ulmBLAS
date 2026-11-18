@@ -4,6 +4,7 @@
 #include <test/numeric/blas.h>
 #include <test/numeric/reference.h>
 #include <test/numeric/testing.h>
+#include <ulmblas/auxiliary/threadpool.h>
 
 namespace {
 
@@ -959,6 +960,88 @@ testHpr(Context &ctx, bool rank2)
     }
 }
 
+//
+//  gemv, ger on several threads (ulmblas/level2/threads.h): sizes above the
+//  thresholds of all types (real: m n >= 460800), also with few rows or
+//  columns (fewer parts than threads, ger split along the other
+//  dimension); both storage orders, all transpositions, strided vectors
+//
+const Dims threadDims[] = {{700, 690}, {13, 40000}, {40000, 13}, {150, 97}};
+const int numThreadDims = sizeof(threadDims) / sizeof(threadDims[0]);
+
+template <typename T>
+void
+testGemvThreaded(Context &ctx)
+{
+    Random random;
+    std::vector<T> s = scalars<T>();
+
+    for (int o = 0; o < 2; ++o) {
+	for (int t = 0; t < 3; ++t) {
+	    for (int d = 0; d < numThreadDims; ++d) {
+		for (int i = 0; i < 3; ++i) {
+		    if (!gemvCase(ctx, random, o == 1, transposes[t],
+		                  threadDims[d].m, threadDims[d].n, incs[i].x,
+		                  incs[i].y, s[2], i == 0 ? s[0] : s[2])) {
+			return;
+		    }
+		}
+	    }
+	}
+    }
+}
+
+template <typename T>
+void
+testGerThreaded(Context &ctx)
+{
+    Random random;
+    std::vector<T> s = scalars<T>();
+
+    for (int c = 0; c < (IsComplex<T>::value ? 2 : 1); ++c) {
+	for (int o = 0; o < 2; ++o) {
+	    for (int d = 0; d < numThreadDims; ++d) {
+		for (int i = 0; i < 3; ++i) {
+		    if (!gerCase(ctx, random, c == 1, o == 1, threadDims[d].m,
+		                 threadDims[d].n, incs[i].x, incs[i].y, s[2])) {
+			return;
+		    }
+		}
+	    }
+	}
+    }
+}
+
+//
+//  trsv with several blocks of TrsvBlock (64) columns, the last one partial
+//
+template <typename T>
+void
+testTrsvBlocked(Context &ctx)
+{
+    Random random;
+    const int ns[] = {150, 300};
+    const int xincs[] = {1, -2};
+
+    for (int o = 0; o < 2; ++o) {
+	for (int u = 0; u < 2; ++u) {
+	    for (int t = 0; t < 3; ++t) {
+		for (int dg = 0; dg < 2; ++dg) {
+		    for (int n : ns) {
+			for (int inc : xincs) {
+			    if (!trmvCase<T>(ctx, random, true, o == 1,
+			                     upLos[u], transposes[t], diags[dg],
+			                     n, inc)) {
+				return;
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+}
+
 } // namespace
 
 ULMBLAS_TEST(T0200, "level2/sgemv")
@@ -1231,4 +1314,42 @@ ULMBLAS_TEST(T0262, "level2/chpr2")
 ULMBLAS_TEST(T0263, "level2/zhpr2")
 {
     testHpr<cdouble>(ctx, true);
+}
+
+ULMBLAS_TEST(T0264, "level2/?gemv: m x n = 700 x 690, 13 x 40000, 40000 x 13, "
+                    "150 x 97 on at least 8 threads, all cases")
+{
+    //  at least 8 threads, also if the environment sets one (e.g.
+    //  OMP_NUM_THREADS=1 in batch jobs); the default afterwards
+    ulmBLAS::ThreadPool &pool = ulmBLAS::ThreadPool::instance();
+    if (pool.size() < 8) {
+	pool.setSize(8);
+    }
+    testGemvThreaded<float>(ctx);
+    testGemvThreaded<double>(ctx);
+    testGemvThreaded<cfloat>(ctx);
+    testGemvThreaded<cdouble>(ctx);
+    pool.setSize(0);
+}
+
+ULMBLAS_TEST(T0265, "level2/?ger, ?geru, ?gerc: m x n = 700 x 690, 13 x 40000, "
+                    "40000 x 13, 150 x 97 on at least 8 threads")
+{
+    ulmBLAS::ThreadPool &pool = ulmBLAS::ThreadPool::instance();
+    if (pool.size() < 8) {
+	pool.setSize(8);
+    }
+    testGerThreaded<float>(ctx);
+    testGerThreaded<double>(ctx);
+    testGerThreaded<cfloat>(ctx);
+    testGerThreaded<cdouble>(ctx);
+    pool.setSize(0);
+}
+
+ULMBLAS_TEST(T0266, "level2/?trsv: n = 150, 300 (several blocks), all cases")
+{
+    testTrsvBlocked<float>(ctx);
+    testTrsvBlocked<double>(ctx);
+    testTrsvBlocked<cfloat>(ctx);
+    testTrsvBlocked<cdouble>(ctx);
 }

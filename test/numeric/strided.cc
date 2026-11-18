@@ -26,20 +26,20 @@ namespace {
 //  The C functions for each type
 //
 void
-gemmStrided(std::int64_t m, std::int64_t n, std::int64_t k, float alpha, bool,
-            const float *A, std::int64_t rA, std::int64_t cA, bool,
-            const float *B, std::int64_t rB, std::int64_t cB, float beta,
-            float *C, std::int64_t rC, std::int64_t cC)
+gemmStrided(std::int64_t m, std::int64_t n, std::int64_t k, float alpha,
+            bool conjA, const float *A, std::int64_t rA, std::int64_t cA,
+            bool conjB, const float *B, std::int64_t rB, std::int64_t cB,
+            float beta, float *C, std::int64_t rC, std::int64_t cC)
 {
     ulmblas_sgemm_strided(m, n, k, alpha, A, rA, cA, B, rB, cB, beta, C, rC,
                           cC);
 }
 
 void
-gemmStrided(std::int64_t m, std::int64_t n, std::int64_t k, double alpha, bool,
-            const double *A, std::int64_t rA, std::int64_t cA, bool,
-            const double *B, std::int64_t rB, std::int64_t cB, double beta,
-            double *C, std::int64_t rC, std::int64_t cC)
+gemmStrided(std::int64_t m, std::int64_t n, std::int64_t k, double alpha,
+            bool conjA, const double *A, std::int64_t rA, std::int64_t cA,
+            bool conjB, const double *B, std::int64_t rB, std::int64_t cB,
+            double beta, double *C, std::int64_t rC, std::int64_t cC)
 {
     ulmblas_dgemm_strided(m, n, k, alpha, A, rA, cA, B, rB, cB, beta, C, rC,
                           cC);
@@ -607,7 +607,7 @@ testInt(Context &ctx)
 //  so the error bound is that of sgemm.
 //
 void
-gemm16(const ulmBLAS::bfloat16 *, std::int64_t m, std::int64_t n,
+gemm16(const ulmBLAS::bfloat16 *tag, std::int64_t m, std::int64_t n,
        std::int64_t k, float alpha, const std::uint16_t *A, std::int64_t rA,
        std::int64_t cA, const std::uint16_t *B, std::int64_t rB,
        std::int64_t cB, float beta, float *C, std::int64_t rC, std::int64_t cC)
@@ -617,10 +617,10 @@ gemm16(const ulmBLAS::bfloat16 *, std::int64_t m, std::int64_t n,
 }
 
 void
-gemm16(const ulmBLAS::float16 *, std::int64_t m, std::int64_t n, std::int64_t k,
-       float alpha, const std::uint16_t *A, std::int64_t rA, std::int64_t cA,
-       const std::uint16_t *B, std::int64_t rB, std::int64_t cB, float beta,
-       float *C, std::int64_t rC, std::int64_t cC)
+gemm16(const ulmBLAS::float16 *tag, std::int64_t m, std::int64_t n,
+       std::int64_t k, float alpha, const std::uint16_t *A, std::int64_t rA,
+       std::int64_t cA, const std::uint16_t *B, std::int64_t rB,
+       std::int64_t cB, float beta, float *C, std::int64_t rC, std::int64_t cC)
 {
     ulmblas_shgemm_strided(m, n, k, alpha, A, rA, cA, B, rB, cB, beta, C, rC,
                            cC);

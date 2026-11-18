@@ -90,11 +90,14 @@ supdate_32x16(long n, float alpha, float beta, float *C, long ldC,
 
 //
 //  The rows 0 to mr-1 and columns 0 to nr-1 of the 32 x 32 tile of C (mr,
-//  nr <= 32) with unit row stride and column stride ldC, in streaming mode.
+//  nr <= 32) with unit row stride and column stride ldC, in streaming mode
+//  with ZA already enabled (for the macro kernel in one streaming section
+//  per block, sme/macrokernel.h).
 //
-__arm_new("za") __arm_locally_streaming inline void sgemm_32x32_streaming(
-    long kc, float alpha, const float *A, const float *B, float beta, float *C,
-    long ldC, long mr, long nr)
+inline void
+sgemm_32x32_za(long kc, float alpha, const float *A, const float *B, float beta,
+               float *C, long ldC, long mr,
+               long nr) __arm_streaming __arm_inout("za")
 {
     const svbool_t p = svptrue_b32();
     const svcount_t pc = svptrue_c32();
@@ -135,6 +138,14 @@ __arm_new("za") __arm_locally_streaming inline void sgemm_32x32_streaming(
     }
 }
 
+//  the same with its own streaming section
+__arm_new("za") __arm_locally_streaming inline void sgemm_32x32_streaming(
+    long kc, float alpha, const float *A, const float *B, float beta, float *C,
+    long ldC, long mr, long nr)
+{
+    sgemm_32x32_za(kc, alpha, A, B, beta, C, ldC, mr, nr);
+}
+
 //
 //  The same, called from ordinary code: the tile of C below (the tile of
 //  the next call of the macro kernel) is prefetched first, see ugemm_32x16.
@@ -172,7 +183,7 @@ static typename std::enable_if<std::is_convertible<IndexType, long>::value,
                                void>::type
 ugemm(IndexType kc, const float &alpha, const float *A, const float *B,
       const float &beta, float *C, IndexType incRowC, IndexType incColC,
-      const float *, const float *)
+      const float *nextA, const float *nextB)
 {
     if (incRowC == IndexType(1)) {
 	sgemm_32x32(long(kc), alpha, A, B, beta, C, long(incColC), 32, 32);
@@ -195,7 +206,8 @@ template <typename IndexType>
 void
 ugemm(IndexType mr, IndexType nr, IndexType kc, const float &alpha,
       const float *A, const float *B, const float &beta, float *C,
-      IndexType incRowC, IndexType incColC, const float *, const float *)
+      IndexType incRowC, IndexType incColC, const float *nextA,
+      const float *nextB)
 {
     if (incRowC == IndexType(1)) {
 	sme::sgemm_32x32(long(kc), alpha, A, B, beta, C, long(incColC),

@@ -35,9 +35,9 @@ kernel on native hardware: the default configurations `testcase01` …
 configurations `blis-NAME`, `openblas-NAME` (DGEMM), `s-NAME`, `c-NAME`,
 `z-NAME` and `…-small` (small block sizes).  Test records of the vendored
 kernels:
-[investigations/2026-10-bwunicluster3/kernels/tests](../../../investigations/2026-10-bwunicluster3/kernels/tests/README.md)
+[investigations/2026-10-bwunicluster3/kernels/tests](https://github.com/michael-lehn/ulmBLAS/blob/master/investigations/2026-10-bwunicluster3/kernels/tests/README.md)
 (DGEMM) and
-[investigations/2026-10-gemm-datatypes](../../../investigations/2026-10-gemm-datatypes/README.md)
+[investigations/2026-10-gemm-datatypes](https://github.com/michael-lehn/ulmBLAS/blob/master/investigations/2026-10-gemm-datatypes/README.md)
 (ZGEMM, CGEMM).
 Tested CPUs: Intel Core i5-12500 (Alder Lake: SSE3, AVX, AVX2/FMA), Intel
 Xeon Platinum 8358 (Ice Lake-SP: also AVX-512), AMD EPYC 9454 (Zen 4: also
@@ -62,8 +62,8 @@ cache blocking and packing with it.  MR x NR: 8 x 4 (float), 4 x 4
 
 | Kernel | Origin | MR x NR | Files | Selection | Status | Benchmarks |
 |---|---|---|---|---|---|---|
-| `sse` | ulmBLAS (inline assembly, 2014) | 4 x 4 | `sse/ugemm.h`, `sse/ugemm.tcc` (also TRSM kernels `sse/utrlsm.*`, `sse/utrusm.*`) | default on x86-64 (SSE3 is part of the default `ARCHFLAGS`) | tested (heim; Rosetta 2) | [001](../../../benchmark_results/001-2026-10-24-heim-avx-fma/README.md), [011](../../../benchmark_results/011-2026-10-26-heim-blis-kernels/README.md) |
-| `blis_penryn_4x4` | BLIS 2.0 `bli_dgemm_penryn_asm_4x4` | 4 x 4 | `blis/kernel/penryn_4x4.h` | `-msse3 -DULMBLAS_DGEMM_UKERNEL_blis_penryn_4x4` | tested (heim, also ASan/UBSan; Ice Lake; Zen 4) | [011](../../../benchmark_results/011-2026-10-26-heim-blis-kernels/README.md), [012](../../../benchmark_results/012-2026-10-26-uc3-icelake-blis-kernels/README.md), [015](../../../benchmark_results/015-2026-10-27-uc3-zen4-kernels-socket/README.md) (preliminary) |
+| `sse` | ulmBLAS (inline assembly, 2014) | 4 x 4 | `sse/ugemm.h`, `sse/ugemm.tcc` (also TRSM kernels `sse/utrlsm.*`, `sse/utrusm.*`) | default on x86-64 (SSE3 is part of the default `ARCHFLAGS`) | tested (heim; Rosetta 2) | [001](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/001-2026-10-24-heim-avx-fma/README.md), [011](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/011-2026-10-26-heim-blis-kernels/README.md) |
+| `blis_penryn_4x4` | BLIS 2.0 `bli_dgemm_penryn_asm_4x4` | 4 x 4 | `blis/kernel/penryn_4x4.h` | `-msse3 -DULMBLAS_DGEMM_UKERNEL_blis_penryn_4x4` | tested (heim, also ASan/UBSan; Ice Lake; Zen 4) | [011](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/011-2026-10-26-heim-blis-kernels/README.md), [012](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/012-2026-10-26-uc3-icelake-blis-kernels/README.md), [015](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/015-2026-10-27-uc3-zen4-kernels-socket/README.md) (preliminary) |
 
 Requirements: x86-64 (LP64) with SSE3.  License: ulmBLAS; BLIS kernel:
 LICENSE section 7.  Details of the BLIS kernel: [blis/README.md](blis/README.md).
@@ -74,7 +74,7 @@ Kernels for AVX without FMA (Sandy Bridge class).
 
 | Kernel | Origin | MR x NR | Files | Selection | Status | Benchmarks |
 |---|---|---|---|---|---|---|
-| `blis_sandybridge_8x4` | BLIS 2.0 `bli_dgemm_sandybridge_asm_8x4` | 8 x 4 | `blis/kernel/sandybridge_8x4.h` | `-mavx -DULMBLAS_DGEMM_UKERNEL_blis_sandybridge_8x4` | tested (heim, also ASan/UBSan; Ice Lake; Zen 4) | [011](../../../benchmark_results/011-2026-10-26-heim-blis-kernels/README.md), [012](../../../benchmark_results/012-2026-10-26-uc3-icelake-blis-kernels/README.md), [015](../../../benchmark_results/015-2026-10-27-uc3-zen4-kernels-socket/README.md) (preliminary) |
+| `blis_sandybridge_8x4` | BLIS 2.0 `bli_dgemm_sandybridge_asm_8x4` | 8 x 4 | `blis/kernel/sandybridge_8x4.h` | `-mavx -DULMBLAS_DGEMM_UKERNEL_blis_sandybridge_8x4` | tested (heim, also ASan/UBSan; Ice Lake; Zen 4) | [011](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/011-2026-10-26-heim-blis-kernels/README.md), [012](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/012-2026-10-26-uc3-icelake-blis-kernels/README.md), [015](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/015-2026-10-27-uc3-zen4-kernels-socket/README.md) (preliminary) |
 | `blis_sandybridge_int_8x4` | BLIS 2.0 `bli_dgemm_sandybridge_int_8x4` (intrinsics) | 8 x 4 | `blis/kernel/sandybridge_int_8x4.h` | `-mavx -DULMBLAS_DGEMM_UKERNEL_blis_sandybridge_int_8x4` | tested (heim, also ASan/UBSan; Ice Lake; Zen 4) | not benchmarked |
 
 Requirements: AVX.  License: LICENSE section 7.  Details:
@@ -84,10 +84,10 @@ Requirements: AVX.  License: LICENSE section 7.  Details:
 
 | Kernel | Origin | MR x NR | Files | Selection | Status | Benchmarks |
 |---|---|---|---|---|---|---|
-| `avx` | ulmBLAS port of BLIS 2.0 `bli_dgemm_haswell_asm_6x8` (macros expanded, ulmBLAS interface) | 6 x 8 | `avx/ugemm.h`, `avx/ugemm.tcc` | default with `ARCHFLAGS='-mavx -mfma'` | tested (heim: `testcase06`, `testcase07`; Ice Lake; Zen 4) | [001](../../../benchmark_results/001-2026-10-24-heim-avx-fma/README.md), [008](../../../benchmark_results/008-2026-10-26-heim-avx-fma-memory/README.md), [010](../../../benchmark_results/010-2026-10-26-uc3-icelake-dgemm/README.md), [011](../../../benchmark_results/011-2026-10-26-heim-blis-kernels/README.md), [023](../../../benchmark_results/023-2026-10-27-uc3-icelake-dgemm-single-thread/README.md) |
-| `blis_haswell_6x8`, `blis_haswell_8x6` | BLIS 2.0 `bli_dgemm_haswell_asm_6x8`, `_8x6` | 6 x 8, 8 x 6 | `blis/kernel/haswell_6x8.h`, `haswell_8x6.h` | `-mavx -mfma -DULMBLAS_DGEMM_UKERNEL_blis_haswell_6x8` (or `_8x6`) | tested (heim, also ASan/UBSan; Ice Lake; Zen 4) | [011](../../../benchmark_results/011-2026-10-26-heim-blis-kernels/README.md), [013](../../../benchmark_results/013-2026-10-27-heim-blis-kernels-mc/README.md), [012](../../../benchmark_results/012-2026-10-26-uc3-icelake-blis-kernels/README.md) |
-| `blis_haswell_12x4`, `blis_haswell_4x12` | BLIS 2.0 `kernels/haswell/3/old/` (BLIS 0.x kernels) | 12 x 4, 4 x 12 | `blis/kernel/haswell_12x4.h`, `haswell_4x12.h` | `-mavx -mfma -DULMBLAS_DGEMM_UKERNEL_blis_haswell_12x4` (or `_4x12`) | tested (heim, also ASan/UBSan; Ice Lake; Zen 4) | [017](../../../benchmark_results/017-2026-10-27-heim-blis-kernels-old/README.md), [019](../../../benchmark_results/019-2026-10-27-uc3-icelake-kernels-k4/README.md) |
-| `openblas_haswell_4x8` | OpenBLAS 0.3.34 `dgemm_kernel_4x8_haswell.S` (assembled unchanged) | 4 x 8 (block calls) | `openblas/asm/haswell_4x8.S`, `openblas/kernel/haswell_4x8.h` | `-mavx -mavx2 -mfma -DULMBLAS_DGEMM_UKERNEL_openblas_haswell_4x8` | tested (heim, also ASan/UBSan and valgrind) | [024](../../../benchmark_results/024-2026-10-27-heim-openblas-haswell-kernel/README.md), [026](../../../benchmark_results/026-2026-10-27-heim-small-dgemm/README.md) |
+| `avx` | ulmBLAS port of BLIS 2.0 `bli_dgemm_haswell_asm_6x8` (macros expanded, ulmBLAS interface) | 6 x 8 | `avx/ugemm.h`, `avx/ugemm.tcc` | default with `ARCHFLAGS='-mavx -mfma'` | tested (heim: `testcase06`, `testcase07`; Ice Lake; Zen 4) | [001](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/001-2026-10-24-heim-avx-fma/README.md), [008](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/008-2026-10-26-heim-avx-fma-memory/README.md), [010](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/010-2026-10-26-uc3-icelake-dgemm/README.md), [011](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/011-2026-10-26-heim-blis-kernels/README.md), [023](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/023-2026-10-27-uc3-icelake-dgemm-single-thread/README.md) |
+| `blis_haswell_6x8`, `blis_haswell_8x6` | BLIS 2.0 `bli_dgemm_haswell_asm_6x8`, `_8x6` | 6 x 8, 8 x 6 | `blis/kernel/haswell_6x8.h`, `haswell_8x6.h` | `-mavx -mfma -DULMBLAS_DGEMM_UKERNEL_blis_haswell_6x8` (or `_8x6`) | tested (heim, also ASan/UBSan; Ice Lake; Zen 4) | [011](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/011-2026-10-26-heim-blis-kernels/README.md), [013](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/013-2026-10-27-heim-blis-kernels-mc/README.md), [012](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/012-2026-10-26-uc3-icelake-blis-kernels/README.md) |
+| `blis_haswell_12x4`, `blis_haswell_4x12` | BLIS 2.0 `kernels/haswell/3/old/` (BLIS 0.x kernels) | 12 x 4, 4 x 12 | `blis/kernel/haswell_12x4.h`, `haswell_4x12.h` | `-mavx -mfma -DULMBLAS_DGEMM_UKERNEL_blis_haswell_12x4` (or `_4x12`) | tested (heim, also ASan/UBSan; Ice Lake; Zen 4) | [017](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/017-2026-10-27-heim-blis-kernels-old/README.md), [019](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/019-2026-10-27-uc3-icelake-kernels-k4/README.md) |
+| `openblas_haswell_4x8` | OpenBLAS 0.3.34 `dgemm_kernel_4x8_haswell.S` (assembled unchanged) | 4 x 8 (block calls) | `openblas/asm/haswell_4x8.S`, `openblas/kernel/haswell_4x8.h` | `-mavx -mavx2 -mfma -DULMBLAS_DGEMM_UKERNEL_openblas_haswell_4x8` | tested (heim, also ASan/UBSan and valgrind) | [024](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/024-2026-10-27-heim-openblas-haswell-kernel/README.md), [026](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/026-2026-10-27-heim-small-dgemm/README.md) |
 
 Requirements: AVX and FMA (the OpenBLAS kernel: AVX2).  License: LICENSE
 sections 2 (`avx`), 7 (BLIS kernels), 8 (OpenBLAS kernel).  Details:
@@ -100,10 +100,10 @@ kernels; no such CPU has been tested.
 
 | Kernel | Origin | MR x NR | Files | Selection (with `-mavx -mfma -mavx512f`) | Status | Benchmarks |
 |---|---|---|---|---|---|---|
-| `blis_skx_16x14`, `blis_skx_16x12_l2` | BLIS 2.0 `bli_dgemm_skx_asm_16x14`, `_16x12_l2` | 16 x 14, 16 x 12 | `blis/kernel/skx_16x14.h`, `skx_16x12_l2.h` | `-DULMBLAS_DGEMM_UKERNEL_blis_skx_16x14` (or `_16x12_l2`) | tested (Ice Lake; Zen 4) | [012](../../../benchmark_results/012-2026-10-26-uc3-icelake-blis-kernels/README.md), [014](../../../benchmark_results/014-2026-10-27-uc3-icelake-openblas-kernel/README.md), [023](../../../benchmark_results/023-2026-10-27-uc3-icelake-dgemm-single-thread/README.md) |
-| `blis_zen4_32x6`, `blis_zen4_8x24` | AOCL-BLAS 5.0 `bli_dgemm_zen4_asm_32x6`, `_8x24` | 32 x 6, 8 x 24 | `blis/kernel/zen4_32x6.h`, `zen4_8x24.h` | `-DULMBLAS_DGEMM_UKERNEL_blis_zen4_32x6` (or `_8x24`) | tested (Ice Lake; Zen 4) | [012](../../../benchmark_results/012-2026-10-26-uc3-icelake-blis-kernels/README.md), [015](../../../benchmark_results/015-2026-10-27-uc3-zen4-kernels-socket/README.md) (preliminary), [023](../../../benchmark_results/023-2026-10-27-uc3-icelake-dgemm-single-thread/README.md) |
-| `blis_zen5_8x24` | AOCL-BLAS 5.1 `bli_dgemm_avx512_asm_8x24` | 8 x 24 | `blis/kernel/zen5_8x24.h` | `-DULMBLAS_DGEMM_UKERNEL_blis_zen5_8x24` | tested (Ice Lake; Zen 4; not run on Zen 5) | [018](../../../benchmark_results/018-2026-10-27-uc3-zen4-kernels-k4-socket/README.md) (preliminary), [019](../../../benchmark_results/019-2026-10-27-uc3-icelake-kernels-k4/README.md) |
-| `openblas_skylakex_16x12` | OpenBLAS 0.3.34 `dgemm_kernel_16x2_skylakex.c` (B addressing adapted) | 16 x 12 (panel calls) | `openblas/kernel/skylakex_16x12.h` | `-DULMBLAS_DGEMM_UKERNEL_openblas_skylakex_16x12` | tested (Ice Lake; Zen 4) | [014](../../../benchmark_results/014-2026-10-27-uc3-icelake-openblas-kernel/README.md), [016](../../../benchmark_results/016-2026-10-27-uc3-icelake-openblas-kernel-prof/README.md), [020](../../../benchmark_results/020-2026-10-27-uc3-icelake-openblas-kernel-panel/README.md), [021](../../../benchmark_results/021-2026-10-27-uc3-icelake-openblas-kernel-interleave/README.md), [023](../../../benchmark_results/023-2026-10-27-uc3-icelake-dgemm-single-thread/README.md) |
+| `blis_skx_16x14`, `blis_skx_16x12_l2` | BLIS 2.0 `bli_dgemm_skx_asm_16x14`, `_16x12_l2` | 16 x 14, 16 x 12 | `blis/kernel/skx_16x14.h`, `skx_16x12_l2.h` | `-DULMBLAS_DGEMM_UKERNEL_blis_skx_16x14` (or `_16x12_l2`) | tested (Ice Lake; Zen 4) | [012](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/012-2026-10-26-uc3-icelake-blis-kernels/README.md), [014](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/014-2026-10-27-uc3-icelake-openblas-kernel/README.md), [023](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/023-2026-10-27-uc3-icelake-dgemm-single-thread/README.md) |
+| `blis_zen4_32x6`, `blis_zen4_8x24` | AOCL-BLAS 5.0 `bli_dgemm_zen4_asm_32x6`, `_8x24` | 32 x 6, 8 x 24 | `blis/kernel/zen4_32x6.h`, `zen4_8x24.h` | `-DULMBLAS_DGEMM_UKERNEL_blis_zen4_32x6` (or `_8x24`) | tested (Ice Lake; Zen 4) | [012](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/012-2026-10-26-uc3-icelake-blis-kernels/README.md), [015](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/015-2026-10-27-uc3-zen4-kernels-socket/README.md) (preliminary), [023](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/023-2026-10-27-uc3-icelake-dgemm-single-thread/README.md) |
+| `blis_zen5_8x24` | AOCL-BLAS 5.1 `bli_dgemm_avx512_asm_8x24` | 8 x 24 | `blis/kernel/zen5_8x24.h` | `-DULMBLAS_DGEMM_UKERNEL_blis_zen5_8x24` | tested (Ice Lake; Zen 4; not run on Zen 5) | [018](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/018-2026-10-27-uc3-zen4-kernels-k4-socket/README.md) (preliminary), [019](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/019-2026-10-27-uc3-icelake-kernels-k4/README.md) |
+| `openblas_skylakex_16x12` | OpenBLAS 0.3.34 `dgemm_kernel_16x2_skylakex.c` (B addressing adapted) | 16 x 12 (panel calls) | `openblas/kernel/skylakex_16x12.h` | `-DULMBLAS_DGEMM_UKERNEL_openblas_skylakex_16x12` | tested (Ice Lake; Zen 4) | [014](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/014-2026-10-27-uc3-icelake-openblas-kernel/README.md), [016](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/016-2026-10-27-uc3-icelake-openblas-kernel-prof/README.md), [020](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/020-2026-10-27-uc3-icelake-openblas-kernel-panel/README.md), [021](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/021-2026-10-27-uc3-icelake-openblas-kernel-interleave/README.md), [023](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/023-2026-10-27-uc3-icelake-dgemm-single-thread/README.md) |
 
 Requirements: AVX-512F.  The Zen 4 benchmarks are preliminary (one socket
 of a shared node).  No sanitizer run yet for the AVX-512 kernels.
@@ -114,7 +114,7 @@ License: LICENSE sections 7 (BLIS, AOCL-BLAS) and 8 (OpenBLAS).  Details:
 
 | Kernel | Origin | MR x NR | Files | Selection | Status | Benchmarks |
 |---|---|---|---|---|---|---|
-| `neon` | ulmBLAS port of BLIS 2.0 `bli_dgemm_armv8a_asm_8x6r` (operands swapped: C^T = B^T A^T) | 6 x 8 | `neon/ugemm.h`, `neon/ugemm.tcc` | default on AArch64 (LP64); `-DULMBLAS_NO_NEON` selects the reference kernel | tested (Apple M5: `testcase04`, `testcase08`, also ASan/UBSan) | [002](../../../benchmark_results/002-2026-10-24-macbook-m5-neon/README.md), [003](../../../benchmark_results/003-2026-10-25-macbook-m5-profile/README.md) |
+| `neon` | ulmBLAS port of BLIS 2.0 `bli_dgemm_armv8a_asm_8x6r` (operands swapped: C^T = B^T A^T) | 6 x 8 | `neon/ugemm.h`, `neon/ugemm.tcc` | default on AArch64 (LP64); `-DULMBLAS_NO_NEON` selects the reference kernel | tested (Apple M5: `testcase04`, `testcase08`, also ASan/UBSan) | [002](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/002-2026-10-24-macbook-m5-neon/README.md), [003](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/003-2026-10-25-macbook-m5-profile/README.md) |
 
 On AArch64, DGEMM of small problems (m·n·k ≤ 8192) uses a packing-free
 NEON path (`../gemmdirect.tcc`).  Only run on Apple silicon (Apple M5);
@@ -125,12 +125,12 @@ modifications in `neon/ugemm.tcc`.
 
 | Kernel | Origin | MR x NR | Files | Selection | Status | Benchmarks |
 |---|---|---|---|---|---|---|
-| `sme` (experimental) | ulmBLAS; the kernel is derived from `bli_dgemm_armsme_int_4SVLx2SVL` of [BLIS PR #921](https://github.com/flame/blis/pull/921), the streaming-mode panel packing is ulmBLAS's | 32 x 16 | `sme/ugemm.h`, `sme/ugemm.tcc`, `sme/pack.h`, `sme/pack.tcc` | clang with SME2 enabled, e.g. `ARCHFLAGS=-mcpu=apple-m4`; `-DULMBLAS_NO_SME` keeps the NEON kernel | tested (Apple M5, Apple clang: `testcase09`, `testcase04`) | [004](../../../benchmark_results/004-2026-10-25-macbook-m5-sme/README.md), [005](../../../benchmark_results/005-2026-10-25-macbook-m5-sme-blocksizes/README.md), [006](../../../benchmark_results/006-2026-10-25-macbook-m5-sme-square/README.md), [007](../../../benchmark_results/007-2026-10-26-macbook-m5-sme-small/README.md), [022](../../../benchmark_results/022-2026-10-27-macbook-m5-sme-blocking/README.md) |
+| `sme` (experimental) | ulmBLAS; the kernel is derived from `bli_dgemm_armsme_int_4SVLx2SVL` of [BLIS PR #921](https://github.com/flame/blis/pull/921), the streaming-mode panel packing is ulmBLAS's | 32 x 16 | `sme/ugemm.h`, `sme/ugemm.tcc`, `sme/pack.h`, `sme/pack.tcc` | clang with SME2 enabled, e.g. `ARCHFLAGS=-mcpu=apple-m4`; `-DULMBLAS_NO_SME` keeps the NEON kernel | tested (Apple M5, Apple clang: `testcase09`, `testcase04`) | [004](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/004-2026-10-25-macbook-m5-sme/README.md), [005](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/005-2026-10-25-macbook-m5-sme-blocksizes/README.md), [006](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/006-2026-10-25-macbook-m5-sme-square/README.md), [007](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/007-2026-10-26-macbook-m5-sme-small/README.md), [022](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/022-2026-10-27-macbook-m5-sme-blocking/README.md) |
 
 Requirements: SME2 with FEAT_SME_F64F64 and a streaming vector length of
 512 bits (Apple M4, M5; tested only on an Apple M5); GCC lacks the Darwin
 runtime routine `__arm_get_current_vg`.  Results and open questions:
-[PERFORMANCE.md: AArch64: SME2](../../../PERFORMANCE.md#aarch64-sme2-apple-m5-experimental).
+[PERFORMANCE.md: AArch64: SME2](https://github.com/michael-lehn/ulmBLAS/blob/master/PERFORMANCE.md#aarch64-sme2-apple-m5-experimental).
 License: LICENSE section 4; provenance and modifications in
 `sme/ugemm.tcc`.
 
@@ -154,26 +154,26 @@ vendoring): [blis/README.md](blis/README.md#zgemm-kernels).
 Benchmarks, single-threaded, m = n = k = 50 … 4000, n ≥ 1000:
 
 - Intel Core i5-12500
-  ([027](../../../benchmark_results/027-2026-10-28-heim-zgemm/README.md)):
+  ([027](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/027-2026-10-28-heim-zgemm/README.md)):
   `openblas_haswell_4x2` 0.995 of native OpenBLAS; `blis_haswell_3x4`
   1.003, `blis_haswell_4x3` 0.999, `blis_aocl_haswell_3x4` 1.001 of
   native BLIS (same kernel); `blis_sandybridge_4x4` 0.61 of OpenBLAS.
 - Intel Xeon Platinum 8358
-  ([028](../../../benchmark_results/028-2026-10-28-uc3-icelake-zgemm/README.md)):
+  ([028](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/028-2026-10-28-uc3-icelake-zgemm/README.md)):
   `blis_zen4_12x4` 0.970 of oneMKL and 0.992 of native AOCL-BLAS (same
   kernel), 1.153 of OpenBLAS; `blis_zen4_4x12` 0.905 of oneMKL;
   `openblas_skylakex_4x2` 0.987 of native OpenBLAS.
 
 Tests: configurations `z-NAME` and `z-NAME-small` in `test/config/`;
 test records in
-[investigations/2026-10-gemm-datatypes](../../../investigations/2026-10-gemm-datatypes/README.md).
+[investigations/2026-10-gemm-datatypes](https://github.com/michael-lehn/ulmBLAS/blob/master/investigations/2026-10-gemm-datatypes/README.md).
 License: LICENSE sections 7 (BLIS, AOCL-BLAS) and 8 (OpenBLAS).
 
 ## ZGEMM: AArch64 NEON
 
 | Kernel | Origin | MR x NR | Files | Selection | Status | Benchmarks |
 |---|---|---|---|---|---|---|
-| `neon` | ulmBLAS (not derived from another library) | 4 x 3 | `neon/zgemm.tcc`, `neon/ugemm.h` | default on AArch64 (LP64), as for DGEMM | tested (Apple M5: `make check`, also with small block sizes and ASan/UBSan) | [029](../../../benchmark_results/029-2026-10-28-macbook-m5-zgemm/README.md) |
+| `neon` | ulmBLAS (not derived from another library) | 4 x 3 | `neon/zgemm.tcc`, `neon/ugemm.h` | default on AArch64 (LP64), as for DGEMM | tested (Apple M5: `make check`, also with small block sizes and ASan/UBSan) | [029](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/029-2026-10-28-macbook-m5-zgemm/README.md) |
 
 MC, KC, NC = 192, 512, 4080; 24 accumulators (FMLA by element), any
 strides of C.  n ≥ 1000: 1.20 of OpenBLAS, 1.11 of Eigen (Apple M5).
@@ -183,7 +183,7 @@ License: ulmBLAS.
 
 | Kernel | Origin | MR x NR | Files | Selection | Status | Benchmarks |
 |---|---|---|---|---|---|---|
-| `sme` (experimental) | ulmBLAS (not derived from another library) | 16 x 16 | `sme/zgemm.tcc`, `sme/zpack.tcc`, `sme/ugemm.h`, `sme/pack.h` | with the SME2 DGEMM kernel (`ARCHFLAGS=-mcpu=apple-m4`) | tested (Apple M5: `make check`, also with small block sizes and ASan/UBSan) | [029](../../../benchmark_results/029-2026-10-28-macbook-m5-zgemm/README.md) |
+| `sme` (experimental) | ulmBLAS (not derived from another library) | 16 x 16 | `sme/zgemm.tcc`, `sme/zpack.tcc`, `sme/ugemm.h`, `sme/pack.h` | with the SME2 DGEMM kernel (`ARCHFLAGS=-mcpu=apple-m4`) | tested (Apple M5: `make check`, also with small block sizes and ASan/UBSan) | [029](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/029-2026-10-28-macbook-m5-zgemm/README.md) |
 
 MC, KC, NC = 384, 1024, 1024.  Real parts in ZA0 … ZA3, imaginary parts
 in ZA4 … ZA7, per k 4 LD2D and 16 FMOPA/FMOPS; packing in streaming mode
@@ -212,14 +212,14 @@ reference kernel.
 Benchmarks, single-threaded, m = n = k = 50 … 4000, n ≥ 1000:
 
 - Intel Xeon Platinum 8358
-  ([030](../../../benchmark_results/030-2026-10-28-uc3-icelake-sgemm/README.md)):
+  ([030](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/030-2026-10-28-uc3-icelake-sgemm/README.md)):
   `openblas_skylakex_16x4` 1.007 of native OpenBLAS, 0.925 of oneMKL;
   `blis_skx_32x12_l2` 1.010 of native BLIS skx (same kernel);
   `blis_haswell_6x16` 0.995, `blis_aocl_haswell_6x16` 0.997 of native
   BLIS haswell; `blis_haswell_4x24` drops to 80 … 87 GFLOP/s for n ≥ 2450
   (94 … 96 below).
 - Intel Core i5-12500
-  ([033](../../../benchmark_results/033-2026-10-28-heim-sgemm/README.md)):
+  ([033](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/033-2026-10-28-heim-sgemm/README.md)):
   `openblas_haswell_8x4` 0.992 of native OpenBLAS; `blis_haswell_6x16`
   1.002, `blis_aocl_haswell_6x16` 1.003, `blis_haswell_16x6` 0.991 of
   native BLIS; `blis_haswell_4x24` drops to 105 … 116 GFLOP/s for n > 2000
@@ -232,7 +232,7 @@ License: LICENSE sections 7 (BLIS, AOCL-BLAS) and 8 (OpenBLAS).
 
 | Kernel | Origin | MR x NR | Files | Selection | Status | Benchmarks |
 |---|---|---|---|---|---|---|
-| `neon` | ulmBLAS (not derived from another library) | 8 x 12 | `neon/sgemm.tcc`, `neon/ugemm.h` | default on AArch64 (LP64), as for DGEMM | tested (Apple M5: `make check`, also with small block sizes and ASan/UBSan) | [032](../../../benchmark_results/032-2026-10-29-macbook-m5-sgemm/README.md) |
+| `neon` | ulmBLAS (not derived from another library) | 8 x 12 | `neon/sgemm.tcc`, `neon/ugemm.h` | default on AArch64 (LP64), as for DGEMM | tested (Apple M5: `make check`, also with small block sizes and ASan/UBSan) | [032](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/032-2026-10-29-macbook-m5-sgemm/README.md) |
 
 24 accumulators (two per column of the tile), FMLA by element; per k 5
 vector loads and 24 FMLA.  C with unit row stride is updated with vector
@@ -244,7 +244,7 @@ License: ulmBLAS.
 
 | Kernel | Origin | MR x NR | Files | Selection | Status | Benchmarks |
 |---|---|---|---|---|---|---|
-| `sme` (experimental) | ulmBLAS, after the SME2 DGEMM kernel (tile layout as in `bli_sgemm_armsme_int_2SVLx2SVL` of BLIS PR #921, no code of it) | 32 x 32 | `sme/sgemm.tcc`, `sme/spack.tcc`, `sme/ugemm.h`, `sme/pack.h` | with the SME2 DGEMM kernel (`ARCHFLAGS=-mcpu=apple-m4`) | tested (Apple M5: `make check`, also with small block sizes and ASan/UBSan) | [032](../../../benchmark_results/032-2026-10-29-macbook-m5-sgemm/README.md) |
+| `sme` (experimental) | ulmBLAS, after the SME2 DGEMM kernel (tile layout as in `bli_sgemm_armsme_int_2SVLx2SVL` of BLIS PR #921, no code of it) | 32 x 32 | `sme/sgemm.tcc`, `sme/spack.tcc`, `sme/ugemm.h`, `sme/pack.h` | with the SME2 DGEMM kernel (`ARCHFLAGS=-mcpu=apple-m4`) | tested (Apple M5: `make check`, also with small block sizes and ASan/UBSan) | [032](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/032-2026-10-29-macbook-m5-sgemm/README.md) |
 
 The tile in ZA0.S … ZA3.S, per k one load of 32 elements of A and of B
 and 4 FMOPA; for alpha = 1 and beta = 0 or 1 C is loaded into and stored
@@ -271,18 +271,18 @@ kernel.  Details: [blis/README.md](blis/README.md#cgemm-kernels).
 
 Tests: configurations `c-NAME` and `c-NAME-small` in `test/config/`;
 test records in
-[investigations/2026-10-gemm-datatypes](../../../investigations/2026-10-gemm-datatypes/README.md#cgemm-x86-64-status).
+[investigations/2026-10-gemm-datatypes](https://github.com/michael-lehn/ulmBLAS/blob/master/investigations/2026-10-gemm-datatypes/README.md#cgemm-x86-64-status).
 License: LICENSE sections 7 (BLIS, AOCL-BLAS) and 8 (OpenBLAS).
 
 Benchmarks, single-threaded, m = n = k = 50 … 4000, n ≥ 1000:
 
 - Intel Xeon Platinum 8358
-  ([031](../../../benchmark_results/031-2026-10-29-uc3-icelake-cgemm/README.md)):
+  ([031](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/031-2026-10-29-uc3-icelake-cgemm/README.md)):
   `openblas_skylakex_8x2` 0.997 of native OpenBLAS, 0.888 of oneMKL;
   `blis_haswell_3x8` 0.994 of native BLIS haswell, `blis_aocl_haswell_3x8`
   0.996 of native AOCL-BLAS (same kernel).
 - Intel Core i5-12500
-  ([034](../../../benchmark_results/034-2026-10-29-heim-cgemm/README.md)):
+  ([034](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/034-2026-10-29-heim-cgemm/README.md)):
   `openblas_haswell_8x2` 0.992 of native OpenBLAS; `blis_haswell_3x8`
   1.001, `blis_aocl_haswell_3x8` 0.998, `blis_haswell_8x3` 0.992 of native
   BLIS; `blis_sandybridge_8x4` 0.56 of OpenBLAS.
@@ -291,7 +291,7 @@ Benchmarks, single-threaded, m = n = k = 50 … 4000, n ≥ 1000:
 
 | Kernel | Origin | MR x NR | Files | Selection | Status | Benchmarks |
 |---|---|---|---|---|---|---|
-| `neon` | ulmBLAS (not derived from another library) | 4 x 6 | `neon/cgemm.tcc`, `neon/ugemm.h` | default on AArch64 (LP64), as for DGEMM | tested (Apple M5: `make check`, also with small block sizes and ASan/UBSan) | [035](../../../benchmark_results/035-2026-10-29-macbook-m5-cgemm/README.md) |
+| `neon` | ulmBLAS (not derived from another library) | 4 x 6 | `neon/cgemm.tcc`, `neon/ugemm.h` | default on AArch64 (LP64), as for DGEMM | tested (Apple M5: `make check`, also with small block sizes and ASan/UBSan) | [035](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/035-2026-10-29-macbook-m5-cgemm/README.md) |
 
 As the ZGEMM kernel with two complex elements per register: real and
 imaginary accumulators (24), FMLA by element, any strides of C.  MC, KC,
@@ -302,7 +302,7 @@ M5).  License: ulmBLAS.
 
 | Kernel | Origin | MR x NR | Files | Selection | Status | Benchmarks |
 |---|---|---|---|---|---|---|
-| `sme` (experimental) | ulmBLAS (not derived from another library) | 32 x 16 | `sme/cgemm.tcc`, `sme/cpack.tcc`, `sme/ugemm.h`, `sme/pack.h` | with the SME2 DGEMM kernel (`ARCHFLAGS=-mcpu=apple-m4`) | tested (Apple M5: `make check`, also with small block sizes and ASan/UBSan) | [035](../../../benchmark_results/035-2026-10-29-macbook-m5-cgemm/README.md) |
+| `sme` (experimental) | ulmBLAS (not derived from another library) | 32 x 16 | `sme/cgemm.tcc`, `sme/cpack.tcc`, `sme/ugemm.h`, `sme/pack.h` | with the SME2 DGEMM kernel (`ARCHFLAGS=-mcpu=apple-m4`) | tested (Apple M5: `make check`, also with small block sizes and ASan/UBSan) | [035](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/035-2026-10-29-macbook-m5-cgemm/README.md) |
 
 As the SME2 ZGEMM kernel with 32-bit elements: real parts in ZA0.S and
 ZA1.S, imaginary parts in ZA2.S and ZA3.S, per k 3 LD2W and 8

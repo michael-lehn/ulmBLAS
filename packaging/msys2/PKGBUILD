@@ -1,0 +1,45 @@
+# Maintainer: Michael Lehn <michael.lehn@uni-ulm.de>
+
+_realname=ulmblas
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=0.4.1
+pkgrel=1
+pkgdesc="BLAS (Fortran 77 and CBLAS interface) with micro kernels selected for the CPU at load time (mingw-w64)"
+arch=('any')
+# x86-64 only: the dispatching DLL and its backends (AVX-512, AVX2, SSE3,
+# generic); the C runtime is UCRT (ucrt64) or msvcrt (mingw64)
+mingw_arch=('ucrt64' 'mingw64')
+url="https://github.com/michael-lehn/ulmBLAS"
+msys2_repository_url="https://github.com/michael-lehn/ulmBLAS"
+license=('spdx:BSD-3-Clause')
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-fc"
+             'make')
+source=("${_realname}-${pkgver}.tar.gz::https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+_setup() {
+  cd "${srcdir}/ulmBLAS-${pkgver}"
+  export ULMBLAS_VERSION=${pkgver}
+  export ULMBLAS_INCLUDEDIR=${MINGW_PREFIX}/include/ulmblas
+  # BLAS only: LAPACK from ${MINGW_PACKAGE_PREFIX}-lapack
+  export FC=none
+  export MAKE="make ${MAKEFLAGS}"
+}
+
+build() {
+  _setup
+  ULMBLAS_STEP=build sh interfaces/install-shared.sh "${MINGW_PREFIX}"
+}
+
+check() {
+  cd "${srcdir}/ulmBLAS-${pkgver}"
+  FC=gfortran sh packaging/check.sh
+}
+
+package() {
+  _setup
+  DESTDIR="${pkgdir}" sh interfaces/install-shared.sh "${MINGW_PREFIX}"
+  install -Dm644 -t "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}" LICENSE NOTICE
+}

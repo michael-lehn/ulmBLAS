@@ -1,15 +1,12 @@
 #ifndef ULMBLAS_LEVEL3_HELMM_TCC
 #define ULMBLAS_LEVEL3_HELMM_TCC 1
 
-#include <ulmblas/config/blocksize.h>
-#include <ulmblas/auxiliary/memorypool.h>
+#include <cstddef>
 #include <ulmblas/level1extensions/gescal.h>
-#include <ulmblas/level3/mkernel/mgemm.h>
-#include <ulmblas/level3/ukernel/ugemm.h>
-#include <ulmblas/level3/pack/gepack.h>
-#include <ulmblas/level3/pack/helpack.h>
-#include <ulmblas/level3/helmm.h>
 #include <ulmblas/level3/fpsrscope.h>
+#include <ulmblas/level3/gemm/framesymm.h>
+#include <ulmblas/level3/gemm/select.h>
+#include <ulmblas/level3/helmm.h>
 
 namespace ulmBLAS {
 
@@ -25,67 +22,21 @@ helmm(IndexType m, IndexType n, const Alpha &alpha, const TA *A,
 
     typedef decltype(Alpha(0) * TA(0) * TB(0)) T;
 
-    constexpr IndexType MC = BlockSize<T>::MC;
-    constexpr IndexType NC = BlockSize<T>::NC;
-
-    constexpr IndexType MR = BlockSizeUGemm<T>::MR;
-    constexpr IndexType NR = BlockSizeUGemm<T>::NR;
-
-    const IndexType mb = (m + MC - 1) / MC;
-    const IndexType nb = (n + NC - 1) / NC;
-
-    const IndexType mc_ = m % MC;
-    const IndexType nc_ = n % NC;
-
-    static MemoryPool<T> memoryPool;
-
     if (m == 0 || n == 0 || (alpha == Alpha(0) && (beta == Beta(1)))) {
 	return;
     }
-
     if (alpha == Alpha(0)) {
 	gescal(m, n, beta, C, incRowC, incColC);
 	return;
     }
-
-    T *A_ = memoryPool.allocate(MC * MC + MR);
-    T *B_ = memoryPool.allocate(MC * NC + NR);
-
-    for (IndexType j = 0; j < nb; ++j) {
-	IndexType nc = (j != nb - 1 || nc_ == 0) ? NC : nc_;
-
-	for (IndexType l = 0; l < mb; ++l) {
-	    IndexType kc = (l != mb - 1 || mc_ == 0) ? MC : mc_;
-	    Beta beta_ = (l == 0) ? beta : Beta(1);
-
-	    gepack_B(kc, nc, false, &B[l * MC * incRowB + j * NC * incColB],
-	             incRowB, incColB, B_);
-
-	    for (IndexType i = 0; i < mb; ++i) {
-		IndexType mc = (i != mb - 1 || mc_ == 0) ? MC : mc_;
-
-		if (i > l) {
-		    gepack_A(mc, kc, false,
-		             &A[i * MC * incRowA + l * MC * incColA], incRowA,
-		             incColA, A_);
-		} else if (i < l) {
-		    gepack_A(mc, kc, true,
-		             &A[l * MC * incRowA + i * MC * incColA], incColA,
-		             incRowA, A_);
-		} else {
-		    helpack(mc, &A[i * MC * incRowA + i * MC * incColA],
-		            incRowA, incColA, A_);
-		}
-
-		mgemm(mc, nc, kc, alpha, A_, B_, beta_,
-		      &C[i * MC * incRowC + j * NC * incColC], incRowC,
-		      incColC);
-	    }
-	}
-    }
-
-    memoryPool.release(A_);
-    memoryPool.release(B_);
+    //  C <- beta C + alpha A B, A Hermitian (its lower triangle): the frame
+    //  algorithm of symm (ulmblas/level3/gemm/framesymm.h) with the frame
+    //  that the selection table of gemm has for an m x n x m product
+    const SymmPlan<IndexType, Alpha, TA, TB, Beta, TC> plan =
+        level3Select<T, SymmOp<true, IndexType, Alpha, TA, TB, Beta, TC>>(
+            std::ptrdiff_t(m), std::ptrdiff_t(n), std::ptrdiff_t(m));
+    plan.run(true, true, m, n, alpha, A, incRowA, incColA, B, incRowB, incColB,
+             beta, C, incRowC, incColC);
 }
 
 } // namespace ulmBLAS

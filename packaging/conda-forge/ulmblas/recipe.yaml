@@ -71,6 +71,7 @@ tests:
               - test -f $PREFIX/lib/libulmblas_sse3.so
               - test -f $PREFIX/lib/libulmblas_avx2.so
               - test -f $PREFIX/lib/libulmblas_avx512.so
+              - test -f $PREFIX/lib/libulmblas_generic.so
           - if: linux and aarch64
             then:
               - test -f $PREFIX/lib/libulmblas.so.0
@@ -83,6 +84,7 @@ tests:
           - if not exist %LIBRARY_BIN%\libulmblas_sse3.dll exit 1
           - if not exist %LIBRARY_BIN%\libulmblas_avx2.dll exit 1
           - if not exist %LIBRARY_BIN%\libulmblas_avx512.dll exit 1
+          - if not exist %LIBRARY_BIN%\libulmblas_generic.dll exit 1
           - if not exist %LIBRARY_LIB%\ulmblas.lib exit 1
           - '%CC% test_ulmblas.c -I%LIBRARY_INC%\ulmblas -L%LIBRARY_LIB% -lulmblas -o test_ulmblas.exe'
           - test_ulmblas.exe
@@ -97,7 +99,8 @@ about:
     ulmBLAS implements all 148 routines of the reference BLAS (single,
     double, complex) with the Fortran 77 (LP64) and the C (CBLAS)
     interface.  libulmblas selects at load time the build for the CPU:
-    SME2 or NEON on Apple Silicon; AVX-512, AVX2/FMA or SSE3 on x86-64.
+    SME2 or NEON on Apple Silicon; AVX-512, AVX2/FMA, SSE3 or generic
+    x86-64.
     ULMBLAS_BACKEND overrides the choice, ulmblas_backend() reports it.
 
 extra:

@@ -24,6 +24,7 @@
 //  C is not read; NaN in alpha, beta, A, B or C propagates.
 //
 #include <arm_neon.h>
+#include <cstddef>
 #include <complex>
 
 namespace ulmBLAS {
@@ -46,9 +47,10 @@ cmul(float64x2_t a, float64x2_t b)
 }
 
 inline void
-zgemm_4x3(long kc, const std::complex<double> &alpha, const double *A,
+zgemm_4x3(std::ptrdiff_t kc, const std::complex<double> &alpha, const double *A,
           const double *B, const std::complex<double> &beta,
-          std::complex<double> *C_, long incRowC, long incColC)
+          std::complex<double> *C_, std::ptrdiff_t incRowC,
+          std::ptrdiff_t incColC)
 {
     float64x2_t r00 = vdupq_n_f64(0), r01 = r00, r02 = r00, r10 = r00,
                 r11 = r00, r12 = r00, r20 = r00, r21 = r00, r22 = r00,
@@ -57,7 +59,7 @@ zgemm_4x3(long kc, const std::complex<double> &alpha, const double *A,
                 i12 = r00, i20 = r00, i21 = r00, i22 = r00, i30 = r00,
                 i31 = r00, i32 = r00;
 
-    for (long l = 0; l < kc; ++l) {
+    for (std::ptrdiff_t l = 0; l < kc; ++l) {
 	const float64x2_t a0 = vld1q_f64(A), a1 = vld1q_f64(A + 2),
 	                  a2 = vld1q_f64(A + 4), a3 = vld1q_f64(A + 6);
 	const float64x2_t b0 = vld1q_f64(B), b1 = vld1q_f64(B + 2),
@@ -96,10 +98,11 @@ zgemm_4x3(long kc, const std::complex<double> &alpha, const double *A,
     const float64x2_t vb = {beta.real(), beta.imag()};
     const bool beta0 = beta.real() == 0.0 && beta.imag() == 0.0;
     double *C = reinterpret_cast<double *>(C_);
-    const long rs = 2 * incRowC, cs = 2 * incColC;
+    const std::ptrdiff_t rs = 2 * incRowC, cs = 2 * incColC;
 
     //  C(i,j) <- beta*C(i,j) + alpha*(a*b)(i,j)
-    auto update = [&](long i, long j, float64x2_t r, float64x2_t im) {
+    auto update = [&](std::ptrdiff_t i, std::ptrdiff_t j, float64x2_t r,
+                      float64x2_t im) {
 	float64x2_t ab = vaddq_f64(r, mul_i(im));
 	float64x2_t c = cmul(va, ab);
 	double *p = C + i * rs + j * cs;
@@ -124,17 +127,17 @@ zgemm_4x3(long kc, const std::complex<double> &alpha, const double *A,
 }
 
 template <typename IndexType>
-static typename std::enable_if<std::is_convertible<IndexType, long>::value,
-                               void>::type
+static typename std::enable_if<
+    std::is_convertible<IndexType, std::ptrdiff_t>::value, void>::type
 ugemm(IndexType kc, const std::complex<double> &alpha,
       const std::complex<double> *A, const std::complex<double> *B,
       const std::complex<double> &beta, std::complex<double> *C,
-      IndexType incRowC, IndexType incColC, const std::complex<double> *,
-      const std::complex<double> *)
+      IndexType incRowC, IndexType incColC, const std::complex<double> *nextA,
+      const std::complex<double> *nextB)
 {
-    zgemm_4x3(long(kc), alpha, reinterpret_cast<const double *>(A),
-              reinterpret_cast<const double *>(B), beta, C, long(incRowC),
-              long(incColC));
+    zgemm_4x3(std::ptrdiff_t(kc), alpha, reinterpret_cast<const double *>(A),
+              reinterpret_cast<const double *>(B), beta, C,
+              std::ptrdiff_t(incRowC), std::ptrdiff_t(incColC));
 }
 
 } // namespace neon

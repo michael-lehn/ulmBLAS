@@ -4,6 +4,9 @@
 #include <test/numeric/blas.h>
 #include <test/numeric/reference.h>
 #include <test/numeric/testing.h>
+#include <ulmblas/auxiliary/threadpool.h>
+#include <ulmblas/config/tuned.h>
+#include <ulmblas/level3/gemm/trshared.h>
 
 namespace {
 
@@ -48,7 +51,7 @@ fillNan(Matrix<T> &A)
 //
 template <typename T>
 bool
-hasImaginaryPart(const Matrix<T> &)
+hasImaginaryPart(const Matrix<T> &A)
 {
     return true;
 }
@@ -483,6 +486,34 @@ testRankk(Context &ctx, bool hermitian, bool rank2)
 }
 
 //
+//  SYR2K, HER2K with n = 260, k = 130: large enough for gemmt to split the
+//  triangle over the threads.  beta = 0 (C holds NaN) and a general beta.
+//
+template <typename T>
+void
+testRank2kThreaded(Context &ctx, bool hermitian)
+{
+    Random random;
+    std::vector<T> s = scalars<T>();
+    CBLAS_TRANSPOSE t[2] = {CblasNoTrans,
+                            hermitian ? CblasConjTrans : CblasTrans};
+    T betas[2] = {T(0), hermitian ? T(realPart(s[2])) : s[2]};
+
+    for (std::ptrdiff_t o = 0; o < 2; ++o) {
+	for (std::ptrdiff_t u = 0; u < 2; ++u) {
+	    for (std::ptrdiff_t tr = 0; tr < 2; ++tr) {
+		for (std::ptrdiff_t b = 0; b < 2; ++b) {
+		    if (!rankkCase(ctx, random, hermitian, true, o == 1,
+		                   upLos[u], t[tr], 260, 130, s[2], betas[b])) {
+			return;
+		    }
+		}
+	    }
+	}
+    }
+}
+
+//
 //  Triangular matrix for TRMM/TRSM/TRMV/TRSV.  For solvers the off-diagonal
 //  elements are scaled and the diagonal is dominant (well conditioned).
 //
@@ -619,7 +650,209 @@ testTrmm(Context &ctx, bool solve)
 	         CblasConjTrans, CblasUnit, 9, 403, s[2]);
 }
 
+//
+//  trsm on several threads, the parallel variant set by the caller
+//  (ulmblas/level3/gemm/trshared.h): columns m = 300 rows for A on the left
+//  (more than one diagonal block of the trsm frame, 256 rows), 160 columns
+//  of B (split over the threads); shared 300 x 64 and 600 x 20 (fewer
+//  panels of B than threads: threads without columns); all cases, alpha
+//  other than 0 and 1
+//
+template <typename T>
+void
+testTrsmThreaded(Context &ctx, bool shared)
+{
+    Random random;
+    const T alpha = scalars<T>()[2];
+    const int shapes[2][2] = {{300, shared ? 64 : 160}, {600, 20}};
+
+    for (const auto &shape : shapes) {
+	if (!shared && shape[1] == 20) {
+	    break;
+	}
+	for (int o = 0; o < 2; ++o) {
+	    for (int sd = 0; sd < 2; ++sd) {
+		for (int u = 0; u < 2; ++u) {
+		    for (int t = 0; t < 3; ++t) {
+			for (int dg = 0; dg < 2; ++dg) {
+			    const int m = shape[sd];
+			    const int n = shape[1 - sd];
+			    if (!trmmCase(ctx, random, true, o == 1, sides[sd],
+			                  upLos[u], transposes[t], diags[dg], m,
+			                  n, alpha)) {
+				return;
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+}
+
+//
+//  symm, hemm on several threads: 230 x 190, all sides, triangles and
+//  storage orders, alpha and beta other than 0 and 1, beta = 0
+//
+template <typename T>
+void
+testSymmThreaded(Context &ctx, bool hermitian)
+{
+    Random random;
+    const std::vector<T> s = scalars<T>();
+
+    for (int o = 0; o < 2; ++o) {
+	for (int sd = 0; sd < 2; ++sd) {
+	    for (int u = 0; u < 2; ++u) {
+		for (const T &b : {s[2], s[0]}) {
+		    if (!symmCase(ctx, random, hermitian, o == 1, sides[sd],
+		                  upLos[u], 230, 190, s[2], b)) {
+			return;
+		    }
+		}
+	    }
+	}
+    }
+}
+
+//
+//  trmm on several threads, the parallel variant set by the caller:
+//  columns m = 600 rows for A on the left (more than two diagonal blocks of
+//  the trmm frame, 256 rows), 160 columns of B (split over the threads);
+//  shared 600 x 64 and 600 x 20 (fewer panels of B than threads); all
+//  cases, alpha other than 0 and 1
+//
+template <typename T>
+void
+testTrmmThreaded(Context &ctx, bool shared)
+{
+    Random random;
+    const T alpha = scalars<T>()[2];
+    const int shapes[2][2] = {{600, shared ? 64 : 160}, {600, 20}};
+
+    for (const auto &shape : shapes) {
+	if (!shared && shape[1] == 20) {
+	    break;
+	}
+	for (int o = 0; o < 2; ++o) {
+	    for (int sd = 0; sd < 2; ++sd) {
+		for (int u = 0; u < 2; ++u) {
+		    for (int t = 0; t < 3; ++t) {
+			for (int dg = 0; dg < 2; ++dg) {
+			    const int m = shape[sd];
+			    const int n = shape[1 - sd];
+			    if (!trmmCase(ctx, random, false, o == 1, sides[sd],
+			                  upLos[u], transposes[t], diags[dg], m,
+			                  n, alpha)) {
+				return;
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+}
+
 } // namespace
+
+ULMBLAS_TEST(T0375, "level3/?symm, ?hemm: 230 x 190 on at least 8 threads, "
+                    "all sides, triangles and storage orders")
+{
+    //  at least 8 threads, also if the environment sets one (e.g.
+    //  OMP_NUM_THREADS=1 in batch jobs); the default afterwards
+    ulmBLAS::ThreadPool &pool = ulmBLAS::ThreadPool::instance();
+    if (pool.size() < 8) {
+	pool.setSize(8);
+    }
+    testSymmThreaded<float>(ctx, false);
+    testSymmThreaded<double>(ctx, false);
+    testSymmThreaded<cfloat>(ctx, false);
+    testSymmThreaded<cdouble>(ctx, false);
+    testSymmThreaded<cfloat>(ctx, true);
+    testSymmThreaded<cdouble>(ctx, true);
+    pool.setSize(0);
+}
+
+ULMBLAS_TEST(T0376, "level3/?trmm: m x n = 600 x 160 (columns of B split "
+                    "over the threads), 600 x 64 and 600 x 20 (shared "
+                    "packing), and transposed on at least 8 threads, all "
+                    "cases")
+{
+    ulmBLAS::ThreadPool &pool = ulmBLAS::ThreadPool::instance();
+    if (pool.size() < 8) {
+	pool.setSize(8);
+    }
+    //  both parallel variants (ulmblas/level3/gemm/trshared.h): columns,
+    //  shared
+    for (std::ptrdiff_t v = 0; v < 2; ++v) {
+	ulmBLAS::TrShared::forced().store(v);
+	testTrmmThreaded<float>(ctx, v == 1);
+	testTrmmThreaded<double>(ctx, v == 1);
+	testTrmmThreaded<cfloat>(ctx, v == 1);
+	testTrmmThreaded<cdouble>(ctx, v == 1);
+    }
+    ulmBLAS::TrShared::forced().store(-1);
+    pool.setSize(0);
+}
+
+ULMBLAS_TEST(T0373, "level3/?trsm: m x n = 300 x 160 (columns of B split "
+                    "over the threads), 300 x 64 and 600 x 20 (shared "
+                    "packing), and transposed on at least 8 threads, all "
+                    "cases")
+{
+    //  at least 8 threads, also if the environment sets one (e.g.
+    //  OMP_NUM_THREADS=1 in batch jobs); the default afterwards
+    ulmBLAS::ThreadPool &pool = ulmBLAS::ThreadPool::instance();
+    if (pool.size() < 8) {
+	pool.setSize(8);
+    }
+    //  both parallel variants (ulmblas/level3/gemm/trshared.h): columns,
+    //  shared
+    for (std::ptrdiff_t v = 0; v < 2; ++v) {
+	ulmBLAS::TrShared::forced().store(v);
+	testTrsmThreaded<float>(ctx, v == 1);
+	testTrsmThreaded<double>(ctx, v == 1);
+	testTrsmThreaded<cfloat>(ctx, v == 1);
+	testTrsmThreaded<cdouble>(ctx, v == 1);
+    }
+    ulmBLAS::TrShared::forced().store(-1);
+    pool.setSize(0);
+}
+
+ULMBLAS_TEST(T0395, "level3/?trsm, ?trmm: the cases of T0373 and T0376 "
+                    "with diagonal blocks of one panel and of 512 rows, "
+                    "trsm with and without inverted diagonal tiles "
+                    "(parameters of ulmblas/config/tuned.h)")
+{
+    ulmBLAS::ThreadPool &pool = ulmBLAS::ThreadPool::instance();
+    if (pool.size() < 8) {
+	pool.setSize(8);
+    }
+    ulmBLAS::Tuned &param = ulmBLAS::tuned();
+    const ulmBLAS::Tuned saved = param;
+    const std::ptrdiff_t kbs[] = {1, 512};
+    for (std::ptrdiff_t kb : kbs) {
+	for (std::ptrdiff_t inv = 0; inv < 2; ++inv) {
+	    for (std::ptrdiff_t t = 0; t < ulmBLAS::tunedTypes; ++t) {
+		param.trsm.kb[t] = param.trmm.kb[t] = {kb};
+		param.trsmInvert[t] = inv;
+	    }
+	    for (std::ptrdiff_t v = 0; v < 2; ++v) {
+		ulmBLAS::TrShared::forced().store(v);
+		testTrsmThreaded<double>(ctx, v == 1);
+		testTrsmThreaded<cfloat>(ctx, v == 1);
+		if (inv == 0) {
+		    testTrmmThreaded<float>(ctx, v == 1);
+		    testTrmmThreaded<cdouble>(ctx, v == 1);
+		}
+	    }
+	}
+    }
+    ulmBLAS::TrShared::forced().store(-1);
+    param = saved;
+    pool.setSize(0);
+}
 
 ULMBLAS_TEST(T0300, "level3/sgemm")
 {
@@ -791,6 +1024,23 @@ ULMBLAS_TEST(T0324, "level3/cher2k")
 ULMBLAS_TEST(T0325, "level3/zher2k")
 {
     testRankk<cdouble>(ctx, true, true);
+}
+ULMBLAS_TEST(T0374, "level3/?syr2k, ?her2k: n = 260, k = 130 on at least 8 "
+                    "threads (two gemmt calls)")
+{
+    //  at least 8 threads, also if the environment sets one; the default
+    //  afterwards
+    ulmBLAS::ThreadPool &pool = ulmBLAS::ThreadPool::instance();
+    if (pool.size() < 8) {
+	pool.setSize(8);
+    }
+    testRank2kThreaded<float>(ctx, false);
+    testRank2kThreaded<double>(ctx, false);
+    testRank2kThreaded<cfloat>(ctx, false);
+    testRank2kThreaded<cdouble>(ctx, false);
+    testRank2kThreaded<cfloat>(ctx, true);
+    testRank2kThreaded<cdouble>(ctx, true);
+    pool.setSize(0);
 }
 
 ULMBLAS_TEST(T0326, "level3/strmm")

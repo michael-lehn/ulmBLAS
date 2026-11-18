@@ -1,0 +1,37 @@
+Source: ulmblas
+Section: math
+Priority: optional
+Maintainer: Michael Lehn <michael.lehn@uni-ulm.de>
+Build-Depends: debhelper-compat (= 13), dh-exec, gfortran <!nocheck>
+Standards-Version: 4.7.2
+Homepage: https://github.com/michael-lehn/ulmBLAS
+Rules-Requires-Root: no
+
+Package: libulmblas0
+Architecture: amd64 arm64
+Multi-Arch: same
+Section: libs
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Provides: ${blas:Provides}
+Description: BLAS with micro kernels selected for the CPU at load time
+ ulmBLAS implements all routines of the reference BLAS (Basic Linear
+ Algebra Subprograms) for single, double, complex and double complex
+ precision with the Fortran 77 and the C (CBLAS) interface.
+ .
+ On amd64 libulmblas.so.0 selects at load time the build of the
+ kernels for the CPU (AVX-512, AVX2 and FMA, SSE3 or generic x86-64)
+ and registers itself as an alternative for libblas.so.3; on arm64 it
+ uses NEON kernels.
+
+Package: libulmblas-dev
+Architecture: amd64 arm64
+Multi-Arch: same
+Section: libdevel
+Depends: libulmblas0 (= ${binary:Version}), ${misc:Depends}
+Description: BLAS with micro kernels selected for the CPU at load time (development files)
+ ulmBLAS implements all routines of the reference BLAS (Basic Linear
+ Algebra Subprograms) for single, double, complex and double complex
+ precision with the Fortran 77 and the C (CBLAS) interface.
+ .
+ This package contains the link libulmblas.so, the header cblas.h and
+ the pkg-config file ulmblas.pc.

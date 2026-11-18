@@ -28,9 +28,9 @@ template <typename T> class Buffer
 	}
     }
 
-    Buffer(const Buffer &) = delete;
+    Buffer(const Buffer &other) = delete;
     Buffer &
-    operator=(const Buffer &) = delete;
+    operator=(const Buffer &other) = delete;
 
     //  (re)allocates n elements; the old content is lost
     void

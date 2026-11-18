@@ -2,8 +2,8 @@
 #define ULMBLAS_LAPACK_TASKS_POTRFTASKS_TCC 1
 
 //
-//  The tiles are nb x nb blocks of A; a byte per tile (tok) stands for the
-//  tile in the depend clauses:
+//  The tiles are nb x nb blocks of A; the first element of a tile stands
+//  for the tile in the depend clauses (no work space):
 //
 //      for k = 0, ..., nt-1
 //          POTRF  A(k,k) = L(k,k) L(k,k)^H             inout A(k,k)
@@ -25,7 +25,6 @@
 #include <algorithm>
 #include <atomic>
 #include <limits>
-#include <ulmblas/lapack/buffer.h>
 #include <ulmblas/lapack/potrf2.h>
 #include <ulmblas/lapack/tasks/potrftasks.h>
 #include <ulmblas/lapack/tasks/sync.h>
@@ -50,10 +49,10 @@ potrfTasks(IndexType n, T *A, IndexType incRowA, IndexType incColA,
 	return &A[i * nb * rs + j * nb * cs];
     };
 
-    Buffer<char> tok(nt * nt);
-    char *Tk = tok.data();
-    (void)Tk;      // only used in depend clauses (GCC warns)
     (void)threads; // without OpenMP
+
+    //  tile (i,j) in the depend clauses: its first element
+#define ULMBLAS_POTRF_TILE(i, j) A[(i) * nb * rs + (j) * nb * cs]
 
     //  step of the first failed POTRF (max: none) and its INFO; tasks of
     //  later steps are skipped
@@ -74,7 +73,7 @@ potrfTasks(IndexType n, T *A, IndexType incRowA, IndexType incColA,
 	    const IndexType nk = std::min(nb, n - k * nb);
 	    T *Akk = tile(k, k);
 
-#pragma omp task depend(inout : Tk[k * nt + k]) priority(PRIO_POTRF)
+#pragma omp task depend(inout : ULMBLAS_POTRF_TILE(k, k)) priority(PRIO_POTRF)
 	    {
 		taskEnter();
 		if (run(k)) {
@@ -92,7 +91,8 @@ potrfTasks(IndexType n, T *A, IndexType incRowA, IndexType incColA,
 		const IndexType ni = std::min(nb, n - i * nb);
 		T *Aik = tile(i, k);
 
-#pragma omp task depend(in : Tk[k * nt + k]) depend(inout : Tk[i * nt + k])    \
+#pragma omp task depend(in : ULMBLAS_POTRF_TILE(k, k))                         \
+    depend(inout : ULMBLAS_POTRF_TILE(i, k))                                   \
     priority(i == k + 1 ? PRIO_POTRF : PRIO_CRIT)
 		{
 		    taskEnter();
@@ -108,7 +108,8 @@ potrfTasks(IndexType n, T *A, IndexType incRowA, IndexType incColA,
 		const T *Aik = tile(i, k);
 		T *Aii = tile(i, i);
 
-#pragma omp task depend(in : Tk[i * nt + k]) depend(inout : Tk[i * nt + i])    \
+#pragma omp task depend(in : ULMBLAS_POTRF_TILE(i, k))                         \
+    depend(inout : ULMBLAS_POTRF_TILE(i, i))                                   \
     priority(i == k + 1 ? PRIO_POTRF : PRIO_NEXT)
 		{
 		    taskEnter();
@@ -123,8 +124,9 @@ potrfTasks(IndexType n, T *A, IndexType incRowA, IndexType incColA,
 		    const T *Ajk = tile(j, k);
 		    T *Aij = tile(i, j);
 
-#pragma omp task depend(in : Tk[i * nt + k], Tk[j * nt + k])                   \
-    depend(inout : Tk[i * nt + j])                                             \
+#pragma omp task depend(in : ULMBLAS_POTRF_TILE(i, k),                         \
+                            ULMBLAS_POTRF_TILE(j, k))                          \
+    depend(inout : ULMBLAS_POTRF_TILE(i, j))                                   \
     priority(j == k + 1 ? PRIO_CRIT : PRIO_OTHER)
 		    {
 			taskEnter();
@@ -138,6 +140,7 @@ potrfTasks(IndexType n, T *A, IndexType incRowA, IndexType incColA,
 	    }
 	}
     }
+#undef ULMBLAS_POTRF_TILE
     return info;
 }
 

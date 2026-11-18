@@ -1,0 +1,44 @@
+#  release tarballs (git archive) get the release tag in VERSION.txt
+VERSION.txt export-subst
+
+#  Release tarballs (git archive, GitHub) contain what is needed to build,
+#  install and test the library: ulmblas/, interfaces/, test/, examples/
+#  (built by make check-numeric), mk/ (make tools, the generators of the
+#  vendored kernels), packaging/ (recipes and their check), the user
+#  documentation and the license files.  Not in them:
+
+#  experiments, benchmark archives, the CUDA tutorial
+/cuda export-ignore
+/benchmark_results export-ignore
+/experiments export-ignore
+/investigations export-ignore
+/small_matrix_experiments export-ignore
+/M5_EXPERIMENTS.md export-ignore
+
+#  benchmarks (ATLAS drivers), tuning (make tune; its tables are in
+#  ulmblas/level3/gemm/tables/), the reference BLAS for benchmarks (make
+#  refblas; make check-reference-lapack builds its own)
+/bench export-ignore
+/tune export-ignore
+/refblas export-ignore
+/mk/benchmark_result.sh export-ignore
+/mk/check_benchmark_results.py export-ignore
+
+#  development: CI, release tools, notes, editor and tool settings
+/.github export-ignore
+/tools export-ignore
+/TODO.md export-ignore
+/PERFORMANCE.md export-ignore
+/RELEASING.md export-ignore
+/index.doc export-ignore
+/.clangd export-ignore
+/.clang-format export-ignore
+/compile_flags.txt export-ignore
+/.git-blame-ignore-revs export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore
+
+#  drafts of pull request texts and patches for other repositories
+/packaging/conda-forge/*-PR.md export-ignore
+/packaging/conda-forge/blas-feedstock export-ignore
+/packaging/release-notes-*.md export-ignore

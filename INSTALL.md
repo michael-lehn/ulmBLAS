@@ -86,9 +86,9 @@ What the output shows:
   benchmarks of these kernels are still running.
 - **The default and the suggested command** next to each other, the reason
   for the suggestion and the benchmark campaigns it is based on
-  ([004](benchmark_results/004-2026-10-25-macbook-m5-sme/README.md),
-  [006](benchmark_results/006-2026-10-25-macbook-m5-sme-square/README.md),
-  [007](benchmark_results/007-2026-10-26-macbook-m5-sme-small/README.md));
+  ([004](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/004-2026-10-25-macbook-m5-sme/README.md),
+  [006](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/006-2026-10-25-macbook-m5-sme-square/README.md),
+  [007](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/007-2026-10-26-macbook-m5-sme-small/README.md));
   where no campaign covers the CPU type, the reason says that it is a
   heuristic.
 - **Configurations that do not work here**, with the reason: e.g. with
@@ -170,7 +170,7 @@ error handler `cblas_xerbla` keeps its `int` argument (a parameter number).
 By default the functions are serial (recursive, as LAPACK's `?getrf2` and
 `?potrf2`).  With OpenMP larger matrices are factored and solved with
 tasks (see
-[experiments/lapack](experiments/lapack/)):
+[experiments/lapack](https://github.com/michael-lehn/ulmBLAS/tree/master/experiments/lapack)):
 
 ```sh
 make OPENMP=1                     # also: make f77lapack OPENMP=1 ...
@@ -182,9 +182,34 @@ export OMP_MAX_TASK_PRIORITY=3    # at run time: priorities for the critical pat
   `OMPLIBS`.
 - Programs then link with OpenMP too (`-fopenmp`, or `OMPLIBS`).
 - Threads: `omp_get_max_threads()` by default, or
-  `ulmblas_set_num_threads(n)` (Fortran: `ulmblas_set_num_threads_`,
-  argument by value).  Called inside an OpenMP parallel region the
-  functions run serially.
+  `ulmblas_set_num_threads(n)` (see [Threads](#threads)).  Called inside
+  an OpenMP parallel region the functions run serially.
+
+## Threads
+
+The level 3 functions (so far `?gemm`) run on threads of their own (POSIX
+threads, Windows threads; no OpenMP needed) if the problem is large
+enough.  At run time:
+
+| Environment | Function (C; Fortran with suffix `_`, arguments by value) | |
+|---|---|---|
+| `ULMBLAS_NUM_THREADS`, otherwise `OMP_NUM_THREADS` | `ulmblas_set_num_threads(int n)`, `ulmblas_get_num_threads()` | the maximal number of threads; default: the CPUs of the process (Linux: its affinity mask), on macOS the performance cores; `n <= 0` restores the default |
+| `ULMBLAS_AFFINITY=0\|1\|2` | `ulmblas_set_affinity(ptrdiff_t mode)`, `ulmblas_get_affinity()` | Linux only. 2 (default): placed once, the threads are pinned as with 1 for the first call after a change and unpinned after it, they keep their CPUs as long as they keep running; 1: each thread on its own CPU, one per core first; 0: placed by the operating system |
+
+- `ULMBLAS_SPIN_US`: how long idle threads keep running before they sleep,
+  in microseconds (default 100000, as OpenBLAS); threads that keep running
+  keep their CPUs between calls.
+- The settings are global and take effect at the next call.
+- `ulmblas_set_num_threads` also sets the threads of the LAPACK functions
+  (with `OPENMP=1`).
+- With affinity 1 or 2 the calling thread is pinned during the call only;
+  it gets its CPU mask back afterwards.  Pinning helps on machines with
+  many cores (e.g. two sockets), but several programs that pin their
+  threads share the same CPUs; with 2 the operating system can move the
+  threads away again, with 1 it cannot.
+- Called from a thread of an OpenMP parallel region, or while another
+  thread of the program runs a level 3 function, a function runs on the
+  calling thread only.
 
 ## Shared library for Julia
 
@@ -221,8 +246,8 @@ BLAS.lbt_forward("/path/to/libulmblas_lbt.so"; clear=false)
 BLAS.get_config()                 # lists libulmblas_lbt
 ```
 
-With `LAPACK=1 OPENMP=1`, so that `BLAS.set_num_threads` also sets the
-threads of ulmBLAS, register its thread functions before forwarding
+So that `BLAS.set_num_threads` also sets the threads of ulmBLAS, register
+its thread functions before forwarding
 (libblastrampoline appends the suffix `64_` itself):
 
 ```julia
@@ -257,7 +282,7 @@ $HOME/venv-ulmblas/bin/python -c 'import numpy; numpy.show_config()'
 
 | File | Content |
 | --- | --- |
-| `lib/libulmblas.0.dylib`, Linux `lib/libulmblas.so.0`, Windows `bin/libulmblas.dll` (with `lib/libulmblas.dll.a`, `lib/ulmblas.lib`); and the link `libulmblas.dylib` (`.so`) | BLAS: Fortran 77 interface (32-bit integers, `dgemm_`) and CBLAS (`cblas_dgemm`) |
+| `lib/libulmblas.0.dylib`, Linux `lib/libulmblas.so.0`, Windows `bin/libulmblas.dll` (with `lib/libulmblas.dll.a`, `lib/ulmblas.lib`); and the link `libulmblas.dylib` (`.so`) | BLAS: Fortran 77 interface (32-bit integers, `dgemm_`) and CBLAS (`cblas_dgemm`); both also with 64-bit integers (ILP64) and the names of the reference BLAS built with `BUILD_INDEX64_EXT_API` (`dgemm_64_`, `cblas_dgemm_64`, see below) |
 | `lib/libulmblas_sme.dylib`, `lib/libulmblas_neon.dylib` (Apple Silicon); `libulmblas_avx512`, `_avx2`, `_sse3` (`.so`, `.dll`; x86-64) | the backends, see below |
 | `lib/libulmlapack.dylib` (`.so`) | Reference-LAPACK 3.12.1, unmodified, on top of `libulmblas` (needs CMake and `gfortran`, FC; skipped without them, and on Windows) |
 | `include/cblas.h` (`ULMBLAS_INCLUDEDIR` puts it elsewhere) | |
@@ -270,7 +295,7 @@ $HOME/venv-ulmblas/bin/python -c 'import numpy; numpy.show_config()'
   | Platform | Backends |
   | --- | --- |
   | macOS, Apple Silicon | `sme` (M4 and later: SME2 with 64-bit floating point), `neon` |
-  | x86-64 | `avx512` (AVX-512F, with the vendored OpenBLAS SKYLAKEX DGEMM kernel), `avx2` (AVX2 and FMA), `sse3` |
+  | x86-64 | `avx512` (AVX-512F, with the vendored OpenBLAS SKYLAKEX DGEMM kernel), `avx2` (AVX2 and FMA), `sse3`, `generic` (portable kernels, every x86-64 CPU) |
 
   `ULMBLAS_BACKEND=name` overrides the choice; `ulmblas_backend()` returns
   the name of the backend in use.  The backends must be in the directory
@@ -283,6 +308,12 @@ $HOME/venv-ulmblas/bin/python -c 'import numpy; numpy.show_config()'
 - The libraries have their own names, so they are never confused with a
   `libblas` or `liblapack` of the system; programs find them through the
   run path recorded by `pkg-config` (`-Wl,-rpath`).
+- The ILP64 interfaces (`dgemm_64_`, ..., `xerbla_64_`, `lsame_64_`,
+  `cblas_dgemm_64`, ...): the names that the reference `libblas.so.3` and
+  `libcblas.so.3` of Arch and openSUSE export and their `liblapack.so.3`
+  calls (test/ilp64/symbols.txt).  `ILP64=0` (`make shared ILP64=0`,
+  `make shared-dispatch ILP64=0`, or in the environment of
+  `install-shared`) builds the libraries without them (about 20% smaller).
 - `libulmlapack` needs the Fortran runtime of the compiler that built it
   (`libgfortran`).
 - `interfaces/python/numpy.sh PREFIX VENV [VERSION]` creates a virtual

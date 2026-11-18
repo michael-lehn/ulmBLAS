@@ -1,0 +1,79 @@
+# Maintainer: Michael Lehn <michael.lehn@uni-ulm.de>
+#
+# ulmblas: the library (libulmblas.so.0, backends in /usr/lib/ulmblas),
+# blas-ulmblas: provider of blas and cblas (libblas.so.3, libcblas.so.3),
+# so that Arch's lapack runs on ulmBLAS (as blis-cblas in the AUR).
+pkgbase=ulmblas
+pkgname=(ulmblas blas-ulmblas)
+pkgver=0.4.1
+pkgrel=1
+_blasver=3.12.1
+pkgdesc="BLAS (Fortran 77 and CBLAS interface) with micro kernels selected for the CPU at load time"
+arch=(x86_64 aarch64)
+url="https://github.com/michael-lehn/ulmBLAS"
+license=(BSD-3-Clause)
+depends=(gcc-libs glibc)
+makedepends=(gcc-fortran)
+# the assembly kernels and the dispatching library are not built for LTO
+options=(!lto)
+source=("ulmblas-$pkgver.tar.gz::https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+_setup() {
+  cd "ulmBLAS-$pkgver"
+  export ULMBLAS_VERSION=$pkgver
+  export ULMBLAS_LIBDIR=/usr/lib
+  export ULMBLAS_BACKENDDIR=/usr/lib/ulmblas
+  export ULMBLAS_INCLUDEDIR=/usr/include/ulmblas
+  export ULMBLAS_RPATH=no
+  export ULMBLAS_STATIC_LIBSTDCXX=no
+  export FC=none
+  if [ "$CARCH" = x86_64 ]; then
+    export ULMBLAS_SONAMES=yes
+  fi
+}
+
+build() {
+  _setup
+  ULMBLAS_STEP=build sh interfaces/install-shared.sh /usr
+}
+
+check() {
+  cd "ulmBLAS-$pkgver"
+  FC=gfortran sh packaging/check.sh
+}
+
+package_ulmblas() {
+  _setup
+  DESTDIR="$pkgdir" sh interfaces/install-shared.sh /usr
+  # the libraries with the SONAMEs of blas and cblas go to blas-ulmblas
+  rm -f "$pkgdir"/usr/lib/ulmblas/lib{,c}blas.so.3
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE NOTICE
+}
+
+package_blas-ulmblas() {
+  pkgdesc="ulmBLAS as the provider of blas and cblas"
+  depends=("ulmblas=$pkgver")
+  provides=("blas=$_blasver" "cblas=$_blasver")
+  conflicts=(blas cblas)
+  _setup
+  install -d "$pkgdir/usr/lib/pkgconfig"
+  if [ "$CARCH" = x86_64 ]; then
+    # the dispatching library with the SONAMEs libblas.so.3, libcblas.so.3
+    install -Dm755 -t "$pkgdir/usr/lib/ulmblas" libblas.so.3 libcblas.so.3
+    for l in blas cblas; do
+      ln -s ulmblas/lib$l.so.3 "$pkgdir/usr/lib/lib$l.so.3"
+      ln -s lib$l.so.3 "$pkgdir/usr/lib/lib$l.so"
+    done
+  else
+    for l in blas cblas; do
+      ln -s libulmblas.so.0 "$pkgdir/usr/lib/lib$l.so.3"
+      ln -s lib$l.so.3 "$pkgdir/usr/lib/lib$l.so"
+    done
+  fi
+  install -d "$pkgdir/usr/include"
+  ln -s ulmblas/cblas.h "$pkgdir/usr/include/cblas.h"
+  ln -s ulmblas.pc "$pkgdir/usr/lib/pkgconfig/blas.pc"
+  ln -s ulmblas.pc "$pkgdir/usr/lib/pkgconfig/cblas.pc"
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE NOTICE
+}

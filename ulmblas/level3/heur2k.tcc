@@ -1,16 +1,12 @@
 #ifndef ULMBLAS_LEVEL3_HEUR2K_TCC
 #define ULMBLAS_LEVEL3_HEUR2K_TCC 1
 
+#include <complex>
 #include <ulmblas/auxiliary/conjugate.h>
-#include <ulmblas/config/blocksize.h>
-#include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/level1extensions/truscal.h>
-#include <ulmblas/level3/mkernel/mgemm.h>
-#include <ulmblas/level3/mkernel/msyurk.h>
-#include <ulmblas/level3/ukernel/ugemm.h>
-#include <ulmblas/level3/pack/gepack.h>
 #include <ulmblas/level3/heur2k.h>
 #include <ulmblas/level3/fpsrscope.h>
+#include <ulmblas/level3/gemmtr.h>
 
 namespace ulmBLAS {
 
@@ -24,21 +20,6 @@ heur2k(IndexType n, IndexType k, const Alpha &alpha, const TA *A,
 {
     const FpsrScope fpsrScope; // see level3/fpsrscope.h
 
-    typedef decltype(Alpha(0) * TA(0)) T;
-
-    constexpr IndexType MC = BlockSize<T>::MC;
-
-    constexpr IndexType MR = BlockSizeUGemm<T>::MR;
-    constexpr IndexType NR = BlockSizeUGemm<T>::NR;
-
-    const IndexType mb = (n + MC - 1) / MC;
-    const IndexType kb = (k + MC - 1) / MC;
-
-    const IndexType mc_ = n % MC;
-    const IndexType kc_ = k % MC;
-
-    static MemoryPool<T> memoryPool;
-
     if (n == 0 || ((alpha == Alpha(0) || k == 0) && beta == Beta(1))) {
 	return;
     }
@@ -51,72 +32,18 @@ heur2k(IndexType n, IndexType k, const Alpha &alpha, const TA *A,
 	return;
     }
 
-    T *A_ = memoryPool.allocate(MC * MC + MR);
-    T *B_ = memoryPool.allocate(MC * MC + NR);
-
-    for (IndexType j = 0; j < mb; ++j) {
-	IndexType nc = (j != mb - 1 || mc_ == 0) ? MC : mc_;
-
-	for (IndexType l = 0; l < kb; ++l) {
-	    IndexType kc = (l != kb - 1 || kc_ == 0) ? MC : kc_;
-	    Beta beta_ = (l == 0) ? beta : Beta(1);
-
-	    gepack_B(kc, nc, true, &B[l * MC * incColB + j * MC * incRowB],
-	             incColB, incRowB, B_);
-
-	    for (IndexType i = 0; i <= j; ++i) {
-		IndexType mc = (i != mb - 1 || mc_ == 0) ? MC : mc_;
-
-		gepack_A(mc, kc, false, &A[i * MC * incRowA + l * MC * incColA],
-		         incRowA, incColA, A_);
-
-		if (i == j) {
-		    msyurk(mc, nc, kc, alpha, A_, B_, beta_,
-		           &C[i * MC * incRowC + j * MC * incColC], incRowC,
-		           incColC);
-		} else {
-		    mgemm(mc, nc, kc, alpha, A_, B_, beta_,
-		          &C[i * MC * incRowC + j * MC * incColC], incRowC,
-		          incColC);
-		}
-	    }
-	}
-    }
-
-    for (IndexType j = 0; j < mb; ++j) {
-	IndexType nc = (j != mb - 1 || mc_ == 0) ? MC : mc_;
-
-	for (IndexType l = 0; l < kb; ++l) {
-	    IndexType kc = (l != kb - 1 || kc_ == 0) ? MC : kc_;
-
-	    gepack_B(kc, nc, true, &A[l * MC * incColA + j * MC * incRowA],
-	             incColA, incRowA, B_);
-
-	    for (IndexType i = 0; i <= j; ++i) {
-		IndexType mc = (i != mb - 1 || mc_ == 0) ? MC : mc_;
-
-		gepack_A(mc, kc, false, &B[i * MC * incRowB + l * MC * incColB],
-		         incRowB, incColB, A_);
-
-		if (i == j) {
-		    msyurk(mc, nc, kc, conjugate(alpha), A_, B_, Beta(1),
-		           &C[i * MC * incRowC + j * MC * incColC], incRowC,
-		           incColC);
-		} else {
-		    mgemm(mc, nc, kc, conjugate(alpha), A_, B_, Beta(1),
-		          &C[i * MC * incRowC + j * MC * incColC], incRowC,
-		          incColC);
-		}
-	    }
-	}
-    }
-
+    //  C <- beta C + alpha A B^H + conj(alpha) B A^H in the upper triangle:
+    //  two gemmt calls (ulmblas/level3/gemmtr.tcc, the frame algorithm of
+    //  gemmt).  beta stays real: a complex beta would turn 0*NaN in the
+    //  imaginary part into NaN in the real part.
+    gemmtr(false, n, k, alpha, false, A, incRowA, incColA, true, B, incColB,
+           incRowB, beta, C, incRowC, incColC);
+    gemmtr(false, n, k, conjugate(alpha), false, B, incRowB, incColB, true, A,
+           incColA, incRowA, Beta(1), C, incRowC, incColC);
+    //  the diagonal of a Hermitian matrix is real
     for (IndexType i = 0; i < n; ++i) {
 	C[i * (incRowC + incColC)] = std::real(C[i * (incRowC + incColC)]);
     }
-
-    memoryPool.release(A_);
-    memoryPool.release(B_);
 }
 
 } // namespace ulmBLAS

@@ -11,6 +11,7 @@
 #include <test/numeric/blas.h>
 #include <test/numeric/reference.h>
 #include <test/numeric/testing.h>
+#include <ulmblas/auxiliary/threadpool.h>
 
 namespace {
 
@@ -115,6 +116,7 @@ testGemmtr(Context &ctx, const Dims *dims, int numDims, bool allScalars)
 
 const Dims small[] = {{0, 2}, {3, 0}, {1, 1}, {2, 3}, {5, 7}, {17, 19}};
 const Dims blocks[] = {{63, 5}, {64, 3}, {65, 9}, {130, 70}};
+const Dims threaded[] = {{260, 130}};
 
 } // namespace
 
@@ -135,4 +137,20 @@ ULMBLAS_TEST(T0361, "level3/?gemmtr: n = 63 ... 130 (one and several block "
     testGemmtr<double>(ctx, blocks, 4, false);
     testGemmtr<cfloat>(ctx, blocks, 4, false);
     testGemmtr<cdouble>(ctx, blocks, 4, false);
+}
+
+ULMBLAS_TEST(T0372, "level3/?gemmtr: n = 260 on at least 8 threads (the "
+                    "triangle split over the threads)")
+{
+    //  at least 8 threads, also if the environment sets one (e.g.
+    //  OMP_NUM_THREADS=1 in batch jobs); the default afterwards
+    ulmBLAS::ThreadPool &pool = ulmBLAS::ThreadPool::instance();
+    if (pool.size() < 8) {
+	pool.setSize(8);
+    }
+    testGemmtr<float>(ctx, threaded, 1, false);
+    testGemmtr<double>(ctx, threaded, 1, false);
+    testGemmtr<cfloat>(ctx, threaded, 1, false);
+    testGemmtr<cdouble>(ctx, threaded, 1, false);
+    pool.setSize(0);
 }

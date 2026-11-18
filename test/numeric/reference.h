@@ -49,22 +49,22 @@ toCdouble(const T &x)
 }
 
 inline float
-fromCdouble(const cdouble &x, float *)
+fromCdouble(const cdouble &x, float *tag)
 {
     return float(x.real());
 }
 inline double
-fromCdouble(const cdouble &x, double *)
+fromCdouble(const cdouble &x, double *tag)
 {
     return x.real();
 }
 inline cfloat
-fromCdouble(const cdouble &x, cfloat *)
+fromCdouble(const cdouble &x, cfloat *tag)
 {
     return cfloat(float(x.real()), float(x.imag()));
 }
 inline cdouble
-fromCdouble(const cdouble &x, cdouble *)
+fromCdouble(const cdouble &x, cdouble *tag)
 {
     return x;
 }

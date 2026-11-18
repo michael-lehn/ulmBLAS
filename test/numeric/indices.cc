@@ -61,9 +61,9 @@ class Region
     std::size_t bytes;
 
   private:
-    Region(const Region &);
+    Region(const Region &other);
     Region &
-    operator=(const Region &);
+    operator=(const Region &other);
 };
 
 bool

@@ -51,7 +51,7 @@ conjugate(const bfloat16 &x)
 }
 
 inline const bfloat16 &
-conjugate(const bfloat16 &x, bool)
+conjugate(const bfloat16 &x, bool conj)
 {
     return x;
 }

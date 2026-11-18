@@ -4,10 +4,22 @@
  *  part of every reference BLAS library: LAPACK built against an external
  *  BLAS calls it.  As the reference, only the first character counts; the
  *  hidden lengths of the CHARACTER arguments are not used.  LOGICAL is
- *  int (gfortran default).
+ *  int (gfortran default).  ULMBLAS_LSAME and ULMBLAS_LOGICAL: name and
+ *  result type, lsame_64_ and int64_t for the ILP64 interface (the
+ *  reference compiles it with -fdefault-integer-8, which makes LOGICAL 8
+ *  bytes wide as well).
  */
-int
-lsame_(const char *ca, const char *cb)
+#include <stdint.h>
+
+#ifndef ULMBLAS_LSAME
+#define ULMBLAS_LSAME lsame_
+#endif
+#ifndef ULMBLAS_LOGICAL
+#define ULMBLAS_LOGICAL int
+#endif
+
+ULMBLAS_LOGICAL
+ULMBLAS_LSAME(const char *ca, const char *cb)
 {
     int a = (unsigned char)*ca, b = (unsigned char)*cb;
 

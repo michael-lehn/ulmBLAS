@@ -2,9 +2,9 @@
 #define ULMBLAS_LAPACK_TASKS_GETRFTASKS_TCC 1
 
 //
-//  The matrix is divided into nb x nb tiles; a byte per tile (tok) stands
-//  for the tile in the depend clauses.  Step k (panel = column block k,
-//  rows k*nb, ..., m-1):
+//  The matrix is divided into nb x nb tiles; the first element of a tile
+//  stands for the tile in the depend clauses (no work space).  Step k (panel =
+//  column block k, rows k*nb, ..., m-1):
 //
 //      PANEL(k)       LU with partial pivoting of the panel      inout tiles
 //      (i,k), i >= k SWAP_TRSM(k,j) interchanges of panel k in column block j,
@@ -44,6 +44,7 @@
 #include <atomic>
 #include <cmath>
 #include <complex>
+#include <limits>
 #include <utility>
 #include <omp.h>
 #include <ulmblas/auxiliary/abs1.h>
@@ -51,6 +52,7 @@
 #include <ulmblas/lapack/getrf2.h>
 #include <ulmblas/lapack/safemin.h>
 #include <ulmblas/lapack/tasks/getrftasks.h>
+#include <ulmblas/lapack/unitstride.h>
 #include <ulmblas/lapack/tasks/sync.h>
 #include <ulmblas/level3/gemm.h>
 #include <ulmblas/level3/trlsm.h>
@@ -67,7 +69,7 @@ const int PRIO_LSWAP = 0;
 
 const int CLOSED = 1 << 30;
 
-template <typename IndexType, typename T> struct Panel
+template <typename IndexType, typename T, typename PivIndex> struct Panel
 {
     typedef decltype(std::real(T())) Real;
 
@@ -77,7 +79,8 @@ template <typename IndexType, typename T> struct Panel
     IndexType rs, cs;   // row and column stride
     T *orig;            // copy: the panel itself (else null),
     IndexType ors, ocs; // A is a column-major copy (rs 1, cs m)
-    IndexType *piv;
+    PivIndex *piv;      // 0-based, increment incPiv
+    IndexType incPiv;
     IndexType ib;
 
     // team
@@ -100,9 +103,9 @@ template <typename IndexType, typename T> struct Panel
 };
 
 //  Try to join; returns the member number or -1.
-template <typename IndexType, typename T>
+template <typename IndexType, typename T, typename PivIndex>
 int
-join(Panel<IndexType, T> &P)
+join(Panel<IndexType, T, PivIndex> &P)
 {
     int s = P.state.load(std::memory_order_acquire);
     while (!(s & CLOSED) && s < P.maxSize) {
@@ -118,11 +121,11 @@ join(Panel<IndexType, T> &P)
 //  One member of a panel team.  UnitRows: row stride 1, so that the loops
 //  over the rows of a column are contiguous.
 //
-template <bool UnitRows, typename IndexType, typename T>
+template <bool UnitRows, typename IndexType, typename T, typename PivIndex>
 void
-member(Panel<IndexType, T> &P, int r)
+member(Panel<IndexType, T, PivIndex> &P, int r)
 {
-    typedef typename Panel<IndexType, T>::Real Real;
+    typedef typename Panel<IndexType, T, PivIndex>::Real Real;
 
     const IndexType m = P.m;
     const IndexType n = P.n;
@@ -197,7 +200,7 @@ member(Panel<IndexType, T> &P, int r)
 	    const T pivot = prow[j - c];
 
 	    if (r == 0) {
-		P.piv[j] = p;
+		P.piv[j * P.incPiv] = PivIndex(p);
 	    }
 	    if (pivot != T(0)) {
 		if (p != j) {
@@ -254,7 +257,7 @@ member(Panel<IndexType, T> &P, int r)
 	    const IndexType col = (q < c) ? q : q + kb;
 	    T *a = &A[col * cs];
 	    for (IndexType j = c; j < c + kb; ++j) {
-		const IndexType p = P.piv[j];
+		const IndexType p = IndexType(P.piv[j * P.incPiv]);
 		if (p != j) {
 		    std::swap(a[j * rs], a[p * rs]);
 		}
@@ -294,9 +297,9 @@ member(Panel<IndexType, T> &P, int r)
     }
 }
 
-template <typename IndexType, typename T>
+template <typename IndexType, typename T, typename PivIndex>
 void
-member(Panel<IndexType, T> &P, int r)
+member(Panel<IndexType, T, PivIndex> &P, int r)
 {
     if (P.rs == 1) {
 	member<true>(P, r);
@@ -306,22 +309,22 @@ member(Panel<IndexType, T> &P, int r)
 }
 
 //
-//  Factor the panel (m x n).  piv: 0-based, relative to the panel.
-//  Returns 0 or the first zero pivot (1-based).
+//  Factor the panel (m x n).  piv: 0-based, relative to the panel, with
+//  increment incPiv.  Returns 0 or the first zero pivot (1-based).
 //
-template <typename IndexType, typename T>
+template <typename IndexType, typename T, typename PivIndex>
 IndexType
-panel(IndexType m, IndexType n, T *A, IndexType rs, IndexType cs,
-      IndexType *piv, IndexType ib, int maxTeam, IndexType minRows,
+panel(IndexType m, IndexType n, T *A, IndexType rs, IndexType cs, PivIndex *piv,
+      IndexType incPiv, IndexType ib, int maxTeam, IndexType minRows,
       double joinWait, int excluded)
 {
     int maxSize =
         int(std::min<IndexType>(maxTeam, std::max<IndexType>(1, m / minRows)));
     if (maxSize <= 1 || n <= 1) {
-	return getrf2(m, n, A, rs, cs, piv, IndexType(1));
+	return getrf2(m, n, A, rs, cs, piv, incPiv);
     }
 
-    typedef Panel<IndexType, T> P_;
+    typedef Panel<IndexType, T, PivIndex> P_;
     P_ P;
     P.m = m;
     P.n = n;
@@ -332,6 +335,7 @@ panel(IndexType m, IndexType n, T *A, IndexType rs, IndexType cs,
     P.ors = 0;
     P.ocs = 0;
     P.piv = piv;
+    P.incPiv = incPiv;
     P.ib = std::min(ib, std::min(m, n));
     P.creator = omp_get_thread_num();
     P.excluded = excluded;
@@ -374,15 +378,16 @@ panel(IndexType m, IndexType n, T *A, IndexType rs, IndexType cs,
     IndexType info;
     if (size == 1) {
 	P.started.store(1, std::memory_order_release);
-	info = getrf2(m, n, A, rs, cs, piv, IndexType(1));
+	info = getrf2(m, n, A, rs, cs, piv, incPiv);
     } else {
 	IndexType chunk = (m + size - 1) / size;
 	chunk = (chunk + 7) / 8 * 8;
 	P.size = size;
 	P.chunk = chunk;
 	//  neither stride 1: the team works on a column-major copy of the
-	//  panel; every member copies its own rows in and back
-	if (rs != 1 && cs != 1) {
+	//  panel if it fits (lapackCopyFits), otherwise on the panel itself;
+	//  every member copies its own rows in and back
+	if (rs != 1 && cs != 1 && lapackCopyFits<T>(m, n)) {
 	    copy.resize(std::size_t(m) * std::size_t(n));
 	    P.orig = A;
 	    P.ors = rs;
@@ -411,11 +416,11 @@ panel(IndexType m, IndexType n, T *A, IndexType rs, IndexType cs,
 
 } // namespace getrf_impl
 
-template <typename IndexType, typename T>
+template <typename IndexType, typename T, typename PivIndex>
 IndexType
 getrfTasks(IndexType m, IndexType n, T *A, IndexType incRowA, IndexType incColA,
-           IndexType *piv, IndexType nb, IndexType ib, int panelThreads,
-           int threads)
+           PivIndex *piv, IndexType incPiv, IndexType nb, IndexType ib,
+           int panelThreads, int threads)
 {
     using namespace getrf_impl;
 
@@ -430,17 +435,16 @@ getrfTasks(IndexType m, IndexType n, T *A, IndexType incRowA, IndexType incColA,
     const IndexType minRows = 64;
     const double joinWait = 20e-6;
 
-    Buffer<char> tok(mt * nt);
-    Buffer<IndexType> pinfo(kt);
-    pinfo.fill(IndexType(0));
-    char *Tk = tok.data();
-    (void)Tk; // only used in depend clauses (GCC warns)
-    IndexType *PI = pinfo.data();
+    //  tile (i,j) in the depend clauses: its first element
+#define ULMBLAS_GETRF_TILE(i, j) A[(i) * nb * rs + (j) * nb * cs]
+
+    //  the first zero pivot (1-based, max: none)
+    std::atomic<IndexType> firstZero(std::numeric_limits<IndexType>::max());
 
     // the generating thread does not join panel teams while it creates tasks
     std::atomic<int> generator(-1);
 
-#pragma omp parallel num_threads(threads) shared(generator)
+#pragma omp parallel num_threads(threads) shared(generator, firstZero)
 #pragma omp single
     {
 	generator.store(omp_get_thread_num());
@@ -451,14 +455,22 @@ getrfTasks(IndexType m, IndexType n, T *A, IndexType incRowA, IndexType incColA,
 	    const IndexType wp = std::min(nb, n - r0);
 	    const IndexType kp = std::min(mp, wp);
 	    T *Akk = &A[r0 * (rs + cs)];
-	    IndexType *pk = &piv[r0];
+	    PivIndex *pk = &piv[r0 * incPiv];
 
-#pragma omp task depend(iterator(ii = k : mt), inout : Tk[ii * nt + k])        \
+#pragma omp task depend(iterator(ii = k : mt),                                 \
+                            inout : ULMBLAS_GETRF_TILE(ii, k))                 \
     priority(PRIO_PANEL)
 	    {
 		taskEnter();
-		PI[k] = panel(mp, wp, Akk, rs, cs, pk, ib, panelThreads,
-		              minRows, joinWait, generator.load());
+		const IndexType inf =
+		    panel(mp, wp, Akk, rs, cs, pk, incPiv, ib, panelThreads,
+		          minRows, joinWait, generator.load());
+		if (inf) {
+		    IndexType z = firstZero.load();
+		    while (r0 + inf < z &&
+		           !firstZero.compare_exchange_weak(z, r0 + inf)) {
+		    }
+		}
 		taskLeave();
 	    }
 
@@ -466,12 +478,13 @@ getrfTasks(IndexType m, IndexType n, T *A, IndexType incRowA, IndexType incColA,
 	    for (IndexType c = 0; c < k; ++c) {
 		T *Ac = &A[r0 * rs + c * nb * cs];
 
-#pragma omp task depend(in : Tk[k * nt + k])                                   \
-    depend(iterator(ii = k : mt), inout : Tk[ii * nt + c])                     \
+#pragma omp task depend(in : ULMBLAS_GETRF_TILE(k, k))                         \
+    depend(iterator(ii = k : mt), inout : ULMBLAS_GETRF_TILE(ii, c))           \
     priority(PRIO_LSWAP)
 		{
 		    taskEnter();
-		    getrf2_impl::swapRows(nb, Ac, rs, cs, IndexType(0), kp, pk);
+		    getrf2_impl::swapRows(nb, Ac, rs, cs, IndexType(0), kp, pk,
+		                          incPiv);
 		    taskLeave();
 		}
 	    }
@@ -482,12 +495,13 @@ getrfTasks(IndexType m, IndexType n, T *A, IndexType incRowA, IndexType incColA,
 		const int pri = (j == k + 1) ? PRIO_NEXT : PRIO_UPD;
 		T *Akj = &A[r0 * rs + j * nb * cs];
 
-#pragma omp task depend(in : Tk[k * nt + k])                                   \
-    depend(iterator(ii = k : mt), inout : Tk[ii * nt + j]) priority(pri)
+#pragma omp task depend(in : ULMBLAS_GETRF_TILE(k, k))                         \
+    depend(iterator(ii = k : mt), inout : ULMBLAS_GETRF_TILE(ii, j))           \
+    priority(pri)
 		{
 		    taskEnter();
-		    getrf2_impl::swapRows(wj, Akj, rs, cs, IndexType(0), kp,
-		                          pk);
+		    getrf2_impl::swapRows(wj, Akj, rs, cs, IndexType(0), kp, pk,
+		                          incPiv);
 		    trlsm(kp, wj, T(1), false, true, Akk, rs, cs, Akj, rs, cs);
 		    taskLeave();
 		}
@@ -496,8 +510,9 @@ getrfTasks(IndexType m, IndexType n, T *A, IndexType incRowA, IndexType incColA,
 		    const T *Aik = &A[i * nb * rs + r0 * cs];
 		    T *Aij = &A[i * nb * rs + j * nb * cs];
 
-#pragma omp task depend(in : Tk[i * nt + k], Tk[k * nt + j])                   \
-    depend(inout : Tk[i * nt + j]) priority(pri)
+#pragma omp task depend(in : ULMBLAS_GETRF_TILE(i, k),                         \
+                            ULMBLAS_GETRF_TILE(k, j))                          \
+    depend(inout : ULMBLAS_GETRF_TILE(i, j)) priority(pri)
 		    {
 			taskEnter();
 			gemm(mi, wj, kp, T(-1), false, Aik, rs, cs, false, Akj,
@@ -510,21 +525,17 @@ getrfTasks(IndexType m, IndexType n, T *A, IndexType incRowA, IndexType incColA,
 	generator.store(-1);
     }
 
-    IndexType info = 0;
-    for (IndexType k = 0; k < kt; ++k) {
-	if (PI[k]) {
-	    info = k * nb + PI[k];
-	    break;
-	}
-    }
+#undef ULMBLAS_GETRF_TILE
+
     for (IndexType k = 0; k < kt; ++k) {
 	const IndexType r0 = k * nb;
 	const IndexType kp = std::min(m - r0, std::min(nb, n - r0));
 	for (IndexType l = 0; l < kp; ++l) {
-	    piv[r0 + l] += r0;
+	    piv[(r0 + l) * incPiv] += PivIndex(r0);
 	}
     }
-    return info;
+    const IndexType z = firstZero.load();
+    return z == std::numeric_limits<IndexType>::max() ? IndexType(0) : z;
 }
 
 } // namespace tasks

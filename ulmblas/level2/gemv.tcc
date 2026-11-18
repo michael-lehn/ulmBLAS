@@ -13,17 +13,17 @@
 #include <ulmblas/level1extensions/dotxf.h>
 #include <ulmblas/level1extensions/gecopy.h>
 #include <ulmblas/level2/gemv.h>
-
-#include <iostream>
+#include <ulmblas/level2/gemvfused.h>
+#include <ulmblas/level2/threads.h>
 
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TA, typename TX,
           typename Beta, typename TY>
 void
-gemv(IndexType m, IndexType n, const Alpha &alpha, bool conjA, const TA *A,
-     IndexType incRowA, IndexType incColA, const TX *x, IndexType incX,
-     const Beta &beta, TY *y, IndexType incY)
+gemvSerial(IndexType m, IndexType n, const Alpha &alpha, bool conjA,
+           const TA *A, IndexType incRowA, IndexType incColA, const TX *x,
+           IndexType incX, const Beta &beta, TY *y, IndexType incY)
 {
     typedef decltype(Alpha(0) * TA(0) * TX(0) + Beta(0) * TY(0)) T;
 
@@ -39,6 +39,17 @@ gemv(IndexType m, IndexType n, const Alpha &alpha, bool conjA, const TA *A,
     scal(m, beta, y, incY);
 
     if (alpha == Alpha(0)) {
+	return;
+    }
+
+    //
+    //  All operands of one type (float, double, complex), A column or row
+    //  major: the fused kernels of ulmblas/level2/kernel/gemvf.h
+    //
+    static constexpr bool fused =
+        homogeneousTypes && level2::FusedGemv<T>::value;
+    if (level2::GemvFused<fused>::run(m, n, alpha, conjA, A, incRowA, incColA,
+                                      x, incX, y, incY)) {
 	return;
     }
 
@@ -165,14 +176,15 @@ gemv(IndexType m, IndexType n, const Alpha &alpha, bool conjA, const TA *A,
 		}
 
 		if (packY) {
-		    gemv(mc, nc, alpha_, A_, incRow_A, incCol_A, x_, UnitStride,
-		         T(0), buffer_y, UnitStride);
+		    gemvSerial(mc, nc, alpha_, false, A_, incRow_A, incCol_A,
+		               x_, UnitStride, T(0), buffer_y, UnitStride);
 
 		    axpy(mc, T(1), buffer_y, UnitStride, &y[i * MC * incY],
 		         incY);
 		} else {
-		    gemv(mc, nc, alpha_, A_, incRow_A, incCol_A, x_, UnitStride,
-		         T(1), &y[i * MC * incY], UnitStride);
+		    gemvSerial(mc, nc, alpha_, false, A_, incRow_A, incCol_A,
+		               x_, UnitStride, T(1), &y[i * MC * incY],
+		               UnitStride);
 		}
 	    }
 	}
@@ -181,6 +193,47 @@ gemv(IndexType m, IndexType n, const Alpha &alpha, bool conjA, const TA *A,
 	memoryPool.release(buffer_y);
 	memoryPool.release(buffer_A);
     }
+}
+
+//
+//  On several threads for large problems (ulmblas/level2/threads.h): the
+//  elements of y split, each thread computes its part with gemvSerial (A
+//  column major: parts of 64 bytes of y; otherwise of FuseT rows).
+//
+template <typename IndexType, typename Alpha, typename TA, typename TX,
+          typename Beta, typename TY>
+void
+gemv(IndexType m, IndexType n, const Alpha &alpha, bool conjA, const TA *A,
+     IndexType incRowA, IndexType incColA, const TX *x, IndexType incX,
+     const Beta &beta, TY *y, IndexType incY)
+{
+    typedef decltype(Alpha(0) * TA(0) * TX(0) + Beta(0) * TY(0)) T;
+
+    if (m <= 0 || n <= 0 || alpha == Alpha(0)) {
+	gemvSerial(m, n, alpha, conjA, A, incRowA, incColA, x, incX, beta, y,
+	           incY);
+	return;
+    }
+    const std::size_t lineElements = 64 / sizeof(TY);
+    const IndexType u = incRowA == IndexType(1)
+                            ? IndexType(lineElements > 0 ? lineElements : 1)
+                            : IndexType(Level2Param<T>::FuseT);
+    const std::ptrdiff_t nt = Level2Threads::gemv<T>(
+        m, n, (std::int64_t(m) + u - 1) / u, incRowA == IndexType(1));
+    if (nt <= 1) {
+	gemvSerial(m, n, alpha, conjA, A, incRowA, incColA, x, incX, beta, y,
+	           incY);
+	return;
+    }
+    auto body = [&](std::ptrdiff_t tid, std::ptrdiff_t threads) {
+	IndexType i0, i1;
+	Level2Threads::range(tid, threads, m, u, i0, i1);
+	if (i1 > i0) {
+	    gemvSerial(i1 - i0, n, alpha, conjA, &A[i0 * incRowA], incRowA,
+	               incColA, x, incX, beta, &y[i0 * incY], incY);
+	}
+    };
+    ThreadPool::instance().run(nt, body, ULMBLAS_L2_PIN_CALLER != 0);
 }
 
 template <typename IndexType, typename Alpha, typename TA, typename TX,

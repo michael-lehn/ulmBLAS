@@ -104,9 +104,9 @@ class FpsrRestore
 	}
     }
 
-    FpsrRestore(const FpsrRestore &) = delete;
+    FpsrRestore(const FpsrRestore &other) = delete;
     FpsrRestore &
-    operator=(const FpsrRestore &) = delete;
+    operator=(const FpsrRestore &other) = delete;
 
   private:
     FpsrState &state;

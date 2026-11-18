@@ -65,7 +65,7 @@ MR elements from each column of A per panel.  When the columns of A are
 far apart in memory, this is slow.  On the Apple M5, packing A took up to
 26% of the time of DGEMM with small n (2048 x 64 x 2048).  I found this
 while profiling DGEMM during the Apple M5 experiments
-([campaign 003](benchmark_results/003-2026-10-25-macbook-m5-profile/README.md)).
+([campaign 003](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/003-2026-10-25-macbook-m5-profile/README.md)).
 Now `gepack_A` packs `PACK_A_PANELS` panels (4) at once, column by
 column, if the columns of A are at least `PACK_A_GROUP_DISTANCE` bytes
 (8 KiB) apart.  Small n with m, k ≥ 1024 got 5 to 9% faster on the M5 and
@@ -79,7 +79,7 @@ driver does it differently: for the first block of A it packs B panel by
 panel and uses each panel right away, while it is still in the cache.  I
 adopted this when I tuned OpenBLAS's micro kernel inside ulmBLAS on an
 Intel Xeon (Ice Lake), where it made DGEMM 0.8% faster for n ≥ 1000
-([campaign 021](benchmark_results/021-2026-10-27-uc3-icelake-openblas-kernel-interleave/README.md)).
+([campaign 021](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/021-2026-10-27-uc3-icelake-openblas-kernel-interleave/README.md)).
 It is used only with the OpenBLAS-derived DGEMM kernels
 (`-DULMBLAS_DGEMM_NO_INTERLEAVE` restores the original order):
 
@@ -230,9 +230,9 @@ the BLIS code.
 
 | Library | Header | Contents |
 |---|---|---|
-| `libcblas.a` | `cblas.h` | CBLAS (`cblas_dgemm`, ...): levels 1, 2 and 3 for float, double, complex float and complex double |
+| `libcblas.a` | `cblas.h` | CBLAS (`cblas_dgemm`, ...): levels 1, 2 and 3 for float, double, complex float and complex double; `ulmblas_{set,get}_num_threads`, `ulmblas_{set,get}_affinity` |
 | `libcblas.a` | `ulmblas_strided.h` | GEMM with a row and a column stride for every matrix (`ulmblas_dgemm_strided`, ..., also `ulmblas_i64gemm_strided` for integers, `ulmblas_sbgemm_strided` and `ulmblas_shgemm_strided` for bfloat16 and half precision, `ulmblas_i8i32gemm_strided` for 8-bit integers with int32 results): any strides, also negative or zero, no transposition argument |
-| `libclapack.a` | `clapack.h` | `ulmblas_?getrf`, `?potrf`, `?getrs`, `?gesv`, `?potrs`, `?posv`, `?trtrs`, `?trtri`, `?lauum`, `?potri`, `?getri`, `?laswp` (ATLAS style), `ulmblas_{set,get}_num_threads` |
+| `libclapack.a` | `clapack.h` | `ulmblas_?getrf`, `?potrf`, `?getrs`, `?gesv`, `?potrs`, `?posv`, `?trtrs`, `?trtri`, `?lauum`, `?potri`, `?getri`, `?laswp` (ATLAS style) |
 | `libf77lapack.a` | `f77lapack.h` | the same functions as in LAPACK (`?getrf_`, ...; `make f77lapack`) |
 | `libf77blas.a` | `f77blas.h` | Fortran 77 BLAS interface (`make f77blas`) |
 | `libatlblas.a`, `libatllapack.a` | `atlblas.h`, `atllapack.h` | ATLAS names, used by the benchmarks |
@@ -300,7 +300,7 @@ part that matters is the test configuration, see
 There are two ways to look at performance: you can run the benchmark of
 ulmBLAS against the libraries on your own machine, or look at my
 documented campaigns in the benchmark archive (summarized in
-[PERFORMANCE.md](PERFORMANCE.md)).
+[PERFORMANCE.md](https://github.com/michael-lehn/ulmBLAS/blob/master/PERFORMANCE.md)).
 
 ### How to Run Your Own Benchmarks
 
@@ -311,7 +311,7 @@ finds on the machine.  The other libraries are optional, without them it
 benchmarks ulmBLAS alone.  The 80 sizes take a few minutes per library
 for fast libraries and real types, and more than an hour for slow ones
 (e.g. a reference kernel for complex types).  More in
-[bench/gemm/README.md](bench/gemm/README.md).
+[bench/gemm/README.md](https://github.com/michael-lehn/ulmBLAS/blob/master/bench/gemm/README.md).
 
 Only ulmBLAS:
 
@@ -363,7 +363,7 @@ MKLROOT=/opt/intel/oneapi/mkl/latest make bench-gemm PREC=z   # e.g. with oneMKL
 | Eigen (native C++ product, no CBLAS) | `eigen` | automatically (pkg-config `eigen3`); or `EIGEN_DIR` |
 | Intel oneMKL (sequential) | `mkl` | with `MKLROOT` (set by oneAPI's `setvars.sh`) |
 | AOCL-BLAS | `aocl` | with `AOCL_DIR` or `AOCL_ROOT` (its library is also named `libblis`, so it is never taken for BLIS) |
-| ATLAS, Netlib reference BLAS | — | not supported by `bench-gemm` (only by the older `make bench`, see [bench/](bench)) |
+| ATLAS, Netlib reference BLAS | — | not supported by `bench-gemm` (only by the older `make bench`, see [bench/](https://github.com/michael-lehn/ulmBLAS/tree/master/bench)) |
 
 Libraries that are not found are skipped and listed with the reason.
 
@@ -382,11 +382,11 @@ The results depend on the CPU, the compiler, how each library was built,
 the kernel it selects at run time and the threading configuration, so
 measure on an otherwise idle machine.  My published results come from
 documented campaigns with more control (pinning, load gate, interleaved
-rounds), see the [benchmark archive](benchmark_results/README.md).
+rounds), see the [benchmark archive](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/README.md).
 
 ### Benchmark archive
 
-In [benchmark_results/](benchmark_results/README.md) I collect benchmark
+In [benchmark_results/](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/README.md) I collect benchmark
 campaigns over time, on different processors and with different
 compilers, micro kernels and blocking strategies.  Each campaign has the
 raw measurements, CSV files, Gnuplot scripts and the SVG figures, the

@@ -36,7 +36,7 @@ namespace sme {
 
 //  32 elements of 16 bits (x) as 2 x 16 floats
 inline svfloat32x2_t
-to_f32(svuint16_t x, const bfloat16 *) __arm_streaming
+to_f32(svuint16_t x, const bfloat16 *tag) __arm_streaming
 {
     const svuint16_t zero = svdup_u16(0);
     return svcreate2(svreinterpret_f32(svzip1(zero, x)),
@@ -44,7 +44,7 @@ to_f32(svuint16_t x, const bfloat16 *) __arm_streaming
 }
 
 inline svfloat32x2_t
-to_f32(svuint16_t x, const float16 *) __arm_streaming
+to_f32(svuint16_t x, const float16 *tag) __arm_streaming
 {
     const svbool_t p = svptrue_b32();
     const svfloat16_t h = svreinterpret_f16(x);
@@ -179,8 +179,8 @@ pack16_partial(IndexType mn, IndexType k, const T16 *X, IndexType incMN,
 //
 #define ULMBLAS_SME_PACK16(T16)                                                \
     template <int P, typename IndexType>                                       \
-    static void pack_MRxk(IndexType k, bool, const T16 *A, IndexType incRowA,  \
-                          IndexType incColA, float *buffer)                    \
+    static void pack_MRxk(IndexType k, bool conj, const T16 *A,                \
+                          IndexType incRowA, IndexType incColA, float *buffer) \
     {                                                                          \
 	if (incRowA != IndexType(1) && incColA != IndexType(1)) {              \
 	    pack_MRxk<P, IndexType, T16, float>(k, false, A, incRowA, incColA, \
@@ -191,8 +191,8 @@ pack16_partial(IndexType mn, IndexType k, const T16 *X, IndexType incMN,
     }                                                                          \
                                                                                \
     template <typename IndexType>                                              \
-    static void pack_kxNR(IndexType k, bool, const T16 *B, IndexType incRowB,  \
-                          IndexType incColB, float *buffer)                    \
+    static void pack_kxNR(IndexType k, bool conj, const T16 *B,                \
+                          IndexType incRowB, IndexType incColB, float *buffer) \
     {                                                                          \
 	if (incRowB != IndexType(1) && incColB != IndexType(1)) {              \
 	    pack_kxNR<IndexType, T16, float>(k, false, B, incRowB, incColB,    \
@@ -203,7 +203,7 @@ pack16_partial(IndexType mn, IndexType k, const T16 *X, IndexType incMN,
     }                                                                          \
                                                                                \
     template <typename IndexType>                                              \
-    static bool pack_MRxk_partial(IndexType mr, IndexType k, bool,             \
+    static bool pack_MRxk_partial(IndexType mr, IndexType k, bool conj,        \
                                   const T16 *A, IndexType incRowA,             \
                                   IndexType incColA, float *buffer)            \
     {                                                                          \
@@ -211,7 +211,7 @@ pack16_partial(IndexType mn, IndexType k, const T16 *X, IndexType incMN,
     }                                                                          \
                                                                                \
     template <typename IndexType>                                              \
-    static bool pack_kxNR_partial(IndexType nr, IndexType k, bool,             \
+    static bool pack_kxNR_partial(IndexType nr, IndexType k, bool conj,        \
                                   const T16 *B, IndexType incRowB,             \
                                   IndexType incColB, float *buffer)            \
     {                                                                          \

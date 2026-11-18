@@ -1,0 +1,57 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all optimize=-lto
+# ulmBLAS compiles with -O3 (its OPTFLAGS come before CXXFLAGS)
+export DEB_CXXFLAGS_MAINT_STRIP = -O2
+# Ubuntu: -Bsymbolic-functions would bind the library's calls of xerbla_
+# to its own, a program could no longer replace it (BLAS convention)
+export DEB_LDFLAGS_MAINT_STRIP = -Wl,-Bsymbolic-functions
+
+include /usr/share/dpkg/architecture.mk
+include /usr/share/dpkg/pkg-info.mk
+
+export ULMBLAS_VERSION = $(DEB_VERSION_UPSTREAM)
+export ULMBLAS_LIBDIR = /usr/lib/$(DEB_HOST_MULTIARCH)
+export ULMBLAS_BACKENDDIR = /usr/lib/$(DEB_HOST_MULTIARCH)/ulmblas
+export ULMBLAS_INCLUDEDIR = /usr/include/$(DEB_HOST_MULTIARCH)/ulmblas
+export ULMBLAS_RPATH = no
+export ULMBLAS_STATIC_LIBSTDCXX = no
+# no libulmlapack: Debian's liblapack3 runs on any libblas.so.3
+ULMBLAS_FC = none
+ifeq ($(DEB_HOST_ARCH),amd64)
+# libblas.so.3 with this SONAME, for the alternative libblas.so.3
+export ULMBLAS_SONAMES = yes
+BLAS_PROVIDES = libblas.so.3
+endif
+
+NPROC = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+ULMBLAS_MAKE = $(MAKE) $(if $(NPROC),-j$(NPROC))
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	ULMBLAS_STEP=build FC=$(ULMBLAS_FC) MAKE="$(ULMBLAS_MAKE)" \
+	    sh interfaces/install-shared.sh /usr
+
+override_dh_auto_install:
+	DESTDIR=$(CURDIR)/debian/tmp FC=$(ULMBLAS_FC) MAKE="$(ULMBLAS_MAKE)" \
+	    sh interfaces/install-shared.sh /usr
+
+override_dh_auto_test:
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	FC=gfortran sh packaging/check.sh
+endif
+
+override_dh_auto_clean:
+	$(MAKE) clean
+	rm -rf build libulmblas* libblas.so.3 libcblas.so.3
+
+execute_before_dh_installdeb:
+	for s in postinst prerm; do \
+	    sed 's/@MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' \
+	        debian/libulmblas0.$$s.in > debian/libulmblas0.$$s; \
+	done
+
+override_dh_gencontrol:
+	dh_gencontrol -- -Vblas:Provides=$(BLAS_PROVIDES)

@@ -19,17 +19,18 @@
 //  propagates.
 //
 #include <arm_neon.h>
+#include <cstddef>
 
 namespace ulmBLAS {
 namespace neon {
 
 inline void
-sgemm_8x12(long kc, float alpha, const float *A, const float *B, float beta,
-           float *C, long incRowC, long incColC)
+sgemm_8x12(std::ptrdiff_t kc, float alpha, const float *A, const float *B,
+           float beta, float *C, std::ptrdiff_t incRowC, std::ptrdiff_t incColC)
 {
     float32x4_t c[12][2];
 
-    for (int j = 0; j < 12; ++j) {
+    for (std::ptrdiff_t j = 0; j < 12; ++j) {
 	c[j][0] = c[j][1] = vdupq_n_f32(0);
     }
 
@@ -37,7 +38,7 @@ sgemm_8x12(long kc, float alpha, const float *A, const float *B, float beta,
     c[j][0] = vfmaq_laneq_f32(c[j][0], a0, b, l);                              \
     c[j][1] = vfmaq_laneq_f32(c[j][1], a1, b, l);
 
-    for (long l = 0; l < kc; ++l) {
+    for (std::ptrdiff_t l = 0; l < kc; ++l) {
 	const float32x4_t a0 = vld1q_f32(A), a1 = vld1q_f32(A + 4);
 	const float32x4_t b0 = vld1q_f32(B), b1 = vld1q_f32(B + 4),
 	                  b2 = vld1q_f32(B + 8);
@@ -58,7 +59,7 @@ sgemm_8x12(long kc, float alpha, const float *A, const float *B, float beta,
 #undef ULMBLAS_NEON_SFMA
 
     if (incRowC == 1) {
-	for (int j = 0; j < 12; ++j) {
+	for (std::ptrdiff_t j = 0; j < 12; ++j) {
 	    float *p = C + j * incColC;
 	    float32x4_t c0 = vmulq_n_f32(c[j][0], alpha);
 	    float32x4_t c1 = vmulq_n_f32(c[j][1], alpha);
@@ -73,12 +74,12 @@ sgemm_8x12(long kc, float alpha, const float *A, const float *B, float beta,
     }
 
     float C_[8 * 12];
-    for (int j = 0; j < 12; ++j) {
+    for (std::ptrdiff_t j = 0; j < 12; ++j) {
 	vst1q_f32(C_ + 8 * j, vmulq_n_f32(c[j][0], alpha));
 	vst1q_f32(C_ + 8 * j + 4, vmulq_n_f32(c[j][1], alpha));
     }
-    for (long j = 0; j < 12; ++j) {
-	for (long i = 0; i < 8; ++i) {
+    for (std::ptrdiff_t j = 0; j < 12; ++j) {
+	for (std::ptrdiff_t i = 0; i < 8; ++i) {
 	    float &x = C[i * incRowC + j * incColC];
 	    x = (beta == 0.0f) ? C_[i + 8 * j] : beta * x + C_[i + 8 * j];
 	}
@@ -86,13 +87,14 @@ sgemm_8x12(long kc, float alpha, const float *A, const float *B, float beta,
 }
 
 template <typename IndexType>
-static typename std::enable_if<std::is_convertible<IndexType, long>::value,
-                               void>::type
+static typename std::enable_if<
+    std::is_convertible<IndexType, std::ptrdiff_t>::value, void>::type
 ugemm(IndexType kc, const float &alpha, const float *A, const float *B,
       const float &beta, float *C, IndexType incRowC, IndexType incColC,
-      const float *, const float *)
+      const float *nextA, const float *nextB)
 {
-    sgemm_8x12(long(kc), alpha, A, B, beta, C, long(incRowC), long(incColC));
+    sgemm_8x12(std::ptrdiff_t(kc), alpha, A, B, beta, C,
+               std::ptrdiff_t(incRowC), std::ptrdiff_t(incColC));
 }
 
 } // namespace neon

@@ -22,11 +22,12 @@
 //
 //  The NEON micro kernel contains AArch64 inline assembly (64-bit
 //  registers and pointers, AdvSIMD is part of every AArch64 CPU): not for
-//  32-bit ARM and not for ILP32 ABIs.  -DULMBLAS_NO_NEON selects the
-//  reference kernels.
+//  32-bit ARM and not for ILP32 ABIs (64-bit pointers: __LP64__, or
+//  _WIN64 on Windows, where long has 32 bits).  -DULMBLAS_NO_NEON selects
+//  the reference kernels.
 //
-#elif defined(__aarch64__) && defined(__ARM_NEON) && defined(__LP64__) &&      \
-    !defined(ULMBLAS_NO_NEON)
+#elif defined(__aarch64__) && defined(__ARM_NEON) &&                           \
+    (defined(__LP64__) || defined(_WIN64)) && !defined(ULMBLAS_NO_NEON)
 #define USE_NEON
 //
 //  The experimental SME2 micro kernel for double needs SME2 with

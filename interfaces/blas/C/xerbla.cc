@@ -18,21 +18,33 @@ extern "C" {
 //  programs do): on macOS calls inside a library are otherwise bound to
 //  its own definition.  On Windows see ../F77/xerbla.cc.
 //
+//
+//  Replaceable handler as in ../F77/xerbla.cc; ULMBLAS_SET_CBLAS_XERBLA
+//  names the setter of this build (the ILP64 interface of ../shared,
+//  cblas_xerbla_64, has its own).
+//
 #if defined(ULMBLAS_REPLACEABLE_XERBLA)
+#ifndef ULMBLAS_SET_CBLAS_XERBLA
+#define ULMBLAS_SET_CBLAS_XERBLA ulmblas_set_cblas_xerbla
+#endif
+#define ULMBLAS_XERBLA_STR_(name) #name
+#define ULMBLAS_XERBLA_STR(name) ULMBLAS_XERBLA_STR_(name)
+
 #if defined(_WIN32)
 #define ULMBLAS_XERBLA_ATTRIBUTE
 #else
 #define ULMBLAS_XERBLA_ATTRIBUTE __attribute__((weak))
 #endif
 
-typedef void (*ulmblas_cblas_xerbla_t)(int, const char *, const char *, ...);
+typedef void (*ulmblas_cblas_xerbla_t)(int info, const char *rout,
+                                       const char *form, ...);
 
 static ulmblas_cblas_xerbla_t cblas_xerbla_replacement = nullptr;
 
 //  the handler of the program, passed by the dispatching library (see
 //  ../F77/xerbla.cc)
 void
-ulmblas_set_cblas_xerbla(ulmblas_cblas_xerbla_t handler)
+ULMBLAS_SET_CBLAS_XERBLA(ulmblas_cblas_xerbla_t handler)
 {
     cblas_xerbla_replacement = handler;
 }
@@ -63,8 +75,8 @@ CBLAS(xerbla)(int info, const char *rout, const char *form, ...)
 #if defined(_WIN32)
     if (!handler) {
 	handler = reinterpret_cast<ulmblas_cblas_xerbla_t>(
-	    reinterpret_cast<void *>(
-	        GetProcAddress(GetModuleHandleW(nullptr), "cblas_xerbla")));
+	    reinterpret_cast<void *>(GetProcAddress(
+	        GetModuleHandleW(nullptr), ULMBLAS_XERBLA_STR(CBLAS(xerbla)))));
     }
 #endif
     if (handler) {

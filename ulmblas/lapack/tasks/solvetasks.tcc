@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <utility>
-#include <ulmblas/lapack/buffer.h>
 #include <ulmblas/lapack/threads.h>
 #include <ulmblas/lapack/tasks/param.h>
 #include <ulmblas/lapack/tasks/solvetasks.h>
@@ -17,24 +16,27 @@ namespace tasks {
 
 namespace solve_impl {
 
-//  rows i and piv[i] of the m x n matrix B, i = 0..k-1 forward or k-1..0
-template <typename IndexType, typename T>
+//  rows i and piv[i*incPiv] - base of the m x n matrix B, i = 0..k-1
+//  forward or k-1..0
+template <typename IndexType, typename T, typename PivIndex>
 void
-swapRows(bool forward, IndexType k, const IndexType *piv, IndexType n, T *B,
-         IndexType rs, IndexType cs)
+swapRows(bool forward, IndexType k, const PivIndex *piv, IndexType incPiv,
+         IndexType base, IndexType n, T *B, IndexType rs, IndexType cs)
 {
     for (IndexType j = 0; j < n; ++j) {
 	T *b = &B[j * cs];
 	if (forward) {
 	    for (IndexType i = 0; i < k; ++i) {
-		if (piv[i] != i) {
-		    std::swap(b[i * rs], b[piv[i] * rs]);
+		const IndexType p = IndexType(piv[i * incPiv]) - base;
+		if (p != i) {
+		    std::swap(b[i * rs], b[p * rs]);
 		}
 	    }
 	} else {
 	    for (IndexType i = k - 1; i >= 0; --i) {
-		if (piv[i] != i) {
-		    std::swap(b[i * rs], b[piv[i] * rs]);
+		const IndexType p = IndexType(piv[i * incPiv]) - base;
+		if (p != i) {
+		    std::swap(b[i * rs], b[p * rs]);
 		}
 	    }
 	}
@@ -56,13 +58,13 @@ trsm(bool upper, bool conj, bool unitDiag, IndexType m, IndexType n, const T *A,
 
 } // namespace solve_impl
 
-template <typename IndexType, typename T>
+template <typename IndexType, typename T, typename PivIndex>
 void
-solveSteps(IndexType n, IndexType nrhs, const SolveStep<IndexType, T> *steps,
-           int numSteps, T *B, IndexType incRowB, IndexType incColB,
-           IndexType nb, int threads)
+solveSteps(IndexType n, IndexType nrhs,
+           const SolveStep<IndexType, T, PivIndex> *steps, int numSteps, T *B,
+           IndexType incRowB, IndexType incColB, IndexType nb, int threads)
 {
-    typedef SolveStep<IndexType, T> Step;
+    typedef SolveStep<IndexType, T, PivIndex> Step;
 
     if (n <= 0 || nrhs <= 0) {
 	return;
@@ -77,9 +79,8 @@ solveSteps(IndexType n, IndexType nrhs, const SolveStep<IndexType, T> *steps,
 
 	const IndexType mt = (n + nb - 1) / nb;
 	const IndexType nt = (nrhs + nb - 1) / nb;
-	Buffer<char> tok(std::size_t(mt * nt));
-	char *Tk = tok.data();
-	(void)Tk; // only used in depend clauses (GCC warns)
+	//  tile (i,j) of B in the depend clauses: its first element
+#define ULMBLAS_SOLVE_TILE(i, j) B[(i) * nb * rs + (j) * nb * cs]
 
 #pragma omp parallel num_threads(threads)
 #pragma omp single
@@ -92,12 +93,13 @@ solveSteps(IndexType n, IndexType nrhs, const SolveStep<IndexType, T> *steps,
 
 		    if (st.kind != Step::Solve) {
 			const bool fwd = st.kind == Step::SwapForward;
-#pragma omp task depend(iterator(ii = 0 : mt), inout : Tk[ii * nt + j])        \
+#pragma omp task depend(iterator(ii = 0 : mt),                                 \
+                            inout : ULMBLAS_SOLVE_TILE(ii, j))                 \
     priority(PRIO_TRSM)
 			{
 			    taskEnter();
-			    solve_impl::swapRows(fwd, n, st.piv, nj, Bj, rs,
-			                         cs);
+			    solve_impl::swapRows(fwd, n, st.piv, st.incPiv,
+			                         st.pivBase, nj, Bj, rs, cs);
 			    taskLeave();
 			}
 			continue;
@@ -110,7 +112,7 @@ solveSteps(IndexType n, IndexType nrhs, const SolveStep<IndexType, T> *steps,
 			const T *Akk = &st.A[k * nb * (ars + acs)];
 			T *Bkj = &Bj[k * nb * rs];
 
-#pragma omp task depend(inout : Tk[k * nt + j]) priority(PRIO_TRSM)
+#pragma omp task depend(inout : ULMBLAS_SOLVE_TILE(k, j)) priority(PRIO_TRSM)
 			{
 			    taskEnter();
 			    solve_impl::trsm(st.upper, st.conj, st.unitDiag, mk,
@@ -126,7 +128,8 @@ solveSteps(IndexType n, IndexType nrhs, const SolveStep<IndexType, T> *steps,
 			    const bool next =
 			        st.upper ? i == k - 1 : i == k + 1;
 
-#pragma omp task depend(in : Tk[k * nt + j]) depend(inout : Tk[i * nt + j])    \
+#pragma omp task depend(in : ULMBLAS_SOLVE_TILE(k, j))                         \
+    depend(inout : ULMBLAS_SOLVE_TILE(i, j))                                   \
     priority(next ? PRIO_NEXT : PRIO_GEMM)
 			    {
 				taskEnter();
@@ -139,6 +142,7 @@ solveSteps(IndexType n, IndexType nrhs, const SolveStep<IndexType, T> *steps,
 		}
 	    }
 	}
+#undef ULMBLAS_SOLVE_TILE
 	return;
     }
 #endif
@@ -150,16 +154,17 @@ solveSteps(IndexType n, IndexType nrhs, const SolveStep<IndexType, T> *steps,
 	    solve_impl::trsm(st.upper, st.conj, st.unitDiag, n, nrhs, st.A,
 	                     st.incRowA, st.incColA, B, rs, cs);
 	} else {
-	    solve_impl::swapRows(st.kind == Step::SwapForward, n, st.piv, nrhs,
-	                         B, rs, cs);
+	    solve_impl::swapRows(st.kind == Step::SwapForward, n, st.piv,
+	                         st.incPiv, st.pivBase, nrhs, B, rs, cs);
 	}
     }
 }
 
-template <typename IndexType, typename T>
+template <typename IndexType, typename T, typename PivIndex>
 void
-solve(IndexType n, IndexType nrhs, const SolveStep<IndexType, T> *steps,
-      int numSteps, T *B, IndexType incRowB, IndexType incColB)
+solve(IndexType n, IndexType nrhs,
+      const SolveStep<IndexType, T, PivIndex> *steps, int numSteps, T *B,
+      IndexType incRowB, IndexType incColB)
 {
     int threads = 1;
     IndexType nb = n;

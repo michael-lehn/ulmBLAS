@@ -15,7 +15,7 @@ AOCL-BLAS, vendored unchanged; ulmBLAS provides the packing, the blocking
 
 Tested with `make check` (numeric tests, Netlib BLAS and CBLAS test
 programs) on native hardware; test records in
-[`investigations/2026-10-bwunicluster3/kernels/tests`](../../../../investigations/2026-10-bwunicluster3/kernels/tests/README.md):
+[`investigations/2026-10-bwunicluster3/kernels/tests`](https://github.com/michael-lehn/ulmBLAS/blob/master/investigations/2026-10-bwunicluster3/kernels/tests/README.md):
 
 | Kernel | Intel Core i5-12500 (AVX2), GCC 12.2 | Intel Xeon Platinum 8358 (Ice Lake, AVX-512), GCC 14.2 | AMD EPYC 9454 (Zen 4, AVX-512), GCC 14.2 | Status |
 |---|---|---|---|---|
@@ -49,8 +49,8 @@ kernel for n = m = k ≥ 1000:
 
 | CPU | Kernels | Inside ulmBLAS / native BLIS (median per kernel) | Campaign |
 |---|---|---|---|
-| Intel Core i5-12500 | haswell 6x8, 8x6, sandybridge 8x4, penryn 4x4 | 1.000-1.015 | [011-2026-10-26-heim-blis-kernels](../../../../benchmark_results/011-2026-10-26-heim-blis-kernels/README.md), MC iteration [013-2026-10-27-heim-blis-kernels-mc](../../../../benchmark_results/013-2026-10-27-heim-blis-kernels-mc/README.md) |
-| Intel Xeon Platinum 8358 | skx 16x14, 16x12 l2, haswell 6x8, 8x6, sandybridge 8x4, penryn 4x4 | 0.963-1.007 (skx 16x14: 1.007) | [012-2026-10-26-uc3-icelake-blis-kernels](../../../../benchmark_results/012-2026-10-26-uc3-icelake-blis-kernels/README.md) |
+| Intel Core i5-12500 | haswell 6x8, 8x6, sandybridge 8x4, penryn 4x4 | 1.000-1.015 | [011-2026-10-26-heim-blis-kernels](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/011-2026-10-26-heim-blis-kernels/README.md), MC iteration [013-2026-10-27-heim-blis-kernels-mc](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/013-2026-10-27-heim-blis-kernels-mc/README.md) |
+| Intel Xeon Platinum 8358 | skx 16x14, 16x12 l2, haswell 6x8, 8x6, sandybridge 8x4, penryn 4x4 | 0.963-1.007 (skx 16x14: 1.007) | [012-2026-10-26-uc3-icelake-blis-kernels](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/012-2026-10-26-uc3-icelake-blis-kernels/README.md) |
 
 On the Intel Xeon Platinum 8358 the AOCL kernel `zen4_32x6` inside ulmBLAS
 is the fastest of these kernels: 90-95 GFLOP/s, 0.96 of OpenBLAS.

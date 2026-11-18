@@ -215,8 +215,8 @@ or `MKLROOT` (variants `atlas`, `mkl`).
 
 Published benchmark campaigns (measurements, Gnuplot scripts and SVG
 figures, documentation of hardware, software and methodology) are archived
-in [`benchmark_results/`](benchmark_results/README.md), e.g. the
-[AVX/FMA DGEMM micro kernel on an Intel Core i5-12500](benchmark_results/001-2026-10-24-heim-avx-fma/README.md).
+in [`benchmark_results/`](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/README.md), e.g. the
+[AVX/FMA DGEMM micro kernel on an Intel Core i5-12500](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/001-2026-10-24-heim-avx-fma/README.md).
 A completed campaign is added with
 
 ```sh
@@ -271,7 +271,7 @@ The vendored x86-64 kernels were tested on an Intel Xeon Platinum 8358
 (Ice Lake), those that need no AVX-512 also on the Intel Core i5-12500
 (except the SGEMM kernels), and the DGEMM kernels on an AMD EPYC 9454
 (Zen 4); the test records are in
-[investigations/2026-10-bwunicluster3/kernels/tests](investigations/2026-10-bwunicluster3/kernels/tests/README.md)
+[investigations/2026-10-bwunicluster3/kernels/tests](https://github.com/michael-lehn/ulmBLAS/blob/master/investigations/2026-10-bwunicluster3/kernels/tests/README.md)
 (DGEMM) and
-[investigations/2026-10-gemm-datatypes](investigations/2026-10-gemm-datatypes/README.md)
+[investigations/2026-10-gemm-datatypes](https://github.com/michael-lehn/ulmBLAS/blob/master/investigations/2026-10-gemm-datatypes/README.md)
 (ZGEMM, CGEMM).

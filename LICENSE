@@ -41,6 +41,8 @@ Third-party components
 
 The following components are not covered by the license above.  They keep
 the copyright and license terms of their authors, reproduced below.
+Section 5 (bench/) and the part of section 6 on refblas/ concern files of
+the Git repository that are not in the release tarballs (.gitattributes).
 
 ----------------------------------------------------------------------
 1. BLIS
@@ -206,7 +208,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----------------------------------------------------------------------
-5. ATLAS (bench/)
+5. ATLAS (bench/; Git repository only, not in the release tarballs)
 ----------------------------------------------------------------------
 
 The benchmark programs in bench/ use timing programs, test drivers and
@@ -214,7 +216,9 @@ headers of ATLAS (Automatically Tuned Linear Algebra Software, version
 3.10.1, http://math-atlas.sourceforge.net/), Copyright R. Clint Whaley,
 Antoine P. Petitet, Jeff Horner and other contributors:
 
-- unmodified copies of ATLAS 3.10.1 files (with their copyright notices);
+- unmodified copies of ATLAS 3.10.1 files (with their copyright notices;
+  some ATLAS files have none, e.g. l1blastst.c and l2blastst.c, which
+  are generated from AtlasBase/Antoine/atlbinblas.base without one);
 - bench/l1blastst.c and bench/lutst.c: ATLAS 3.10.1 files with small
   modifications by ulmBLAS (a help text, a printf format, a return type);
 - bench/atlas_type.h, bench/atlas_dsysinfo.h, bench/dXover.h,
@@ -252,7 +256,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 ----------------------------------------------------------------------
-6. Reference BLAS and BLAS test programs (refblas/, test/F77/, test/C/)
+6. Reference BLAS and BLAS test programs (test/F77/, test/C/; refblas/:
+   Git repository only, not in the release tarballs)
 ----------------------------------------------------------------------
 
 - refblas/*.f except xerbla.f: the reference implementation of the BLAS as
@@ -368,11 +373,23 @@ distributed under the license of their source files, which carry the
 following copyright notices:
 
   kernel/haswell_6x8.h,
+  kernel/s_haswell_6x16.h,
+  kernel/c_haswell_3x8.h,
   kernel/z_haswell_3x4.h      Copyright (C) 2014, The University of Texas at Austin
                               Copyright (C) 2018 - 2019, Advanced Micro Devices, Inc.
+  kernel/s_aocl_haswell_6x16.h,
+  kernel/c_aocl_haswell_3x8.h,
   kernel/z_aocl_haswell_3x4.h Copyright (C) 2014, The University of Texas at Austin
                               Copyright (C) 2018 - 2023, Advanced Micro Devices, Inc.
                               All rights reserved.
+  kernel/s_haswell_16x6.h,
+  kernel/s_haswell_24x4.h,
+  kernel/s_haswell_4x24.h,
+  kernel/s_sandybridge_8x8.h,
+  kernel/s_penryn_8x4.h,
+  kernel/s_skx_32x12_l2.h,
+  kernel/c_haswell_8x3.h,
+  kernel/c_sandybridge_8x4.h,
   kernel/haswell_8x6.h,
   kernel/z_haswell_4x3.h,
   kernel/z_sandybridge_4x4.h,
@@ -432,8 +449,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The adapter and compatibility headers ulmblas/level3/ukernel/blis/ugemm.h,
-select.h, compat.h and compat_end.h are part of ulmBLAS (BSD 3-Clause
-License above).
+xugemm.h, select.h, select_s.h, select_c.h, select_z.h, compat.h and
+compat_end.h are part of ulmBLAS (BSD 3-Clause License above).
 
 ----------------------------------------------------------------------
 8. OpenBLAS-derived GEMM micro kernels (ulmblas/level3/ukernel/openblas/)
@@ -479,5 +496,5 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The adapter (ulmblas/level3/ukernel/blis/ugemm.h),
-ulmblas/level3/ukernel/openblas/compat.h, asm/compat.h and
+ulmblas/level3/ukernel/openblas/compat.h, small.h, asm/compat.h and
 kernel/haswell_4x8.h are part of ulmBLAS.

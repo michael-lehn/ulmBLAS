@@ -26,8 +26,19 @@
 #  micro kernels as for the other libraries; OUTDIR and BUILD_DIR allow
 #  several builds side by side.
 #
+#  ILP64=1 (default): the library also contains both interfaces with
+#  64-bit integers and the names of the reference BLAS and CBLAS built
+#  with BUILD_INDEX64_EXT_API (Arch, openSUSE): dgemm_64_, ...,
+#  xerbla_64_, xerbla_array_64_, lsame_64_ and cblas_dgemm_64, ...,
+#  cblas_xerbla_64.  The LAPACK of these distributions (liblapack.so.3)
+#  calls them.  The same sources, built a second time with
+#  ULMBLAS_INDEX_TYPE=int64_t (config/make.shared64.inc,
+#  config/make.cblas64.inc); the functions behind the interfaces are the
+#  same (instantiated with std::ptrdiff_t).  ILP64=0: LP64 only.
+#
 #  The headers of the two interfaces are generated in BUILD_DIR: cblas.h
-#  (and ulmblas_strided.h) and sharedblas.h (F77 prototypes).
+#  (and ulmblas_strided.h) and sharedblas.h (F77 prototypes); those of the
+#  ILP64 interfaces in BUILD_DIR/ilp64 (cblas64.h, shared64blas.h).
 #
 TOPDIR = ../../..
 
@@ -47,6 +58,7 @@ SHARED_VERSION ?=
 NM ?= nm
 
 TARGET_MACHINE := $(shell $(CXX) -dumpmachine)
+COMMA := ,
 
 ifneq (,$(findstring mingw,$(TARGET_MACHINE)))
 #  Windows: only the names of the .def file are exported; the C++ runtime
@@ -57,7 +69,7 @@ SHARED_LIB   = $(OUTDIR)/lib$(SHARED_NAME).dll
 SHARED_LINK  = -shared -Wl,--out-implib,$(OUTDIR)/lib$(SHARED_NAME).dll.a \
                $(EXPORTS) \
                -Wl,--whole-archive $(BUILD_DIR)/libsharedblas.a \
-               $(BUILD_DIR)/libcblas.a -Wl,--no-whole-archive \
+               $(BUILD_DIR)/libcblas.a $(ILP64_LIBS) -Wl,--no-whole-archive \
                -static -static-libstdc++ -static-libgcc -Wl,--no-undefined
 SHARED_ALIAS =
 SYMBOL_PREFIX =
@@ -68,6 +80,7 @@ SHARED_LIB   = $(OUTDIR)/$(SHARED_FILE)
 SHARED_LINK  = -dynamiclib -install_name @rpath/$(SHARED_FILE) \
                -Wl,-force_load,$(BUILD_DIR)/libsharedblas.a \
                -Wl,-force_load,$(BUILD_DIR)/libcblas.a \
+               $(foreach l,$(ILP64_LIBS),-Wl$(COMMA)-force_load$(COMMA)$(l)) \
                -Wl,-exported_symbols_list,$(EXPORTS)
 SHARED_ALIAS = $(if $(SHARED_VERSION),$(OUTDIR)/lib$(SHARED_NAME).dylib)
 SYMBOL_PREFIX = _
@@ -77,11 +90,12 @@ SHARED_FILE  = lib$(SHARED_NAME).so$(if $(SHARED_VERSION),.$(SHARED_VERSION))
 SHARED_LIB   = $(OUTDIR)/$(SHARED_FILE)
 SHARED_LINK  = -shared -Wl,-soname,$(SHARED_FILE) \
                -Wl,--whole-archive $(BUILD_DIR)/libsharedblas.a \
-               $(BUILD_DIR)/libcblas.a -Wl,--no-whole-archive \
-               $(STATIC_LIBSTDCXX) -static-libgcc -Wl,--no-undefined \
+               $(BUILD_DIR)/libcblas.a $(ILP64_LIBS) -Wl,--no-whole-archive \
+               $(STATIC_LIBSTDCXX) -static-libgcc -pthread -Wl,--no-undefined \
                -Wl,--version-script,$(EXPORTS)
 #  libstdc++.a is missing on some systems (RHEL: package libstdc++-static);
-#  then the C++ runtime is linked dynamically
+#  then the C++ runtime is linked dynamically.  -pthread: the thread pool
+#  (libpthread is a library of its own before glibc 2.34)
 STATIC_LIBSTDCXX := $(if $(filter /%,$(shell $(CXX) \
                     -print-file-name=libstdc++.a)),-static-libstdc++)
 SHARED_ALIAS = $(if $(SHARED_VERSION),$(OUTDIR)/lib$(SHARED_NAME).so)
@@ -89,6 +103,13 @@ SYMBOL_PREFIX =
 endif
 
 F77_DEFS = -D'BLAS_HEADER=<sharedblas.h>' -D'F77BLAS(x)=x\#\#$(SHARED_SUFFIX)'
+
+ILP64        ?= 1
+ILP64_INDEX   = int64_t
+ILP64_SUFFIX  = _64_
+ILP64_DIR     = $(BUILD_DIR)/ilp64
+F77_DEFS_64   = -D'BLAS_HEADER=<shared64blas.h>' \
+                -D'F77BLAS(x)=x\#\#$(ILP64_SUFFIX)'
 
 .DELETE_ON_ERROR :
 .PHONY : all clean FORCE
@@ -128,21 +149,61 @@ $(BUILD_DIR)/backend.o : backend.c $(BUILD_DIR)/libsharedblas.a
 	$(CC) $(ULMBLAS_CFLAGS) $(CFLAGS) -fPIC \
 	      -DULMBLAS_BACKEND_NAME='"$(BACKEND_NAME)"' -c -o $@ $<
 
+#  The ILP64 interfaces (ILP64=1): the same makefiles and sources with the
+#  configurations of config/, in a directory of their own, without the
+#  assembly kernels (they are in the LP64 library); the error handlers get
+#  setters of their own (ulmblas_set_f77_xerbla_64,
+#  ulmblas_set_cblas_xerbla_64, see ../F77/xerbla.cc)
+$(ILP64_DIR)/libshared64blas.a : FORCE
+	$(MAKE) -C ../F77 -f Makefile.config CONFIG=shared64 \
+	        CONFIG_PATH=$(CURDIR)/ F77_SOURCES= ULMBLAS_ASM_OBJECTS= \
+	        OUTDIR=$(abspath $(ILP64_DIR)) BUILD_DIR=$(abspath $(ILP64_DIR))/obj-f77 \
+	        ULMBLAS_INDEX_TYPE=$(ILP64_INDEX) \
+	        CXXFLAGS="$(CXXFLAGS) -fPIC -DULMBLAS_REPLACEABLE_XERBLA \
+	                  -DULMBLAS_SET_F77_XERBLA=ulmblas_set_f77_xerbla_64"
+
+$(ILP64_DIR)/libcblas64.a : FORCE
+	$(MAKE) -C ../C -f Makefile.config CONFIG=cblas64 \
+	        CONFIG_PATH=$(CURDIR)/ ULMBLAS_ASM_OBJECTS= \
+	        OUTDIR=$(abspath $(ILP64_DIR)) BUILD_DIR=$(abspath $(ILP64_DIR))/obj-c \
+	        ULMBLAS_INDEX_TYPE=$(ILP64_INDEX) \
+	        CXXFLAGS="$(CXXFLAGS) -fPIC -DULMBLAS_REPLACEABLE_XERBLA \
+	                  -DULMBLAS_SET_CBLAS_XERBLA=ulmblas_set_cblas_xerbla_64"
+
+$(ILP64_DIR)/functions.o : ../lbt/functions.c $(ILP64_DIR)/libshared64blas.a
+	$(CC) $(ULMBLAS_CFLAGS) $(CFLAGS) -fPIC -I$(ILP64_DIR) $(F77_DEFS_64) \
+	      -c -o $@ $<
+
+$(ILP64_DIR)/lsame.o : lsame.c $(ILP64_DIR)/libshared64blas.a
+	$(CC) $(ULMBLAS_CFLAGS) $(CFLAGS) -fPIC -DULMBLAS_LSAME=lsame_64_ \
+	      -DULMBLAS_LOGICAL=int64_t \
+	      -c -o $@ $<
+
+ILP64_LIBS    = $(if $(filter 1,$(ILP64)),$(ILP64_DIR)/libshared64blas.a \
+                                          $(ILP64_DIR)/libcblas64.a)
+ILP64_OBJECTS = $(if $(filter 1,$(ILP64)),$(ILP64_DIR)/functions.o \
+                                          $(ILP64_DIR)/lsame.o)
+
 SHARED_OBJECTS = $(BUILD_DIR)/functions.o $(BUILD_DIR)/lsame.o \
-                 $(BUILD_DIR)/backend.o
+                 $(BUILD_DIR)/backend.o $(ILP64_OBJECTS)
 
 #  Only the interfaces are exported: the Fortran 77 names (lowercase with
-#  one trailing underscore, without the helpers *_sub_), cblas_*,
-#  ulmblas_* and the two globals of the reference CBLAS.  Not exported: the
+#  one trailing underscore, or _64_, without the helpers *_sub_ and
+#  *_sub_64_), cblas_*, ulmblas_* (not the functions behind the ILP64
+#  C interface, ulmblas_*_ilp64) and the two globals of the reference
+#  CBLAS.  Not exported: the
 #  C++ templates of ulmBLAS (they could clash with another library that
-#  contains them).  The list is taken from the objects (nm), as a list of
+#  contains them) and the assembly kernels (ulmblas_openblas_*, hidden).  The list is taken from the objects (nm), as a list of
 #  names (macOS) or a version script (Linux).
-EXPORT_PATTERN = '^$(SYMBOL_PREFIX)([a-z0-9]+_|cblas_[a-z0-9_]+|ulmblas_[a-z0-9_]+|RowMajorStrg|CBLAS_CallFromC)$$'
+EXPORT_PATTERN = '^$(SYMBOL_PREFIX)([a-z0-9]+_|[a-z0-9]+_64_|xerbla_array_|xerbla_array_64_|cblas_[a-z0-9_]+|ulmblas_[a-z0-9_]+|RowMajorStrg|CBLAS_CallFromC)$$'
+NOT_EXPORTED   = '_sub_$$|_sub_64_$$|^$(SYMBOL_PREFIX)ulmblas_openblas_|_ilp64$$'
 
 $(EXPORTS) : $(BUILD_DIR)/libsharedblas.a $(BUILD_DIR)/libcblas.a \
-             $(SHARED_OBJECTS)
+             $(ILP64_LIBS) $(SHARED_OBJECTS)
 	$(NM) -g $^ | awk 'NF==3 && $$2 ~ /^[TDBRSVW]$$/ {print $$3}' \
-	    | grep -E $(EXPORT_PATTERN) | grep -v '_sub_$$' | sort -u > $@.tmp
+	    | grep -E $(EXPORT_PATTERN) | grep -v -E $(NOT_EXPORTED) \
+	    | sort -u > $@.tmp
+
 	@case "$@" in \
 	*.def) { echo EXPORTS; sed -e 's/^/    /' \
 	             -e 's/^    RowMajorStrg$$/& DATA/' \
@@ -163,7 +224,7 @@ $(EXPORTS) : $(BUILD_DIR)/libsharedblas.a $(BUILD_DIR)/libcblas.a \
 THROWING = '_Zn[wa][jmy](St11align_val_t)?$$|__cxa_throw$$|__cxa_rethrow$$|__cxa_allocate_exception$$|_ZSt[0-9]+__throw_'
 
 $(SHARED_LIB) : $(BUILD_DIR)/libsharedblas.a $(BUILD_DIR)/libcblas.a \
-                $(SHARED_OBJECTS) $(EXPORTS)
+                $(ILP64_LIBS) $(SHARED_OBJECTS) $(EXPORTS)
 	@if $(NM) -u $(filter-out $(EXPORTS),$^) | grep -E $(THROWING); then \
 	    echo "error: objects refer to functions that throw (above)"; \
 	    exit 1; \

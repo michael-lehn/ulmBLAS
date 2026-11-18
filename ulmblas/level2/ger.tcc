@@ -7,15 +7,18 @@
 #include <ulmblas/level1/axpy.h>
 #include <ulmblas/level1/copy.h>
 #include <ulmblas/level1extensions/gecopy.h>
+#include <ulmblas/level2/gemvfused.h>
 #include <ulmblas/level2/ger.h>
+#include <ulmblas/level2/threads.h>
 
 namespace ulmBLAS {
 
 template <typename IndexType, typename Alpha, typename TX, typename TY,
           typename TA>
 void
-ger(IndexType m, IndexType n, const Alpha &alpha, const TX *x, IndexType incX,
-    const TY *y, IndexType incY, TA *A, IndexType incRowA, IndexType incColA)
+gerSerial(IndexType m, IndexType n, const Alpha &alpha, const TX *x,
+          IndexType incX, const TY *y, IndexType incY, TA *A, IndexType incRowA,
+          IndexType incColA)
 {
     typedef decltype(Alpha(0) * TX(0) * TY(0) + TA(0)) T;
 
@@ -27,6 +30,16 @@ ger(IndexType m, IndexType n, const Alpha &alpha, const TX *x, IndexType incX,
     static constexpr bool homogeneousTypes =
         std::is_same<T, Alpha>::value && std::is_same<T, TX>::value &&
         std::is_same<T, TY>::value && std::is_same<T, TA>::value;
+
+    //
+    //  float, double: the fused kernel (ulmblas/level2/kernel/gemvf.h)
+    //
+    static constexpr bool fused =
+        homogeneousTypes && level2::FusedGer<T>::value;
+    if (level2::GerFused<fused>::run(m, n, alpha, x, incX, y, incY, A, incRowA,
+                                     incColA)) {
+	return;
+    }
 
     //
     //  If all operands have the same element type and if vectors x and y have
@@ -103,14 +116,15 @@ ger(IndexType m, IndexType n, const Alpha &alpha, const TX *x, IndexType incX,
 		//  A = A + alpha x y^T: the buffer needs the block of A
 		gecopy(mc, nc, false, &A[i * MC * incRowA + j * NC * incColA],
 		       incRowA, incColA, buffer_A, UnitStride, mc);
-		ger(mc, nc, alpha_, x_, UnitStride, y_, UnitStride, buffer_A,
-		    UnitStride, mc);
+		gerSerial(mc, nc, alpha_, x_, UnitStride, y_, UnitStride,
+		          buffer_A, UnitStride, mc);
 		gecopy(mc, nc, false, buffer_A, UnitStride, mc,
 		       &A[i * MC * incRowA + j * NC * incColA], incRowA,
 		       incColA);
 	    } else {
-		ger(mc, nc, alpha_, x_, UnitStride, y_, UnitStride,
-		    &A[i * MC * incRowA + j * NC * incColA], incRowA, incColA);
+		gerSerial(mc, nc, alpha_, x_, UnitStride, y_, UnitStride,
+		          &A[i * MC * incRowA + j * NC * incColA], incRowA,
+		          incColA);
 	    }
 	}
     }
@@ -122,9 +136,9 @@ ger(IndexType m, IndexType n, const Alpha &alpha, const TX *x, IndexType incX,
 template <typename IndexType, typename Alpha, typename TX, typename TY,
           typename TA>
 void
-gerc(IndexType m, IndexType n, const Alpha &alpha, bool conj, const TX *x,
-     IndexType incX, const TY *y, IndexType incY, TA *A, IndexType incRowA,
-     IndexType incColA)
+gercSerial(IndexType m, IndexType n, const Alpha &alpha, bool conj, const TX *x,
+           IndexType incX, const TY *y, IndexType incY, TA *A,
+           IndexType incRowA, IndexType incColA)
 {
     typedef decltype(Alpha(0) * TX(0) * TY(0) + TA(0)) T;
 
@@ -189,6 +203,102 @@ gerc(IndexType m, IndexType n, const Alpha &alpha, bool conj, const TX *x,
 	    acxpy(m, alpha * y[j * incY], x, incX, &A[j * incColA], incRowA);
 	}
     }
+}
+
+//
+//  The split of ger on several threads (ulmblas/level2/threads.h): the
+//  columns of A if A is column major (parts of 4 columns, as OpenBLAS), the
+//  rows if A is row major; the other dimension (parts of 64 bytes) if that
+//  gives more parts and the first fewer than the threads (tall and skinny
+//  A, e.g. in getf2).  nt = 1: one thread.
+//
+template <typename T, typename IndexType>
+std::ptrdiff_t
+gerSplit(IndexType m, IndexType n, IndexType incRowA, bool &splitColumns,
+         IndexType &u)
+{
+    const bool colMajor = incRowA == IndexType(1);
+    const IndexType line = IndexType(64 / sizeof(T) > 0 ? 64 / sizeof(T) : 1);
+    const std::int64_t outer = colMajor ? n : m;
+    const std::int64_t inner = colMajor ? m : n;
+    const std::int64_t outerUnits = (outer + 3) / 4;
+    const std::int64_t innerUnits = (inner + line - 1) / line;
+    const bool splitOuter = outerUnits >= std::int64_t(Level2Threads::pool()) ||
+                            outerUnits >= innerUnits;
+    splitColumns = colMajor == splitOuter;
+    u = splitOuter ? IndexType(4) : line;
+    return Level2Threads::ger<T>(m, n, splitOuter ? outerUnits : innerUnits);
+}
+
+template <typename IndexType, typename Alpha, typename TX, typename TY,
+          typename TA>
+void
+ger(IndexType m, IndexType n, const Alpha &alpha, const TX *x, IndexType incX,
+    const TY *y, IndexType incY, TA *A, IndexType incRowA, IndexType incColA)
+{
+    typedef decltype(Alpha(0) * TX(0) * TY(0) + TA(0)) T;
+
+    if (m <= 0 || n <= 0 || alpha == Alpha(0)) {
+	return;
+    }
+    bool splitColumns;
+    IndexType u;
+    const std::ptrdiff_t nt = gerSplit<T>(m, n, incRowA, splitColumns, u);
+    if (nt <= 1) {
+	gerSerial(m, n, alpha, x, incX, y, incY, A, incRowA, incColA);
+	return;
+    }
+    auto body = [&](std::ptrdiff_t tid, std::ptrdiff_t threads) {
+	IndexType k0, k1;
+	Level2Threads::range(tid, threads, splitColumns ? n : m, u, k0, k1);
+	if (k1 <= k0) {
+	    return;
+	}
+	if (splitColumns) {
+	    gerSerial(m, k1 - k0, alpha, x, incX, &y[k0 * incY], incY,
+	              &A[k0 * incColA], incRowA, incColA);
+	} else {
+	    gerSerial(k1 - k0, n, alpha, &x[k0 * incX], incX, y, incY,
+	              &A[k0 * incRowA], incRowA, incColA);
+	}
+    };
+    ThreadPool::instance().run(nt, body, ULMBLAS_L2_PIN_CALLER != 0);
+}
+
+template <typename IndexType, typename Alpha, typename TX, typename TY,
+          typename TA>
+void
+gerc(IndexType m, IndexType n, const Alpha &alpha, bool conj, const TX *x,
+     IndexType incX, const TY *y, IndexType incY, TA *A, IndexType incRowA,
+     IndexType incColA)
+{
+    typedef decltype(Alpha(0) * TX(0) * TY(0) + TA(0)) T;
+
+    if (m <= 0 || n <= 0 || alpha == Alpha(0)) {
+	return;
+    }
+    bool splitColumns;
+    IndexType u;
+    const std::ptrdiff_t nt = gerSplit<T>(m, n, incRowA, splitColumns, u);
+    if (nt <= 1) {
+	gercSerial(m, n, alpha, conj, x, incX, y, incY, A, incRowA, incColA);
+	return;
+    }
+    auto body = [&](std::ptrdiff_t tid, std::ptrdiff_t threads) {
+	IndexType k0, k1;
+	Level2Threads::range(tid, threads, splitColumns ? n : m, u, k0, k1);
+	if (k1 <= k0) {
+	    return;
+	}
+	if (splitColumns) {
+	    gercSerial(m, k1 - k0, alpha, conj, x, incX, &y[k0 * incY], incY,
+	               &A[k0 * incColA], incRowA, incColA);
+	} else {
+	    gercSerial(k1 - k0, n, alpha, conj, &x[k0 * incX], incX, y, incY,
+	               &A[k0 * incRowA], incRowA, incColA);
+	}
+    };
+    ThreadPool::instance().run(nt, body, ULMBLAS_L2_PIN_CALLER != 0);
 }
 
 template <typename IndexType, typename Alpha, typename TX, typename TY,

@@ -140,7 +140,7 @@ struct I8Kernel : i8::KernelBase
     template <bool UA, bool UB>
     static void
     kernel(long kg, std::int32_t alpha, const P *A, const P *B,
-           std::int32_t beta, std::int32_t *C, long ldC, long, long)
+           std::int32_t beta, std::int32_t *C, long ldC, long mr, long nr)
     {
 	i8kernel_8x6(kg, alpha, A, B, beta, C, ldC);
     }

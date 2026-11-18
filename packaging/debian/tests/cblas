@@ -1,0 +1,18 @@
+#!/bin/sh
+# cblas_dgemm through pkg-config
+set -e
+cd "$AUTOPKGTEST_TMP"
+cat > test.c << 'END'
+#include <stdio.h>
+#include <cblas.h>
+int main(void)
+{
+    double A[4] = {1, 2, 3, 4}, B[4] = {1, 0, 0, 1}, C[4] = {0};
+    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 2, 2, 2, 1.0, A,
+                2, B, 2, 0.0, C, 2);
+    printf("%g %g %g %g\n", C[0], C[1], C[2], C[3]);
+    return !(C[0] == 1 && C[1] == 2 && C[2] == 3 && C[3] == 4);
+}
+END
+gcc test.c $(pkg-config --cflags --libs ulmblas) -o test
+./test

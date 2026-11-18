@@ -37,12 +37,16 @@
 
 #define PROFCODE
 
+/*  ulmBLAS: the kernels are global but not exported from the libraries
+    (.private_extern, .hidden): all backends of the dispatching library
+    export the same functions */
 #if defined(__APPLE__)
 /*  common_x86_64.h, OS_DARWIN */
 #   define ULMBLAS_OPENBLAS_CAT_(a, b) a ## b
 #   define ULMBLAS_OPENBLAS_CAT(a, b)  ULMBLAS_OPENBLAS_CAT_(a, b)
 #   define REALNAME    ULMBLAS_OPENBLAS_CAT(_, ULMBLAS_OPENBLAS_KERNEL)
-#   define PROLOGUE    .text;.align 5; .globl REALNAME; REALNAME:
+#   define PROLOGUE    .text;.align 5; .globl REALNAME; \
+                       .private_extern REALNAME; REALNAME:
 #   define EPILOGUE    .subsections_via_symbols
 #   define ALIGN_4     .align 4
 #   define ALIGN_5     .align 5
@@ -53,6 +57,7 @@
         .text; \
         .align 512; \
         .globl REALNAME ;\
+        .hidden REALNAME ;\
        .type REALNAME, @function; \
 REALNAME: \
         _CET_ENDBR

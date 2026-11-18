@@ -272,7 +272,7 @@ struct I8KernelBusd16x6 : BusdBase<16, 6>
     template <bool UA, bool UB>
     static void
     kernel(long kg, std::int32_t alpha, const P *A, const P *B,
-           std::int32_t beta, std::int32_t *C, long ldC, long, long)
+           std::int32_t beta, std::int32_t *C, long ldC, long mr, long nr)
     {
 	busdKernel16x6<!UA && UB, (!UA && !UB) ? 1
 	                          : (UA && UB) ? 2
@@ -461,7 +461,7 @@ struct I8KernelBusd32x12 : BusdBase<32, 12>
     template <bool UA, bool UB>
     static void
     kernel(long kg, std::int32_t alpha, const P *A, const P *B,
-           std::int32_t beta, std::int32_t *C, long ldC, long, long)
+           std::int32_t beta, std::int32_t *C, long ldC, long mr, long nr)
     {
 	busdKernel32x12<!UA && UB, (!UA && !UB) ? 1
 	                           : (UA && UB) ? 2

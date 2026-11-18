@@ -9,9 +9,9 @@
 //  or one per column (CblasRowOffset, n values).
 //
 //  The product S = op(A)*op(B) is computed exactly by ulmBLAS::i8gemm, for
-//  blocks of columns into a local buffer (in int32 for at most 65536 values
-//  of k, more are summed in int64).  The offsets ao and bo are added with the
-//  row sums of A and the column sums of B:
+//  blocks of rows and columns into a local buffer (in int32 for at most 65536
+//  values of k, more are summed in int64).  The offsets ao and bo are added
+//  with the row sums of A and the column sums of B:
 //
 //      (A + ao)(B + bo) = S + ao*colsum(B) + bo*rowsum(A) + k*ao*bo.
 //
@@ -228,95 +228,108 @@ CBLAS(gemm_s8u8s32)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
     }
 
     //  MemoryPool (posix_memalign, abort on failure) instead of std::vector,
-    //  so that the library does not depend on functions that throw
+    //  so that the library does not depend on functions that throw.  All
+    //  buffers are bounded: blocks of MB rows and NB columns of C.
     static ulmBLAS::MemoryPool<std::int64_t> sumPool;
     static ulmBLAS::MemoryPool<std::int32_t> bufferPool;
     static ulmBLAS::MemoryPool<double> rowPool;
 
-    //  per row: bo*rowsum(A) and the offset of the row (CblasColOffset), in
-    //  double and in int64 (alpha = 1, beta = 0 or 1)
-    const bool intPath = alpha == 1.0f && (beta == 0.0f || beta == 1.0f);
-    double *rowAdd = rowPool.allocate(m);
-    double *rowCo = rowPool.allocate(m);
-    std::int64_t *rowAddI = sumPool.allocate(m);
-    std::int64_t *rowCoI = sumPool.allocate(m);
-    std::int64_t *sum = sumPool.allocate(std::max<std::int64_t>(m, n));
-    if (bo != 0) {
-	if (unsignedA) {
-	    sums(m, k, static_cast<const std::uint8_t *>(A), rA, cA, sum);
-	} else {
-	    sums(m, k, static_cast<const std::int8_t *>(A), rA, cA, sum);
-	}
-    }
-    for (std::int64_t i = 0; i < m; ++i) {
-	rowAddI[i] = bo != 0 ? std::int64_t(bo) * sum[i] : 0;
-	rowCoI[i] = offsetC == CblasColOffset ? co[i] : 0;
-	rowAdd[i] = double(rowAddI[i]);
-	rowCo[i] = double(rowCoI[i]);
-    }
-    //  per column: ao*colsum(B) + k*ao*bo (in colAdd, the sums reused)
-    std::int64_t *colAdd = sum;
-    const std::int64_t aobok = std::int64_t(ao) * std::int64_t(bo) * k;
-    if (ao != 0) {
-	if (unsignedB) {
-	    sums(n, k, static_cast<const std::uint8_t *>(B), cB, rB, colAdd);
-	} else {
-	    sums(n, k, static_cast<const std::int8_t *>(B), cB, rB, colAdd);
-	}
-    }
-    for (std::int64_t j = 0; j < n; ++j) {
-	colAdd[j] = (ao != 0 ? std::int64_t(ao) * colAdd[j] : 0) + aobok;
-    }
+    const std::int64_t MB = 1024, NB = 1024;
+    const std::int64_t mb0 = std::min<std::int64_t>(m, MB);
+    const std::int64_t nb0 = std::min<std::int64_t>(n, NB);
 
-    //  S for blocks of NB columns into S_ (m x nb, column major).  For k >
-    //  KS the sums over blocks of KS values of k (|sum| <= KS*128*255 <
-    //  2^31, no wraparound) are added in int64 (S64_).
-    const std::int64_t NB = 1024;
-    const std::int64_t mnb = m * std::min<std::int64_t>(n, NB);
-    std::int32_t *S_ = bufferPool.allocate(mnb);
-    std::int64_t *S64_ = (k > KS) ? sumPool.allocate(mnb) : nullptr;
+    //  per row of a block: bo*rowsum(A) and the offset of the row
+    //  (CblasColOffset), in double and in int64 (alpha = 1, beta = 0 or 1)
+    const bool intPath = alpha == 1.0f && (beta == 0.0f || beta == 1.0f);
+    double *rowAdd = rowPool.allocate(mb0);
+    double *rowCo = rowPool.allocate(mb0);
+    std::int64_t *rowAddI = sumPool.allocate(mb0);
+    std::int64_t *rowCoI = sumPool.allocate(mb0);
+    std::int64_t *colAdd = sumPool.allocate(nb0);
+    const std::int64_t aobok = std::int64_t(ao) * std::int64_t(bo) * k;
+
+    //  S for blocks of mb x nb into S_ (column major).  For k > KS the sums
+    //  over blocks of KS values of k (|sum| <= KS*128*255 < 2^31, no
+    //  wraparound) are added in int64 (S64_).
+    std::int32_t *S_ = bufferPool.allocate(mb0 * nb0);
+    std::int64_t *S64_ = (k > KS) ? sumPool.allocate(mb0 * nb0) : nullptr;
     const double a = alpha, b = beta;
 
     for (std::int64_t j0 = 0; j0 < n; j0 += NB) {
 	const std::int64_t nb = std::min<std::int64_t>(n - j0, NB);
 	const std::uint8_t *Bj = static_cast<const std::uint8_t *>(B) + j0 * cB;
 
-	for (std::int64_t l0 = 0; l0 < k || l0 == 0; l0 += KS) {
-	    const std::int64_t kb = std::min<std::int64_t>(k - l0, KS);
-	    ulmBLAS::i8gemm(m, nb, kb, 1, unsignedA,
-	                    static_cast<const std::uint8_t *>(A) + l0 * cA, rA,
-	                    cA, unsignedB, Bj + l0 * rB, rB, cB, 0, S_, 1, m);
-	    if (S64_) {
-		for (std::int64_t q = 0; q < m * nb; ++q) {
-		    S64_[q] = (l0 == 0 ? 0 : S64_[q]) + S_[q];
-		}
+	//  per column: ao*colsum(B) + k*ao*bo
+	if (ao != 0) {
+	    if (unsignedB) {
+		sums(nb, k, reinterpret_cast<const std::uint8_t *>(Bj), cB, rB,
+		     colAdd);
+	    } else {
+		sums(nb, k, reinterpret_cast<const std::int8_t *>(Bj), cB, rB,
+		     colAdd);
 	    }
 	}
-
 	for (std::int64_t jj = 0; jj < nb; ++jj) {
-	    const std::int64_t j = j0 + jj;
-	    const double addj = double(colAdd[j]);
-	    const double coj = offsetC == CblasFixOffset   ? double(co[0])
-	                       : offsetC == CblasRowOffset ? double(co[j])
-	                                                   : 0.0;
-	    std::int32_t *Cj = C + j * cC;
-	    if (intPath) {
-		const std::int64_t coI = offsetC == CblasFixOffset   ? co[0]
-		                         : offsetC == CblasRowOffset ? co[j]
-		                                                     : 0;
-		if (S64_) {
-		    epilogueInt(m, S64_ + jj * m, colAdd[j], rowAddI,
-		                beta == 1.0f, Cj, rC, coI, rowCoI);
+	    colAdd[jj] = (ao != 0 ? std::int64_t(ao) * colAdd[jj] : 0) + aobok;
+	}
+
+	for (std::int64_t i0 = 0; i0 < m; i0 += MB) {
+	    const std::int64_t mb = std::min<std::int64_t>(m - i0, MB);
+	    const std::uint8_t *Ai =
+	        static_cast<const std::uint8_t *>(A) + i0 * rA;
+
+	    if (bo != 0) {
+		if (unsignedA) {
+		    sums(mb, k, reinterpret_cast<const std::uint8_t *>(Ai), rA,
+		         cA, rowAddI);
 		} else {
-		    epilogueInt(m, S_ + jj * m, colAdd[j], rowAddI,
-		                beta == 1.0f, Cj, rC, coI, rowCoI);
+		    sums(mb, k, reinterpret_cast<const std::int8_t *>(Ai), rA,
+		         cA, rowAddI);
 		}
-	    } else if (S64_) {
-		epilogue(m, S64_ + jj * m, addj, rowAdd, a, b, Cj, rC, coj,
-		         rowCo);
-	    } else {
-		epilogue(m, S_ + jj * m, addj, rowAdd, a, b, Cj, rC, coj,
-		         rowCo);
+	    }
+	    for (std::int64_t i = 0; i < mb; ++i) {
+		rowAddI[i] = bo != 0 ? std::int64_t(bo) * rowAddI[i] : 0;
+		rowCoI[i] = offsetC == CblasColOffset ? co[i0 + i] : 0;
+		rowAdd[i] = double(rowAddI[i]);
+		rowCo[i] = double(rowCoI[i]);
+	    }
+
+	    for (std::int64_t l0 = 0; l0 < k || l0 == 0; l0 += KS) {
+		const std::int64_t kb = std::min<std::int64_t>(k - l0, KS);
+		ulmBLAS::i8gemm(mb, nb, kb, 1, unsignedA, Ai + l0 * cA, rA, cA,
+		                unsignedB, Bj + l0 * rB, rB, cB, 0, S_, 1, mb);
+		if (S64_) {
+		    for (std::int64_t q = 0; q < mb * nb; ++q) {
+			S64_[q] = (l0 == 0 ? 0 : S64_[q]) + S_[q];
+		    }
+		}
+	    }
+
+	    for (std::int64_t jj = 0; jj < nb; ++jj) {
+		const std::int64_t j = j0 + jj;
+		const double addj = double(colAdd[jj]);
+		const double coj = offsetC == CblasFixOffset   ? double(co[0])
+		                   : offsetC == CblasRowOffset ? double(co[j])
+		                                               : 0.0;
+		std::int32_t *Cj = C + i0 * rC + j * cC;
+		if (intPath) {
+		    const std::int64_t coI = offsetC == CblasFixOffset   ? co[0]
+		                             : offsetC == CblasRowOffset ? co[j]
+		                                                         : 0;
+		    if (S64_) {
+			epilogueInt(mb, S64_ + jj * mb, colAdd[jj], rowAddI,
+			            beta == 1.0f, Cj, rC, coI, rowCoI);
+		    } else {
+			epilogueInt(mb, S_ + jj * mb, colAdd[jj], rowAddI,
+			            beta == 1.0f, Cj, rC, coI, rowCoI);
+		    }
+		} else if (S64_) {
+		    epilogue(mb, S64_ + jj * mb, addj, rowAdd, a, b, Cj, rC,
+		             coj, rowCo);
+		} else {
+		    epilogue(mb, S_ + jj * mb, addj, rowAdd, a, b, Cj, rC, coj,
+		             rowCo);
+		}
 	    }
 	}
     }
@@ -324,7 +337,7 @@ CBLAS(gemm_s8u8s32)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
     if (S64_) {
 	sumPool.release(S64_);
     }
-    sumPool.release(sum);
+    sumPool.release(colAdd);
     sumPool.release(rowAddI);
     sumPool.release(rowCoI);
     rowPool.release(rowAdd);
