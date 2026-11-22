@@ -14,7 +14,9 @@
 struct alignas(128) Flag // a cache line of its own
 {
     std::atomic<int> value{0};
+    char pad[128 - sizeof(std::atomic<int>)];
 };
+static_assert(sizeof(Flag) == 128, "one 128-byte block");
 
 // part u of nt of [0, n)
 void

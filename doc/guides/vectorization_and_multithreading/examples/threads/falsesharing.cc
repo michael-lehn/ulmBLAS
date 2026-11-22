@@ -9,10 +9,14 @@ struct Adjacent
     std::atomic<long> value{0};
 };
 
+// aligned to 128 bytes and padded explicitly: the compiler has nothing
+// to pad (MSVC (Microsoft Visual C++) would warn: C4324)
 struct alignas(128) Padded
 {
     std::atomic<long> value{0};
+    char pad[128 - sizeof(std::atomic<long>)];
 };
+static_assert(sizeof(Padded) == 128, "one 128-byte block");
 
 template <typename Counter>
 double

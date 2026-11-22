@@ -24,6 +24,7 @@
 struct alignas(128) Flag
 {
     std::atomic<long> value{0};
+    char pad[128 - sizeof(std::atomic<long>)];
 
     void
     waitFor(long v) const
@@ -32,6 +33,7 @@ struct alignas(128) Flag
 	}
     }
 };
+static_assert(sizeof(Flag) == 128, "one 128-byte block");
 
 // part u of nt of [0, n) in whole units of r
 void
