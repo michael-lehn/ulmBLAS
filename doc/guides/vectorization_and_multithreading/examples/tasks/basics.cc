@@ -36,14 +36,16 @@ main()
 	}
     } // implicit barrier: all tasks are finished here
 
+    // values below 1000: the sum stays below 2^31 (long has 32 bits on
+    // Windows)
     const long n = 1000000;
     std::vector<long> x(n);
     for (long i = 0; i < n; ++i) {
-	x[i] = i;
+	x[i] = i % 1000;
     }
     long s = 0;
 #pragma omp parallel num_threads(4)
 #pragma omp single
     s = sum(x.data(), n);
-    std::printf("sum = %ld (expected %ld)\n", s, n * (n - 1) / 2);
+    std::printf("sum = %ld (expected %ld)\n", s, n / 1000 * (999 * 1000 / 2));
 }

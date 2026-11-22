@@ -1,5 +1,5 @@
-task 1 runs on thread 0
 task 0 runs on thread 1
-task 2 runs on thread 3
-task 3 runs on thread 2
-sum = 499999500000 (expected 499999500000)
+task 2 runs on thread 1
+task 3 runs on thread 1
+task 1 runs on thread 0
+sum = 499500000 (expected 499500000)

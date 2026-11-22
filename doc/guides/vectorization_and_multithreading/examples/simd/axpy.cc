@@ -5,18 +5,18 @@
 #include <cstddef>
 
 void
-axpyPlain(std::size_t n, double alpha, const double *x, double *y)
+axpyPlain(std::ptrdiff_t n, double alpha, const double *x, double *y)
 {
-    for (std::size_t i = 0; i < n; ++i) {
+    for (std::ptrdiff_t i = 0; i < n; ++i) {
 	y[i] += alpha * x[i];
     }
 }
 
 void
-axpySimd(std::size_t n, double alpha, const double *x, double *y)
+axpySimd(std::ptrdiff_t n, double alpha, const double *x, double *y)
 {
 #pragma omp simd
-    for (std::size_t i = 0; i < n; ++i) {
+    for (std::ptrdiff_t i = 0; i < n; ++i) {
 	y[i] += alpha * x[i];
     }
 }
@@ -24,11 +24,11 @@ axpySimd(std::size_t n, double alpha, const double *x, double *y)
 // With a stride the compiler has to gather and scatter; omp simd
 // still asserts that the iterations are independent.
 void
-axpyStrided(std::size_t n, double alpha, const double *x, std::ptrdiff_t incX,
-            double *y, std::ptrdiff_t incY)
+axpyStrided(std::ptrdiff_t n, double alpha, const double *x,
+            std::ptrdiff_t incX, double *y, std::ptrdiff_t incY)
 {
 #pragma omp simd
-    for (std::size_t i = 0; i < n; ++i) {
+    for (std::ptrdiff_t i = 0; i < n; ++i) {
 	y[i * incY] += alpha * x[i * incX];
     }
 }
