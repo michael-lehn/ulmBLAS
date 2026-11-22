@@ -9,11 +9,12 @@ at Ulm University and for students who continue in this field.
 
 | Guide | Examples | Based on ulmBLAS |
 |---|---|---|
-| [Vectorization and multithreading with OpenMP (Open Multi-Processing) and C++ atomics](guides/vectorization_and_multithreading.pdf) | [examples](guides/vectorization_and_multithreading/examples) | release 0.4.2 |
 | [From C to C++: what is relevant in ulmBLAS](guides/cpp_in_ulmblas.pdf) | [examples](guides/cpp_in_ulmblas/examples) | release 0.4.2 |
+| GEMM (general matrix-matrix product) and the other level 3 functions | | planned |
+| LU (lower-upper) and Cholesky factorizations (`getrf`, `potrf`) | | in progress |
+| [Vectorization and multithreading with OpenMP (Open Multi-Processing) and C++ atomics](guides/vectorization_and_multithreading.pdf) | [examples](guides/vectorization_and_multithreading/examples) | release 0.4.2 |
 
-More guides will follow, for example on the algorithms of the
-factorizations (`getrf`, `potrf`, ...).
+The order is the suggested order of reading.
 
 The examples are complete programs; `examples/run.sh` compiles and runs
 them with two compilers and writes the outputs shown in the guide to
