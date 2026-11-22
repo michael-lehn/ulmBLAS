@@ -153,7 +153,7 @@ CBLAS(chemv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (upLo != CblasUpper && upLo != CblasLower) {
@@ -172,7 +172,7 @@ CBLAS(chemv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_chemv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_chemv", "");
 	return;
     }
 
@@ -199,7 +199,7 @@ CBLAS(zhemv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (upLo != CblasUpper && upLo != CblasLower) {
@@ -218,7 +218,7 @@ CBLAS(zhemv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_zhemv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_zhemv", "");
 	return;
     }
 

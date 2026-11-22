@@ -149,7 +149,7 @@ CBLAS(stpmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -170,7 +170,7 @@ CBLAS(stpmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_stpmv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_stpmv", "");
 	return;
     }
 
@@ -192,7 +192,7 @@ CBLAS(dtpmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -213,7 +213,7 @@ CBLAS(dtpmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_dtpmv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_dtpmv", "");
 	return;
     }
 
@@ -238,7 +238,7 @@ CBLAS(ctpmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -259,7 +259,7 @@ CBLAS(ctpmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_ctpmv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_ctpmv", "");
 	return;
     }
 
@@ -284,7 +284,7 @@ CBLAS(ztpmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -305,7 +305,7 @@ CBLAS(ztpmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_ztpmv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_ztpmv", "");
 	return;
     }
 

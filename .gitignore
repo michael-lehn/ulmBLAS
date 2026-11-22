@@ -13,6 +13,10 @@ libulmblas_sme.dylib
 # library, Windows DLLs and import libraries
 /libulmblas.0.dylib
 /libulmblas.so.0
+/libulmblas64.so
+/libulmblas64.so.0
+/libulmblas64.dylib
+/libulmblas64.0.dylib
 /libulmblas_*.so
 /libulmblas*.dll
 /libulmblas*.dll.a
@@ -54,9 +58,14 @@ refblas/build/
 test/build/
 bench/bench.*/
 bench/benchmarks/
+bench/check-build/
+bench/check-results/
 
 # results of make bench-gemm
 /bench/gemm/results/
 # build directory of make tune
 /tune/build/
 __pycache__/
+
+# cargo build in bench/oxiblas
+/bench/oxiblas/target/

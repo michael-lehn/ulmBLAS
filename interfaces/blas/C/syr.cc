@@ -49,7 +49,7 @@ CBLAS(ssyr)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -67,7 +67,7 @@ CBLAS(ssyr)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_ssyr", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_ssyr", "");
 	return;
     }
 
@@ -87,7 +87,7 @@ CBLAS(dsyr)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -105,7 +105,7 @@ CBLAS(dsyr)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_dsyr", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_dsyr", "");
 	return;
     }
 

@@ -16,6 +16,8 @@ export ULMBLAS_BACKENDDIR = /usr/lib/$(DEB_HOST_MULTIARCH)/ulmblas
 export ULMBLAS_INCLUDEDIR = /usr/include/$(DEB_HOST_MULTIARCH)/ulmblas
 export ULMBLAS_RPATH = no
 export ULMBLAS_STATIC_LIBSTDCXX = no
+# libulmblas64 (64-bit integers under the usual names) is not packaged yet
+export ULMBLAS_INTERFACE64 = no
 # no libulmlapack: Debian's liblapack3 runs on any libblas.so.3
 ULMBLAS_FC = none
 ifeq ($(DEB_HOST_ARCH),amd64)

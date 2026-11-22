@@ -2,6 +2,15 @@
 
 ## Possible improvements for the next release
 
+- AVX2 backend built with GCC 16.2: borderline LAPACK eigenvalue ratios
+  that GCC 12 (heim) and the generic and sse3 backends don't show (CST,
+  DST, SST, STFSM in interfaces/lapack/reference/known-failures.txt).
+  The avx2 backend built with `-ffp-contract=off` (no FMA (fused
+  multiply-add) contraction by the compiler) passes CST, DST and STFSM
+  (Linux x86-64, GCC 16.2.1; SST on Windows not checked).  OpenBLAS and
+  BLIS keep contraction on (BLIS: `-ffp-contract=fast` for its reference
+  kernels), so this is no reason to switch it off.  Open: which functions
+  GCC 16 contracts differently from GCC 12.
 - Julia: a complete LAPACK in the library for libblastrampoline
   (interfaces/blas/lbt), as OpenBLAS does: Reference-LAPACK compiled with
   64-bit integers and the suffix `_64_` (CMake `BUILD_INDEX64_EXT_API`),
@@ -13,6 +22,14 @@
   qr, eigen and svd against OpenBLAS (Reference-LAPACK on ulmBLAS was
   slower for dgetrf in experiment/lapack, before the own getrf), and
   Julia's LinearAlgebra tests without OpenBLAS.
+- `libulmblas64` (64-bit integers under the usual names, 0.4.2): not
+  yet packaged for Debian (as an alternative of `libblas64.so.3`) and
+  openSUSE (`ULMBLAS_INTERFACE64=no` in their recipes), Nix (`blas64 =
+  true`) not yet supported; not built on Windows; the front of the
+  dispatching library has no C functions with indices
+  (`ulmblas_dgemm`, `ulmblas_*_strided`; the backends keep their ILP64
+  versions internal).  Optionally a suffix option in FlexiBLAS (issue
+  #27), so that `libflexiblas64` could use `libulmblas` directly.
 - LAPACK (Linear Algebra PACKage) functions with neither stride 1: every
   buffer is bounded (at most KC NC elements copied,
   investigations/2026-11-bounded-memory), so potrf, getrf, getri above
@@ -32,7 +49,14 @@
   pool starts one thread per logical CPU (as OpenBLAS; MKL (Intel Math
   Kernel Library) one per physical core).  On heim (6 cores, 12 logical
   CPUs) 12 threads are clearly slower than 6 for gemm, e.g. dgemm 96 x 96
-  x 96: 64 against 83 GFLOPS.  Candidate: one thread per core by default
+  x 96: 64 against 83 GFLOPS.  potrf with the default threads (Ice Lake
+  128, Zen 4 192; ulmBLAS's potrf and Reference-LAPACK's on ulmBLAS) is
+  erratic for n >= 1024: spotrf U on Ice Lake 120 GFLOPS at n = 4096
+  against 285 at n = 2048, Reference-LAPACK's dpotrf L on Zen 4 28 GFLOPS
+  at n = 4096.  With one thread per core (`ULMBLAS_NUM_THREADS` 64 and 96)
+  the values are smooth: spotrf U on Ice Lake 842 GFLOPS at n = 4096,
+  spotrf L on Zen 4 266 instead of 29 at n = 1024, dgetrf on Zen 4 477
+  instead of 353 at n = 4096.  Candidate: one thread per core by default
   (`ULMBLAS_NUM_THREADS` still overrides), measured on heim, Ice Lake and
   Zen 4.
 - `make tune-params` (tune/README.md, ulmblas/config/tuned.h): the

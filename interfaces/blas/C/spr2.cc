@@ -55,7 +55,7 @@ CBLAS(sspr2)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -73,7 +73,7 @@ CBLAS(sspr2)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_sspr2", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_sspr2", "");
 	return;
     }
 
@@ -93,7 +93,7 @@ CBLAS(dspr2)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -111,7 +111,7 @@ CBLAS(dspr2)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo, ULMBLAS_INDEX_TYPE n,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_dspr2", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_dspr2", "");
 	return;
     }
 

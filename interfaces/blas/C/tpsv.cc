@@ -149,7 +149,7 @@ CBLAS(stpsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -170,7 +170,7 @@ CBLAS(stpsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_stpsv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_stpsv", "");
 	return;
     }
 
@@ -192,7 +192,7 @@ CBLAS(dtpsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -213,7 +213,7 @@ CBLAS(dtpsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_dtpsv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_dtpsv", "");
 	return;
     }
 
@@ -238,7 +238,7 @@ CBLAS(ctpsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -259,7 +259,7 @@ CBLAS(ctpsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_ctpsv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_ctpsv", "");
 	return;
     }
 
@@ -284,7 +284,7 @@ CBLAS(ztpsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -305,7 +305,7 @@ CBLAS(ztpsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_ztpsv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_ztpsv", "");
 	return;
     }
 

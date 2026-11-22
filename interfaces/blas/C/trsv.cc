@@ -155,7 +155,7 @@ CBLAS(strsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (upLo != CblasUpper && upLo != CblasLower) {
@@ -174,7 +174,7 @@ CBLAS(strsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     }
 
     if (info != 0) {
-	CBLAS(xerbla)(info, "cblas_strsv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_strsv", "");
 	return;
     }
 
@@ -196,7 +196,7 @@ CBLAS(dtrsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (upLo != CblasUpper && upLo != CblasLower) {
@@ -215,7 +215,7 @@ CBLAS(dtrsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     }
 
     if (info != 0) {
-	CBLAS(xerbla)(info, "cblas_dtrsv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_dtrsv", "");
 	return;
     }
 
@@ -240,7 +240,7 @@ CBLAS(ctrsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (upLo != CblasUpper && upLo != CblasLower) {
@@ -259,7 +259,7 @@ CBLAS(ctrsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     }
 
     if (info != 0) {
-	CBLAS(xerbla)(info, "cblas_ctrsv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_ctrsv", "");
 	return;
     }
 
@@ -284,7 +284,7 @@ CBLAS(ztrsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (upLo != CblasUpper && upLo != CblasLower) {
@@ -303,7 +303,7 @@ CBLAS(ztrsv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     }
 
     if (info != 0) {
-	CBLAS(xerbla)(info, "cblas_ztrsv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_ztrsv", "");
 	return;
     }
 

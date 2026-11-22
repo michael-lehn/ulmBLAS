@@ -260,7 +260,7 @@ CBLAS(strmm)(enum CBLAS_ORDER order, enum CBLAS_SIDE side, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -331,7 +331,7 @@ CBLAS(dtrmm)(enum CBLAS_ORDER order, enum CBLAS_SIDE side, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -406,7 +406,7 @@ CBLAS(ctrmm)(enum CBLAS_ORDER order, enum CBLAS_SIDE side, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -481,7 +481,7 @@ CBLAS(ztrmm)(enum CBLAS_ORDER order, enum CBLAS_SIDE side, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;

@@ -140,15 +140,24 @@ that throws (T0357, T0358 test the failure with fault injection).
 
 | Kernel | Data types | MR x NR | Instruction set | Selected |
 |---|---|---|---|---|
-| reference (`ukernel/ref`) | all four | 4 x 4 (double; 8 x 4, 4 x 2, 2 x 2 for float, complex float, complex double) | portable C++ | on x86 without SSE3, on AArch64 with `-DULMBLAS_NO_NEON`, on all other targets |
-| SSE3 (`ukernel/sse`) | double: GEMM and TRSM kernels; level 1 kernels | 4 x 4 | x86-64 SSE3, inline assembly | by default on x86-64 |
-| AVX/FMA (`ukernel/avx`) | double: GEMM kernel | 6 x 8 | x86-64 AVX and FMA, inline assembly derived from BLIS | with `ARCHFLAGS='-mavx -mfma'` (or e.g. `-march=native`) |
-| NEON (`ukernel/neon`) | double: GEMM kernel (derived from BLIS); float, complex float, complex double: GEMM kernels | 6 x 8; 8 x 12, 4 x 6, 4 x 3 | AArch64 AdvSIMD (NEON) FMA, inline assembly and intrinsics | by default on AArch64 (64-bit pointers) |
-| SME2, experimental (`ukernel/sme`) | double: GEMM kernel (derived from BLIS pull request #921) and panel packing; float, complex float, complex double: GEMM kernels and packing | 32 x 16; 32 x 32, 32 x 16, 16 x 16 | AArch64 SME2 (FMOPA into ZA, streaming mode), ACLE intrinsics | with clang and flags enabling SME2, e.g. `ARCHFLAGS=-mcpu=apple-m4` |
+| reference (`ukernel/ref`) | all four | 4 x 4 (double; 8 x 4, 4 x 2, 2 x 2 for float, complex float, complex double) | portable C++ | on x86 without SSE3 (backend `generic`), on AArch64 with `-DULMBLAS_NO_NEON`, on all other targets |
+| SSE3 (`ukernel/sse`) | double: GEMM and TRSM kernels; level 1 kernels | 4 x 4 | x86-64 SSE3, inline assembly | by default on x86-64; backend `sse3` |
+| AVX/FMA (`ukernel/avx`) | double: GEMM kernel | 6 x 8 | x86-64 AVX and FMA, inline assembly derived from BLIS | with `ARCHFLAGS='-mavx -mfma'` (or e.g. `-march=native`); backend `avx2` |
+| OpenBLAS HASWELL, vendored (`ukernel/openblas`) | float, complex float, complex double: GEMM kernels | 8 x 4, 8 x 2, 4 x 2 | x86-64 AVX2 and FMA, assembly of OpenBLAS 0.3.34 | backend `avx2`; otherwise with `-DULMBLAS_SGEMM_UKERNEL_openblas_haswell_8x4` etc. |
+| OpenBLAS SKYLAKEX and AOCL-BLAS Zen 4, vendored (`ukernel/openblas`, `ukernel/blis`) | double, float, complex float: GEMM kernels (OpenBLAS SKYLAKEX); complex double: GEMM kernel (AOCL-BLAS Zen 4) | 16 x 12, 16 x 4, 8 x 2; 12 x 4 | x86-64 AVX-512F, DQ and VL, assembly of OpenBLAS 0.3.34 and AOCL-BLAS 5.1 | backend `avx512`; otherwise with `-DULMBLAS_DGEMM_UKERNEL_openblas_skylakex_16x12` etc. |
+| NEON (`ukernel/neon`) | double: GEMM kernel (derived from BLIS); float, complex float, complex double: GEMM kernels | 6 x 8; 8 x 12, 4 x 6, 4 x 3 | AArch64 AdvSIMD (NEON) FMA, inline assembly and intrinsics | by default on AArch64 (64-bit pointers); backend `neon` |
+| SME2, experimental (`ukernel/sme`) | double: GEMM kernel (derived from BLIS pull request #921) and panel packing; float, complex float, complex double: GEMM kernels and packing | 32 x 16; 32 x 32, 32 x 16, 16 x 16 | AArch64 SME2 (FMOPA into ZA, streaming mode), ACLE intrinsics | with clang and flags enabling SME2, e.g. `ARCHFLAGS=-mcpu=apple-m4`; backend `sme` |
 
-Kernels are selected at compile time from the compiler's target macros
-(`ulmblas/config/simd.h`); there is no runtime dispatch, so a library built
-with AVX/FMA requires a CPU with AVX and FMA.  AdvSIMD is part of every AArch64
+Within one build, kernels are selected at compile time from the compiler's
+target macros (`ulmblas/config/simd.h`), so a build with AVX/FMA requires a
+CPU with AVX and FMA.  The shared library `libulmblas` of `make
+shared-dispatch` (and of `make install-shared`) selects at run time: it is a
+front that loads one of several such builds, the backends, for the CPU
+(x86-64: `avx512`, `avx2`, `sse3`, `generic`; Apple Silicon: `sme`, `neon`;
+`ULMBLAS_BACKEND` overrides the choice), see
+[interfaces/blas/dispatch/dispatch.c](interfaces/blas/dispatch/dispatch.c)
+and [INSTALL.md](INSTALL.md).  Linux on AArch64 has a single build without a
+front.  AdvSIMD is part of every AArch64
 CPU, so the NEON kernel needs no flags; `CPPFLAGS=-DULMBLAS_NO_NEON` selects
 the reference kernels.  The SME2 backend replaces the NEON kernels for all four
 types if the compiler is clang and the flags enable SME2;
@@ -282,7 +291,9 @@ The index type of all interfaces is `ULMBLAS_INDEX_TYPE` (default `int`,
 the strided GEMM, which always takes `int64_t`; the
 interfaces call the templates with `std::ptrdiff_t`.  The error handlers `cblas_xerbla` and
 `xerbla_` print a message and return; the function then returns without
-computing (reference BLAS stops the program).  The C++ templates in
+computing (reference BLAS stops the program).  A program can replace them
+or set handlers at run time (`cblas_set_xerbla`, `set_blas_xerbla_`, as
+the reference implementation).  The C++ templates in
 `ulmblas/` are the implementation, not a stable public interface.
 
 ## Testing

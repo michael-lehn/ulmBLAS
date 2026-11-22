@@ -24,6 +24,20 @@ void F77BLAS(xerbla_array)(const char *srname_array,
                            const ULMBLAS_INDEX_TYPE *srname_len,
                            const ULMBLAS_INDEX_TYPE *info, std::size_t len);
 
+//
+//  SET_BLAS_XERBLA( CB ), GET_BLAS_XERBLA( CB ) of the Netlib BLAS: the
+//  handler that XERBLA calls (blas_fortran_xerbla_callback_t of the Netlib
+//  cblas.h).  A procedure is passed by its address, a procedure pointer
+//  (GET_BLAS_XERBLA) by the address of the pointer.
+//
+typedef void (*ulmblas_f77_xerbla_callback_t)(const char *srname,
+                                              ULMBLAS_INDEX_TYPE *info,
+                                              std::size_t lenSrname);
+
+void F77BLAS(set_blas_xerbla)(ulmblas_f77_xerbla_callback_t handler);
+
+void F77BLAS(get_blas_xerbla)(ulmblas_f77_xerbla_callback_t *handler);
+
 } // extern "C"
 
 #endif // INTERFACE_BLAS_F77_XERBLA_H

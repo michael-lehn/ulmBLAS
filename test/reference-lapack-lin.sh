@@ -1,7 +1,8 @@
 #!/bin/sh
 #
 #  Runs the test programs of Reference-LAPACK 3.12.1 for linear equations
-#  (TESTING/LIN, xlintst[sdcz]) on the paths GE, PO and TR with the LAPACK
+#  (TESTING/LIN, xlintst[sdcz]) on the paths GE, PO, TR and S2 (H2 for
+#  complex; ?SYTRF_AA_2STAGE, ... call ?LASWP with K1 > 1) with the LAPACK
 #  functions of ulmBLAS (make check-reference-lapack-lin, see
 #  test/Makefile).  The sources are downloaded (and their checksum
 #  verified), not copied into the repository; they are used unmodified.
@@ -13,8 +14,7 @@
 #  of the functions ulmBLAS has (ROUTINES below) are removed from its
 #  library, so the test programs and all other LAPACK routines call those
 #  of ulmBLAS; BLAS is ulmBLAS too.  The input files are those of the
-#  tarball reduced to the paths GE, PO and TR (routines, drivers and error
-#  exits).
+#  tarball reduced to these paths (routines, drivers and error exits).
 #  Note: the programs use matrices with at most 132 rows, so ulmBLAS
 #  factors them with its serial algorithms.
 #
@@ -35,6 +35,10 @@ LDLIBS=${LDLIBS:-}
 if [ -z "$LDLIBS" ]; then
     if [ "`uname -s`" = Darwin ]; then LDLIBS=-lc++; else LDLIBS=-lstdc++; fi
 fi
+#  LAPACK's makefile puts LDFLAGS ahead of the libraries: GNU ld would drop
+#  the shared libraries of LDLIBS (--as-needed, the default of Debian, ...)
+if [ "`uname -s`" = Darwin ]; then LINKLIBS=$LDLIBS; else
+    LINKLIBS="-Wl,--no-as-needed $LDLIBS"; fi
 JOBS=${JOBS:-4}
 
 mkdir -p "$BUILD" && BUILD=$(cd "$BUILD" && pwd) || exit 2
@@ -92,29 +96,31 @@ echo "building xlintst[sdcz] with the LAPACK functions and BLAS of ulmBLAS"
 rm -f TESTING/LIN/xlintst?
 make -j$JOBS -C TESTING/LIN LAPACKLIB=$SRC/liblapack_ulmblas.a \
      "BLASLIB=$LIBDIR/libf77lapack.a $LIBDIR/libf77blas.a" \
-     "LDFLAGS=$LDLIBS" xlintsts xlintstd xlintstc xlintstz \
+     "LDFLAGS=$LINKLIBS" xlintsts xlintstd xlintstc xlintstz \
      > $BUILD/lin.log 2>&1 || { echo "error: see $BUILD/lin.log" >&2; exit 2; }
 
 status=0
 : > $BUILD/result.txt
 for t in s d c z; do
     T=`echo $t | tr 'a-z' 'A-Z'`
-    awk -v P=$T 'NR<=16 { print; next } $1==P"GE" || $1==P"PO" || $1==P"TR" { print }' \
+    awk -v P=$T 'NR<=16 { print; next } $1==P"GE" || $1==P"PO" || $1==P"TR" || $1==P"S2" || $1==P"H2" { print }' \
         TESTING/${t}test.in > $BUILD/${t}test.in
     (cd TESTING/LIN && ./xlintst$t < $BUILD/${t}test.in > $BUILD/xlintst$t.out 2>&1)
     out=$BUILD/xlintst$t.out
     passed=`grep -cE 'All tests for .* passed the threshold|passed the tests of the error exits' $out`
-    if [ $passed -eq 10 ] && grep -q 'End of tests' $out; then
+    #  4 lines (routines, drivers, each with error exits) per path S2, H2
+    case $t in s|d) expect=14 ;; *) expect=18 ;; esac
+    if [ $passed -eq $expect ] && grep -q 'End of tests' $out; then
         r=PASS
     else
         r=FAIL; status=1
     fi
     runs=`grep -E 'All tests for' $out | sed 's/.*( *\([0-9]*\) tests run).*/\1/' \
           | awk '{s+=$1} END {print s+0}'`
-    echo "`printf %-5s $r` xlintst$t GE, PO, TR ($runs tests; see $out)" \
+    echo "`printf %-5s $r` xlintst$t GE, PO, TR, S2/H2 ($runs tests; see $out)" \
         | tee -a $BUILD/result.txt
 done
 echo
-echo "Reference-LAPACK $VERSION LIN test programs (GE, PO, TR):" \
+echo "Reference-LAPACK $VERSION LIN test programs (GE, PO, TR, S2/H2):" \
      "`grep -c '^PASS' $BUILD/result.txt` PASS, `grep -c '^FAIL' $BUILD/result.txt` FAIL"
 exit $status

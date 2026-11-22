@@ -93,7 +93,35 @@ typedef enum CBLAS_OFFSET     CBLAS_OFFSET;
 //
 
 void
-CBLAS(xerbla)(int info, const char *rout, const char *form, ...);
+CBLAS(xerbla)(ULMBLAS_INDEX_TYPE info, const char *rout, const char *form, ...);
+
+//
+//  Error handler set at run time (as the Netlib CBLAS): cblas_xerbla calls
+//  handler instead of printing, with the position of the invalid parameter
+//  in the call of the CBLAS function and form with its arguments as
+//  va_list.  cblas_set_xerbla returns the previous handler, NULL restores
+//  the default (print and return).  f77Handler is not used: the CBLAS
+//  functions of ulmBLAS do not call the Fortran 77 interface, whose handler
+//  is set with set_blas_xerbla_ (f77blas.h).  A program that defines
+//  cblas_xerbla replaces it, and with it the call of the handler.
+//
+VERBOSE(#include) <stdarg.h>
+
+typedef void (*CBLAS_XERBLA_CALLBACK_T)(ULMBLAS_INDEX_TYPE info,
+                                        const char         *rout,
+                                        const char         *form,
+                                        va_list            ap);
+
+typedef void (*BLAS_FORTRAN_XERBLA_CALLBACK_T)(const char         *srname,
+                                               ULMBLAS_INDEX_TYPE *info,
+                                               size_t             lenSrname);
+
+CBLAS_XERBLA_CALLBACK_T
+CBLAS(set_xerbla)(CBLAS_XERBLA_CALLBACK_T        handler,
+                  BLAS_FORTRAN_XERBLA_CALLBACK_T f77Handler);
+
+CBLAS_XERBLA_CALLBACK_T
+CBLAS(get_xerbla)(void);
 
 //
 //  Level 1

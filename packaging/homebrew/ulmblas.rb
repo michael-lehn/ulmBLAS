@@ -15,13 +15,8 @@ class Ulmblas < Formula
   sha256 "7b8f961438a00ddb35e258fba6322a249e9dc9d889831b454372cb0dd68883d2"
   license all_of: ["BSD-3-Clause", "BSD-3-Clause-Open-MPI"]
 
-  depends_on "cmake" => :build
   depends_on "pkgconf" => :test
   depends_on "gcc" # gfortran for LAPACK, libgfortran at run time
-
-  on_macos do
-    depends_on arch: :arm64
-  end
 
   resource "lapack" do
     url "https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.1.tar.gz"
@@ -31,12 +26,11 @@ class Ulmblas < Formula
   def install
     ENV["LAPACK_TARBALL"] = resource("lapack").cached_download
     ENV["FC"] = formula_opt_bin("gcc")/"gfortran"
+    ENV["ULMBLAS_INCLUDEDIR"] = include/"ulmblas"
     # the make of the system, not Homebrew's make wrapper: under it the
     # compiler wrapper removes -O3 and -mcpu=apple-m4 (no SME code in the
     # SME backend, everything at -Os)
-    ENV["MAKE"] = "#{which("make", ORIGINAL_PATHS)} -j#{ENV.make_jobs}"
-    ENV["ULMBLAS_INCLUDEDIR"] = include/"ulmblas"
-    system "sh", "interfaces/install-shared.sh", prefix
+    system which("make", ORIGINAL_PATHS), "-j#{ENV.make_jobs}", "install-shared", "PREFIX=#{prefix}"
   end
 
   test do

@@ -288,8 +288,10 @@ GemmFrame<Backend, Blocks, Interleave, Macro>::runSerial(
 //
 //  a counter of the parallel frame (a cache line of its own): of a share
 //  of B, the number of blocks packed into it; of a thread, the number of
-//  blocks it has finished
-struct GemmFlag
+//  blocks it has finished.  Aligned to 128 bytes (the blocks of MemoryPool
+//  have the alignment of the type) and padded explicitly, so that the
+//  compiler adds no padding (no warning, e.g. MSVC C4324).
+struct alignas(128) GemmFlag
 {
     std::atomic<std::ptrdiff_t> value;
     char pad[128 - sizeof(std::atomic<std::ptrdiff_t>)];
@@ -305,6 +307,8 @@ struct GemmFlag
 	}
     }
 };
+
+static_assert(sizeof(GemmFlag) == 128, "GemmFlag: one 128-byte block");
 
 //
 //  The packing of the shapes of runLoops: the block of A of rows i, ...,

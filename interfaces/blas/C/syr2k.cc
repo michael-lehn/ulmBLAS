@@ -166,7 +166,7 @@ CBLAS(ssyr2k)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -228,7 +228,7 @@ CBLAS(dsyr2k)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -296,7 +296,7 @@ CBLAS(csyr2k)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -363,7 +363,7 @@ CBLAS(zsyr2k)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;

@@ -128,7 +128,7 @@ jobs:
       - name: build tools
         run: |
           dnf install -y -q rpm-build rpmlint gcc gcc-c++ gcc-gfortran make \
-              pkgconf flexiblas flexiblas-devel flexiblas-netlib
+              pkgconf flexiblas flexiblas-devel flexiblas-netlib flexiblas-netlib64
       - name: build (rpmbuild)
         run: |
           mkdir -p ~/rpmbuild/SOURCES ~/rpmbuild/SPECS
@@ -148,12 +148,12 @@ jobs:
           sh packaging/ci/test-installed.sh
       - name: FlexiBLAS with the backend ULMBLAS
         run: |
-          flexiblas list
           cd /tmp/ulmBLAS-$VERSION
-          cc packaging/ci/flexiblas-test.c $(pkg-config --cflags --libs flexiblas) \
-              -o /tmp/flexiblas-test
-          FLEXIBLAS=ULMBLAS FLEXIBLAS_VERBOSE=1 /tmp/flexiblas-test 2>&1 | tail -30
-          FLEXIBLAS=ULMBLAS /tmp/flexiblas-test
+          sh packaging/ci/flexiblas-test.sh
+      - name: FlexiBLAS with 64-bit integers, the backend ULMBLAS (libulmblas64)
+        run: |
+          cd /tmp/ulmBLAS-$VERSION
+          sh packaging/ci/flexiblas-test.sh 64
 
   opensuse:
     needs: tarball
@@ -449,9 +449,8 @@ jobs:
             base-devel
             mingw-w64-ucrt-x86_64-cc
             mingw-w64-ucrt-x86_64-fc
-            mingw-w64-ucrt-x86_64-cmake
-            mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-pkgconf
+            mingw-w64-ucrt-x86_64-python
       - uses: actions/download-artifact@v4
         with:
           name: dist
@@ -485,9 +484,13 @@ jobs:
           mkdir -p /tmp/lapack
           cp /ucrt64/bin/libulmblas*.dll /ucrt64/lib/libulmblas.dll.a /tmp/lapack/
           cd /tmp/ulmBLAS-$VERSION
-          export PATH=/tmp/lapack:$PATH CMAKE_GENERATOR=Ninja
+          export PATH=/tmp/lapack:$PATH
           FC=gfortran sh interfaces/lapack/reference/build.sh /tmp/lapack /tmp/lapack-build test \
-              || { tail -60 /tmp/lapack-build/*.log; exit 1; }
+              || { tail -n 60 /tmp/lapack-build/*.log
+                   #  the failing lines with their ratios
+                   grep -H -E "seed= *[0-9]|Failure in [A-Z]|^ *[SDCZ]PF[A-Z]* *, UPLO=" \
+                       /tmp/lapack-build/lapack-*/TESTING/*.out
+                   exit 1; }
           ls -l /tmp/lapack
           objdump -p /tmp/lapack/libulmlapack.dll | grep "DLL Name"
           echo "WIN_LAPACK=$(cygpath -w /tmp/lapack)" >> $GITHUB_ENV

@@ -38,7 +38,7 @@ ATL_OBJECTFILES     = $(patsubst %.c, %.o, $(wildcard ATL_*.c))
 ATL_OBJECTFILES    += $(patsubst %.f, %.o, $(wildcard ATL_*.f))
 LIBTSTATLAS = libtstatlas.a
 
-.PHONY : all plots benchmark-suite clean $(BLAS_VARIANTS)
+.PHONY : all plots benchmark-suite check-large clean $(BLAS_VARIANTS)
 
 ifeq ($(HAVE_GNUPLOT),yes)
 all : $(BENCHMARK_SUMMARIES) $(BENCHMARK_PLOTS)
@@ -72,7 +72,33 @@ $(BENCHMARK_DIRS) :
 $(BENCHMARK_TOPDIR)/%.summ : $(BENCHMARK_DIRS) $(USE_BLAS_VARIANTS)
 	$(MAKE) -f Makefile.bench CASE=$(notdir $(*D)) CONFIG=$(*F) DIR=${@D}
 
+#
+#  make check-large: the full check with the ATLAS testers (check/, needs
+#  the static libraries of the top directory: make cblas f77blas refblas,
+#  FC and python3).  The testers are built in CHECK_BUILD; the runs of
+#  check/list.sh whose line matches CHECK_PATTERN (a grep pattern, default
+#  all 876) run CHECK_SLOTS at a time (default: the number of CPUs) with
+#  CHECK_THREADS threads each (default 1; all: the default of ulmBLAS).
+#  Results in CHECK_OUT (summary.txt, the output of every run).  Fails on
+#  a FAIL, an error message, a run that did not finish and an incomplete
+#  check (check/evaluate.sh).
+#
+CHECK_BUILD   ?= check-build
+CHECK_OUT     ?= check-results
+CHECK_THREADS ?= 1
+CHECK_SLOTS   ?= $(shell getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)
+CHECK_PATTERN ?= .
+CHECK_FC       = $(if $(filter default,$(origin FC)),gfortran,$(FC))
+
+check-large :
+	CC="$(CC)" FC="$(CHECK_FC)" $(SHELL) check/build.sh $(TOPDIR) $(CHECK_BUILD)
+	rm -rf $(CHECK_OUT)
+	$(SHELL) check/run.sh $(CHECK_BUILD) $(CHECK_OUT) $(CHECK_THREADS) \
+	    $(CHECK_SLOTS) '$(CHECK_PATTERN)'
+	$(SHELL) check/evaluate.sh $(CHECK_OUT)
+
 clean :
 	rm -rf $(BENCH_DIR_PREFIX).*
 	rm -f $(ATL_OBJECTFILES) $(LIBTSTATLAS)
 	rm -rf $(BENCHMARK_TOPDIR)
+	rm -rf $(CHECK_BUILD) $(CHECK_OUT)

@@ -1,0 +1,5 @@
+# rpmlint expects the name of an alternative to be the name of its link
+# (libblas.so.3); the groups of openSUSE's lapack and openblas are
+# libblas.so.3_ARCH and libcblas.so.3_ARCH (the same filter as in
+# openblas.rpmlintrc)
+addFilter(".* alternative-link-missing.*")

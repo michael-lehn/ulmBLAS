@@ -219,7 +219,7 @@ CBLAS(sgemm)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (transA != CblasNoTrans && transA != CblasTrans &&
@@ -264,7 +264,7 @@ CBLAS(sgemm)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_sgemm", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_sgemm", "");
 	return;
     }
 
@@ -302,7 +302,7 @@ CBLAS(dgemm)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (transA != CblasNoTrans && transA != CblasTrans &&
@@ -347,7 +347,7 @@ CBLAS(dgemm)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_dgemm", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_dgemm", "");
 	return;
     }
 
@@ -391,7 +391,7 @@ CBLAS(cgemm)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (transA != CblasNoTrans && transA != CblasTrans &&
@@ -436,7 +436,7 @@ CBLAS(cgemm)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_cgemm", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_cgemm", "");
 	return;
     }
 
@@ -480,7 +480,7 @@ CBLAS(zgemm)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (transA != CblasNoTrans && transA != CblasTrans &&
@@ -525,7 +525,7 @@ CBLAS(zgemm)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_zgemm", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_zgemm", "");
 	return;
     }
 

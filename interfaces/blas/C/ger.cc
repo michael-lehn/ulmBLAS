@@ -246,7 +246,7 @@ CBLAS(sger)(enum CBLAS_ORDER order, ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n,
     ULMBLAS_INDEX_TYPE ldAmin = (order == CblasColMajor)
                                     ? std::max<ULMBLAS_INDEX_TYPE>(1, m)
                                     : std::max<ULMBLAS_INDEX_TYPE>(1, n);
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else {
@@ -289,7 +289,7 @@ CBLAS(sger)(enum CBLAS_ORDER order, ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_sger", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_sger", "");
 	return;
     }
 
@@ -312,7 +312,7 @@ CBLAS(dger)(enum CBLAS_ORDER order, ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n,
     ULMBLAS_INDEX_TYPE ldAmin = (order == CblasColMajor)
                                     ? std::max<ULMBLAS_INDEX_TYPE>(1, m)
                                     : std::max<ULMBLAS_INDEX_TYPE>(1, n);
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else {
@@ -355,7 +355,7 @@ CBLAS(dger)(enum CBLAS_ORDER order, ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_dger", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_dger", "");
 	return;
     }
 
@@ -383,7 +383,7 @@ CBLAS(cgeru)(enum CBLAS_ORDER order, ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n,
     ULMBLAS_INDEX_TYPE ldAmin = (order == CblasColMajor)
                                     ? std::max<ULMBLAS_INDEX_TYPE>(1, m)
                                     : std::max<ULMBLAS_INDEX_TYPE>(1, n);
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else {
@@ -426,7 +426,7 @@ CBLAS(cgeru)(enum CBLAS_ORDER order, ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_cgeru", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_cgeru", "");
 	return;
     }
 
@@ -454,7 +454,7 @@ CBLAS(zgeru)(enum CBLAS_ORDER order, ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n,
     ULMBLAS_INDEX_TYPE ldAmin = (order == CblasColMajor)
                                     ? std::max<ULMBLAS_INDEX_TYPE>(1, m)
                                     : std::max<ULMBLAS_INDEX_TYPE>(1, n);
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else {
@@ -497,7 +497,7 @@ CBLAS(zgeru)(enum CBLAS_ORDER order, ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_zgeru", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_zgeru", "");
 	return;
     }
 
@@ -525,7 +525,7 @@ CBLAS(cgerc)(enum CBLAS_ORDER order, ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n,
     ULMBLAS_INDEX_TYPE ldAmin = (order == CblasColMajor)
                                     ? std::max<ULMBLAS_INDEX_TYPE>(1, m)
                                     : std::max<ULMBLAS_INDEX_TYPE>(1, n);
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else {
@@ -568,7 +568,7 @@ CBLAS(cgerc)(enum CBLAS_ORDER order, ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_cgerc", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_cgerc", "");
 	return;
     }
 
@@ -596,7 +596,7 @@ CBLAS(zgerc)(enum CBLAS_ORDER order, ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n,
     ULMBLAS_INDEX_TYPE ldAmin = (order == CblasColMajor)
                                     ? std::max<ULMBLAS_INDEX_TYPE>(1, m)
                                     : std::max<ULMBLAS_INDEX_TYPE>(1, n);
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else {
@@ -639,7 +639,7 @@ CBLAS(zgerc)(enum CBLAS_ORDER order, ULMBLAS_INDEX_TYPE m, ULMBLAS_INDEX_TYPE n,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_zgerc", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_zgerc", "");
 	return;
     }
 

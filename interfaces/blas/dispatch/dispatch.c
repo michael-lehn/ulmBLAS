@@ -39,6 +39,13 @@
  *  its own.  On Windows the backend calls the handlers the program
  *  exports, if any (../F77/xerbla.cc).
  *
+ *  ULMBLAS_DISPATCH_INTERFACE64 (macOS and Linux): libulmblas64, a front of
+ *  the same backends with their interfaces with 64-bit integers under the
+ *  usual names (dgemm_ calls the backend's dgemm_64_, see map64.sh and
+ *  ULMBLAS_DISPATCH_NAMES, the generated names64.h).  The handlers
+ *  xerbla_ and cblas_xerbla of the program take 64-bit integers then and
+ *  go to ulmblas_set_f77_xerbla_64 and ulmblas_set_cblas_xerbla_64.
+ *
  *  Any failure (backend not found, a function missing) terminates the
  *  program with a message: a BLAS that silently does nothing would be
  *  worse.
@@ -61,7 +68,14 @@
 #include <string.h>
 #include <wchar.h>
 
-#include "names.h"
+#ifndef ULMBLAS_DISPATCH_NAMES
+#define ULMBLAS_DISPATCH_NAMES "names.h"
+#endif
+#include ULMBLAS_DISPATCH_NAMES
+
+#if defined(ULMBLAS_DISPATCH_INTERFACE64) && defined(_WIN32)
+#error "libulmblas64 (ULMBLAS_DISPATCH_INTERFACE64) is not built on Windows"
+#endif
 
 #if defined(_WIN32)
 #define ULMBLAS_HIDDEN
@@ -109,8 +123,8 @@ sme_svl_512(void)
     int value = 0;
     size_t size = sizeof(value);
 
-    if (sysctlbyname("hw.optional.arm.sme_max_svl_b", &value, &size, NULL,
-                     0) != 0) {
+    if (sysctlbyname("hw.optional.arm.sme_max_svl_b", &value, &size, NULL, 0) !=
+        0) {
 	return 0;
     }
     return value == 64;
@@ -129,8 +143,7 @@ cpu_any(void)
     return 1;
 }
 
-static const struct backend backends[] = {{"sme", cpu_sme},
-                                          {"neon", cpu_any}};
+static const struct backend backends[] = {{"sme", cpu_sme}, {"neon", cpu_any}};
 #define ULMBLAS_SO ".dylib"
 
 #elif defined(__x86_64__)
@@ -186,9 +199,9 @@ static int
 cpu_avx512(void)
 {
     const unsigned ebx = cpuid_reg(7, 0, 1);
-    return cpu_avx2() && (ebx & (1u << 16))      /* AVX512F */
-           && (ebx & (1u << 17))                 /* AVX512DQ */
-           && (ebx & (1u << 31))                 /* AVX512VL */
+    return cpu_avx2() && (ebx & (1u << 16)) /* AVX512F */
+           && (ebx & (1u << 17))            /* AVX512DQ */
+           && (ebx & (1u << 31))            /* AVX512VL */
            && (xcr0() & 0xe6) == 0xe6;
 }
 
@@ -277,8 +290,7 @@ resolve_once(PINIT_ONCE once, PVOID param, PVOID *context)
     }
     wchar_t *slash = wcsrchr(path, L'\\');
     size_t dir = slash ? (size_t)(slash - path) + 1 : 0;
-    _snwprintf(path + dir, MAX_PATH + 64 - dir, L"libulmblas_%hs.dll",
-               backend);
+    _snwprintf(path + dir, MAX_PATH + 64 - dir, L"libulmblas_%hs.dll", backend);
 
     HMODULE handle = LoadLibraryW(path);
     if (!handle) {
@@ -313,10 +325,16 @@ ulmblas_dispatch_resolve(void)
  *  xerbla_ and cblas_xerbla, and the dynamic loader binds them (to NULL
  *  if there are none).  dlsym(RTLD_DEFAULT) alone would not find them.
  *  On macOS all symbols of the program are visible to dlsym.  */
-extern void xerbla_(void) __attribute__((weak));
-extern void cblas_xerbla(void) __attribute__((weak));
-extern void xerbla_64_(void) __attribute__((weak));
-extern void cblas_xerbla_64(void) __attribute__((weak));
+extern void
+xerbla_(void) __attribute__((weak));
+extern void
+cblas_xerbla(void) __attribute__((weak));
+#if !defined(ULMBLAS_DISPATCH_INTERFACE64)
+extern void
+xerbla_64_(void) __attribute__((weak));
+extern void
+cblas_xerbla_64(void) __attribute__((weak));
+#endif
 #endif
 
 /*  required: the setter must exist (LP64); the setters of the ILP64
@@ -412,20 +430,29 @@ ulmblas_dispatch_init(void)
 #if defined(__APPLE__)
     void *f77_xerbla = dlsym(RTLD_DEFAULT, "xerbla_");
     void *c_xerbla = dlsym(RTLD_DEFAULT, "cblas_xerbla");
-    void *f77_xerbla_64 = dlsym(RTLD_DEFAULT, "xerbla_64_");
-    void *c_xerbla_64 = dlsym(RTLD_DEFAULT, "cblas_xerbla_64");
 #else
     void *f77_xerbla = (void *)&xerbla_;
     void *c_xerbla = (void *)&cblas_xerbla;
-    void *f77_xerbla_64 = (void *)&xerbla_64_;
-    void *c_xerbla_64 = (void *)&cblas_xerbla_64;
 #endif
 
     void *handle = load_backend(backend, info.dli_fname);
+#if defined(ULMBLAS_DISPATCH_INTERFACE64)
+    /*  libulmblas64: the program's handlers take 64-bit integers */
+    set_handler(handle, "ulmblas_set_f77_xerbla_64", f77_xerbla, true);
+    set_handler(handle, "ulmblas_set_cblas_xerbla_64", c_xerbla, true);
+#else
+#if defined(__APPLE__)
+    void *f77_xerbla_64 = dlsym(RTLD_DEFAULT, "xerbla_64_");
+    void *c_xerbla_64 = dlsym(RTLD_DEFAULT, "cblas_xerbla_64");
+#else
+    void *f77_xerbla_64 = (void *)&xerbla_64_;
+    void *c_xerbla_64 = (void *)&cblas_xerbla_64;
+#endif
     set_handler(handle, "ulmblas_set_f77_xerbla", f77_xerbla, true);
     set_handler(handle, "ulmblas_set_cblas_xerbla", c_xerbla, true);
     set_handler(handle, "ulmblas_set_f77_xerbla_64", f77_xerbla_64, false);
     set_handler(handle, "ulmblas_set_cblas_xerbla_64", c_xerbla_64, false);
+#endif
     for (int i = 0; i < ULMBLAS_DISPATCH_COUNT; ++i) {
 	void *f = dlsym(handle, ulmblas_dispatch_names[i]);
 	if (!f) {

@@ -1,7 +1,9 @@
 #ifndef ULMBLAS_LEVEL1_SCAL_TCC
 #define ULMBLAS_LEVEL1_SCAL_TCC 1
 
+#include <cmath>
 #include <complex>
+#include <type_traits>
 #include <ulmblas/level1/kernel/simd.h>
 #include <ulmblas/level1/scal.h>
 
@@ -80,6 +82,49 @@ scal(IndexType n, const Alpha &alpha, VX *x, IndexType incX)
 //  give NaN).  Complex products are computed as in Fortran, without the
 //  special treatment of infinities of std::complex.
 //
+//  The complex product is written out with std::fma where the hardware has
+//  FMA (fused multiply-add): FP_FAST_FMA, FP_FAST_FMAF of <cmath>, and as
+//  clang on Linux does not set them, the feature macros __FMA__ of x86 and
+//  __ARM_FEATURE_FMA of ACLE (Arm C Language Extensions).  Otherwise
+//  without FMA.  So every loop rounds an element in the same way, and its
+//  result does not depend on its position in x.  With FMA left to the
+//  compiler, the vectorized loop and the scalar loops (peel, remainder)
+//  rounded different products: equal elements of x got different results
+//  (heim, AVX2 (Advanced Vector Extensions 2) backend, cscal), and the
+//  eigenvalue tests CEV, CVX and CGV of LAPACK (Linear Algebra PACKage),
+//  which require equal results along different paths, failed.
+//
+template <typename T> struct FastFma : std::false_type
+{
+};
+
+#if defined(FP_FAST_FMAF) || defined(__FMA__) || defined(__ARM_FEATURE_FMA)
+template <> struct FastFma<float> : std::true_type
+{
+};
+#endif
+
+#if defined(FP_FAST_FMA) || defined(__FMA__) || defined(__ARM_FEATURE_FMA)
+template <> struct FastFma<double> : std::true_type
+{
+};
+#endif
+
+//  a*b - c*d and a*b + c*d
+template <typename T>
+T
+productDifference(T a, T b, T c, T d)
+{
+    return FastFma<T>::value ? std::fma(a, b, -(c * d)) : a * b - c * d;
+}
+
+template <typename T>
+T
+productSum(T a, T b, T c, T d)
+{
+    return FastFma<T>::value ? std::fma(a, b, c * d) : a * b + c * d;
+}
+
 template <typename Alpha, typename VX>
 VX
 scalBlasProduct(const Alpha &alpha, const VX &x)
@@ -91,8 +136,9 @@ template <typename T>
 std::complex<T>
 scalBlasProduct(const std::complex<T> &alpha, const std::complex<T> &x)
 {
-    return std::complex<T>(alpha.real() * x.real() - alpha.imag() * x.imag(),
-                           alpha.real() * x.imag() + alpha.imag() * x.real());
+    const T ar = alpha.real(), ai = alpha.imag();
+    return std::complex<T>(productDifference(ar, x.real(), ai, x.imag()),
+                           productSum(ar, x.imag(), ai, x.real()));
 }
 
 //
@@ -134,13 +180,13 @@ scalBlasContiguous(IndexType n, const std::complex<T> &alpha,
     IndexType i = 0;
     for (const IndexType p = storePeel(n, x); i < p; ++i) {
 	const T xr = x_[2 * i], xi = x_[2 * i + 1];
-	x_[2 * i] = ar * xr - ai * xi;
-	x_[2 * i + 1] = ar * xi + ai * xr;
+	x_[2 * i] = productDifference(ar, xr, ai, xi);
+	x_[2 * i + 1] = productSum(ar, xi, ai, xr);
     }
     for (; i < n; ++i) {
 	const T xr = x_[2 * i], xi = x_[2 * i + 1];
-	x_[2 * i] = ar * xr - ai * xi;
-	x_[2 * i + 1] = ar * xi + ai * xr;
+	x_[2 * i] = productDifference(ar, xr, ai, xi);
+	x_[2 * i + 1] = productSum(ar, xi, ai, xr);
     }
 }
 

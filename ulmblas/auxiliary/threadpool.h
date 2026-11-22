@@ -620,12 +620,16 @@ class TreeBarrier
     //  1024 threads: 128 + 16 + 2 + 1 groups
     static constexpr std::ptrdiff_t MaxGroups = 160;
 
+    //  a cache line of its own; padded explicitly, so that the compiler adds
+    //  no padding (no warning, e.g. MSVC C4324)
     struct alignas(128) Counter
     {
 	std::atomic<std::ptrdiff_t> value;
+	char pad[128 - sizeof(std::atomic<std::ptrdiff_t>)];
 
 	Counter() : value(0) {}
     };
+    static_assert(sizeof(Counter) == 128, "Counter: one 128-byte block");
 
     const std::ptrdiff_t n;
     Counter count[MaxGroups];

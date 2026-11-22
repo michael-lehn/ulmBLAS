@@ -1,0 +1,20 @@
+#  Cholesky and LU of OxiBLAS (pure Rust BLAS/LAPACK, crates.io) for the
+#  comparisons of ulmBLAS; see src/main.rs.  Build: cargo build --release
+#  (Rust 1.89 or later); on Apple M4 and later also --features sme2.
+[package]
+name = "oxiblas-bench"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+oxiblas-lapack = { version = "=0.2.4", features = ["parallel"] }
+oxiblas-matrix = "=0.2.4"
+oxiblas-blas = { version = "=0.2.4", features = ["parallel"] }
+rayon = "1"
+
+[features]
+sme2 = ["oxiblas-blas/sme2"]
+
+[profile.release]
+codegen-units = 1

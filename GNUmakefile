@@ -12,7 +12,7 @@ include $(TOPDIR)/make.inc
 
 .PHONY : tune tune-params all cblas atlblas clapack atllapack f77blas f77lapack refblas lbt shared \
          install-shared \
-         check-shared shared-dispatch \
+         check-shared check-dispatch check-large shared-dispatch \
          check check-numeric check-netlib check-reference-lapack \
          check-reference-lapack-lin \
          check-conformance check-protocol \
@@ -54,8 +54,8 @@ lbt : tool-ar
 shared : tool-ar
 	$(MAKE) -C interfaces/blas/shared
 
-#  macOS on Apple Silicon: libulmblas.dylib selects libulmblas_neon.dylib
-#  or libulmblas_sme.dylib at load time
+#  Apple Silicon and x86-64: libulmblas selects a backend (libulmblas_sme,
+#  _neon; _avx512, _avx2, _sse3, _generic) at load time
 shared-dispatch : tool-ar
 	$(MAKE) -C interfaces/blas/dispatch
 
@@ -77,6 +77,35 @@ check-shared : tool-ar
 	         test/build/shared-lib/build test/build/shared
 	$(if $(filter 0,$(ILP64)),,FC="$(FC)" CC="$(CC)" NM="$(NM)" \
 	    $(SHELL) test/check-ilp64.sh test/build/shared-lib test/build/ilp64)
+	$(MAKE) -C interfaces/blas/shared INTERFACE64=1 \
+	        OUTDIR=$(abspath test/build/shared-lib) \
+	        BUILD_DIR=$(abspath test/build/shared-lib/build64)
+	FC="$(FC)" CC="$(CC)" NM="$(NM)" $(SHELL) test/check-ilp64.sh \
+	    test/build/shared-lib test/build/plain64 ulmblas64 - \
+	    test/build/shared-lib/build64
+
+#  The same test programs against the dispatching library (make
+#  shared-dispatch, built in its own directory), without the CBLAS programs
+#  of levels 2 and 3 (see test/check-shared.sh), and c_scal with each
+#  backend the CPU supports
+check-dispatch : tool-ar
+	$(MAKE) -C interfaces/blas/dispatch OUTDIR=$(abspath test/build/dispatch-lib) \
+	        BUILD_DIR=$(abspath test/build/dispatch-lib/build)
+	inc=`ls test/build/dispatch-lib/build/*/cblas.h | head -1` && \
+	FC="$(FC)" CC="$(CC)" $(SHELL) test/check-shared.sh test/build/dispatch-lib \
+	         `dirname $$inc` test/build/dispatch ulmblas f77
+	if [ -f test/build/dispatch-lib/build/interface64/include/cblas.h ]; then \
+	    FC="$(FC)" CC="$(CC)" NM="$(NM)" $(SHELL) test/check-ilp64.sh \
+	        test/build/dispatch-lib test/build/dispatch64 ulmblas64 front \
+	        test/build/dispatch-lib/build/interface64/include; \
+	fi
+
+#  The full check with the ATLAS testers (bench/check; long running, see
+#  bench/Makefile): every routine of levels 1 to 3, types s d c z, the CBLAS
+#  and the Fortran 77 interface, against the reference BLAS
+check-large : tool-ar
+	$(MAKE) cblas f77blas refblas
+	$(MAKE) -C bench check-large
 
 #
 #  Tests (see test/Makefile)
@@ -202,9 +231,13 @@ help :
 	@echo '  shared           shared library with the standard interfaces: Fortran 77'
 	@echo '                   (LP64, dgemm_) and CBLAS, libulmblas.so / .dylib; also'
 	@echo '                   ILP64 (dgemm_64_, cblas_dgemm_64) unless ILP64=0'
-	@echo '  shared-dispatch  macOS, Apple Silicon: libulmblas.dylib selects the NEON or'
-	@echo '                   SME2 backend (libulmblas_neon / _sme.dylib) at load time'
+	@echo '  shared-dispatch  Apple Silicon and x86-64: libulmblas selects a backend'
+	@echo '                   (sme, neon; avx512, avx2, sse3, generic) at load time'
 	@echo '  check-shared     Netlib test programs against libulmblas (needs FC)'
+	@echo '  check-dispatch   the same against the dispatching libulmblas, ?scal with'
+	@echo '                   every backend the CPU supports (needs FC)'
+	@echo '  check-large      the full check with the ATLAS testers (bench/check,'
+	@echo '                   hours; needs FC and python3)'
 	@echo '  check            build and run all tests'
 	@echo '  check-numeric    only the C++ tests (no Fortran compiler needed)'
 	@echo '  check-netlib     only the Netlib BLAS test suites (needs FC and CC)'

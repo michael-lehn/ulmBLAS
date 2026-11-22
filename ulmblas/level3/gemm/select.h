@@ -1,7 +1,6 @@
 #ifndef ULMBLAS_LEVEL3_GEMM_SELECT_H
 #define ULMBLAS_LEVEL3_GEMM_SELECT_H 1
 
-#include <complex>
 #include <cstddef>
 #include <ulmblas/config/platform.h>
 #include <ulmblas/level3/gemm/default.h>
@@ -200,45 +199,15 @@ template <> struct GemmTable<float>
 };
 #endif
 
-#if defined(USE_SME)
 //
-//  complex float and complex double with SME2: for m, n <= 8 the NEON
-//  kernel for small matrices (neon/small.h, no streaming mode), otherwise
-//  the frame algorithm of the build.
+//  complex float and complex double with SME2: the default table, the frame
+//  algorithm with the SME2 kernels for all sizes.  No NEON kernel for small
+//  matrices: it sums the products of the complex multiplication in another
+//  order than the SME2 kernels (Re = sum ar br - sum ai bi against one sum
+//  of ar br - ai bi), so C(i,j) depended on m and n, and LAPACK's
+//  eigenvalue tests CEV, CGV, ZEV and ZGV, which require equal results
+//  along different paths, failed (Apple M5).
 //
-template <typename T> struct ComplexSmeTable
-{
-    template <typename Op>
-    static const Level3Entry<typename Op::Plan> *
-    entries(std::size_t &count)
-    {
-	typedef typename DefaultGemm<T>::Frame Default;
-	typedef neon::SmallGemm<Default> Small;
-
-	static const Level3Entry<typename Op::Plan> table[] = {
-	    // clang-format off
-	    // m          n          k          bytes of C, of A
-	    {0, 8,        0, 8,        0, GemmAll,  0, GemmBytesAll,
-	     Op::template plan<Small>("neon-small")},
-	    {0, GemmAll,  0, GemmAll,  0, GemmAll,  0, GemmBytesAll,
-	     Op::template plan<Default>("default")},
-	    // clang-format on
-	};
-	count = sizeof(table) / sizeof(table[0]);
-	return table;
-    }
-};
-
-template <>
-struct GemmTable<std::complex<float>> : ComplexSmeTable<std::complex<float>>
-{
-};
-
-template <>
-struct GemmTable<std::complex<double>> : ComplexSmeTable<std::complex<double>>
-{
-};
-#endif
 
 #if !defined(USE_SME) && defined(ULMBLAS_OPENBLAS_SMALL)
 //

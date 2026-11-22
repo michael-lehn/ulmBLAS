@@ -61,7 +61,7 @@ cblas_gemmtr(const char *name, bool complex, enum CBLAS_ORDER order,
 	numRowsB = tB ? k : n;
     }
 
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (upLo != CblasUpper && upLo != CblasLower) {
@@ -96,7 +96,7 @@ cblas_gemmtr(const char *name, bool complex, enum CBLAS_ORDER order,
 
     if (info != 0) {
 	RowMajorStrg = (order == CblasRowMajor && info > 6) ? 1 : 0;
-	CBLAS(xerbla)(info, name, "... bla bla ...");
+	CBLAS(xerbla)(info, name, "");
 	return;
     }
 

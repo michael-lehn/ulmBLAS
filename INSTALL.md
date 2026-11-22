@@ -135,8 +135,10 @@ macro `ULMBLAS_INDEX_TYPE` with the type of the build and declare every
 function with it, so a program compiled against these headers uses the
 type of the library.  A program that defines the macro itself must use the
 same type (for a different one the compiler warns that the macro is
-redefined, and the header's definition applies).  The
-error handler `cblas_xerbla` keeps its `int` argument (a parameter number).
+redefined, and the header's definition applies).  This includes the
+parameter number of the error handler `cblas_xerbla`, as `CBLAS_INT` of
+the reference CBLAS (`int64_t` for `cblas_xerbla_64`): a program that
+defines `cblas_xerbla` declares it with `ULMBLAS_INDEX_TYPE`.
 
 - **Fortran 77 interface**: Fortran passes `INTEGER` arguments, so with a
   64-bit index type the Fortran code (the wrappers of `libf77blas.a` and
@@ -210,6 +212,11 @@ enough.  At run time:
 - Called from a thread of an OpenMP parallel region, or while another
   thread of the program runs a level 3 function, a function runs on the
   calling thread only.
+- With FlexiBLAS (shared library as its backend), `flexiblas_set_num_threads`
+  and its aliases (`openblas_set_num_threads`, ...) set the threads of
+  ulmBLAS: the library has the hooks `flexiblas_backend_set_num_threads`
+  and `flexiblas_backend_get_num_threads`, and `__flexiblas_set_xerbla`,
+  which passes the `XERBLA` of the program.
 
 ## Shared library for Julia
 
@@ -261,14 +268,36 @@ BLAS.set_num_threads(n)           # ulmBLAS too
 
 ## Shared libraries for NumPy and other programs
 
-Ready-made packages (once published, see
-[packaging/README.md](packaging/README.md)):
+Ready-made packages (see [packaging/README.md](packaging/README.md);
+conda-forge once the recipe is merged):
 
 ```sh
 conda install -c conda-forge numpy "libblas=*=*ulmblas"   # NumPy, SciPy, ... on ulmBLAS
 conda install -c conda-forge libulmblas                   # the library alone
 brew install michael-lehn/ulmblas/ulmblas                  # macOS (Apple Silicon), Linux
 ```
+
+Fedora 43 and newer (Copr), x86-64 and aarch64:
+
+```sh
+sudo dnf copr enable mlehn/ulmblas
+sudo dnf install ulmblas ulmblas-devel
+sudo dnf install flexiblas-ulmblas         # ulmBLAS as a FlexiBLAS backend
+flexiblas default ULMBLAS                  # ... and as your default (system-wide: sudo flexiblas -g default ULMBLAS)
+```
+
+openSUSE Tumbleweed and Leap 16.0 (openSUSE Build Service), x86-64 and
+aarch64; for Leap replace `openSUSE_Tumbleweed` by `16.0`:
+
+```sh
+sudo zypper addrepo https://download.opensuse.org/repositories/home:lehn/openSUSE_Tumbleweed/home:lehn.repo
+sudo zypper install libulmblas0 ulmblas-devel
+```
+
+The openSUSE package registers ulmBLAS as an alternative for
+`libblas.so.3` and `libcblas.so.3` (`update-alternatives --config
+libblas.so.3_x86_64`, or `_aarch64`).  These packages are ulmBLAS 0.4.1,
+without `libulmblas64`.
 
 From the sources:
 
@@ -282,11 +311,13 @@ $HOME/venv-ulmblas/bin/python -c 'import numpy; numpy.show_config()'
 
 | File | Content |
 | --- | --- |
-| `lib/libulmblas.0.dylib`, Linux `lib/libulmblas.so.0`, Windows `bin/libulmblas.dll` (with `lib/libulmblas.dll.a`, `lib/ulmblas.lib`); and the link `libulmblas.dylib` (`.so`) | BLAS: Fortran 77 interface (32-bit integers, `dgemm_`) and CBLAS (`cblas_dgemm`); both also with 64-bit integers (ILP64) and the names of the reference BLAS built with `BUILD_INDEX64_EXT_API` (`dgemm_64_`, `cblas_dgemm_64`, see below) |
+| `lib/libulmblas.0.dylib`, Linux `lib/libulmblas.so.0`, Windows `bin/libulmblas.dll` (with `lib/libulmblas.dll.a`, `lib/ulmblas.lib`); and the link `libulmblas.dylib` (`.so`) | BLAS: Fortran 77 interface (32-bit integers, `dgemm_`) and CBLAS (`cblas_dgemm`); both also with 64-bit integers (ILP64) and the names of the reference BLAS built with `BUILD_INDEX64_EXT_API` (`dgemm_64_`, `cblas_dgemm_64`, see below); the LAPACK functions of ulmBLAS (`?getrf_`, `?potrf_`, ..., see [LAPACK functions](#lapack-functions)) with both integer sizes |
+| `lib/libulmblas64.0.dylib`, Linux `lib/libulmblas64.so.0` (not on Windows); and the link `libulmblas64.dylib` (`.so`) | the same with 64-bit integers under the usual names (`dgemm_`, `cblas_dgemm`, `lsame_` with a 64-bit `LOGICAL`, `xerbla_`, the LAPACK functions of ulmBLAS), as Debian's `libblas64`; see below |
 | `lib/libulmblas_sme.dylib`, `lib/libulmblas_neon.dylib` (Apple Silicon); `libulmblas_avx512`, `_avx2`, `_sse3` (`.so`, `.dll`; x86-64) | the backends, see below |
-| `lib/libulmlapack.dylib` (`.so`) | Reference-LAPACK 3.12.1, unmodified, on top of `libulmblas` (needs CMake and `gfortran`, FC; skipped without them, and on Windows) |
+| `lib/libulmlapack.dylib` (`.so`) | Reference-LAPACK 3.12.1, unmodified, on top of `libulmblas` and without the LAPACK functions `libulmblas` has, built with the makefiles of LAPACK (needs `gfortran`, FC, and GNU make; skipped without a Fortran compiler) |
 | `include/cblas.h` (`ULMBLAS_INCLUDEDIR` puts it elsewhere) | |
-| `lib/pkgconfig/ulmblas.pc`, `ulmlapack.pc` | for the build systems of other programs (NumPy: meson) |
+| `include/ulmblas64/cblas.h` | the `cblas.h` of `libulmblas64` (index type `int64_t`) |
+| `lib/pkgconfig/ulmblas.pc`, `ulmblas64.pc`, `ulmlapack.pc` | for the build systems of other programs (NumPy: meson) |
 
 - On Apple Silicon and on x86-64 (Linux, Windows) `libulmblas` is a small
   front that selects a backend for the CPU when it is loaded (Windows: at
@@ -314,6 +345,18 @@ $HOME/venv-ulmblas/bin/python -c 'import numpy; numpy.show_config()'
   calls (test/ilp64/symbols.txt).  `ILP64=0` (`make shared ILP64=0`,
   `make shared-dispatch ILP64=0`, or in the environment of
   `install-shared`) builds the libraries without them (about 20% smaller).
+- `libulmblas64`: for programs compiled with 64-bit `INTEGER` (`gfortran
+  -fdefault-integer-8`) and for FlexiBLAS with 64-bit integers
+  (`libflexiblas64`, which looks up only the usual names): no LP64
+  functions, no names with `_64_`.  On Apple Silicon and x86-64 Linux it
+  is a second front of the same backends (`dgemm_` calls the backend's
+  `dgemm_64_`), elsewhere a library of its own (`make -C
+  interfaces/blas/shared INTERFACE64=1`).  The C functions of ulmBLAS
+  with 32-bit indices (`ulmblas_dgemm`, `ulmblas_*_strided`, ...) are not
+  in the front.  A program must not load `libulmblas` and `libulmblas64`
+  together: the names are the same, the integers are not.
+  `ULMBLAS_INTERFACE64=no` (environment of `install-shared`) leaves it
+  out.
 - `libulmlapack` needs the Fortran runtime of the compiler that built it
   (`libgfortran`).
 - `interfaces/python/numpy.sh PREFIX VENV [VERSION]` creates a virtual

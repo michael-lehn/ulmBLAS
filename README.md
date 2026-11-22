@@ -1,7 +1,32 @@
 # ulmBLAS
 
-A BLAS implementation in C++ that shows how high-performance matrix
-multiplication works, and that is easy to extend.
+BLAS (Basic Linear Algebra Subprograms) and the LU (lower-upper) and
+Cholesky factorizations of LAPACK (Linear Algebra PACKage) for x86-64
+(AVX2 and AVX-512, Advanced Vector Extensions) and Apple Silicon (NEON
+and SME2, Scalable Matrix Extension 2).  ulmBLAS uses micro kernels of
+OpenBLAS and BLIS and its own, picks them per problem size at run time
+and runs them on its own thread pool.  It started in 2014 as a teaching
+library, and it still shows how high-performance matrix multiplication
+works.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/michael-lehn/ulmBLAS/master/benchmark_results/readme/cholesky-4000-dark.svg">
+  <img alt="Cholesky factorization, n = 4000, all cores: ulmBLAS is 1.68 to 1.80 times as fast as OpenBLAS on an Apple M5, an Intel Ice Lake and an AMD Zen 4 machine, 1.11 times on an Intel Core i5-12500" src="https://raw.githubusercontent.com/michael-lehn/ulmBLAS/master/benchmark_results/readme/cholesky-4000-light.svg">
+</picture>
+
+Measured with Julia 1.13 and
+[UlmBLAS.jl](https://github.com/michael-lehn/UlmBLAS.jl#benchmarks-cholesky),
+which has the results for all sizes, on one thread and on all cores.
+ulmBLAS is not ahead everywhere: on one thread and for small matrices it
+is sometimes behind (see there and [Performance](#performance)).
+
+- Julia: `Pkg.add("UlmBLAS")`, then `using UlmBLAS; UlmBLAS.forward()`
+- macOS on Apple Silicon: `brew install michael-lehn/ulmblas/ulmblas`
+- Fedora and openSUSE packages, NumPy:
+  [INSTALL.md](INSTALL.md#shared-libraries-for-numpy-and-other-programs)
+- From source: [How to Install](#how-to-install)
+
+If ulmBLAS is useful to you, a star on GitHub helps others find it.
 
 ## Contents
 

@@ -15,10 +15,10 @@
  *  mkl_get_version_string).  -DBENCH_CBLAS_HEADER=<...> selects the CBLAS
  *  header (default <cblas.h>).
  *
- *  For each size: one call checked against sums in long double for CHECKS
- *  randomly chosen elements of C (bound 4*(k+2)*eps*(sum |A(i,l)*B(l,j)| +
- *  |C0(i,j)|), for complex types with the absolute values of the real
- *  products of the complex multiplication); this call is also the warm-up,
+ *  For each size: one call checked, every element of C against the sum in
+ *  long double (bound 4*(k+2)*eps*(sum |A(i,l)*B(l,j)| + |C0(i,j)|), for
+ *  complex types with the absolute values of the real products of the
+ *  complex multiplication); this call is also the warm-up,
  *  extended to at least 0.3 s.  Then SAMPLES samples of at least MIN_SAMPLE
  *  seconds each.  GFLOP/s with 2mnk (s, d) or 8mnk (c, z) floating-point
  *  operations.  Output per size:
@@ -48,7 +48,6 @@
 
 #define MAX_SAMPLES 64
 #define MIN_SAMPLE 0.2
-#define CHECKS 400
 
 #define CAT_(a, b) a##b
 #define CAT(a, b) CAT_(a, b)
@@ -118,46 +117,56 @@ gemm(int m, int n, int k, const real *A, const real *B, real *C)
 #endif
 }
 
-/*  max over CHECKS elements of |C - (A*B + C0)| / bound, -1 if one is not
- *  finite */
+/*  max over all elements of C of |C - (A*B + C0)| / bound, -1 if one is not
+ *  finite.  Column by column: the sums and bounds of column j in long double
+ *  (sum, bound: NR_*m each), accumulated over l with A read by columns. */
 static double
 check(int m, int n, int k, const real *A, const real *B, const real *C0,
       const real *C)
 {
+    long double *sum = malloc(sizeof(long double) * NR_ * (long)m);
+    long double *bound = malloc(sizeof(long double) * NR_ * (long)m);
     double worst = 0;
-    for (int c = 0; c < CHECKS; ++c) {
-	int i = rand() % m, j = rand() % n;
-	long ij = NR_ * (i + (long)j * m);
-	long double sr = C0[ij], br = fabsl((long double)C0[ij]);
-#if COMPLEX
-	long double si = C0[ij + 1], bi = fabsl((long double)C0[ij + 1]);
-#endif
+    for (int j = 0; j < n && worst >= 0; ++j) {
+	for (long i = 0; i < NR_ * (long)m; ++i) {
+	    long ij = i + NR_ * (long)j * m;
+	    sum[i] = C0[ij];
+	    bound[i] = fabsl((long double)C0[ij]);
+	}
 	for (int l = 0; l < k; ++l) {
-	    long ia = NR_ * (i + (long)l * m), ib = NR_ * (l + (long)j * k);
+	    long ib = NR_ * (l + (long)j * k);
+	    const real *a = A + NR_ * (long)l * m;
 #if COMPLEX
-	    long double ar = A[ia], ai = A[ia + 1], xr = B[ib], xi = B[ib + 1];
-	    sr += ar * xr - ai * xi;
-	    br += fabsl(ar * xr) + fabsl(ai * xi);
-	    si += ar * xi + ai * xr;
-	    bi += fabsl(ar * xi) + fabsl(ai * xr);
+	    long double xr = B[ib], xi = B[ib + 1];
+	    for (int i = 0; i < m; ++i) {
+		long double ar = a[2 * i], ai = a[2 * i + 1];
+		sum[2 * i] += ar * xr - ai * xi;
+		bound[2 * i] += fabsl(ar * xr) + fabsl(ai * xi);
+		sum[2 * i + 1] += ar * xi + ai * xr;
+		bound[2 * i + 1] += fabsl(ar * xi) + fabsl(ai * xr);
+	    }
 #else
-	    sr += (long double)A[ia] * B[ib];
-	    br += fabsl((long double)A[ia] * B[ib]);
+	    long double x = B[ib];
+	    for (int i = 0; i < m; ++i) {
+		sum[i] += a[i] * x;
+		bound[i] += fabsl(a[i] * x);
+	    }
 #endif
 	}
-	double er = fabsl(C[ij] - sr) / (4 * (k + 2) * EPS * br + 1e-300);
-	if (!isfinite(C[ij]) || !(er == er))
-	    return -1;
-	if (er > worst)
-	    worst = er;
-#if COMPLEX
-	double ei = fabsl(C[ij + 1] - si) / (4 * (k + 2) * EPS * bi + 1e-300);
-	if (!isfinite(C[ij + 1]) || !(ei == ei))
-	    return -1;
-	if (ei > worst)
-	    worst = ei;
-#endif
+	for (long i = 0; i < NR_ * (long)m; ++i) {
+	    long ij = i + NR_ * (long)j * m;
+	    double e =
+	        fabsl(C[ij] - sum[i]) / (4 * (k + 2) * EPS * bound[i] + 1e-300);
+	    if (!isfinite(C[ij]) || !(e == e)) {
+		worst = -1;
+		break;
+	    }
+	    if (e > worst)
+		worst = e;
+	}
     }
+    free(sum);
+    free(bound);
     return worst;
 }
 

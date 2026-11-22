@@ -1,0 +1,77 @@
+#
+#  Known failures of LAPACK's test programs with libulmblas: borderline
+#  cases that one or several machines report (test/known_issues.md, #0033).
+#  build.sh ... test fails on every other failure, build.sh ... test-all
+#  on these too.  One line per failure, as failures.sh prints it:
+#
+#      FILE PATH RECORD
+#
+#  The test matrices are the same on every machine (fixed seeds), so a
+#  record names the same matrix and test everywhere.
+#
+
+#  Apple M5 (SME2 backend): singular values with and without U and V
+#  (test 9), 50.82 against the threshold 50
+ssvd.out SBD M= 40, N= 30, type 10, seed= 283, 202, 101,3089, test( 9)=
+
+#  Apple M5 (SME2 backend): DGGES refuses the reordering (INFO = N+3),
+#  result 7 then 1/ulp
+dgd.out DGS DDRGES: DGGES returned INFO= 15. N= 12, JTYPE= 18, ISEED=( 806,4093,1609,2693,
+dgd.out DGS Matrix order= 12, type=18, seed= 806,4093,1609,2693, result 7 is
+
+#  Intel Xeon Platinum 8358 (Ice Lake) and AMD EPYC 9454 (Zen 4), AVX-512
+#  backend: DGGES3 refuses the reordering (INFO = N+3), result 7 then
+#  1/ulp; the ZST drivers (sep and the 2-stage variant), result 77: 51.56
+#  against the threshold 50
+dgd.out DGS DDRGES3: DGGES3 returned INFO= 9. N= 6, JTYPE= 25, ISEED=(2116,2374,2915,2669,
+dgd.out DGS Matrix order= 6, type=25, seed=2116,2374,2915,2669, result 7 is
+zsep.out ZST Matrix order= 20, type=10, seed=3382,3955,3947, 333, result 77 is
+zse2.out ZST Matrix order= 20, type=10, seed=3382,3955,3947, 333, result 77 is
+
+#  AMD EPYC 9454 (Zen 4), AVX-512 backend: eigenvalues with and without
+#  eigenvectors differ (CEV test 5, CGV result 5, then 1/ulp); the cgemm
+#  table of amd-zen4 picks different kernels for the different sizes of the
+#  two paths
+ced.out CEV N= 20, IWK= 1, seed=1365,3950,1356,1993, type 19, test( 5)=
+ced.out CEV N= 20, IWK= 1, seed=1717,3723,1475,3401, type 20, test( 5)=
+ced.out CEV N= 20, IWK= 1, seed=3252,3952,3382,2953, type 11, test( 5)=
+ced.out CEV N= 20, IWK= 1, seed=3707,2862,2871,2329, type 12, test( 5)=
+ced.out CEV N= 20, IWK= 1, seed=3735,1543,2047, 713, type 21, test( 5)=
+ced.out CEV N= 20, IWK= 2, seed=1365,3950,1356,1993, type 19, test( 5)=
+ced.out CEV N= 20, IWK= 2, seed=1717,3723,1475,3401, type 20, test( 5)=
+ced.out CEV N= 20, IWK= 2, seed=3252,3952,3382,2953, type 11, test( 5)=
+ced.out CEV N= 20, IWK= 2, seed=3707,2862,2871,2329, type 12, test( 5)=
+ced.out CEV N= 20, IWK= 2, seed=3735,1543,2047, 713, type 21, test( 5)=
+cgd.out CGV Matrix order= 20, type=19, seed=1284,3436,2461,1449, result 5 is
+cgd.out CGV Matrix order= 20, type=21, seed=2609,1025,2054,2985, result 5 is
+cgd.out CGV Matrix order= 20, type=26, seed=2079, 837,1150,3401, result 5 is
+
+#  Intel Core i5-12500 (AVX2 backend): DGEES and DGEESX refuse the
+#  reordering of an ill-conditioned matrix (INFO = N+1), test 7 then 1/ulp,
+#  with both workspace sizes (IWK)
+ded.out DES DDRVES: DGEES1 returned INFO= 6. N= 5, JTYPE= 17, ISEED=( 100, 2082, 33, 613)
+ded.out DES N= 5, IWK= 1, seed= 100,2082, 33, 613, type 17, test( 7)=
+ded.out DES N= 5, IWK= 2, seed= 100,2082, 33, 613, type 17, test( 7)=
+ded.out DSX DGET24: DGEESX1 returned INFO= 6. N= 5, JTYPE= 17, ISEED=( 100, 2082, 33, 613)
+ded.out DSX N= 5, IWK= 1, seed= 100,2082, 33, 613, type 17, test( 7)=
+ded.out DSX N= 5, IWK= 2, seed= 100,2082, 33, 613, type 17, test( 7)=
+
+#  GCC 16.2, AVX2 backend (Windows, MSYS2 UCRT64, and Linux x86-64): STFSM,
+#  46.33 against the threshold 45 of build.sh; OpenBLAS fails the same case
+#  on Apple M5 (31.17 against LAPACK's 30)
+stest_rfp.out STFSM Failure in STFSM, CFORM='T', SIDE='L', UPLO='U', TRANS='T', DIAG='N', M= 50, N = 50, test=
+
+#  Linux x86-64, GCC 16.2, AVX2 backend (generic and sse3 pass, GCC 12
+#  passes): the CST drivers (sep and the 2-stage variant), result 21: 53.77,
+#  and the DST 2-stage drivers, results 89 and 131: 51.31, against the
+#  threshold 50
+cse2.out CST Matrix order= 5, type=21, seed= 240,1205,2853,1453, result 21 is
+csep.out CST Matrix order= 5, type=21, seed= 240,1205,2853,1453, result 21 is
+dse2.out DST Matrix order= 20, type=10, seed= 757, 19, 542,2065, result 131 is
+dse2.out DST Matrix order= 20, type=10, seed= 757, 19, 542,2065, result 89 is
+
+#  Windows (MSYS2 UCRT64, GCC 16.2), AVX2 backend: the SST drivers (sep and
+#  the 2-stage variant), n = 3, result 101: 116.58 against the threshold
+#  50; Linux with the same GCC passes
+sse2.out SST Matrix order= 3, type=10, seed=1465, 577, 862,1825, result 101 is
+ssep.out SST Matrix order= 3, type=10, seed=1465, 577, 862,1825, result 101 is

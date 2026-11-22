@@ -83,7 +83,7 @@ CBLAS(gemm_s16s16s32)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
     const ULMBLAS_INDEX_TYPE ldBmin = colMajor ? (tB ? n : k) : (tB ? k : n);
     const ULMBLAS_INDEX_TYPE ldCmin = colMajor ? m : n;
 
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (transA != CblasNoTrans && transA != CblasTrans &&

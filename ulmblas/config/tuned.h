@@ -72,20 +72,19 @@ struct TunedSteps
     TunedSteps(std::initializer_list<std::int64_t> list) : count(0)
     {
 	value[0] = 0;
-	std::ptrdiff_t i = 0;
+	bool isValue = true;
 	for (std::int64_t x : list) {
-	    if (i % 2 == 0) {
-		value[i / 2] = x;
-	    } else if (i / 2 < MaxSteps) {
-		bound[i / 2] = x;
-		count = i / 2 + 1;
+	    if (isValue) {
+		value[count] = x;
+	    } else if (count < MaxSteps) {
+		bound[count++] = x;
 	    } else {
 		break;
 	    }
-	    ++i;
+	    isValue = !isValue;
 	}
 	//  a list ending with a bound: the last value repeated
-	if (count > 0 && i % 2 == 0) {
+	if (count > 0 && isValue) {
 	    value[count] = value[count - 1];
 	}
     }

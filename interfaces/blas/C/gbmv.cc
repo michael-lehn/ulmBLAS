@@ -177,7 +177,7 @@ CBLAS(sgbmv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -224,7 +224,7 @@ CBLAS(sgbmv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_sgbmv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_sgbmv", "");
 	return;
     }
 
@@ -248,7 +248,7 @@ CBLAS(dgbmv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -295,7 +295,7 @@ CBLAS(dgbmv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_dgbmv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_dgbmv", "");
 	return;
     }
 
@@ -325,7 +325,7 @@ CBLAS(cgbmv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -372,7 +372,7 @@ CBLAS(cgbmv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_cgbmv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_cgbmv", "");
 	return;
     }
 
@@ -401,7 +401,7 @@ CBLAS(zgbmv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
 
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
@@ -448,7 +448,7 @@ CBLAS(zgbmv)(enum CBLAS_ORDER order, enum CBLAS_TRANSPOSE transA,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_zgbmv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_zgbmv", "");
 	return;
     }
 

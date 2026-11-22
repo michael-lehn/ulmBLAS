@@ -7,11 +7,16 @@
 #                             libulmblas.dylib); backends libulmblas_neon,
 #                             libulmblas_sme
 #      Linux, x86-64          libulmblas.so.0 (and libulmblas.so); backends
-#                             libulmblas_sse3, libulmblas_avx2,
-#                             libulmblas_avx512
+#                             libulmblas_avx512, libulmblas_avx2,
+#                             libulmblas_sse3, libulmblas_generic
 #      Windows, x86-64        libulmblas.dll, import libraries
 #      (MinGW-w64)            libulmblas.dll.a (MinGW) and ulmblas.lib (MSVC);
 #                             the same backends (.dll)
+#
+#  On macOS and Linux also libulmblas64 (libulmblas64.0.dylib,
+#  libulmblas64.so.0): a second front of the same backends with their
+#  interfaces with 64-bit integers under the usual names (see map64.sh),
+#  and its cblas.h (BUILD_DIR/interface64/include).
 #
 #  The backends are the shared library of ../shared built with other
 #  ARCHFLAGS; all libraries belong in the same directory.  libulmblas
@@ -52,6 +57,8 @@ DISPATCH_LINK  = -shared -Wl,--out-implib,$(OUTDIR)/libulmblas.dll.a \
 #  import library for MSVC (link.exe), from the export list
 DISPATCH_IMPLIB = $(OUTDIR)/ulmblas.lib
 SYMBOL_PREFIX  =
+#  no libulmblas64 on Windows (see dispatch.c)
+DISPATCH64_LIB =
 else ifneq (,$(findstring apple-darwin,$(TARGET_MACHINE)))
 FORMAT         = macho-arm64
 BACKENDS       = neon sme
@@ -60,6 +67,10 @@ DISPATCH_LIB   = $(OUTDIR)/libulmblas.0.dylib
 DISPATCH_ALIAS = $(OUTDIR)/libulmblas.dylib
 DISPATCH_LINK  = -dynamiclib -install_name @rpath/libulmblas.0.dylib \
                  -Wl,-exported_symbols_list,$(BUILD_DIR)/exports.txt
+DISPATCH64_LIB   = $(OUTDIR)/libulmblas64.0.dylib
+DISPATCH64_ALIAS = $(OUTDIR)/libulmblas64.dylib
+DISPATCH64_LINK  = -dynamiclib -install_name @rpath/libulmblas64.0.dylib \
+                   -Wl,-exported_symbols_list,$(BUILD_DIR)/exports64.txt
 SYMBOL_PREFIX  = _
 else ifneq (,$(filter x86_64-%,$(TARGET_MACHINE)))
 FORMAT         = elf-x86_64
@@ -69,6 +80,10 @@ DISPATCH_LIB   = $(OUTDIR)/libulmblas.so.0
 DISPATCH_ALIAS = $(OUTDIR)/libulmblas.so
 DISPATCH_LINK  = -shared -Wl,-soname,libulmblas.so.0 -static-libgcc \
                  -Wl,--version-script,$(BUILD_DIR)/exports.txt -ldl
+DISPATCH64_LIB   = $(OUTDIR)/libulmblas64.so.0
+DISPATCH64_ALIAS = $(OUTDIR)/libulmblas64.so
+DISPATCH64_LINK  = -shared -Wl,-soname,libulmblas64.so.0 -static-libgcc \
+                   -Wl,--version-script,$(BUILD_DIR)/exports64.txt -ldl
 SYMBOL_PREFIX  =
 else ifeq (,$(filter clean,$(MAKECMDGOALS)))
 $(error no dispatching library for $(TARGET_MACHINE): use make shared SHARED_VERSION=0)
@@ -98,12 +113,21 @@ ARCHFLAGS_avx512 = $(X86_SSE3) -mavx -mfma -mavx2 -mavx512f -mavx512dq \
 
 BACKEND_LIBS = $(foreach b,$(BACKENDS),$(OUTDIR)/libulmblas_$(b)$(SO))
 
+#  libulmblas64 (macOS, Linux): a second front of the same backends, their
+#  interfaces with 64-bit integers under the usual names (see map64.sh and
+#  ../shared, INTERFACE64); only if the backends have them (ILP64=1, the
+#  default of ../shared)
+ILP64 ?= 1
+DISPATCH64 = $(if $(filter 1,$(ILP64)),$(DISPATCH64_LIB) $(HEADER64))
+#  its cblas.h: that of the C interface with the 64-bit index type
+HEADER64   = $(if $(DISPATCH64_LIB),$(BUILD_DIR)/interface64/include/cblas.h)
+
 .DELETE_ON_ERROR :
 .PHONY : all clean sonames FORCE
 
 COMMA := ,
 
-all : $(DISPATCH_LIB) $(BACKEND_LIBS) $(DISPATCH_IMPLIB)
+all : $(DISPATCH_LIB) $(BACKEND_LIBS) $(DISPATCH_IMPLIB) $(DISPATCH64)
 
 #  one backend: the library of ../shared with the backend's ARCHFLAGS
 $(OUTDIR)/libulmblas_%$(SO) : FORCE
@@ -118,7 +142,7 @@ $(OUTDIR)/libulmblas_%$(SO) : FORCE
 EXCLUDED = '^(ulmblas_backend|xerbla_|cblas_xerbla|ulmblas_set_f77_xerbla|ulmblas_set_cblas_xerbla|xerbla_64_|cblas_xerbla_64|ulmblas_set_f77_xerbla_64|ulmblas_set_cblas_xerbla_64|RowMajorStrg|CBLAS_CallFromC)$$'
 
 functions_of = sed -e 's/[{};]/ /g' $(1) | tr ' \t' '\n\n' \
-               | grep -E '^_?[A-Za-z][A-Za-z0-9_]*$$' \
+               | grep -E '^_*[A-Za-z][A-Za-z0-9_]*$$' \
                | grep -v -E '^(EXPORTS|DATA)$$' \
                | sed 's/^$(SYMBOL_PREFIX)//' | grep -v -E $(EXCLUDED) | sort
 
@@ -165,6 +189,43 @@ $(DISPATCH_LIB) : $(BUILD_DIR)/dispatch.o $(BUILD_DIR)/trampolines.o \
 	      $(BUILD_DIR)/trampolines.o $(DISPATCH_LINK)
 	$(if $(DISPATCH_ALIAS),ln -sf $(notdir $@) $(DISPATCH_ALIAS))
 
+#  libulmblas64: the exported names and those of the backends (map64.sh)
+$(BUILD_DIR)/functions64.txt : $(BUILD_DIR)/functions.txt map64.sh
+	$(SHELL) map64.sh $< > $@
+
+$(BUILD_DIR)/names64.h $(BUILD_DIR)/trampolines64.S : \
+                $(BUILD_DIR)/functions64.txt gen.sh
+	$(SHELL) gen.sh $(FORMAT) $< $(BUILD_DIR) 64
+
+$(BUILD_DIR)/exports64.txt : $(BUILD_DIR)/functions64.txt
+	@if [ "$(FORMAT)" = macho-arm64 ]; then \
+	    { awk '{print "_" $$1}' $<; echo _ulmblas_backend; } > $@; \
+	else \
+	    { echo '{ global:'; awk '{print $$1 ";"}' $<; \
+	      echo 'ulmblas_backend;'; echo 'local: *; };'; } > $@; \
+	fi
+
+$(BUILD_DIR)/dispatch64.o : dispatch.c $(BUILD_DIR)/names64.h
+	$(CC) $(CFLAGS) -O2 -fPIC -I$(BUILD_DIR) -DULMBLAS_DISPATCH_INTERFACE64 \
+	      -DULMBLAS_DISPATCH_NAMES='"names64.h"' \
+	      $(if $(BACKEND_DIR),-DULMBLAS_BACKEND_DIR='"$(BACKEND_DIR)"') \
+	      -c -o $@ $<
+
+$(BUILD_DIR)/trampolines64.o : $(BUILD_DIR)/trampolines64.S
+	$(CC) -c -o $@ $<
+
+$(DISPATCH64_LIB) : $(BUILD_DIR)/dispatch64.o $(BUILD_DIR)/trampolines64.o \
+                    $(BUILD_DIR)/exports64.txt
+	$(CC) $(LDFLAGS) -o $@ $(BUILD_DIR)/dispatch64.o \
+	      $(BUILD_DIR)/trampolines64.o $(DISPATCH64_LINK)
+	ln -sf $(notdir $@) $(DISPATCH64_ALIAS)
+
+$(BUILD_DIR)/interface64/include/cblas.h : FORCE
+	$(MAKE) -C ../C -f Makefile.config CONFIG=cblas ULMBLAS_ASM_OBJECTS= \
+	        OUTDIR=$(abspath $(BUILD_DIR))/interface64/include \
+	        BUILD_DIR=$(abspath $(BUILD_DIR))/interface64/obj \
+	        ULMBLAS_INDEX_TYPE=int64_t $(abspath $@)
+
 #  For distribution packages (Linux): the dispatching library once more as
 #  libblas.so.3 and libcblas.so.3, the SONAMEs of the BLAS of the
 #  distributions (Debian's and openSUSE's alternatives, Gentoo's
@@ -205,6 +266,7 @@ $(OUTDIR)/ulmblas.lib : $(BUILD_DIR)/exports.def $(DISPATCH_LIB)
 
 clean :
 	$(RM) -r $(BUILD_DIR) $(DISPATCH_LIB) $(DISPATCH_ALIAS) $(BACKEND_LIBS) \
+	      $(DISPATCH64_LIB) $(DISPATCH64_ALIAS) \
 	      $(OUTDIR)/libblas.so.3 $(OUTDIR)/libcblas.so.3 \
 	      $(OUTDIR)/libulmblas.dll.a $(DISPATCH_IMPLIB) \
 	      $(foreach b,$(BACKENDS),$(OUTDIR)/libulmblas_$(b).dll.a)

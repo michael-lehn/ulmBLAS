@@ -1617,6 +1617,23 @@ void
 F77BLAS(xerbla)(const char *rout, const ULMBLAS_INDEX_TYPE *info, size_t len);
 
 //
+//  Handler of XERBLA set at run time (SET_BLAS_XERBLA( CB ) and
+//  GET_BLAS_XERBLA( CB ) of the Netlib BLAS): XERBLA calls handler instead
+//  of printing; NULL restores the default (print and return), which
+//  get_blas_xerbla_ returns if no handler is set.  A program that defines
+//  XERBLA replaces it, and with it the call of the handler.
+//
+void
+F77BLAS(set_blas_xerbla)(void (*handler)(const char         *srname,
+                                         ULMBLAS_INDEX_TYPE *info,
+                                         size_t             lenSrname));
+
+void
+F77BLAS(get_blas_xerbla)(void (**handler)(const char         *srname,
+                                          ULMBLAS_INDEX_TYPE *info,
+                                          size_t             lenSrname));
+
+//
 //  Threads (ulmBLAS extension, arguments by value): see the C interface
 //
 void

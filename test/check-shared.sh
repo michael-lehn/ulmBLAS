@@ -146,12 +146,16 @@ for t in s d c z; do
     done
 done
 
-#  Extensions of the C interface: sbgemm (bfloat16), shgemm (float16)
-for p in sbgemm shgemm i8gemm i16gemm; do
+#  Extensions of the C interface: sbgemm (bfloat16), shgemm (float16),
+#  int8 and int16 GEMM, the error handlers set at run time; and ?scal
+#  independent of the position of an element
+for p in sbgemm shgemm i8gemm i16gemm xerbla scal; do
     defs=; src=extensions/gemm16.c
     [ $p = shgemm ] && defs=-DFLOAT16
     [ $p = i8gemm ] && src=extensions/i8gemm.c
     [ $p = i16gemm ] && src=extensions/i16gemm.c
+    [ $p = xerbla ] && src=extensions/xerbla.c
+    [ $p = scal ] && src=extensions/scal.c
     if ! $CC $CFLAGS $defs -I$INCDIR -o "$B/c_$p" $src \
             $LINK -lm; then
         echo "FAIL  c_$p: not built"
@@ -164,6 +168,27 @@ for p in sbgemm shgemm i8gemm i16gemm; do
         n_fail=`expr $n_fail + 1`
     fi
 done
+
+#  The dispatching library (interfaces/blas/dispatch: backends
+#  lib${LIBNAME}_<backend> next to it): c_scal once more with each backend
+#  (ULMBLAS_BACKEND); a backend the CPU does not support is skipped (the
+#  library stops with "does not support")
+if [ -x "$B/c_scal" ]; then
+    for f in "$LIBDIR"/lib${LIBNAME}_*; do
+        [ -f "$f" ] || continue
+        b=`basename "$f" | sed -e "s/^lib${LIBNAME}_//" -e 's/\..*$//'`
+        case $b in *[!a-z0-9]*|lbt) continue ;; esac
+        if (cd "$B" && ULMBLAS_BACKEND=$b ./c_scal > "c_scal-$b.out" 2>&1); then
+            echo "PASS  c_scal ($b)"
+            n_pass=`expr $n_pass + 1`
+        elif grep -q "does not support" "$B/c_scal-$b.out"; then
+            echo "SKIP  c_scal ($b): not supported by this CPU"
+        else
+            echo "FAIL  c_scal ($b): `tail -n 1 "$B/c_scal-$b.out"` (see $B/c_scal-$b.out)"
+            n_fail=`expr $n_fail + 1`
+        fi
+    done
+fi
 
 echo "check-shared: PASS $n_pass, FAIL $n_fail"
 [ $n_fail -eq 0 ]

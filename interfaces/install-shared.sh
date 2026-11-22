@@ -12,7 +12,7 @@
 #                                          libulmblas_sme/_neon, _avx512/
 #                                          _avx2/_sse3) for the CPU
 #      PREFIX/lib/libulmlapack.dylib (.so) Reference-LAPACK 3.12.1 on top of
-#                                          libulmblas (needs CMake and a
+#                                          libulmblas (needs GNU make and a
 #                                          Fortran compiler, FC; Windows:
 #                                          bin/libulmlapack.dll,
 #                                          lib/libulmlapack.dll.a,
@@ -20,8 +20,17 @@
 #                                          are downloaded unless
 #                                          LAPACK_TARBALL names the tarball
 #                                          (distributions: FC=none)
+#      PREFIX/lib/libulmblas64.0.dylib (.so.0; not on Windows)
+#                                          BLAS with 64-bit integers under
+#                                          the usual names (dgemm_,
+#                                          cblas_dgemm; as Debian's
+#                                          libblas64, e.g. for FlexiBLAS
+#                                          with 64-bit integers); on Apple
+#                                          Silicon and x86-64 a front of
+#                                          the same backends
 #      PREFIX/include/cblas.h
-#      PREFIX/lib/pkgconfig/ulmblas.pc, ulmlapack.pc
+#      PREFIX/include/ulmblas64/cblas.h    the one of libulmblas64
+#      PREFIX/lib/pkgconfig/ulmblas.pc, ulmblas64.pc, ulmlapack.pc
 #
 #  (lib, bin and include: see the environment below)
 #
@@ -59,6 +68,7 @@
 #                          alternatives), in ULMBLAS_SONAMEDIR (default
 #                          LIBDIR/ulmblas); they load the backends from
 #                          BACKENDDIR
+#      ULMBLAS_INTERFACE64 no: without libulmblas64
 #      ULMBLAS_STEP        build: only build libulmblas (and the libraries
 #                          of ULMBLAS_SONAMES), install nothing (the build
 #                          step of a package; its install step runs the
@@ -120,14 +130,26 @@ BACKENDS=
 #  ULMBLAS_PLATFORM (e.g. Linux-x86_64): the target platform when cross
 #  compiling (conda-forge: from $target_platform); default: this machine
 PLATFORM=${ULMBLAS_PLATFORM:-`uname -s`-`uname -m`}
+#  LIB64, HEADER64: libulmblas64 (the interfaces with 64-bit integers under
+#  the usual names, see interfaces/blas/shared, INTERFACE64) and its
+#  cblas.h; on Apple Silicon and x86-64 Linux a second front of the same
+#  backends, built with them; TARGET64: the build where it is a library
+#  of its own; none on Windows
+LIB64=
+HEADER64=
+TARGET64=
 case $PLATFORM in
     Darwin-arm64)
         SO=dylib; TARGET=shared-dispatch
         LIB="libulmblas.0.dylib libulmblas.dylib"
+        LIB64="libulmblas64.0.dylib libulmblas64.dylib"
+        HEADER64=interfaces/blas/dispatch/build.dispatch/interface64/include/cblas.h
         BACKENDS="libulmblas_neon.dylib libulmblas_sme.dylib" ;;
     Linux-x86_64)
         SO=so; TARGET=shared-dispatch
         LIB="libulmblas.so.0 libulmblas.so"
+        LIB64="libulmblas64.so.0 libulmblas64.so"
+        HEADER64=interfaces/blas/dispatch/build.dispatch/interface64/include/cblas.h
         BACKENDS="libulmblas_sse3.so libulmblas_avx2.so libulmblas_avx512.so
                   libulmblas_generic.so" ;;
     MINGW*-x86_64|MSYS*-x86_64)
@@ -139,8 +161,17 @@ case $PLATFORM in
         echo "error: on macOS only Apple Silicon is supported" >&2; exit 2 ;;
     *)  #  one backend: the micro kernels of ARCHFLAGS (default of make.inc)
         SO=so; TARGET="shared SHARED_VERSION=0"
-        LIB="libulmblas.so.0 libulmblas.so" ;;
+        LIB="libulmblas.so.0 libulmblas.so"
+        LIB64="libulmblas64.so.0 libulmblas64.so"
+        HEADER64=interfaces/blas/shared/build.shared64/cblas.h
+        TARGET64="-C interfaces/blas/shared INTERFACE64=1 SHARED_VERSION=0" ;;
 esac
+#  ULMBLAS_INTERFACE64=no: without libulmblas64
+if [ "${ULMBLAS_INTERFACE64:-yes}" = no ]; then
+    LIB64=
+    HEADER64=
+    TARGET64=
+fi
 
 cd "$TOP" || exit 1
 #  the makefiles take BUILD_DIR and OUTDIR from the environment, where
@@ -157,6 +188,9 @@ if [ -n "$BACKENDS" ] && [ "$BACKENDDIR" != "$LIBDIR" ]; then
     MAKEVARS="$MAKEVARS BACKEND_DIR=$BACKENDDIR"
 fi
 $MAKECMD $TARGET $MAKEVARS || exit 1
+if [ -n "$TARGET64" ]; then
+    $MAKECMD $TARGET64 $MAKEVARS || exit 1
+fi
 SONAMES=${ULMBLAS_SONAMES:-no}
 if [ "$SONAMES" = yes ]; then
     case $PLATFORM in
@@ -212,6 +246,27 @@ Libs: -L\${libdir} -lulmblas$RPATH
 Cflags: -I\${includedir}
 EOF
 echo "installed libulmblas in $DESTDIR$LIBDIR"
+
+#  libulmblas64 (if built: not with ILP64=0) and its cblas.h, in
+#  INCDIR/ulmblas64 beside the cblas.h of libulmblas
+if [ -n "$LIB64" ] && [ -f "`echo $LIB64 | cut -d' ' -f1`" ]; then
+    for l in $LIB64; do
+        cp -fP "$l" "$DESTDIR$LIBDIR/" || exit 1
+    done
+    mkdir -p "$DESTDIR$INCDIR/ulmblas64" || exit 1
+    cp -f "$HEADER64" "$DESTDIR$INCDIR/ulmblas64/cblas.h" || exit 1
+    cat > "$DESTDIR$LIBDIR/pkgconfig/ulmblas64.pc" << EOF
+libdir=$LIBDIR
+includedir=$INCDIR/ulmblas64
+
+Name: ulmblas64
+Description: ulmBLAS (Fortran 77 and CBLAS interface with 64-bit integers, usual names)
+Version: $VERSION
+Libs: -L\${libdir} -lulmblas64$RPATH
+Cflags: -I\${includedir}
+EOF
+    echo "installed libulmblas64 in $DESTDIR$LIBDIR"
+fi
 
 if [ "$FC" = none ] || ! command -v "$FC" > /dev/null 2>&1; then
     echo "no Fortran compiler ($FC): libulmlapack not built" >&2

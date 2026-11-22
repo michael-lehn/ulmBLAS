@@ -1244,6 +1244,54 @@ testLongNrm2Iamax(Context &ctx)
     }
 }
 
+//
+//  scal: the result of an element does not depend on its position in x.
+//  x holds n copies of one value z; after x = alpha*x all elements must be
+//  equal bit for bit.  Offsets 0 ... 15 (all positions of x relative to a
+//  64-byte boundary) and lengths beyond the peel threshold (256), so that
+//  the scalar loops (peel, remainder) and the vectorized loop all occur.
+//  Not required by the BLAS standard, but by LAPACK: its eigenvalue tests
+//  compare results of different paths bit for bit (#0033).
+//
+template <typename T>
+void
+testScalPosition(Context &ctx)
+{
+    const int sizes[] = {1,  2,  3,   5,   7,   8,   13,  16,  31,  33,
+                         64, 70, 255, 256, 257, 271, 300, 512, 1000};
+    const int incs[] = {1, 2};
+
+    Random random;
+    for (int trial = 0; trial < 20; ++trial) {
+	const T alpha = random.value<T>(), z = random.value<T>();
+	for (int inc : incs) {
+	    for (int n : sizes) {
+		for (int offset = 0; offset < 16; ++offset) {
+		    std::vector<T> v(offset + 1 + (n - 1) * inc, z);
+		    T *x = &v[offset];
+		    blas::scal(n, alpha, x, inc);
+		    int differs = -1;
+		    for (int i = 1; i < n && differs < 0; ++i) {
+			if (std::memcmp(&x[0], &x[i * inc], sizeof(T)) != 0) {
+			    differs = i;
+			}
+		    }
+		    if (!ctx.check(
+		            differs < 0,
+		            "scal(n=%d,incX=%d), offset %d, alpha=%s, "
+		            "x(i)=%s for all i: x(0)=%s, x(%d)=%s, %s",
+		            n, inc, offset, str(alpha).c_str(), str(z).c_str(),
+		            str(x[0]).c_str(), differs,
+		            str(x[(differs < 0 ? 0 : differs) * inc]).c_str(),
+		            typeName<T>())) {
+			return;
+		    }
+		}
+	    }
+	}
+    }
+}
+
 } // namespace
 
 ULMBLAS_TEST(T0100, "level1/axpy")
@@ -1399,4 +1447,13 @@ ULMBLAS_TEST(T0121, "level1/nrm2, iamax of long vectors with NaN, Inf and "
     testLongNrm2Iamax<double>(ctx);
     testLongNrm2Iamax<cfloat>(ctx);
     testLongNrm2Iamax<cdouble>(ctx);
+}
+
+ULMBLAS_TEST(T0122, "level1/scal: the result does not depend on the position "
+                    "of an element")
+{
+    testScalPosition<float>(ctx);
+    testScalPosition<double>(ctx);
+    testScalPosition<cfloat>(ctx);
+    testScalPosition<cdouble>(ctx);
 }

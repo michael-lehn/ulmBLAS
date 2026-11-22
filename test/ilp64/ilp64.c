@@ -12,6 +12,7 @@
  */
 #include <complex.h>
 #include <math.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -142,10 +143,41 @@ same(const double *x, const double *y, i64 n)
     return memcmp(x, y, (size_t)n * sizeof(double)) == 0;
 }
 
+/*  the error handlers set at run time (only the setters and getters: the
+ *  handlers of the program below replace the library's) */
+typedef void (*CHandler64)(i64 info, const char *rout, const char *form,
+                           va_list ap);
+typedef void (*F77Handler64)(const char *srname, i64 *info, size_t lenSrname);
+CHandler64
+cblas_set_xerbla_64(CHandler64 handler, F77Handler64 f77Handler);
+CHandler64
+cblas_get_xerbla_64(void);
+void
+set_blas_xerbla_64_(F77Handler64 handler);
+void
+get_blas_xerbla_64_(F77Handler64 *handler);
+
+static void
+cHandler64(i64 info, const char *rout, const char *form, va_list ap)
+{
+    (void)info;
+    (void)rout;
+    (void)form;
+    (void)ap;
+}
+
+static void
+f77Handler64(const char *srname, i64 *info, size_t lenSrname)
+{
+    (void)srname;
+    (void)info;
+    (void)lenSrname;
+}
+
 /*  the error handlers of the program */
 static i64 f77Info = 0;
 static char f77Name[8];
-static int cInfo = 0;
+static i64 cInfo = 0;
 static char cName[32];
 
 void
@@ -156,7 +188,7 @@ xerbla_64_(const char *name, const i64 *info, size_t len)
 }
 
 void
-cblas_xerbla_64(int info, const char *rout, const char *form, ...)
+cblas_xerbla_64(i64 info, const char *rout, const char *form, ...)
 {
     (void)form;
     cInfo = info;
@@ -298,6 +330,24 @@ main(void)
 	               B, two, beta, C2, two);
 	check(cInfo != 0 && strstr(cName, "cblas_dgemm") != NULL,
 	      "cblas_xerbla_64 of the program called (cblas_dgemm_64)");
+    }
+
+    {
+	check(cblas_set_xerbla_64(cHandler64, NULL) == NULL &&
+	          cblas_get_xerbla_64() == cHandler64 &&
+	          cblas_set_xerbla_64(NULL, NULL) == cHandler64 &&
+	          cblas_get_xerbla_64() == NULL,
+	      "cblas_set_xerbla_64, cblas_get_xerbla_64");
+	F77Handler64 initial = NULL, current = NULL;
+	get_blas_xerbla_64_(&initial);
+	set_blas_xerbla_64_(f77Handler64);
+	get_blas_xerbla_64_(&current);
+	check(initial != NULL && current == f77Handler64,
+	      "set_blas_xerbla_64_, get_blas_xerbla_64_");
+	set_blas_xerbla_64_(NULL);
+	get_blas_xerbla_64_(&current);
+	check(current == initial,
+	      "get_blas_xerbla_64_: the default after reset");
     }
 
     printf("ilp64: %s\n", failures ? "FAIL" : "PASS");

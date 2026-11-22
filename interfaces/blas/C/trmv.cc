@@ -155,7 +155,7 @@ CBLAS(strmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (upLo != CblasUpper && upLo != CblasLower) {
@@ -177,7 +177,7 @@ CBLAS(strmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_strmv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_strmv", "");
 	return;
     }
 
@@ -199,7 +199,7 @@ CBLAS(dtrmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (upLo != CblasUpper && upLo != CblasLower) {
@@ -221,7 +221,7 @@ CBLAS(dtrmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_dtrmv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_dtrmv", "");
 	return;
     }
 
@@ -246,7 +246,7 @@ CBLAS(ctrmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (upLo != CblasUpper && upLo != CblasLower) {
@@ -268,7 +268,7 @@ CBLAS(ctrmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_ctrmv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_ctrmv", "");
 	return;
     }
 
@@ -293,7 +293,7 @@ CBLAS(ztrmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
     //
     //  Test the input parameters
     //
-    int info = 0;
+    ULMBLAS_INDEX_TYPE info = 0;
     if (order != CblasColMajor && order != CblasRowMajor) {
 	info = 1;
     } else if (upLo != CblasUpper && upLo != CblasLower) {
@@ -315,7 +315,7 @@ CBLAS(ztrmv)(enum CBLAS_ORDER order, enum CBLAS_UPLO upLo,
 	extern int RowMajorStrg;
 
 	RowMajorStrg = (order == CblasRowMajor) ? 1 : 0;
-	CBLAS(xerbla)(info, "cblas_ztrmv", "... bla bla ...");
+	CBLAS(xerbla)(info, "cblas_ztrmv", "");
 	return;
     }
 

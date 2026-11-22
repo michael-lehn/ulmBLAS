@@ -18,10 +18,17 @@ VARIANTS   = $(foreach variant, $(EXTRACT_VARIANTS),\
 bench: $(BENCH_SUMMARY)
 
 #  The benchmark is run again when the benchmark program (and thus a library
-#  it is linked with) or the configuration has changed.
+#  it is linked with) or the configuration has changed.  The ATLAS testers
+#  check every result against the reference BLAS (-T 1, the default): a
+#  FAIL line fails the benchmark, and the report stays in $(BENCH_REPORT).tmp.
 $(BENCH_REPORT): $(BENCH_DIR)/$(BENCH_CMD) \
                  $(CONFIG_PATH)cases/make.$(CASE).inc $(CONFIG_PATH)config/make.$(CONFIG).inc
-	set -e; $(BENCH_DIR)/$(BENCH_CMD) $(BENCH_OPT) > $(BENCH_REPORT)
+	set -e; $(BENCH_DIR)/$(BENCH_CMD) $(BENCH_OPT) > $(BENCH_REPORT).tmp
+	@if grep ' FAIL *$$' $(BENCH_REPORT).tmp; then \
+	    echo "error: results above the threshold (above), see $(BENCH_REPORT).tmp"; \
+	    exit 1; \
+	fi
+	mv $(BENCH_REPORT).tmp $(BENCH_REPORT)
 
 $(BENCH_SUMMARY) : $(BENCH_REPORT)
 	grep $(GREP_OPTS) $(BENCH_REPORT) > $(BENCH_SUMMARY)

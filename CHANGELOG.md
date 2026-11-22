@@ -3,6 +3,84 @@
 User-visible changes of ulmBLAS per release.  Versions: `vX.Y.Z` tags of
 the Git repository (procedure: [RELEASING.md](https://github.com/michael-lehn/ulmBLAS/blob/master/RELEASING.md)).
 
+## 0.4.2 (unreleased)
+
+### New functions
+
+- Error handlers set at run time, with the interface of the reference
+  implementation of LAPACK (Linear Algebra PACKage), pull request #1407
+  of Reference-LAPACK/lapack: `cblas_set_xerbla`, `cblas_get_xerbla`
+  (the handler gets the position of the invalid parameter in the call of
+  the C function and a `va_list`; the second argument of
+  `cblas_set_xerbla`, the handler for the Fortran 77 interface, is not
+  used: the C interface of ulmBLAS does not call it), `set_blas_xerbla_`,
+  `get_blas_xerbla_`, and the ILP64 (64-bit integer) names with the
+  suffixes `_64` and `_64_`.  A program that defines `cblas_xerbla` or
+  `xerbla_` still replaces them.
+- Hooks of FlexiBLAS in the shared library (as a FlexiBLAS backend):
+  `flexiblas_backend_set_num_threads`, so that `flexiblas_set_num_threads`
+  and its aliases (`openblas_set_num_threads`, ...) set the threads of
+  ulmBLAS; `flexiblas_backend_get_num_threads`; `__flexiblas_set_xerbla`,
+  through which FlexiBLAS passes the `XERBLA` of the program.
+- The shared library `libulmblas` also exports the LAPACK functions of
+  ulmBLAS (LP64 (32-bit integer) and ILP64 names): `?getrf`, `?getrs`,
+  `?gesv`, `?getri`, `?potrf`, `?potrs`, `?posv`, `?potri`, `?trtrs`,
+  `?trtri`, `?lauum` and `?laswp` for `s`, `d`, `c`, `z`.  `libulmlapack`
+  (Reference-LAPACK) uses them instead of its own, and so does FlexiBLAS
+  with the backend ulmBLAS (the rest of LAPACK from its reference
+  implementation).
+- `libulmblas64`: the interfaces with 64-bit integers under the usual
+  names (`dgemm_`, `cblas_dgemm`, `xerbla_`, `lsame_` with a 64-bit
+  `LOGICAL`, the LAPACK functions of ulmBLAS), as Debian's `libblas64`,
+  for programs compiled with 64-bit `INTEGER` and as the backend of
+  FlexiBLAS with 64-bit integers (`libflexiblas64` looks up only these
+  names).  `make install-shared` installs it with
+  `include/ulmblas64/cblas.h` and `ulmblas64.pc` (not on Windows); on
+  Apple Silicon and x86-64 Linux it is a second front of the backends of
+  `libulmblas`.
+
+### Changed
+
+- The parameter number of `cblas_xerbla` has the index type
+  `ULMBLAS_INDEX_TYPE` (before: `int`), as `CBLAS_INT` of the reference:
+  `cblas_xerbla_64` takes `int64_t`.  Unchanged for the default index type
+  `int`.
+- `libulmlapack` (Reference-LAPACK on top of ulmBLAS) is built with the
+  makefiles of LAPACK instead of CMake: `make install-shared` needs no
+  CMake any more.  Optimization as before (`-O2`, `LAPACK_FOPT`).
+
+### Libraries and packaging
+
+- Fedora: `flexiblas-ulmblas` also registers `libulmblas64` for FlexiBLAS
+  with 64-bit integers (`flexiblas64rc.d`).
+- openSUSE: the alternatives `libblas.so.3` and `libcblas.so.3` on aarch64
+  as well (as Debian's arm64 package), removed again on uninstall;
+  no errors from rpmlint.
+- The LAPACK test suite (`interfaces/lapack/reference/build.sh ...
+  test`) fails on numerical errors except the borderline cases listed in
+  `known-failures.txt`, on failed error exits and on unfinished test
+  programs; `test-all` also on the listed cases.  It runs on Windows
+  (MSYS2, Minimal SYStem 2) against `libulmlapack.dll`.
+
+### Fixes
+
+- `?laswp` (the LAPACK function of ulmBLAS) with `K1 > 1` read the pivots
+  from `IPIV(1)` instead of `IPIV(K1)`.
+- Complex `?scal`: equal elements of x could get different results,
+  depending on their position (the vectorized loop and the scalar loops
+  contracted the complex product into FMA (fused multiply-add) in
+  different ways; seen with the AVX2 (Advanced Vector Extensions 2)
+  backend).  The product is now written with `std::fma` where the
+  hardware has FMA.  LAPACK's eigenvalue tests CEV, CVX and CGV failed
+  because of it.
+- Apple Silicon, SME (Scalable Matrix Extension) backend: complex GEMM
+  (general matrix-matrix product) for m, n <= 8 used a NEON kernel that
+  sums the products of the complex multiplication in another order than
+  the SME kernels, so an element of C depended on m and n (LAPACK's tests
+  CEV, CGV, ZEV and ZGV failed).  Now the SME kernels for all sizes.
+- MSVC (Microsoft Visual C++): no warning C4324 for the aligned counters
+  of the thread pool and of GEMM (padded explicitly).
+
 ## 0.4.1 (2026-11-18)
 
 ### New functions

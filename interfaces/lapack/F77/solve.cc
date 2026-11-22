@@ -285,7 +285,7 @@ laswp(const F77Int *n_, T *A, const F77Int *ldA_, const F77Int *k1_,
 	T *a = &A[j * ldA];
 	for (F77Int c = 0; c <= k2 - k1; ++c) {
 	    const F77Int i = incx > 0 ? k1 + c : k2 - c; // 1-based row
-	    const F77Int ip = ipiv[(i - k1) * ai];
+	    const F77Int ip = ipiv[k1 - 1 + (i - k1) * ai];
 	    if (ip != i) {
 		std::swap(a[i - 1], a[ip - 1]);
 	    }

@@ -134,9 +134,10 @@ check-reference-lapack : tool-ar tool-cc tool-fc-link
 	          $(BUILD)/reference-lapack
 
 #
-#  check-reference-lapack-lin: ?getrf and ?potrf (Fortran 77 interface)
-#  with the test programs xlintst[sdcz] of Reference-LAPACK 3.12.1 on the
-#  paths GE and PO, see reference-lapack-lin.sh.  Not part of make check.
+#  check-reference-lapack-lin: the LAPACK functions of ulmBLAS (Fortran 77
+#  interface) with the test programs xlintst[sdcz] of Reference-LAPACK
+#  3.12.1 on the paths GE, PO, TR and S2/H2, see reference-lapack-lin.sh.
+#  Not part of make check.
 #
 check-reference-lapack-lin : tool-ar tool-fc-link
 	@$(MAKE) lib-f77-$(REFERENCE_CONFIG)

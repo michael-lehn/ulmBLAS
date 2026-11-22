@@ -102,9 +102,15 @@ struct GemmThreads
 	return a > max / b ? max : a * b;
     }
 
-    //  BLIS's bli_thread_partition_2x2_fast: nt = nt1 nt2, nt1 : nt2 about
-    //  work1 : work2.  BLIS divides the work by the factors (doubles); here
-    //  work1 / t1 and work2 / t2 are compared as work1 t2 and work2 t1.
+    //  Splits nt threads into a grid of nt1 x nt2 threads (nt1 nt2 = nt):
+    //  nt1 threads share work1 (e.g. the rows of C), nt2 threads share work2
+    //  (the columns), so that the work per thread is about the same in both
+    //  directions, work1 / nt1 about work2 / nt2.  The prime factors of nt,
+    //  smallest first, go one by one to the direction with more work per
+    //  thread; at the end a factor 2 moves to the other direction if that
+    //  balances better.  As bli_thread_partition_2x2_fast of BLIS (BLAS-like
+    //  Library Instantiation Software), which divides with doubles; here
+    //  work1 / t1 > work2 / t2 is computed as work1 t2 > work2 t1.
     static void
     partition2x2(std::ptrdiff_t nt, std::int64_t work1, std::int64_t work2,
                  std::ptrdiff_t &nt1, std::ptrdiff_t &nt2)
@@ -119,13 +125,12 @@ struct GemmThreads
 	for (std::ptrdiff_t f = 2; rest > 1;) {
 	    if (rest % f != 0) {
 		++f;
-		continue;
-	    }
-	    rest /= f;
-	    if (work1 * t2 > work2 * t1) {
+	    } else if (work1 * t2 > work2 * t1) {
 		t1 *= f;
+		rest /= f;
 	    } else {
 		t2 *= f;
+		rest /= f;
 	    }
 	}
 	//  a = work1 / t1, b = work2 / t2; times 2 t1 t2:

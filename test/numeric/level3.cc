@@ -854,6 +854,58 @@ ULMBLAS_TEST(T0395, "level3/?trsm, ?trmm: the cases of T0373 and T0376 "
     pool.setSize(0);
 }
 
+//
+//  T0396: the decision of s at x must be expected (count bounds read).
+//
+static void
+checkSteps(test::Context &ctx, const char *name, const ulmBLAS::TunedSteps &s,
+           std::ptrdiff_t count, const std::int64_t (*xy)[2], std::ptrdiff_t n)
+{
+    ctx.check(s.count == count, "%s: count %td, expected %td", name, s.count,
+              count);
+    for (std::ptrdiff_t q = 0; q < n; ++q) {
+	ctx.check(s(xy[q][0]) == xy[q][1],
+	          "%s: x = %lld gives %lld, expected %lld", name,
+	          (long long)xy[q][0], (long long)s(xy[q][0]),
+	          (long long)xy[q][1]);
+    }
+}
+
+ULMBLAS_TEST(T0396, "config/TunedSteps: one value, lists {v0, b0, v1, ...} "
+                    "ending with a value or a bound, more bounds than "
+                    "MaxSteps (8)")
+{
+    typedef ulmBLAS::TunedSteps Steps;
+
+    const std::int64_t empty[][2] = {{-1, 0}, {0, 0}, {1000, 0}};
+    checkSteps(ctx, "{}", Steps(std::initializer_list<std::int64_t>{}), 0,
+               empty, 3);
+
+    const std::int64_t one[][2] = {{-1, 7}, {0, 7}, {1000000, 7}};
+    checkSteps(ctx, "7", Steps(std::int64_t(7)), 0, one, 3);
+    checkSteps(ctx, "{7}", Steps({7}), 0, one, 3);
+
+    const std::int64_t two[][2] = {{99, 5}, {100, 7}, {1000, 7}};
+    checkSteps(ctx, "{5, 100, 7}", Steps({5, 100, 7}), 1, two, 3);
+
+    //  ending with a bound: the last value repeated
+    const std::int64_t endBound[][2] = {{99, 5}, {100, 5}, {1000, 5}};
+    checkSteps(ctx, "{5, 100}", Steps({5, 100}), 1, endBound, 3);
+
+    const std::int64_t three[][2] = {{99, 5},  {100, 7}, {199, 7},
+                                     {200, 9}, {300, 9}, {1000, 9}};
+    checkSteps(ctx, "{5, 100, 7, 200, 9, 300}", Steps({5, 100, 7, 200, 9, 300}),
+               3, three, 6);
+
+    //  9 bounds: the ninth (900) and the value after it (90) are ignored
+    const std::int64_t nine[][2] = {{99, 10},  {100, 11}, {799, 17},
+                                    {800, 18}, {900, 18}, {1000, 18}};
+    checkSteps(ctx, "9 bounds",
+               Steps({10, 100, 11, 200, 12, 300, 13, 400, 14, 500, 15, 600, 16,
+                      700, 17, 800, 18, 900, 90}),
+               8, nine, 6);
+}
+
 ULMBLAS_TEST(T0300, "level3/sgemm")
 {
     testGemm<float>(ctx);
