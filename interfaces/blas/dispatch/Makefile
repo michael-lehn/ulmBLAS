@@ -159,9 +159,12 @@ $(BUILD_DIR)/functions.txt : $(BACKEND_LIBS)
 	    fi; \
 	done; mv $@.$$first $@; rm -f $@.*
 
-$(BUILD_DIR)/names.h $(BUILD_DIR)/trampolines.S : $(BUILD_DIR)/functions.txt \
-                                                   gen.sh
-	$(SHELL) gen.sh $(FORMAT) $< $(BUILD_DIR)
+#  one pattern rule for both files: gen.sh runs once.  Two explicit targets
+#  would be two rules with the same recipe, and make -j ran gen.sh twice at
+#  the same time (a truncated trampolines.S gave a DLL without exports);
+#  grouped targets (&:) need GNU make 4.3, macOS has 3.81
+%/names.h %/trampolines.S : %/functions.txt gen.sh
+	$(SHELL) gen.sh $(FORMAT) $< $*
 
 #  the exports of the dispatching library (macOS: names, Linux: version
 #  script; Windows: -export directives in trampolines.S, dllexport)
@@ -193,9 +196,8 @@ $(DISPATCH_LIB) : $(BUILD_DIR)/dispatch.o $(BUILD_DIR)/trampolines.o \
 $(BUILD_DIR)/functions64.txt : $(BUILD_DIR)/functions.txt map64.sh
 	$(SHELL) map64.sh $< > $@
 
-$(BUILD_DIR)/names64.h $(BUILD_DIR)/trampolines64.S : \
-                $(BUILD_DIR)/functions64.txt gen.sh
-	$(SHELL) gen.sh $(FORMAT) $< $(BUILD_DIR) 64
+%/names64.h %/trampolines64.S : %/functions64.txt gen.sh
+	$(SHELL) gen.sh $(FORMAT) $< $* 64
 
 $(BUILD_DIR)/exports64.txt : $(BUILD_DIR)/functions64.txt
 	@if [ "$(FORMAT)" = macho-arm64 ]; then \
