@@ -6,7 +6,6 @@
 #include <complex>
 #include <cstdio>
 #include <limits>
-#include <vector>
 
 typedef std::complex<double> dcomplex;
 
@@ -52,18 +51,21 @@ main()
     std::printf("(inf,inf) * (1,0): operator* (%g,%g), formula (%g,%g)\n",
                 p.real(), p.imag(), q.real(), q.imag());
 
-    const long n = 1000;
+    const long n = 1000; // a constant: x can be an array
     const int reps = 1000000;
-    std::vector<dcomplex> x(n, dcomplex(1, 0));
+    dcomplex x[n];
+    for (long i = 0; i < n; ++i) {
+	x[i] = dcomplex(1, 0);
+    }
     const dcomplex alpha(0.6, 0.8); // |alpha| = 1: no overflow
     const double tStd = seconds([&] {
 	for (int r = 0; r < reps; ++r) {
-	    scalStd(n, alpha, x.data());
+	    scalStd(n, alpha, x);
 	}
     });
     const double tFormula = seconds([&] {
 	for (int r = 0; r < reps; ++r) {
-	    scalFormula(n, alpha, x.data());
+	    scalFormula(n, alpha, x);
 	}
     });
     std::printf("x = alpha x, n = %ld, %d times: operator* %.3f s, formula "

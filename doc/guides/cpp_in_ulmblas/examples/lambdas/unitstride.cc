@@ -1,15 +1,15 @@
 // A function that takes "what to do" as a parameter: withUnitStride copies
 // a strided matrix into a contiguous buffer, calls f on the copy and copies
 // it back, as in ulmblas/lapack/unitstride.tcc.  The caller passes a lambda.
+#include "../common/buffer.h"
 #include <cstdio>
 #include <cstdlib>
-#include <vector>
 
 template <typename T, typename F>
 long
 withUnitStride(long m, long n, T *A, long incRowA, long incColA, F f)
 {
-    std::vector<T> B(m * n); // column major, leading dimension m
+    Buffer<T> B(m * n); // column major, leading dimension m
     for (long j = 0; j < n; ++j) {
 	for (long i = 0; i < m; ++i) {
 	    B[i + j * m] = A[i * incRowA + j * incColA];
