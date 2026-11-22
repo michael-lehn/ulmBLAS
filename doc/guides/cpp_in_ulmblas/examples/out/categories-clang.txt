@@ -1,0 +1,21 @@
+x                          lvalue
+42                         prvalue
+x + 1                      prvalue
+a[1]                       lvalue
+*p                         lvalue
+p + 1                      prvalue
+"abc"                      lvalue
+++x                        lvalue
+x++                        prvalue
+x = 2                      lvalue
+x > 0 ? x : a[0]           lvalue
+x > 0 ? x : 0              prvalue
+ref()                      lvalue
+val()                      prvalue
+rref()                     xvalue
+std::move(x)               xvalue
+static_cast<int &&>(x)     xvalue
+s.m                        lvalue
+S().m                      xvalue
+std::move(s).m             xvalue
+double(x)                  prvalue

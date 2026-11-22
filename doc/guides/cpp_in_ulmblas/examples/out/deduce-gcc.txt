@@ -1,0 +1,7 @@
+templates/deduce.cc:21:9: error: no matching function for call to 'scal(long int&, double, double [4], int)'
+   21 |     scal(n, 2.0, x, 1); // IndexType: long from n, int from 1
+  • there is 1 candidate
+    • candidate 1: 'template<class IndexType, class Alpha, class VX> void scal(IndexType, const Alpha&, VX*, IndexType)'
+          8 | scal(IndexType n, const Alpha &alpha, VX *x, IndexType incX)
+        •   deduced conflicting types for parameter 'IndexType' ('long int' and 'int')
+             21 |     scal(n, 2.0, x, 1); // IndexType: long from n, int from 1

@@ -1,0 +1,6 @@
+Vector w(make(2, true)):  a prvalue
+  Vector(2): allocate
+  Vector(4): allocate
+  move: take over the memory
+  move: take over the memory
+  w.size() = 4

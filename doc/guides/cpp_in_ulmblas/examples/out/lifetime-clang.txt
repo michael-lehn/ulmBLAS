@@ -1,0 +1,5 @@
+s = 2.5
+r1 = 1.5
+==...==ERROR: AddressSanitizer: stack-use-after-scope on address 0x... at pc 0x... bp 0x... sp 0x...
+READ of size 8 at 0x... thread T0
+    #0 0x... in main lifetime.cc:31

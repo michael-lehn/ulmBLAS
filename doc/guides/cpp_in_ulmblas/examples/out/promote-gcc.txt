@@ -1,0 +1,5 @@
+alpha float,  A float,    B float        T = float
+alpha double, A float,    B float        T = double
+alpha float,  A double,   B double       T = double
+alpha float,  A fcomplex, B fcomplex     T = std::complex<float>
+alpha dcomplex, A double, B double       T = std::complex<double>

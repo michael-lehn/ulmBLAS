@@ -1,0 +1,12 @@
+Vector x(3):
+  Vector(3): allocate
+Vector y(x):  x is an lvalue
+  copy: allocate and copy 3 elements
+Vector z(std::move(x)):  an xvalue
+  move: take over the memory
+  now x.size() = 0, z.size() = 3
+Vector w(make(2, true)):  a prvalue
+  Vector(2): allocate
+  Vector(4): allocate
+  move: take over the memory
+  w.size() = 4

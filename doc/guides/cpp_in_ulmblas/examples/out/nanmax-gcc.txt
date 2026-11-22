@@ -1,0 +1,7 @@
+std::max(nan, 1)  = nan
+std::max(1, nan)  = 1
+std::fmax(nan, 1) = 1
+std::fmax(1, nan) = 1
+maxNan(nan, 1)    = nan
+maxNan(1, nan)    = nan
+maximum of 1, nan, 3, 2: std::max 3, maxNan nan

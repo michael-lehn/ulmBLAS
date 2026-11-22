@@ -1,0 +1,20 @@
+_cblas_dscal:
+	sub	w8, w0, #1
+	smull	x8, w8, w2
+	sub	x8, x1, x8, lsl #3
+	tst	w2, #0x80000000
+	csel	x8, x1, x8, eq
+	cmp	w0, #1
+	b.lt	LBB0_3
+	sxtw	x9, w0
+	sxtw	x10, w2
+	lsl	x10, x10, #3
+LBB0_2:
+	ldr	d1, [x8]
+	fmul	d1, d0, d1
+	str	d1, [x8]
+	add	x8, x8, x10
+	subs	x9, x9, #1
+	b.ne	LBB0_2
+LBB0_3:
+	ret

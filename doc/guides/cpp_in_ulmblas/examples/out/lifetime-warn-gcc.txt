@@ -1,0 +1,7 @@
+values/lifetime.cc: In function 'int main(int, char**)':
+values/lifetime.cc:30:19: warning: possibly dangling reference to a temporary [-Wdangling-reference]
+   30 |     const double &r2 = real(a * b);
+      |                   ^~
+values/lifetime.cc:30:31: note: 'const double' temporary created here
+   30 |     const double &r2 = real(a * b);
+      |                             ~~^~~

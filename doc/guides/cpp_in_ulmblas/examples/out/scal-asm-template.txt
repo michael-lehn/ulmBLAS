@@ -1,0 +1,14 @@
+__Z4scalIlffEvT_RKT0_PT1_S0_:
+	cmp	x0, #1
+	b.lt	LBB3_3
+	lsl	x8, x3, #2
+LBB3_2:
+	ldr	s0, [x1]
+	ldr	s1, [x2]
+	fmul	s0, s0, s1
+	str	s0, [x2]
+	add	x2, x2, x8
+	subs	x0, x0, #1
+	b.ne	LBB3_2
+LBB3_3:
+	ret

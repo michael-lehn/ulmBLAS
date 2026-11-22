@@ -1,0 +1,13 @@
+__Z5sscallfPfl:
+	cmp	x0, #1
+	b.lt	LBB0_3
+	lsl	x8, x2, #2
+LBB0_2:
+	ldr	s1, [x1]
+	fmul	s1, s0, s1
+	str	s1, [x1]
+	add	x1, x1, x8
+	subs	x0, x0, #1
+	b.ne	LBB0_2
+LBB0_3:
+	ret
