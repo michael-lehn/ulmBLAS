@@ -132,7 +132,11 @@ hardware.
 
 Since then ulmBLAS has grown into a real library, with a portable build,
 a regression test suite on several compilers and architectures, and
-documented, reproducible benchmarks.  It is also listed in
+documented, reproducible benchmarks.  The concepts behind it are
+explained in [guides](doc/README.md) based on my lecture, each with small,
+complete examples, for instance
+[vectorization and multithreading with OpenMP (Open Multi-Processing) and C++ atomics](doc/guides/vectorization_and_multithreading.pdf).
+It is also listed in
 [Meta Quest's third-party software notices](https://www.meta.com/en/legal/quest/third-party-notices/14/)
 ("ulmBLAS Copyright (C) 2014 Michael C. Lehn. Ulm University").
 

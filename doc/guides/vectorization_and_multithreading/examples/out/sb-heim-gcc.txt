@@ -1,0 +1,4 @@
+r1 = r2 = 0 in 20000000 slots, three runs each
+relaxed:     68   release/acquire:      0   seq_cst:      0
+relaxed:      0   release/acquire:      0   seq_cst:      0
+relaxed:    164   release/acquire: 175474   seq_cst:      0

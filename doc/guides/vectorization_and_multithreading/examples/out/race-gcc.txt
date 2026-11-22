@@ -1,0 +1,5 @@
+racy:       10000000     0.1 ms
+volatile:    2559068     8.0 ms
+atomic:     10000000   105.5 ms
+omp atomic: 10000000    84.6 ms
+reduction:  10000000     0.0 ms

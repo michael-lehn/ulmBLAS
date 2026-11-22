@@ -1,0 +1,4 @@
+simd/axpy.cc:10:31: missed: couldn't vectorize loop
+simd/axpy.cc:10:31: missed: would need a runtime alias check
+simd/axpy.cc:20:5: optimized: loop vectorized using 16 byte vectors and unroll factor 2
+simd/axpy.cc:32:12: optimized: loop vectorized using 16 byte vectors and unroll factor 2
