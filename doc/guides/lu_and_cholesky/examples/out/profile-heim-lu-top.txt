@@ -1,0 +1,6 @@
+    43.92%  [.] ulmBLAS::blis::kernel::haswell_8x6::bli_dgemm_haswell_asm_8x6
+    24.82%  [.] ulmblas_openblas_dgemm_kernel_haswell_4x8
+     8.91%  [.] ulmBLAS::blis::kernel::haswell_12x4::bli_dgemm_haswell_asm_12x4
+     6.48%  [.] ulmBLAS::getrf2_impl::rec<long, double, long>
+     2.19%  [.] __memmove_avx_unaligned_erms
+     1.64%  [.] ulmBLAS::blis::kernel::haswell_6x8::bli_dgemm_haswell_asm_6x8

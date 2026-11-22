@@ -1,0 +1,5 @@
+1 / pivot = inf
+x / pivot = 2           x * (1 / pivot) = inf
+x / pivot = -0.5        x * (1 / pivot) = -inf
+x / pivot = 0.01        x * (1 / pivot) = inf
+sfmin = 2.22507e-308, 1 / sfmin = 4.49423e+307

@@ -1,0 +1,6 @@
+  5.0 %  trsm: solve of the diagonal tiles
+  0.0 %  row interchanges
+  0.2 %  unblocked base case
+  2.7 %  memmove, memset (copies, zeroing)
+ 91.4 %  gemm: micro kernels and packing
+  0.7 %  other
