@@ -8,10 +8,11 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <new>
 #include <stdlib.h>
+#include <ulmblas/auxiliary/once.h>
 #if defined(_WIN32)
 #include <malloc.h>
-#include <new>
 
 //  Fiber local storage of kernel32 (declared here, not by <windows.h>,
 //  whose macros could clash with names of ulmBLAS)
@@ -25,6 +26,8 @@ FlsGetValue(unsigned long);
 __declspec(dllimport) int __stdcall
 FlsSetValue(unsigned long, void *);
 }
+#else
+#include <pthread.h>
 #endif
 
 namespace ulmBLAS {
@@ -149,31 +152,80 @@ free(T *block)
 #endif
 }
 
-#if !defined(_WIN32)
-
-template <typename T>
-typename MemoryPool<T>::ThreadCache &
-MemoryPool<T>::threadCache()
-{
-    thread_local ThreadCache cache;
-    return cache;
-}
-
-#else
-
 //
-//  Windows: the cache of a thread is kept in fiber local storage, whose
-//  callback frees it when the thread ends; FlsFree (when the library is
-//  unloaded or the process ends) frees the caches of all threads.  A
-//  thread_local object with a destructor is destroyed by libstdc++'s
-//  __cxa_thread_atexit, which with some MinGW-w64 runtimes (conda-forge's
-//  GCC 15) runs the destructors a second time at process exit, on freed
-//  memory.
+//  The cache of a thread is kept in thread-specific storage of the system
+//  (a pthread key, fiber local storage on Windows), whose callback frees it
+//  when the thread ends.  It is no thread_local object with a destructor:
+//  that is destroyed by __cxa_thread_atexit of the C++ runtime, which
+//  ulmBLAS does not link (and which with some MinGW-w64 runtimes,
+//  conda-forge's GCC 15, runs the destructors a second time at process
+//  exit, on freed memory).  At the end of the process, or when the library
+//  is unloaded, the slot is deleted (atexit), so that no callback of an
+//  unloaded library is called afterwards: on Windows FlsFree frees the
+//  caches of all threads, with pthreads the cache of the calling thread is
+//  freed (pthread_key_delete calls no destructors).
 //
 namespace memorypool {
 
+#if defined(_WIN32)
+#define ULMBLAS_SLOT_CALLBACK __stdcall
+typedef unsigned long SlotKey;
+
+inline bool
+slotCreate(SlotKey &key, void(__stdcall *callback)(void *))
+{
+    key = FlsAlloc(callback);
+    return key != 0xFFFFFFFFul; // FLS_OUT_OF_INDEXES
+}
+
+inline void *
+slotGet(SlotKey key)
+{
+    return FlsGetValue(key);
+}
+
+inline bool
+slotSet(SlotKey key, void *value)
+{
+    return FlsSetValue(key, value) != 0;
+}
+
+inline void
+slotDelete(SlotKey key)
+{
+    FlsFree(key);
+}
+#else
+#define ULMBLAS_SLOT_CALLBACK
+typedef pthread_key_t SlotKey;
+
+inline bool
+slotCreate(SlotKey &key, void (*callback)(void *))
+{
+    return pthread_key_create(&key, callback) == 0;
+}
+
+inline void *
+slotGet(SlotKey key)
+{
+    return pthread_getspecific(key);
+}
+
+inline bool
+slotSet(SlotKey key, void *value)
+{
+    return pthread_setspecific(key, value) == 0;
+}
+
+inline void
+slotDelete(SlotKey key)
+{
+    pthread_key_delete(key);
+}
+#endif
+
 template <typename Cache>
-void __stdcall
+void ULMBLAS_SLOT_CALLBACK
 releaseCache(void *cache)
 {
     if (cache) {
@@ -182,23 +234,39 @@ releaseCache(void *cache)
     }
 }
 
-struct FlsSlot
+#undef ULMBLAS_SLOT_CALLBACK
+
+template <typename Cache> struct CacheSlot
 {
-    static constexpr unsigned long none = 0xFFFFFFFFul; // FLS_OUT_OF_INDEXES
+    SlotKey key;
+    std::atomic<bool> valid;
 
-    unsigned long index;
-
-    explicit FlsSlot(void(__stdcall *callback)(void *))
-        : index(FlsAlloc(callback))
+    static CacheSlot &
+    instance()
     {
+	static Lazy<CacheSlot> slot;
+	return slot.get([](void *at) {
+	    CacheSlot *s = new (at) CacheSlot;
+	    const bool created = slotCreate(s->key, &releaseCache<Cache>);
+	    s->valid.store(created, std::memory_order_relaxed);
+	    if (created) {
+		std::atexit(&atExit);
+	    }
+	});
     }
 
-    ~FlsSlot()
+  private:
+    static void
+    atExit()
     {
-	if (index != none) {
-	    FlsFree(index);
-	    index = none;
-	}
+	CacheSlot &s = instance();
+	s.valid.store(false, std::memory_order_relaxed);
+#if !defined(_WIN32)
+	void *cache = slotGet(s.key);
+	slotSet(s.key, nullptr);
+	releaseCache<Cache>(cache);
+#endif
+	slotDelete(s.key);
     }
 };
 
@@ -208,14 +276,16 @@ template <typename T>
 typename MemoryPool<T>::ThreadCache &
 MemoryPool<T>::threadCache()
 {
-    static memorypool::FlsSlot slot(&memorypool::releaseCache<ThreadCache>);
-    //  without a slot (none left, or freed at process exit) the cache of
+    typedef memorypool::CacheSlot<ThreadCache> Slot;
+    Slot &slot = Slot::instance();
+    //  without a slot (none left, or deleted at process exit) the cache of
     //  the thread is not freed
     thread_local ThreadCache *unmanaged = nullptr;
 
     ThreadCache *cache = unmanaged;
-    if (!cache && slot.index != memorypool::FlsSlot::none) {
-	cache = static_cast<ThreadCache *>(FlsGetValue(slot.index));
+    const bool managed = slot.valid.load(std::memory_order_relaxed);
+    if (!cache && managed) {
+	cache = static_cast<ThreadCache *>(memorypool::slotGet(slot.key));
     }
     if (!cache) {
 	void *p = std::malloc(sizeof(ThreadCache));
@@ -223,15 +293,12 @@ MemoryPool<T>::threadCache()
 	    outOfMemory(1, sizeof(ThreadCache));
 	}
 	cache = new (p) ThreadCache();
-	if (slot.index == memorypool::FlsSlot::none ||
-	    !FlsSetValue(slot.index, cache)) {
+	if (!managed || !memorypool::slotSet(slot.key, cache)) {
 	    unmanaged = cache;
 	}
     }
     return *cache;
 }
-
-#endif
 
 template <typename T> MemoryPool<T>::ThreadCache::~ThreadCache()
 {

@@ -36,8 +36,10 @@
 //  trivially destructible.
 //
 
+#include <ulmblas/auxiliary/clock.h>
+#include <ulmblas/auxiliary/once.h>
+
 #include <atomic>
-#include <chrono>
 #include <cinttypes>
 #include <cstddef>
 #include <cstdint>
@@ -237,9 +239,7 @@ start(void (*fn)(void *), void *arg)
 inline std::int64_t
 nanoseconds()
 {
-    return std::int64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
-                            std::chrono::steady_clock::now().time_since_epoch())
-                            .count());
+    return monotonicNanoseconds();
 }
 
 //  ULMBLAS_SPIN_US: how long an idle worker spins before it sleeps, in
@@ -248,14 +248,14 @@ nanoseconds()
 inline std::int64_t
 idleSpinNanoseconds()
 {
-    static const std::int64_t ns = [] {
+    static Lazy<std::int64_t> ns;
+    return ns.get([](void *at) {
 	const char *value = std::getenv("ULMBLAS_SPIN_US");
 	const std::int64_t us =
 	    value ? std::int64_t(std::strtoll(value, nullptr, 10))
 	          : std::int64_t(100000);
-	return (us > 0 ? us : 0) * std::int64_t(1000);
-    }();
-    return ns;
+	new (at) std::int64_t((us > 0 ? us : 0) * std::int64_t(1000));
+    });
 }
 
 //
@@ -320,8 +320,8 @@ struct CpuOrder
     static const CpuOrder &
     instance()
     {
-	static const CpuOrder order = make();
-	return order;
+	static Lazy<CpuOrder> order;
+	return order.get([](void *at) { new (at) CpuOrder(make()); });
     }
 
   private:
@@ -379,8 +379,8 @@ struct Affinity
     static Affinity &
     instance()
     {
-	static Affinity affinity;
-	return affinity;
+	static Lazy<Affinity> affinity;
+	return affinity.get([](void *at) { new (at) Affinity(); });
     }
 
     void
@@ -644,8 +644,9 @@ class ThreadPool
     static ThreadPool &
     instance()
     {
-	static ThreadPool pool(defaultNumThreads());
-	return pool;
+	static Lazy<ThreadPool> pool;
+	return pool.get(
+	    [](void *at) { new (at) ThreadPool(defaultNumThreads()); });
     }
 
     //  the maximal number of threads of a parallel region

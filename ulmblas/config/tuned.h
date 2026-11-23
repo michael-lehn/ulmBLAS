@@ -5,6 +5,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
+#include <new>
+#include <ulmblas/auxiliary/once.h>
 #include <ulmblas/config/platform.h>
 
 //
@@ -246,14 +248,14 @@ namespace ulmBLAS {
 inline Tuned &
 tuned()
 {
-    static Tuned value = [] {
-	Tuned p = tunedDefaults(platform());
+    static Lazy<Tuned> value;
+    return value.get([](void *at) {
+	Tuned *p = new (at) Tuned(tunedDefaults(platform()));
 #if !defined(USE_TESTPARAM)
-	tunedForPlatform(platform(), p);
+	tunedForPlatform(platform(), *p);
 #endif
-	return p;
-    }();
-    return value;
+	(void)p;
+    });
 }
 
 } // namespace ulmBLAS

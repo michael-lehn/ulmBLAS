@@ -4,8 +4,10 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdlib>
+#include <new>
 #include <type_traits>
 #include <ulmblas/auxiliary/memorypool.h>
+#include <ulmblas/auxiliary/once.h>
 #include <ulmblas/auxiliary/threadpool.h>
 #include <ulmblas/config/inline.h>
 #include <ulmblas/config/platform.h>
@@ -194,12 +196,13 @@ template <typename Frame> struct TrsmFrame
     static bool
     invertTiles()
     {
-	static const std::ptrdiff_t env = [] {
+	static Lazy<std::ptrdiff_t> lazyEnv;
+	const std::ptrdiff_t env = lazyEnv.get([](void *at) {
 	    const char *v = std::getenv("ULMBLAS_TRSM_INV");
-	    return v && (v[0] == '0' || v[0] == '1')
-	               ? std::ptrdiff_t(v[0] - '0')
-		       : std::ptrdiff_t(-1);
-	}();
+	    new (at) std::ptrdiff_t(v && (v[0] == '0' || v[0] == '1')
+	                                ? std::ptrdiff_t(v[0] - '0')
+					: std::ptrdiff_t(-1));
+	});
 	const std::ptrdiff_t t =
 	    env >= 0 ? env : tuned().trsmInvert[TunedIndex<T>::value];
 	if (t >= 0) {
@@ -640,12 +643,11 @@ struct TrsmOp
     static constexpr std::size_t sizeA = sizeof(TA);
 
     template <typename F>
-    static Plan
+    static constexpr Plan
     plan(const char *name)
     {
 	typedef TrsmFrame<typename GemmFrameOf<F>::type> Frame;
-	Plan p = {&Frame::template run<IndexType, Alpha, TA, TB>, name};
-	return p;
+	return Plan{&Frame::template run<IndexType, Alpha, TA, TB>, name};
     }
 };
 

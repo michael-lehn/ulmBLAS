@@ -122,11 +122,10 @@ struct GemmOp
     static constexpr std::size_t sizeA = sizeof(TA);
 
     template <typename F>
-    static Plan
+    static constexpr Plan
     plan(const char *name)
     {
-	Plan p = {&F::template run<IndexType, Alpha, TA, TB, Beta, TC>, name};
-	return p;
+	return Plan{&F::template run<IndexType, Alpha, TA, TB, Beta, TC>, name};
     }
 };
 

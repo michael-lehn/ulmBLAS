@@ -318,13 +318,12 @@ struct SymmOp
     static constexpr std::size_t sizeA = sizeof(TA);
 
     template <typename F>
-    static Plan
+    static constexpr Plan
     plan(const char *name)
     {
 	typedef SymmFrame<typename GemmFrameOf<F>::type, Herm> Frame;
-	Plan p = {&Frame::template run<IndexType, Alpha, TA, TB, Beta, TC>,
-	          name};
-	return p;
+	return Plan{&Frame::template run<IndexType, Alpha, TA, TB, Beta, TC>,
+	            name};
     }
 };
 

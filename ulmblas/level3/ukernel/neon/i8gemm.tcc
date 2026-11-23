@@ -21,7 +21,9 @@
 //
 #include <arm_neon.h>
 #include <cstdint>
+#include <new>
 #include <type_traits>
+#include <ulmblas/auxiliary/once.h>
 
 #if defined(__APPLE__)
 #include <sys/sysctl.h>
@@ -43,8 +45,10 @@ hasDotProd()
 #elif defined(__APPLE__)
     return true; // all Apple Silicon
 #elif defined(__linux__)
-    static const bool has = (getauxval(AT_HWCAP) & (1UL << 20)) != 0;
-    return has; // HWCAP_ASIMDDP
+    static Lazy<bool> has; // HWCAP_ASIMDDP
+    return has.get([](void *at) {
+	new (at) bool((getauxval(AT_HWCAP) & (1UL << 20)) != 0);
+    });
 #else
     return false;
 #endif
@@ -56,17 +60,19 @@ hasI8MM()
 #if defined(__ARM_FEATURE_MATMUL_INT8)
     return true;
 #elif defined(__APPLE__)
-    static const bool has = [] {
+    static Lazy<bool> has;
+    return has.get([](void *at) {
 	int v = 0;
 	size_t len = sizeof(v);
-	return sysctlbyname("hw.optional.arm.FEAT_I8MM", &v, &len, nullptr,
-	                    0) == 0 &&
-	       v == 1;
-    }();
-    return has;
+	new (at) bool(sysctlbyname("hw.optional.arm.FEAT_I8MM", &v, &len,
+	                           nullptr, 0) == 0 &&
+	              v == 1);
+    });
 #elif defined(__linux__)
-    static const bool has = (getauxval(AT_HWCAP2) & (1UL << 13)) != 0;
-    return has; // HWCAP2_I8MM
+    static Lazy<bool> has; // HWCAP2_I8MM
+    return has.get([](void *at) {
+	new (at) bool((getauxval(AT_HWCAP2) & (1UL << 13)) != 0);
+    });
 #else
     return false;
 #endif

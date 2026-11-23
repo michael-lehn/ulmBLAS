@@ -30,7 +30,9 @@
 #include <cstdint>
 #include <cstring>
 #include <immintrin.h>
+#include <new>
 #include <type_traits>
+#include <ulmblas/auxiliary/once.h>
 #include <ulmblas/level3/i8gemm/driver.h>
 
 #if defined(__GNUC__)
@@ -59,11 +61,12 @@ hasAvxVnniBusd()
 #if defined(ULMBLAS_I8GEMM_NO_VNNI) || !defined(ULMBLAS_HAVE_AVXVNNI_BUSD)
     return false;
 #else
-    static const bool has = [] {
+    static Lazy<bool> has; // CPUID.(7,1):EAX[4] AVX-VNNI
+    return has.get([](void *at) {
 	unsigned a, b, c, d;
-	return __get_cpuid_count(7, 1, &a, &b, &c, &d) && (a & (1u << 4));
-    }();
-    return has; // CPUID.(7,1):EAX[4] AVX-VNNI
+	new (at) bool(__get_cpuid_count(7, 1, &a, &b, &c, &d) &&
+	              (a & (1u << 4)));
+    });
 #endif
 }
 
@@ -73,11 +76,13 @@ hasAvx512Vnni()
 #if defined(ULMBLAS_I8GEMM_NO_VNNI) || !defined(ULMBLAS_HAVE_AVX512VNNI_BUSD)
     return false;
 #else
-    static const bool has = [] {
+    //  CPUID.(7,0):ECX[11] AVX512_VNNI (the backend has AVX-512F)
+    static Lazy<bool> has;
+    return has.get([](void *at) {
 	unsigned a, b, c, d;
-	return __get_cpuid_count(7, 0, &a, &b, &c, &d) && (c & (1u << 11));
-    }();
-    return has; // CPUID.(7,0):ECX[11] AVX512_VNNI (the backend has AVX-512F)
+	new (at) bool(__get_cpuid_count(7, 0, &a, &b, &c, &d) &&
+	              (c & (1u << 11)));
+    });
 #endif
 }
 

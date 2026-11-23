@@ -427,12 +427,11 @@ struct TrmmOp
     static constexpr std::size_t sizeA = sizeof(TA);
 
     template <typename F>
-    static Plan
+    static constexpr Plan
     plan(const char *name)
     {
 	typedef TrmmFrame<typename GemmFrameOf<F>::type> Frame;
-	Plan p = {&Frame::template run<IndexType, Alpha, TA, TB>, name};
-	return p;
+	return Plan{&Frame::template run<IndexType, Alpha, TA, TB>, name};
     }
 };
 

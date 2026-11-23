@@ -5,8 +5,9 @@
 //  Synchronization helpers of the task-based factorizations (OpenMP).
 //
 
+#include <ulmblas/auxiliary/clock.h>
+
 #include <atomic>
-#include <chrono>
 
 namespace ulmBLAS {
 namespace tasks {
@@ -59,8 +60,7 @@ cpuRelax()
 inline double
 seconds()
 {
-    using namespace std::chrono;
-    return duration<double>(steady_clock::now().time_since_epoch()).count();
+    return double(monotonicNanoseconds()) * 1e-9;
 }
 
 //

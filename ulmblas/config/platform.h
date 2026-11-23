@@ -1,8 +1,11 @@
 #ifndef ULMBLAS_CONFIG_PLATFORM_H
 #define ULMBLAS_CONFIG_PLATFORM_H 1
 
+#include <ulmblas/auxiliary/once.h>
+
 #include <cstdlib>
 #include <cstring>
+#include <new>
 
 #if defined(__APPLE__)
 #include <sys/sysctl.h>
@@ -146,11 +149,11 @@ detectPlatform()
 inline Platform
 platform()
 {
-    static const Platform platform_ = []() {
+    static Lazy<Platform> platform_;
+    return platform_.get([](void *at) {
 	const char *name = std::getenv("ULMBLAS_PLATFORM");
-	return name ? platformFromName(name) : detectPlatform();
-    }();
-    return platform_;
+	new (at) Platform(name ? platformFromName(name) : detectPlatform());
+    });
 }
 
 } // namespace ulmBLAS

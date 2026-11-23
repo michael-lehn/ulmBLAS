@@ -298,13 +298,12 @@ struct GemmtOp
     static constexpr std::size_t sizeA = sizeof(TA);
 
     template <typename F>
-    static Plan
+    static constexpr Plan
     plan(const char *name)
     {
 	typedef GemmtFrame<typename GemmFrameOf<F>::type> Frame;
-	Plan p = {&Frame::template run<IndexType, Alpha, TA, TB, Beta, TC>,
-	          name};
-	return p;
+	return Plan{&Frame::template run<IndexType, Alpha, TA, TB, Beta, TC>,
+	            name};
     }
 };
 
