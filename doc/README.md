@@ -19,3 +19,11 @@ The order is the suggested order of reading.
 The examples are complete programs; `examples/run.sh` compiles and runs
 them with two compilers and writes the outputs shown in the guide to
 `examples/out`.
+
+## License
+
+The text of the guides (and the PDF files) is licensed under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (Creative
+Commons Attribution 4.0 International); the example programs are licensed
+under the BSD (Berkeley Software Distribution) 3-Clause License, like
+ulmBLAS.  See [guides/LICENSE](guides/LICENSE).

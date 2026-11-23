@@ -483,7 +483,8 @@ The origins and licenses of third-party micro-kernels are documented separately 
 
 ## License, provenance and acknowledgments
 
-ulmBLAS is licensed under the BSD 3-Clause License (Copyright (c)
+ulmBLAS is licensed under the BSD (Berkeley Software Distribution)
+3-Clause License (Copyright (c)
 2014-2026, Michael C. Lehn and the ulmBLAS contributors), see
 [LICENSE](LICENSE).  Third-party components keep their own copyright and
 license terms, which [LICENSE](LICENSE) reproduces:
@@ -527,6 +528,12 @@ OpenBLAS, oneMKL, AOCL-BLAS, Eigen and Apple Accelerate, which are not
 part of ulmBLAS.  I (Michael C. Lehn, Ulm University) wrote ulmBLAS and
 work on it alone; Sebastian Kölle (GitHub: aquileia) contributed early on
 with the repository setup and the plots of the benchmarks.
+
+The guides in [doc/guides](doc/guides) are licensed differently: their
+text under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+(Creative Commons Attribution 4.0 International), their example programs
+under the BSD 3-Clause License, see
+[doc/guides/LICENSE](doc/guides/LICENSE).
 
 ## Background and citation
 

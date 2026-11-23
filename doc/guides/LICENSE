@@ -1,0 +1,113 @@
+The ulmBLAS guides are licensed in parts: the text under CC BY 4.0
+(Creative Commons Attribution 4.0 International License), the example
+programs and the quoted code of ulmBLAS under the BSD (Berkeley Software
+Distribution) 3-Clause License of ulmBLAS, and the quoted code that
+ulmBLAS took from BLIS (BLAS-like Library Instantiation Software; BLAS:
+Basic Linear Algebra Subprograms) under the license of BLIS.
+
+Text, figures and PDF files
+======================================================================
+
+Copyright (c) 2026, Michael C. Lehn.
+
+The text of the guides (the LaTeX sources, the figures and the PDF
+files) is licensed under CC BY 4.0:
+
+    https://creativecommons.org/licenses/by/4.0/
+
+You may share and adapt the guides for any purpose, provided that you
+give appropriate credit, provide a link to the license and indicate
+whether changes were made.
+
+The code in the guides keeps its own license, also where it is printed
+in the PDF files: the example programs and the excerpts of ulmBLAS as
+described in the next section, the excerpts derived from BLIS as
+described in the last section.
+
+Example programs and excerpts of ulmBLAS
+======================================================================
+
+The example programs (the directories examples/ of the guides,
+including the build and run scripts, and the scripts
+ulmblas-excerpts/extract.sh) are licensed under the BSD 3-Clause
+License, like ulmBLAS:
+
+    Copyright (c) 2026, Michael C. Lehn and the ulmBLAS contributors.
+
+The excerpts of ulmBLAS quoted in the guides (the other files of the
+directories ulmblas-excerpts/) are part of ulmBLAS and licensed under its
+BSD 3-Clause License:
+
+    Copyright (c) 2014-2026, Michael C. Lehn and the ulmBLAS contributors.
+
+All rights reserved.  For both:
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+Excerpts derived from BLIS
+======================================================================
+
+The two excerpts of the NEON micro kernel in the guide on GEMM (general
+matrix-matrix product), gemm/ulmblas-excerpts/ugemm-neon-comment.txt and
+gemm/ulmblas-excerpts/ugemm-neon-loop.txt (from the file
+ulmblas/level3/ukernel/neon/ugemm.tcc of ulmBLAS), are derived from the
+micro kernel bli_dgemm_armv8a_asm_8x6r of BLIS and are distributed under
+the license of that file:
+
+BLIS
+An object-based framework for developing high-performance BLAS-like
+libraries.
+
+Copyright (C) 2014, The University of Texas at Austin
+Copyright (C) 2021, The University of Tokyo
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+ - Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+ - Neither the name(s) of the copyright holder(s) nor the names of its
+   contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+The license of ulmBLAS, with the notices of all third-party components:
+https://github.com/michael-lehn/ulmBLAS/blob/master/LICENSE
