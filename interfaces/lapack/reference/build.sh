@@ -124,8 +124,17 @@ if [ "$SO" = dll ]; then
     ${DLLTOOL:-dlltool} -d "$BUILD/libulmlapack.def" -D libulmlapack.dll \
         -l "$LIBDIR/ulmlapack.lib" || exit 1
 elif [ "$SO" = dylib ]; then
+    #  macOS binds every symbol to the library it came from at link time
+    #  (two-level namespace): programs linked against a libulmlapack that
+    #  still had the routines of LEFT_OUT look for them here, so they are
+    #  re-exported from libulmblas
+    for r in $LEFT_OUT; do echo "_${r}_"; done > "$BUILD/reexported.txt"
+    REEXPORT=
+    if [ -s "$BUILD/reexported.txt" ]; then
+        REEXPORT="-Wl,-reexported_symbols_list,$BUILD/reexported.txt"
+    fi
     $FC -dynamiclib -install_name @rpath/libulmlapack.dylib \
-        -Wl,-force_load,"$ARCHIVE" -L"$LIBDIR" -lulmblas \
+        -Wl,-force_load,"$ARCHIVE" -L"$LIBDIR" -lulmblas $REEXPORT \
         -Wl,-rpath,@loader_path -o "$OUT" || exit 1
 else
     $FC -shared -Wl,-soname,libulmlapack.so \

@@ -3,6 +3,17 @@
 User-visible changes of ulmBLAS per release.  Versions: `vX.Y.Z` tags of
 the Git repository (procedure: [RELEASING.md](https://github.com/michael-lehn/ulmBLAS/blob/master/RELEASING.md)).
 
+## 0.4.3 (unreleased)
+
+### Fixes
+
+- macOS: `libulmlapack` re-exports the LAPACK (Linear Algebra PACKage)
+  functions that `libulmblas` has had since 0.4.2 (`?getrf`, `?gesv`,
+  `?potrf`, ...).  macOS binds every symbol to the library it came from
+  when a program is linked, so programs linked against `libulmlapack`
+  0.4.1 look for them there; with 0.4.2 they did not load (e.g. NumPy
+  built with `interfaces/python/numpy.sh`: `Symbol not found: _cgesv_`).
+
 ## 0.4.2 (2026-11-23)
 
 ### New functions
