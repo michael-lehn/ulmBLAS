@@ -25,8 +25,11 @@ data type with exactly one `-DULMBLAS_DGEMM_UKERNEL_<origin>_<name>`
 ([`blis/select_s.h`](blis/select_s.h), [`select_c.h`](blis/select_c.h),
 [`select_z.h`](blis/select_z.h)); the four selections are independent.
 Its default block sizes are those of the upstream configuration that uses
-it.  There is no run-time dispatch:
-the CPU must support the instruction set the build selects.
+it.  Within one build the kernels are selected at compile time: the CPU
+must support the instruction set the build selects.  The dispatching
+library `libulmblas` (`make shared-dispatch`, `make install-shared`)
+selects at run time: it loads one of several such builds, the backends,
+for the CPU (see [ARCHITECTURE.md](../../../ARCHITECTURE.md)).
 
 **Status.**  "Tested" means that the complete test suite (`make check`:
 numeric tests and the Netlib BLAS and CBLAS test programs) passes with the
