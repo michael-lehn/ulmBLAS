@@ -36,7 +36,7 @@ If ulmBLAS is useful to you, a star on GitHub helps others find it.
 - [Supported Platforms](#supported-platforms)
 - [How to Install](#how-to-install)
 - [How to Use](#how-to-use)
-- [How ulmBLAS is organized](#how-ulmblas-is-organized)
+- [How ulmBLAS is organized (and the guides)](#how-ulmblas-is-organized)
 - [Use of AI-assisted development](#use-of-ai-assisted-development)
 - [License, provenance and acknowledgments](#license-provenance-and-acknowledgments)
 - [Background and citation](#background-and-citation)
@@ -405,6 +405,22 @@ How the GEMM algorithm and the source tree are organized, how micro
 kernels are selected and how to add one, the interfaces, the tests, and
 how to run your own benchmarks: all of that is in
 [ARCHITECTURE.md](ARCHITECTURE.md).
+
+Why the code is organized this way is explained in four guides
+([doc/README.md](doc/README.md)), each a PDF with small, complete examples
+and excerpts of the code of ulmBLAS:
+
+- [From C to C++: what is relevant in ulmBLAS](doc/guides/cpp_in_ulmblas.pdf):
+  the C++ features ulmBLAS uses, those it avoids, and why
+- [GEMM and the level-3 BLAS in ulmBLAS](doc/guides/gemm.pdf): from the
+  caches to the micro kernel, the other level-3 functions, kernels for
+  small matrices, the choice of an implementation at run time
+- [The LU and Cholesky factorizations in ulmBLAS](doc/guides/lu_and_cholesky.pdf):
+  variants, recursion, task graphs, LU with lookahead, choosing the
+  algorithm
+- [Vectorization and multithreading with OpenMP and C++ atomics](doc/guides/vectorization_and_multithreading.pdf):
+  `omp simd`, fork–join with atomic flags, tasks, the memory model of
+  C++
 
 ## Use of AI-assisted development
 
