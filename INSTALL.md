@@ -379,6 +379,15 @@ $HOME/venv-ulmblas/bin/python -c 'import numpy; numpy.show_config()'
   SciPy 1.10 on x86-64 (`numpy.linalg`, `scipy.linalg`: one slow test,
   `test_orth_memory_efficiency`, fails marginally; the reference BLAS
   passes it with 90% of the tolerance, see packaging/README.md).
+- Fedora's NumPy and SciPy call BLAS through FlexiBLAS: with
+  `flexiblas-ulmblas` and `flexiblas default ULMBLAS` (or
+  `FLEXIBLAS=ULMBLAS` in the environment) they use ulmBLAS.  Tested:
+  Fedora 43 on aarch64, NumPy 2.3.5 (the `numpy.linalg` tests pass) and
+  SciPy 1.16.2.
+- `numpy.sh` with the Homebrew installation as PREFIX (`$(brew --prefix
+  ulmblas)`): tested with NumPy 2.5.5 on an M5; NumPy refers to the
+  libraries in `/opt/homebrew/opt/ulmblas`, so it keeps working after
+  `brew upgrade`.
 
 ## Test
 
@@ -473,7 +482,7 @@ mkdir -p $HOME/opt/ulmblas/include $HOME/opt/ulmblas/lib
 cp cblas.h clapack.h $HOME/opt/ulmblas/include/
 cp libcblas.a libclapack.a $HOME/opt/ulmblas/lib/
 cc -I$HOME/opt/ulmblas/include -c examples/dgemm.c -o dgemm.o
-c++ -o dgemm dgemm.o -L$HOME/opt/ulmblas/lib -lcblas
+cc -o dgemm dgemm.o -L$HOME/opt/ulmblas/lib -lcblas -lm -pthread
 ```
 
 For the header-only C++ interface, copy the directory `ulmblas/` (it

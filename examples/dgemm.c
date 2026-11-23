@@ -5,8 +5,7 @@
  *
  *      make
  *      cc -I. -c examples/dgemm.c -o dgemm.o
- *      c++ -o dgemm dgemm.o libcblas.a        # libcblas.a needs the C++
- * runtime
+ *      cc -o dgemm dgemm.o libcblas.a -lm -pthread
  *      ./dgemm
  */
 #include <stdio.h>

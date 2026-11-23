@@ -3,7 +3,7 @@
 User-visible changes of ulmBLAS per release.  Versions: `vX.Y.Z` tags of
 the Git repository (procedure: [RELEASING.md](https://github.com/michael-lehn/ulmBLAS/blob/master/RELEASING.md)).
 
-## 0.4.2 (unreleased)
+## 0.4.2 (2026-11-23)
 
 ### New functions
 
@@ -48,6 +48,36 @@ the Git repository (procedure: [RELEASING.md](https://github.com/michael-lehn/ul
 - `libulmlapack` (Reference-LAPACK on top of ulmBLAS) is built with the
   makefiles of LAPACK instead of CMake: `make install-shared` needs no
   CMake any more.  Optimization as before (`-O2`, `LAPACK_FOPT`).
+- The libraries link no C++ runtime (no `libstdc++`, no `libc++`; before:
+  `libc++` on macOS, `libstdc++` statically on Windows and on Linux if
+  `libstdc++.a` exists).  The library code is compiled without
+  exceptions (`-fno-exceptions`) and the shared libraries are linked with
+  `-nostdlib++` (clang, GCC 13 or newer); before linking, the objects are
+  checked for references to the runtime.  `ULMBLAS_STATIC_LIBSTDCXX` only
+  matters for GCC before 13.  Programs link `libcblas.a` with a C
+  compiler (`cc ... libcblas.a -lm -pthread`); before, they needed a C++
+  compiler.
+- The build is one make: no make calls another (before: a makefile per
+  directory, called with `$(MAKE) -C` for every configuration, backend and
+  index type).  The rules of the libraries are generated for each build
+  with `$(eval)` (`mk/`, see `mk/README.md`), so `make -j` builds
+  everything with one job server and rebuilds only what is out of date.
+  The targets and variables are the same; new targets `build-shared` (the
+  build step of a package), `check-package` (its test) and `shared64`.
+  `make install-shared` installs with make; `interfaces/install-shared.sh`
+  only runs it, for the recipes that call the script.  `make sonames`
+  (`ULMBLAS_SONAMES=yes`) also on Linux without the dispatching library
+  (aarch64: the library linked as `libblas.so.3` and `libcblas.so.3`).
+
+### Documentation
+
+- Guides in `doc/guides/` (PDF with the example programs; not in the
+  release tarball), written for the course High Performance Computing I
+  at Ulm University: GEMM (general matrix-matrix product) and the
+  level-3 BLAS (Basic Linear Algebra Subprograms), the LU (lower-upper)
+  and Cholesky factorizations, vectorization and multithreading with
+  OpenMP (Open Multi-Processing) and C++ atomics, and the C++ features
+  ulmBLAS uses.  Overview: `doc/README.md`.
 
 ### Libraries and packaging
 

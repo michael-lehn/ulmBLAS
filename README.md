@@ -22,7 +22,8 @@ is sometimes behind (see there and [Performance](#performance)).
 
 - Julia: `Pkg.add("UlmBLAS")`, then `using UlmBLAS; UlmBLAS.forward()`
 - macOS on Apple Silicon: `brew install michael-lehn/ulmblas/ulmblas`
-- Fedora and openSUSE packages, NumPy:
+- Python (NumPy, SciPy): [Python](#python-numpy-scipy)
+- Fedora and openSUSE packages:
   [INSTALL.md](INSTALL.md#shared-libraries-for-numpy-and-other-programs)
 - From source: [How to Install](#how-to-install)
 
@@ -270,12 +271,50 @@ brew install michael-lehn/ulmblas/ulmblas
 The formula builds ulmBLAS from source (a few minutes) with the SME and
 NEON kernels.
 
+### Python (NumPy, SciPy)
+
+NumPy and SciPy call the BLAS and LAPACK library they were built or
+installed with.  The wheels from PyPI (`pip install numpy`) bring their
+own (OpenBLAS, on macOS Accelerate) and do not use ulmBLAS.  These ways
+work:
+
+- Fedora: the NumPy and SciPy of the distribution use FlexiBLAS, which
+  switches to ulmBLAS without rebuilding anything:
+
+  ```sh
+  sudo dnf copr enable mlehn/ulmblas
+  sudo dnf install flexiblas-ulmblas python3-numpy python3-scipy
+  flexiblas default ULMBLAS           # for you; FLEXIBLAS=ULMBLAS for one program
+  ```
+
+- Homebrew (macOS) or ulmBLAS installed from source: a virtual
+  environment with NumPy built against ulmBLAS
+  ([numpy.sh](interfaces/python/numpy.sh), a few minutes):
+
+  ```sh
+  brew install michael-lehn/ulmblas/ulmblas
+  git clone https://github.com/michael-lehn/ulmBLAS.git
+  sh ulmBLAS/interfaces/python/numpy.sh $(brew --prefix ulmblas) $HOME/venv-ulmblas
+  $HOME/venv-ulmblas/bin/python -c 'import numpy; numpy.show_config()'
+  ```
+
+  From source: `make install-shared PREFIX=$HOME/ulmblas`, then
+  `numpy.sh $HOME/ulmblas ...`.
+- conda-forge, once the recipe is merged: `conda install -c conda-forge
+  numpy "libblas=*=*ulmblas"`.
+- Debian and other distributions whose NumPy links `libblas.so.3`:
+  [INSTALL.md](INSTALL.md#shared-libraries-for-numpy-and-other-programs).
+
+For products of int8, int16, float16 and bfloat16 matrices, which NumPy
+computes without BLAS, see
+[interfaces/python/ulmblas.py](interfaces/python/ulmblas.py) below.
+
 ## How to Use
 
 You can use ulmBLAS like any other CBLAS implementation
 ([examples/dgemm.c](examples/dgemm.c)).  Compile against `cblas.h` and
-link with `libcblas.a`, using a C++ compiler for linking, because the
-library needs the C++ runtime:
+link with `libcblas.a`.  A C compiler is enough: the library needs no
+C++ runtime, only the math library and threads:
 
 ```c
 #include <cblas.h>
@@ -291,7 +330,7 @@ cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, 2, 2, 3,
 
 ```sh
 cc -I. -c examples/dgemm.c -o dgemm.o
-c++ -o dgemm dgemm.o libcblas.a
+cc -o dgemm dgemm.o libcblas.a -lm -pthread
 ./dgemm                                           # C = [ 7 5 ; 16 11 ]
 ```
 
