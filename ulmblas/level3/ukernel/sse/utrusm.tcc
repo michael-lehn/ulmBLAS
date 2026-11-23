@@ -2,7 +2,6 @@
 #define ULMBLAS_LEVEL3_UKERNEL_SSE_UTRUSM_TCC 1
 
 #include <cstdint>
-#include <iostream>
 #include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level1extensions/gecopy.h>
 #include <ulmblas/level3/ukernel/sse/utrusm.h>

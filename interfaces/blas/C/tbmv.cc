@@ -4,8 +4,6 @@
 #include <interfaces/blas/C/xerbla.h>
 #include <ulmblas/ulmblas.h>
 
-#include <iostream>
-
 extern "C" {
 
 void

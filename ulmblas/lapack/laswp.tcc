@@ -1,8 +1,6 @@
 #ifndef ULMBLAS_LAPACK_LASWP_TCC
 #define ULMBLAS_LAPACK_LASWP_TCC 1
 
-#include <iostream>
-
 #include <algorithm>
 #include <ulmblas/lapack/laswp.h>
 #include <ulmblas/level1/swap.h>

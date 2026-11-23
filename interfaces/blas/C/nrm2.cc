@@ -2,8 +2,6 @@
 #include <complex>
 #include <ulmblas/ulmblas.h>
 
-#include <iostream>
-
 extern "C" {
 
 float

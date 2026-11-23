@@ -1,7 +1,6 @@
 #ifndef ULMBLAS_LEVEL3_UKERNEL_REF_UTRUSM_TCC
 #define ULMBLAS_LEVEL3_UKERNEL_REF_UTRUSM_TCC 1
 
-#include <iostream>
 #include <ulmblas/level3/ukernel/ugemm.h>
 #include <ulmblas/level1extensions/gecopy.h>
 #include <ulmblas/level3/ukernel/ref/utrusm.h>
