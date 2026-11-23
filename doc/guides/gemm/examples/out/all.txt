@@ -1,0 +1,9 @@
+n = 2000, one thread
+                              seconds   GFLOPS
+gemm    C <- A B                0.248     64.5
+symm    C <- S B                0.242     66.1
+syrk    C <- A A^T              0.124     64.5
+syr2k   C <- A B^T + B A^T      0.249     64.4
+gemmt   C <- A B (triangle)     0.125     64.0
+trmm    B <- T B                0.130     61.4
+trsm    B <- T^{-1} B           0.129     62.2

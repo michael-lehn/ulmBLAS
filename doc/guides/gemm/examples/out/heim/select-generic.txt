@@ -1,0 +1,9 @@
+platform: generic
+    m     n     k  selected                           GFLOPS
+    8     8     8  avx-small                            21.6
+   64    64    64  avx-small                            56.1
+  256   256   256  default                              56.7
+ 2000  2000  2000  default                              60.0
+ 2000  2000    16  default                              46.6
+ 2000    16  2000  default                              29.9
+   16  2000  2000  default                              27.4

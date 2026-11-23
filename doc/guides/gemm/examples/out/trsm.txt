@@ -1,0 +1,9 @@
+m = n = 2048, one thread
+      KB   GFLOPS   substitution
+      16     36.9            11%
+      64     47.3            23%
+     256     37.6            48%
+    1024     20.7            84%
+    2048     13.6           100%
+ ulmBLAS     52.0
+    gemm     60.6   (the blocked gemm, 2048 x 2048 x 2048)

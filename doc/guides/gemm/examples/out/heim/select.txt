@@ -1,0 +1,9 @@
+platform: intel-alderlake
+    m     n     k  selected                           GFLOPS
+    8     8     8  avx-small                            21.7
+   64    64    64  avx-small                            56.0
+  256   256   256  avx-small                            56.6
+ 2000  2000  2000  d-openblas-haswell-4x8               59.9
+ 2000  2000    16  d-openblas-haswell-4x8               26.9
+ 2000    16  2000  d-blis-haswell-12x4                  34.3
+   16  2000  2000  avx-small                            56.9
