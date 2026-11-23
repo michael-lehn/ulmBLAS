@@ -169,10 +169,10 @@ be glad to hear about the results.
 
 A benchmark plot takes some space, but people expect one on the front page
 of an HPC BLAS library, so here we go.  This is DGEMM on one performance
-core of an Apple M5 (MacBook Air) with the SME2 backend of ulmBLAS
-([campaign 007](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/007-2026-10-26-macbook-m5-sme-small/README.md)):
+core of an Apple M5 (MacBook Air) with the SME2 backend of ulmBLAS 0.4.2
+([campaign 040](https://github.com/michael-lehn/ulmBLAS/blob/master/benchmark_results/040-2026-11-23-macbook-m5-dgemm-sweep/README.md)):
 
-![Square DGEMM n = 50 ... 4000 on an Apple M5: ulmBLAS SME2, Apple Accelerate, BLIS PR #921](https://raw.githubusercontent.com/michael-lehn/ulmBLAS/master/benchmark_results/007-2026-10-26-macbook-m5-sme-small/plots/sweep.svg)
+![Square DGEMM n = 50 ... 4000 on an Apple M5: ulmBLAS 0.4.2 SME2, Apple Accelerate, BLIS PR #921](https://raw.githubusercontent.com/michael-lehn/ulmBLAS/master/benchmark_results/040-2026-11-23-macbook-m5-dgemm-sweep/plots/sweep.svg)
 
 The plot shows how fast the product C ← A B + C of two square n x n
 matrices of double precision numbers is computed, for n from 50 to 4000.
@@ -181,9 +181,18 @@ Speed is measured in GFLOP/s, billions of floating-point operations
 them.  More is better.  The dotted line is the peak of the core's matrix
 unit as I measured it with a microbenchmark that does nothing but its
 outer-product instructions (542 GFLOP/s), so the closer a curve gets to
-it, the better the hardware is used.  For large matrices ulmBLAS reaches
-up to 490 GFLOP/s and is 1.06 to 1.15 times as fast as Apple Accelerate
-(n ≥ 1050).  For medium sizes (n = 36 … 850) Accelerate is still faster.
+it, the better the hardware is used.  ulmBLAS reaches up to 510 GFLOP/s,
+94 % of that peak.
+
+The same measurement as speedup: how many times as fast ulmBLAS is as
+Apple Accelerate and as BLIS (above 1, ulmBLAS is faster):
+
+![Speedup of ulmBLAS 0.4.2 over Apple Accelerate and BLIS PR #921, square DGEMM n = 50 ... 4000 on an Apple M5](https://raw.githubusercontent.com/michael-lehn/ulmBLAS/master/benchmark_results/040-2026-11-23-macbook-m5-dgemm-sweep/plots/sweep_ratio.svg)
+
+Compared with Apple Accelerate, ulmBLAS is 1.00 to 1.32 times as fast for
+n ≤ 250, 0.96 to 1.11 times for n = 300 … 1000 and 0.99 to 1.21 times for
+larger matrices.  For none of the 80 sizes is Accelerate clearly faster
+(its slowest of five rounds faster than the fastest of ulmBLAS).
 
 In the [cULMblas tutorial](https://github.com/michael-lehn/ulmBLAS/blob/master/cuda/README.md) (work in progress) you will
 find a whole bunch of benchmarks for GEMM with CUDA, where we start with a

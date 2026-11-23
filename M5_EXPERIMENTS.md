@@ -181,6 +181,16 @@ the medians differ by less than 1%.)
   AddressSanitizer and ThreadSanitizer) and every tile remainder of the
   direct path.
 
+**Update (release 0.4.2).**  The gap for medium sizes is closed from n =
+50 on (n = 36 … 49 not measured again): with the
+run-time selection of 0.4.1 (gemmSelect and the SME2 macro kernel), the
+sweep of
+[campaign 040](benchmark_results/040-2026-11-23-macbook-m5-dgemm-sweep/README.md)
+measures ulmBLAS at 1.00 to 1.32 times the speed of Accelerate for n ≤
+250 and 0.96 to 1.11 for n = 300 … 1000; Accelerate is clearly faster for
+none of the 80 sizes from 50 to 4000.  The rest of this section describes
+the state of October 2026.
+
 **What remains.**  For n = 36 … 850 Accelerate is still faster.  Every
 call of the 32 x 16 SME2 micro kernel moves a tile of C through ZA (about
 55 ns at the bandwidth of the SME unit) for only kc FMOPA steps, and both

@@ -31,8 +31,11 @@ make help                         # all targets and settings
 ## Choosing the micro kernels
 
 The micro kernels are selected at compile time with `ARCHFLAGS`, and the
-library then needs a CPU with these instructions.  To find suitable
-flags, run
+library then needs a CPU with these instructions.  The dispatching
+library of `make shared-dispatch` and `make install-shared` selects them
+at run time instead (see
+[Shared libraries for NumPy and other programs](#shared-libraries-for-numpy-and-other-programs)).
+To find suitable flags, run
 
 ```sh
 make check_arch

@@ -134,6 +134,17 @@ n ≤ 500 and relative to OpenBLAS and oneMKL.
 Experiments with this backend (block sizes, small matrices):
 [M5_EXPERIMENTS.md](M5_EXPERIMENTS.md).
 
+**Current state (release 0.4.2).**  The measurements below are those of
+October 2026 (campaign 004).  Since 0.4.1 the backend selects its kernels
+and block sizes per problem size at run time
+([campaign 039](benchmark_results/039-2026-11-15-macbook-m5-gemm-select/README.md)).
+The sweep n = 50 … 4000 of
+[campaign 040](benchmark_results/040-2026-11-23-macbook-m5-dgemm-sweep/README.md)
+(the plot in the README) measures release 0.4.2 against Accelerate: 1.00
+to 1.32 times as fast for n ≤ 250, 0.96 to 1.11 for n = 300 … 1000, 0.99
+to 1.21 for larger matrices; Accelerate is clearly faster for none of the
+80 sizes.
+
 The Apple M5 has a matrix unit programmed with the Scalable Matrix
 Extension (SME2): in streaming mode the outer product instruction FMOPA
 accumulates into the ZA array, eight 8 x 8 tiles of doubles.  The
@@ -151,8 +162,12 @@ length of 512 bits (tested only on an Apple M5), clang (tested with Apple
 clang 21; LLVM clang 23 compiles it; GCC 16 compiles the kernel, but its
 Darwin runtime lacks `__arm_get_current_vg`) and `ARCHFLAGS=-mcpu=apple-m4` (or
 other flags that enable SME2).  Without such flags the NEON kernel is used
-as before; `CPPFLAGS=-DULMBLAS_NO_SME` disables the backend.  There is no
-runtime detection: a library built with SME2 needs a CPU with SME2.
+as before; `CPPFLAGS=-DULMBLAS_NO_SME` disables the backend.  Within one
+build there is no runtime detection: a library built with SME2 needs a CPU
+with SME2.  The dispatching library `libulmblas` (`make shared-dispatch`,
+`make install-shared`) selects at run time: the SME2 backend on a CPU with
+SME2, SME_F64F64 and a streaming vector length of 512 bits, the NEON
+backend otherwise.
 
 DGEMM on one performance core of an Apple M5 (MacBook Air), single
 threaded, compared with Apple Accelerate (`VECLIB_MAXIMUM_THREADS=1`), the
