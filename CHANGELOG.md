@@ -3,7 +3,7 @@
 User-visible changes of ulmBLAS per release.  Versions: `vX.Y.Z` tags of
 the Git repository (procedure: [RELEASING.md](https://github.com/michael-lehn/ulmBLAS/blob/master/RELEASING.md)).
 
-## 0.4.2 (unreleased)
+## 0.4.2 (2026-11-23)
 
 ### New functions
 
