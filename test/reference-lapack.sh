@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 #  Runs the BLAS and CBLAS test programs of Reference-LAPACK 3.12.1 against
-#  the libraries of ulmBLAS (make check-reference-lapack, see test/Makefile).
+#  the libraries of ulmBLAS (make check-reference-lapack, see mk/test.mk).
 #  The sources are downloaded (and their checksum verified), not copied into
 #  the repository; they are used unmodified.
 #

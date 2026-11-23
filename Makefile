@@ -6,8 +6,10 @@
 #  build ulmBLAS.  It uses POSIX make syntax only.
 #
 
-all cblas clapack atlblas atllapack f77blas refblas check check-numeric \
-check-netlib check_cblas check_f77blas bench bench-gemm benchmark-suite check_arch \
+all cblas clapack atlblas atllapack f77blas f77lapack refblas lbt shared \
+shared64 shared-dispatch sonames build-shared install-shared check-package \
+check check-numeric check-netlib check-shared check-dispatch check-large \
+check_cblas check_f77blas bench bench-gemm benchmark-suite check_arch \
 clean help: \
 gnu-make-required
 

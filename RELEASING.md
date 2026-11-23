@@ -104,7 +104,7 @@ Rules:
   new library; nothing may disappear).
 - If `N` changes: new package names (Debian `libulmblasN`, openSUSE
   `libulmblasN`), `SHARED_VERSION` and the soname in
-  `interfaces/blas/dispatch/Makefile` and `interfaces/install-shared.sh`.
+  `mk/dispatch.mk` and `mk/install.mk`.
   A 64-bit integer (ILP64: integer, long and pointer 64-bit) build would get its own name
   (`libulmblas64`), not a new `N`.
 - `libblas.so.3`/`libcblas.so.3` keep the soname of the reference BLAS;

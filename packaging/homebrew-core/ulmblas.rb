@@ -22,9 +22,7 @@ class Ulmblas < Formula
     ENV["ULMBLAS_INCLUDEDIR"] = include/"ulmblas"
     ENV["ULMBLAS_STATIC_LIBSTDCXX"] = "no"
     # BLAS only: LAPACK from the lapack formula
-    ENV["FC"] = "none"
-    ENV["MAKE"] = "make -j#{ENV.make_jobs}"
-    system "sh", "interfaces/install-shared.sh", prefix
+    system "make", "install-shared", "PREFIX=#{prefix}", "FC=none"
   end
 
   test do

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Test driver of ulmBLAS.  Invoked by 'make check' (see test/Makefile) in
+# Test driver of ulmBLAS.  Invoked by 'make check' (see mk/test.mk) in
 # the directory test/ after all test programs have been built.
 #
 # Every test has a stable ID Tnnnn that is never reused.  Known bugs and open
@@ -565,7 +565,7 @@ skip_netlib()
 # Header tests: the generated headers compile as C
 #
 # skip_config CONFIG REASON: report the selected tests of a configuration
-# that is not supported here (CONFIG_REQUIRES, see Makefile.config) as SKIP.
+# that is not supported here (CONFIG_REQUIRES, see mk/test.mk) as SKIP.
 # The IDs of the numeric tests are listed by the program of the first
 # configuration (as for the registry).
 skip_config()
@@ -662,7 +662,7 @@ run_headers()
     rm -f "$TEST_BUILD/headers.list"
 }
 
-# run_examples CONFIG: the examples built by Makefile.config must run and
+# run_examples CONFIG: the examples built by mk/test.mk must run and
 # exit with status 0
 run_examples()
 {

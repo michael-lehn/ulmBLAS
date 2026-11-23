@@ -352,8 +352,8 @@ $HOME/venv-ulmblas/bin/python -c 'import numpy; numpy.show_config()'
   (`libflexiblas64`, which looks up only the usual names): no LP64
   functions, no names with `_64_`.  On Apple Silicon and x86-64 Linux it
   is a second front of the same backends (`dgemm_` calls the backend's
-  `dgemm_64_`), elsewhere a library of its own (`make -C
-  interfaces/blas/shared INTERFACE64=1`).  The C functions of ulmBLAS
+  `dgemm_64_`), elsewhere a library of its own (`make
+  shared64`).  The C functions of ulmBLAS
   with 32-bit indices (`ulmblas_dgemm`, `ulmblas_*_strided`, ...) are not
   in the front.  A program must not load `libulmblas` and `libulmblas64`
   together: the names are the same, the integers are not.

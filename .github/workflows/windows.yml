@@ -63,7 +63,8 @@ jobs:
           ld --version | head -1
       - name: build the library (make lbt)
         run: |
-          make -j4 lbt ARCHFLAGS="$FLAGS" OUTDIR=$PWD/out BUILD_DIR=$PWD/build.lbt
+          make -j4 lbt ARCHFLAGS="$FLAGS"
+          mkdir -p out && cp libulmblas_lbt.dll out/
           ls -l out
       - name: exports and imports
         run: |

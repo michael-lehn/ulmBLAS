@@ -1,5 +1,6 @@
 #
-#  Settings shared by all makefiles of ulmBLAS.
+#  Settings of the build of ulmBLAS (read by GNUmakefile; the whole build is
+#  one make, no make calls another, see mk/README.md).
 #
 #  ulmBLAS is built with GNU Make 3.81 or newer.  On macOS /usr/bin/make is
 #  GNU Make 3.81, a newer GNU Make from Homebrew or MacPorts is usually
@@ -36,7 +37,7 @@
 #  overriding CXXFLAGS etc. never breaks the build.
 #
 #  Precedence (GNU Make): a variable given on the command line overrides the
-#  assignments in the makefiles and is passed to all sub-makes; a variable
+#  assignments in the makefiles; a variable
 #  from the environment is only used by the '?=' assignments below, which
 #  do not assign a variable that is already defined.  The optimization flags
 #  are kept in OPTFLAGS, FOPTFLAGS and COPTFLAGS, which come before CXXFLAGS,
@@ -109,9 +110,8 @@ FFLAGS    ?= -Wall -fimplicit-none
 #
 #  ARCHFLAGS: on x86 the optimized SSE kernels require SSE3.  The flags are
 #  only used if the C++ compiler accepts them for its target (e.g. not on
-#  ARM, where the portable reference kernels are used).  The check is done
-#  once by the top-level make and passed to sub-makes through the
-#  environment.
+#  ARM, where the portable reference kernels are used).  Exported for the
+#  scripts the recipes run.
 #
 ULMBLAS_ARCHFLAGS_DEFAULT = $(shell echo | $(CXX) -msse3 -mfpmath=sse -x c++ -E - \
                                   >/dev/null 2>&1 && echo -msse3 -mfpmath=sse)
@@ -119,6 +119,14 @@ ifeq ($(origin ARCHFLAGS),undefined)
 ARCHFLAGS := $(ULMBLAS_ARCHFLAGS_DEFAULT)
 endif
 export ARCHFLAGS
+
+#
+#  TARGET_MACHINE: the platform of the compiler (cross compilers work, e.g.
+#  CXX=x86_64-w64-mingw32-g++); it selects the shared libraries
+#  (mk/shared.mk, mk/dispatch.mk, mk/install.mk).  Computed when needed,
+#  and only once.
+#
+TARGET_MACHINE = $(eval TARGET_MACHINE := $(shell $(CXX) -dumpmachine))$(TARGET_MACHINE)
 
 #
 #  FLIBS: libraries for linking Fortran objects with the C++ compiler as
@@ -184,17 +192,15 @@ endif
 SIMDFLAGS ?= -fopenmp-simd
 
 #
-#  Flags that are always used.  ULMBLAS_CPPFLAGS is extended by the
-#  makefiles (include paths, interface macros), CONFIG_CPPFLAGS by
-#  configuration files (e.g. block sizes of the test configurations).
+#  Flags that are always used.  The compile commands of the builds are made
+#  in mk/lib.mk: each build adds its include paths and interface macros, a
+#  test configuration its block sizes (CONFIG_CPPFLAGS), a backend of the
+#  dispatching library its ARCHFLAGS.
 #
 DEPFLAGS          = -MMD -MP
 ULMBLAS_CXXFLAGS  = $(CXXSTD) $(ARCHFLAGS) $(OPTFLAGS) $(SIMDFLAGS) $(OMPFLAGS)
 ULMBLAS_CFLAGS    = $(COPTFLAGS)
 
-CXXCOMPILE = $(CXX) $(ULMBLAS_CPPFLAGS) $(ULMBLAS_INDEX_DEFS) \
-                     $(CONFIG_CPPFLAGS) $(CPPFLAGS) \
-                     $(ULMBLAS_CXXFLAGS) $(CXXFLAGS) $(DEPFLAGS)
 FCOMPILE   = $(FC) $(FOPTFLAGS) $(FFLAGS)
 
 #
@@ -205,7 +211,6 @@ FCOMPILE   = $(FC) $(FOPTFLAGS) $(FFLAGS)
 #  link no C++ runtime (checked by NO_CXX_RUNTIME before linking).
 #
 LIB_CXXFLAGS  = -fno-exceptions
-LIBCXXCOMPILE = $(CXXCOMPILE) $(LIB_CXXFLAGS)
 
 #
 #  NO_CXX_RUNTIME: the shared libraries link no C++ runtime (libstdc++,
@@ -239,32 +244,24 @@ NOSTDLIBXX := $(shell $(CXX) -nostdlib++ -E -x c++ /dev/null -o /dev/null \
 
 #
 #  Micro kernels that are assembly files (ulmblas/level3/ukernel/openblas/
-#  asm/*.S) are assembled into every library if they are selected, i.e. if
-#  the flags (ARCHFLAGS, CPPFLAGS, CXXFLAGS or the CONFIG_CPPFLAGS of a
-#  configuration) define their selection macro, or if the build has AVX2.  The library makefiles add
-#  $(ULMBLAS_ASM_OBJECTS) to their objects and build them with ASCOMPILE
-#  (the C++ compiler driver preprocesses *.S files and runs the assembler).
-#  Recursively expanded: CONFIG_CPPFLAGS and BUILD_DIR are set after this
-#  file is included.
+#  asm/*.S) are assembled into a library if they are selected, i.e. if the
+#  flags of its build (ARCHFLAGS, CPPFLAGS, CXXFLAGS or the CONFIG_CPPFLAGS
+#  of a test configuration) define their selection macro, or if the build
+#  has AVX2 (x86-64: every vendored kernel of the instruction set is
+#  compiled in, ulmblas/level3/ukernel/kernels.h, also the assembly
+#  kernels).  $(call asm_sources,FLAGS): the assembly sources of a build
+#  with these flags.  They are built with ASCOMPILE (the C++ compiler
+#  driver preprocesses *.S files and runs the assembler).
 #
-ULMBLAS_ASM_DIR      = $(TOPDIR)/ulmblas/level3/ukernel/openblas/asm
-ULMBLAS_KERNEL_FLAGS = $(ARCHFLAGS) $(CONFIG_CPPFLAGS) $(CPPFLAGS) $(CXXFLAGS)
-ULMBLAS_ASM_SELECTED = $(filter -DULMBLAS_DGEMM_UKERNEL_openblas_$1 \
-                                -DULMBLAS_DGEMM_UKERNEL_openblas_$1=%, \
-                                $(ULMBLAS_KERNEL_FLAGS))
-#  the build has AVX2 (x86-64): every vendored kernel of the instruction
-#  set is compiled in (ulmblas/level3/ukernel/kernels.h), also the assembly
-#  kernels
-ULMBLAS_ASM_AVX2     = $(shell echo | $(CXX) $(ULMBLAS_KERNEL_FLAGS) -dM -E \
-                               -x c++ - 2>/dev/null | grep -q '__AVX2__ 1' \
-                       && echo | $(CXX) $(ULMBLAS_KERNEL_FLAGS) -dM -E \
-                               -x c++ - 2>/dev/null | grep -q '__x86_64__ 1' \
-                       && echo yes)
-ULMBLAS_ASM_SOURCES  = $(if $(or $(call ULMBLAS_ASM_SELECTED,haswell_4x8), \
-                                 $(ULMBLAS_ASM_AVX2)), \
-                            $(ULMBLAS_ASM_DIR)/haswell_4x8.S)
-ULMBLAS_ASM_OBJECTS  = $(patsubst %.S, $(BUILD_DIR)/%.o, \
-                                  $(notdir $(ULMBLAS_ASM_SOURCES)))
+ULMBLAS_ASM_DIR = $(TOPDIR)/ulmblas/level3/ukernel/openblas/asm
+asm_selected    = $(filter -DULMBLAS_DGEMM_UKERNEL_openblas_$2 \
+                           -DULMBLAS_DGEMM_UKERNEL_openblas_$2=%,$1)
+asm_avx2        = $(if $(filter x86_64-% amd64-%,$(TARGET_MACHINE)),$(shell \
+                      echo | $(CXX) $1 -dM -E -x c++ - 2>/dev/null \
+                      | grep -q '__AVX2__ 1' && echo yes))
+asm_sources     = $(if $(or $(call asm_selected,$1,haswell_4x8), \
+                            $(call asm_avx2,$1)), \
+                       $(ULMBLAS_ASM_DIR)/haswell_4x8.S)
 
 ASCOMPILE  = $(CXX) -I$(TOPDIR) $(CPPFLAGS) $(DEPFLAGS)
 

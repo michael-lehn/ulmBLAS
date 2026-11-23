@@ -69,21 +69,12 @@ export ULMBLAS_RPATH=no
 export ULMBLAS_STATIC_LIBSTDCXX=no
 # libulmblas64 (64-bit integers under the usual names) is not packaged yet
 export ULMBLAS_INTERFACE64=no
-%ifarch x86_64
+# libblas.so.3 and libcblas.so.3 for the alternatives (x86_64: the
+# dispatching library; aarch64: the library without backends)
 export ULMBLAS_SONAMES=yes
-%endif
 export FC=none
 export MAKE="make %{?_smp_mflags}"
 ULMBLAS_STEP=build sh interfaces/install-shared.sh %{_prefix}
-%ifarch aarch64
-# one library without backends: its objects linked a second time, with
-# the SONAMEs (shared object names) libblas.so.3 and libcblas.so.3 of the
-# alternatives
-for l in blas cblas; do
-    $MAKE -C interfaces/blas/shared SHARED_NAME=$l SHARED_VERSION=3 \
-        STATIC_LIBSTDCXX= OUTDIR=$PWD/build.alternatives
-done
-%endif
 
 %install
 export ULMBLAS_VERSION=%{version}
@@ -94,17 +85,12 @@ export ULMBLAS_RPATH=no
 export ULMBLAS_STATIC_LIBSTDCXX=no
 # libulmblas64 (64-bit integers under the usual names) is not packaged yet
 export ULMBLAS_INTERFACE64=no
-%ifarch x86_64
+# libblas.so.3 and libcblas.so.3 for the alternatives (x86_64: the
+# dispatching library; aarch64: the library without backends)
 export ULMBLAS_SONAMES=yes
-%endif
 export FC=none
 export MAKE="make %{?_smp_mflags}"
 DESTDIR=%{buildroot} sh interfaces/install-shared.sh %{_prefix}
-%ifarch aarch64
-install -d %{buildroot}%{_libdir}/ulmblas
-install -m 0755 build.alternatives/libblas.so.3 \
-    build.alternatives/libcblas.so.3 %{buildroot}%{_libdir}/ulmblas/
-%endif
 # the alternatives libblas.so.3_ARCH and libcblas.so.3_ARCH (the groups
 # of openSUSE's lapack and openblas)
 install -d %{buildroot}%{_sysconfdir}/alternatives

@@ -4,7 +4,7 @@
 #  (TESTING/LIN, xlintst[sdcz]) on the paths GE, PO, TR and S2 (H2 for
 #  complex; ?SYTRF_AA_2STAGE, ... call ?LASWP with K1 > 1) with the LAPACK
 #  functions of ulmBLAS (make check-reference-lapack-lin, see
-#  test/Makefile).  The sources are downloaded (and their checksum
+#  mk/test.mk).  The sources are downloaded (and their checksum
 #  verified), not copied into the repository; they are used unmodified.
 #
 #      reference-lapack-lin.sh LIBDIR BUILDDIR

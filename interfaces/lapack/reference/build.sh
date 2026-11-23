@@ -87,7 +87,7 @@ $MAKECMD -j "$JOBS" -C "$SRC/SRC" > "$BUILD/build.log" 2>&1 \
 
 #
 #  The LAPACK routines that libulmblas exports itself (LAPACK_EXPORTS in
-#  interfaces/blas/shared/Makefile: ?getrf, ?potrf, ... of ulmBLAS) are
+#  mk/shared.mk: ?getrf, ?potrf, ... of ulmBLAS) are
 #  left out: their objects are removed from a copy of the archive, so
 #  libulmlapack, the callers inside it (?gesvx, ?gecon, ...) and the test
 #  programs use those of libulmblas.  The routines that both
