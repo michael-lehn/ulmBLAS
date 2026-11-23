@@ -56,8 +56,9 @@
 #                          release tag, the file VERSION.txt of a release
 #                          tarball, or the directory name ulmBLAS-X.Y.Z)
 #      ULMBLAS_STATIC_LIBSTDCXX
-#                          no (Linux): libstdc++ linked dynamically (by
-#                          default statically if libstdc++.a exists)
+#                          no (Linux, GCC before 13): no -static-libstdc++;
+#                          the libraries link no C++ runtime (clang and
+#                          GCC 13 or newer: -nostdlib++, no effect)
 #      ULMBLAS_BACKENDDIR  the backends of the dispatching library (default
 #                          LIBDIR; distributions: a directory of their
 #                          own, e.g. LIBDIR/ulmblas, whose path is then

@@ -48,7 +48,7 @@ environment (see the script):
 | `ULMBLAS_RPATH=no` | no `-Wl,-rpath` in the pkg-config files (never on Windows) |
 | `ULMBLAS_VERSION` | version in the pkg-config files (default: last release tag, the file `VERSION.txt` of a release tarball, or the directory name `ulmBLAS-X.Y.Z`) |
 | `FC=none` | no `libulmlapack` (it downloads Reference-LAPACK) |
-| `ULMBLAS_STATIC_LIBSTDCXX=no` | Linux: `libstdc++` linked dynamically (default: statically if `libstdc++.a` exists) |
+| `ULMBLAS_STATIC_LIBSTDCXX=no` | Linux with GCC before 13: no `-static-libstdc++` (the libraries link no C++ runtime; with clang or GCC 13 and newer they are linked with `-nostdlib++`, and the setting has no effect) |
 | `ULMBLAS_BACKENDDIR` | the backends of the dispatching library (default: `LIBDIR`; packages: `LIBDIR/ulmblas`, compiled into the dispatching library) |
 | `ULMBLAS_STEP=build` | only build (the build step of a package); the install step runs the script again with the same environment |
 | `LAPACK_TARBALL` | Reference-LAPACK tarball for `libulmlapack` (no download) |

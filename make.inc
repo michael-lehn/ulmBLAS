@@ -198,6 +198,46 @@ CXXCOMPILE = $(CXX) $(ULMBLAS_CPPFLAGS) $(ULMBLAS_INDEX_DEFS) \
 FCOMPILE   = $(FC) $(FOPTFLAGS) $(FFLAGS)
 
 #
+#  The objects of the libraries are compiled without exceptions: ulmBLAS
+#  throws none, and none may pass through the C and Fortran interfaces.
+#  Without them the objects need no exception handling of the C++ runtime
+#  (personality routine, _Unwind_Resume, std::terminate): the libraries
+#  link no C++ runtime (checked by NO_CXX_RUNTIME before linking).
+#
+LIB_CXXFLAGS  = -fno-exceptions
+LIBCXXCOMPILE = $(CXXCOMPILE) $(LIB_CXXFLAGS)
+
+#
+#  NO_CXX_RUNTIME: the shared libraries link no C++ runtime (libstdc++,
+#  libc++, libsupc++, libc++abi): C++ is only the language of the
+#  implementation, the interfaces are C and Fortran.  Before linking, the
+#  objects are checked for references to functions of the runtime (symbols
+#  of std:: that are not inline, operator new and delete, exception
+#  handling, guards of static variables, __cxa_thread_atexit, ...); the
+#  ones of the C library (__cxa_atexit, __cxa_finalize) are allowed.
+#  NO_CXX_RUNTIME is the check, a shell command; the objects are its
+#  arguments.
+#
+#  NOSTDLIBXX: the flag that links without the C++ standard library,
+#  -nostdlib++ (clang, GCC 13 or newer); empty if the compiler does not
+#  know it (then the libraries are linked with -static-libstdc++, which
+#  adds nothing: no object refers to it).
+#
+CXX_RUNTIME_SYMBOLS = '^_?_Z(N?K?St|T[VIS]N?St|n[wa]|d[la]|T[VIS]N10__cxxabiv)|^_?__cxa_|^_?__gxx_|^_?_Unwind_'
+CXX_RUNTIME_ALLOWED = '^_?__cxa_(atexit|finalize)$$'
+NO_CXX_RUNTIME = check() { \
+	    if $(NM) -u "$$@" | awk '{ print $$NF }' \
+	       | grep -E $(CXX_RUNTIME_SYMBOLS) | grep -vE $(CXX_RUNTIME_ALLOWED); \
+	    then \
+		echo "error: objects refer to the C++ runtime (above)"; \
+		return 1; \
+	    fi; \
+	}; check
+NM ?= nm
+NOSTDLIBXX := $(shell $(CXX) -nostdlib++ -E -x c++ /dev/null -o /dev/null \
+                >/dev/null 2>&1 && echo -nostdlib++)
+
+#
 #  Micro kernels that are assembly files (ulmblas/level3/ukernel/openblas/
 #  asm/*.S) are assembled into every library if they are selected, i.e. if
 #  the flags (ARCHFLAGS, CPPFLAGS, CXXFLAGS or the CONFIG_CPPFLAGS of a

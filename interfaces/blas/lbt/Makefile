@@ -39,23 +39,27 @@ LBT_INDEX   = int64_t
 LBT_SUFFIX  = _64_
 
 #  Windows (MinGW-w64): all global symbols of the objects are exported (no
-#  symbol is marked dllexport), the C++ runtime and winpthread are linked
-#  statically, so the DLL only depends on DLLs of the system.
+#  symbol is marked dllexport), no C++ runtime (NO_CXX_RUNTIME in
+#  make.inc), winpthread is linked statically, so the DLL only depends on
+#  DLLs of the system.
 ifneq (,$(findstring mingw,$(shell $(CXX) -dumpmachine)))
 LBT_LIB      = $(OUTDIR)/libulmblas_lbt.dll
 LBT_LINK     = -shared -Wl,--whole-archive $(BUILD_DIR)/liblbtblas.a \
-               $(LBT_LAPACK) -Wl,--no-whole-archive -static -static-libstdc++ \
-               -static-libgcc -Wl,--no-undefined
+               $(LBT_LAPACK) -Wl,--no-whole-archive -static \
+               $(or $(NOSTDLIBXX),-static-libstdc++) -static-libgcc \
+               -Wl,--no-undefined
 else ifeq ($(shell uname -s),Darwin)
 LBT_LIB      = $(OUTDIR)/libulmblas_lbt.dylib
 LBT_LINK     = -dynamiclib -install_name @rpath/libulmblas_lbt.dylib \
                -Wl,-force_load,$(BUILD_DIR)/liblbtblas.a \
-               $(if $(LBT_LAPACK),-Wl$(comma)-force_load$(comma)$(LBT_LAPACK))
+               $(if $(LBT_LAPACK),-Wl$(comma)-force_load$(comma)$(LBT_LAPACK)) \
+               $(NOSTDLIBXX)
 else
 LBT_LIB      = $(OUTDIR)/libulmblas_lbt.so
 LBT_LINK     = -shared -Wl,-soname,libulmblas_lbt.so \
                -Wl,--whole-archive $(BUILD_DIR)/liblbtblas.a \
-               $(LBT_LAPACK) -Wl,--no-whole-archive -static-libstdc++ -static-libgcc \
+               $(LBT_LAPACK) -Wl,--no-whole-archive \
+               $(or $(NOSTDLIBXX),-static-libstdc++) -static-libgcc \
                -Wl,--no-undefined
 endif
 
@@ -91,20 +95,17 @@ $(BUILD_DIR)/functions.o : functions.c $(BUILD_DIR)/liblbtblas.a
 $(BUILD_DIR)/gemm_strided.o : ../C/gemm_strided.cc ../C/ulmblas_strided.h \
                               $(BUILD_DIR)/liblbtblas.a
 	$(CXX) -I$(TOPDIR) $(STRIDED_DEFS) $(ULMBLAS_CXXFLAGS) $(CPPFLAGS) \
-	       $(CXXFLAGS) -fPIC -c -o $@ $<
+	       $(CXXFLAGS) $(LIB_CXXFLAGS) -fPIC -c -o $@ $<
 
 LBT_OBJECTS = $(BUILD_DIR)/functions.o $(BUILD_DIR)/gemm_strided.o
 
-#  No C++ exception may pass through the interface (Julia calls it from C):
-#  the objects of ulmBLAS must not refer to functions that throw (operator
-#  new, std::__throw_*, __cxa_throw, ...).  Checked before linking.
-THROWING = '_Zn[wa][jmy](St11align_val_t)?$$|__cxa_throw$$|__cxa_rethrow$$|__cxa_allocate_exception$$|_ZSt[0-9]+__throw_'
+#  The objects must not refer to the C++ runtime (NO_CXX_RUNTIME in
+#  make.inc; this also excludes functions that throw: no C++ exception may
+#  pass through the interface, Julia calls it from C).  Checked before
+#  linking.
 
 $(LBT_LIB) : $(BUILD_DIR)/liblbtblas.a $(LBT_LAPACK) $(LBT_OBJECTS)
-	@if nm -u $^ | grep -E $(THROWING); then \
-	    echo "error: objects refer to functions that throw (above)"; \
-	    exit 1; \
-	fi
+	@$(NO_CXX_RUNTIME) $^
 	@mkdir -p $(OUTDIR)
 	$(CXX) $(ARCHFLAGS) $(LDFLAGS) -o $@ $(LBT_OBJECTS) $(LBT_LINK) $(OMPLIBS) -lm
 

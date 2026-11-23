@@ -87,9 +87,9 @@ TARGET_MACHINE := $(shell $(CXX) -dumpmachine)
 COMMA := ,
 
 ifneq (,$(findstring mingw,$(TARGET_MACHINE)))
-#  Windows: only the names of the .def file are exported; the C++ runtime
-#  and winpthread are linked statically (the DLL depends only on DLLs of
-#  the system)
+#  Windows: only the names of the .def file are exported; no C++ runtime
+#  (NO_CXX_RUNTIME in make.inc), winpthread is linked statically (the DLL
+#  depends only on DLLs of the system)
 EXPORTS      = $(BUILD_DIR)/exports.def
 SHARED_LIB   = $(OUTDIR)/lib$(SHARED_NAME).dll
 SHARED_LINK  = -shared -Wl,--out-implib,$(OUTDIR)/lib$(SHARED_NAME).dll.a \
@@ -97,7 +97,8 @@ SHARED_LINK  = -shared -Wl,--out-implib,$(OUTDIR)/lib$(SHARED_NAME).dll.a \
                -Wl,--whole-archive $(BUILD_DIR)/libsharedblas.a \
                $(BUILD_DIR)/libcblas.a $(LAPACK_LIB) $(ILP64_LIBS) \
                -Wl,--no-whole-archive \
-               -static -static-libstdc++ -static-libgcc -Wl,--no-undefined
+               -static $(or $(NOSTDLIBXX),-static-libstdc++) -static-libgcc \
+               -Wl,--no-undefined
 SHARED_ALIAS =
 SYMBOL_PREFIX =
 else ifneq (,$(findstring apple-darwin,$(TARGET_MACHINE)))
@@ -109,7 +110,7 @@ SHARED_LINK  = -dynamiclib -install_name @rpath/$(SHARED_FILE) \
                -Wl,-force_load,$(BUILD_DIR)/libcblas.a \
                -Wl,-force_load,$(LAPACK_LIB) \
                $(foreach l,$(ILP64_LIBS),-Wl$(COMMA)-force_load$(COMMA)$(l)) \
-               -Wl,-exported_symbols_list,$(EXPORTS)
+               -Wl,-exported_symbols_list,$(EXPORTS) $(NOSTDLIBXX)
 SHARED_ALIAS = $(if $(SHARED_VERSION),$(OUTDIR)/lib$(SHARED_NAME).dylib)
 SYMBOL_PREFIX = _
 else
@@ -120,13 +121,18 @@ SHARED_LINK  = -shared -Wl,-soname,$(SHARED_FILE) \
                -Wl,--whole-archive $(BUILD_DIR)/libsharedblas.a \
                $(BUILD_DIR)/libcblas.a $(LAPACK_LIB) $(ILP64_LIBS) \
                -Wl,--no-whole-archive \
-               $(STATIC_LIBSTDCXX) -static-libgcc -pthread -Wl,--no-undefined \
+               $(NO_LIBSTDCXX) -static-libgcc -pthread -Wl,--no-undefined \
                -Wl,--version-script,$(EXPORTS)
-#  libstdc++.a is missing on some systems (RHEL: package libstdc++-static);
-#  then the C++ runtime is linked dynamically.  -pthread: the thread pool
-#  (libpthread is a library of its own before glibc 2.34)
+#  No C++ runtime (NO_CXX_RUNTIME in make.inc): -nostdlib++; GCC before
+#  13 does not know it, then -static-libstdc++ (adds nothing, no object
+#  refers to libstdc++), or if libstdc++.a is missing (RHEL: package
+#  libstdc++-static) or STATIC_LIBSTDCXX= (ULMBLAS_STATIC_LIBSTDCXX=no of
+#  interfaces/install-shared.sh) -Wl,--as-needed, which drops the unused
+#  libstdc++.so.  -pthread: the thread pool (libpthread is a library of its
+#  own before glibc 2.34)
 STATIC_LIBSTDCXX := $(if $(filter /%,$(shell $(CXX) \
                     -print-file-name=libstdc++.a)),-static-libstdc++)
+NO_LIBSTDCXX = $(or $(NOSTDLIBXX),$(STATIC_LIBSTDCXX),-Wl$(COMMA)--as-needed)
 SHARED_ALIAS = $(if $(SHARED_VERSION),$(OUTDIR)/lib$(SHARED_NAME).so)
 SYMBOL_PREFIX =
 endif
@@ -289,18 +295,14 @@ $(EXPORTS) : $(BUILD_DIR)/libsharedblas.a $(BUILD_DIR)/libcblas.a \
 	   fi ;; \
 	esac
 
-#  No C++ exception may pass through the interface (it is called from C
-#  and Fortran): the objects of ulmBLAS must not refer to functions that
-#  throw (operator new, std::__throw_*, __cxa_throw, ...).  Checked before
-#  linking.
-THROWING = '_Zn[wa][jmy](St11align_val_t)?$$|__cxa_throw$$|__cxa_rethrow$$|__cxa_allocate_exception$$|_ZSt[0-9]+__throw_'
+#  The objects must not refer to the C++ runtime (NO_CXX_RUNTIME in
+#  make.inc; this also excludes functions that throw: no C++ exception may
+#  pass through the interface, it is called from C and Fortran).  Checked
+#  before linking.
 
 $(SHARED_LIB) : $(BUILD_DIR)/libsharedblas.a $(BUILD_DIR)/libcblas.a \
                 $(LAPACK_LIB) $(ILP64_LIBS) $(SHARED_OBJECTS) $(EXPORTS)
-	@if $(NM) -u $(filter-out $(EXPORTS),$^) | grep -E $(THROWING); then \
-	    echo "error: objects refer to functions that throw (above)"; \
-	    exit 1; \
-	fi
+	@$(NO_CXX_RUNTIME) $(filter-out $(EXPORTS),$^)
 	@mkdir -p $(OUTDIR)
 	$(CXX) $(ARCHFLAGS) $(LDFLAGS) -o $@ $(SHARED_OBJECTS) $(SHARED_LINK) \
 	       $(OMPLIBS) -lm

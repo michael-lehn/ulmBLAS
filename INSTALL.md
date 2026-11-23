@@ -236,8 +236,10 @@ make lbt ARCHFLAGS=-mcpu=apple-m4 # with the micro kernels of your choice
   [ulmblas_strided.h](interfaces/blas/C/ulmblas_strided.h)), for calls
   with `ccall`; libblastrampoline does not know these names and ignores
   them.
-- On Linux the C++ runtime is linked statically, so the library does not
-  depend on the `libstdc++` of the compiler (Julia brings its own).
+- The library links no C++ runtime (no `libstdc++`, no `libc++`): C++ is
+  only the language of the implementation, the interfaces are C and
+  Fortran.  So it does not depend on the `libstdc++` of the compiler
+  (Julia brings its own).
 - `OUTDIR` and `BUILD_DIR` keep several builds apart, e.g. one per
   instruction set.
 - `LAPACK=1`: the library also contains `?getrf_64_` and `?potrf_64_`.
