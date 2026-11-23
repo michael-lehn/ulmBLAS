@@ -23,6 +23,7 @@
 //
 
 #include <atomic>
+#include <cstdint>
 
 #if !defined(_WIN32)
 #include <sched.h>
@@ -46,7 +47,7 @@ template <typename T> class Lazy
     }
 
   private:
-    enum
+    enum State : std::uint32_t
     {
 	idle,
 	busy,
@@ -57,7 +58,7 @@ template <typename T> class Lazy
     void
     init(Construct &construct)
     {
-	int expected = idle;
+	State expected = idle;
 	if (state.compare_exchange_strong(expected, busy,
 	                                  std::memory_order_acquire)) {
 	    construct(static_cast<void *>(storage));
@@ -76,7 +77,7 @@ template <typename T> class Lazy
 	}
     }
 
-    std::atomic<int> state;
+    std::atomic<State> state;
     T *object;
     alignas(T) unsigned char storage[sizeof(T)];
 };

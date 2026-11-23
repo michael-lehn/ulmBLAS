@@ -15,7 +15,8 @@
 #include <malloc.h>
 
 //  Fiber local storage of kernel32 (declared here, not by <windows.h>,
-//  whose macros could clash with names of ulmBLAS)
+//  whose macros could clash with names of ulmBLAS).  unsigned long and int
+//  are DWORD and BOOL of the Windows API.
 extern "C" {
 __declspec(dllimport) unsigned long __stdcall
 FlsAlloc(void(__stdcall *)(void *));
@@ -169,7 +170,7 @@ namespace memorypool {
 
 #if defined(_WIN32)
 #define ULMBLAS_SLOT_CALLBACK __stdcall
-typedef unsigned long SlotKey;
+typedef decltype(FlsAlloc(nullptr)) SlotKey;
 
 inline bool
 slotCreate(SlotKey &key, void(__stdcall *callback)(void *))
