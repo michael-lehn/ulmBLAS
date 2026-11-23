@@ -1,0 +1,15 @@
+n = 1500, block size 96, column major
+                                  unblocked             blocked
+                           GFLOPS  residual    GFLOPS  residual
+Cholesky, variant 1          2.94      0.01    100.98      0.00
+Cholesky, variant 2         13.88      0.01    163.10      0.00
+Cholesky, variant 3         13.13      0.01    112.53      0.00
+LU, variant 1                4.79      0.02    123.23      0.00
+LU, variant 2                2.90      0.02    122.48      0.00
+LU, variant 3               13.78      0.02    173.20      0.00
+LU, variant 4                4.83      0.02    173.69      0.00
+LU, variant 5               13.22      0.02    159.96      0.00
+LU pivoting, variant 3      13.29      0.09    111.42      0.19
+LU pivoting, variant 4       4.74      0.09     98.78      0.09
+LU pivoting, variant 5      12.67      0.09    102.64      0.17
+residual: ||A - L L^T||, ||A - LU|| or ||PA - LU||, divided by n eps ||A||

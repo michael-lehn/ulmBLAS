@@ -23,11 +23,13 @@ run basics/pivot.cc pivot
 run basics/safemin.cc safemin
 run basics/nan.cc nan
 
-# Chapter 3: variants
-run variants/cholesky.cc cholesky
-run variants/potf2.cc potf2
+# Chapters 3 to 5: the variants, on one thread
+(
+    export ULMBLAS_NUM_THREADS=1
+    run variants/variants.cc variants
+)
 
-# Chapter 4: blocked and recursive (GCC), on one thread and on all
+# Chapter 6: blocked and recursive (GCC), on one thread and on all
 $GXX $FLAGS blocked/getrf.cc -o bin/getrf
 ULMBLAS_NUM_THREADS=1 bin/getrf > out/getrf-1.txt
 bin/getrf > out/getrf-all.txt
@@ -35,5 +37,8 @@ $GXX $FLAGS blocked/potrf.cc -o bin/potrf
 ULMBLAS_NUM_THREADS=1 bin/potrf > out/potrf-1.txt
 bin/potrf > out/potrf-all.txt
 
-# Chapter 10: solving
+# Chapter 7: the base cases
+run variants/potf2.cc potf2
+
+# Chapter 13: solving
 run solve/inverse.cc inverse

@@ -1,7 +1,7 @@
-// A function that returns its const reference parameter, as real() of
-// ulmBLAS does for real types.  Used inside an expression it is safe; a
-// reference that keeps its result dangles.  run.sh builds this file with
-// -fsanitize=address, which reports the use of the dead temporary.
+// A function that returns its const reference parameter, as real() for a
+// real type might do to save a copy.  Used inside an expression it is
+// safe; a reference that keeps its result dangles.  run.sh builds this file
+// with -fsanitize=address, which reports the use of the dead temporary.
 #include <cstdio>
 
 template <typename T>

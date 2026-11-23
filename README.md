@@ -455,7 +455,8 @@ and excerpts of the code of ulmBLAS:
   caches to the micro kernel, the other level-3 functions, kernels for
   small matrices, the choice of an implementation at run time
 - [The LU and Cholesky factorizations in ulmBLAS](doc/guides/lu_and_cholesky.pdf):
-  variants, recursion, task graphs, LU with lookahead, choosing the
+  all loop variants of Cholesky, LU and LU with partial pivoting, stated
+  and derived; recursion, task graphs, LU with lookahead, choosing the
   algorithm
 - [Vectorization and multithreading with OpenMP and C++ atomics](doc/guides/vectorization_and_multithreading.pdf):
   `omp simd`, fork–join with atomic flags, tasks, the memory model of
