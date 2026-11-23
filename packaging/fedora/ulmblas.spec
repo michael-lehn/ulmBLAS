@@ -109,5 +109,8 @@ FC=gfortran sh packaging/check.sh
 %config(noreplace) %{_sysconfdir}/flexiblas64rc.d/ulmblas.conf
 
 %changelog
+* Mon Nov 23 2026 Michael Lehn <michael.lehn@uni-ulm.de> - 0.4.2-1
+- Update to 0.4.2
+
 * Tue Nov 17 2026 Michael Lehn <michael.lehn@uni-ulm.de> - 0.4.1-1
 - Initial package
