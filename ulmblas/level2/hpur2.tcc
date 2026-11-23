@@ -2,7 +2,7 @@
 #define ULMBLAS_LEVEL2_HPUR2_TCC 1
 
 #include <ulmblas/auxiliary/conjugate.h>
-#include <ulmblas/auxiliary/real.h>
+#include <complex>
 #include <ulmblas/level1extensions/axpy2v.h>
 #include <ulmblas/level2/hpur2.h>
 
@@ -23,7 +23,7 @@ hpur2(IndexType n, bool conj, const Alpha &alpha, const TX *x, IndexType incX,
 	    axpy2v(j + 1, alpha * conjugate(y[j * incY]),
 	           conjugate(alpha * x[j * incX]), x, incX, y, incY, A,
 	           IndexType(1));
-	    A[j] = real(A[j]);
+	    A[j] = std::real(A[j]);
 	    A += j + 1;
 	}
     } else {
@@ -31,7 +31,7 @@ hpur2(IndexType n, bool conj, const Alpha &alpha, const TX *x, IndexType incX,
 	    acxpy(j + 1, conjugate(alpha) * y[j * incY], x, incX, A,
 	          IndexType(1));
 	    acxpy(j + 1, alpha * x[j * incX], y, incY, A, IndexType(1));
-	    A[j] = real(A[j]);
+	    A[j] = std::real(A[j]);
 	    A += j + 1;
 	}
     }

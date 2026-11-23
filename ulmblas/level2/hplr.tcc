@@ -2,7 +2,7 @@
 #define ULMBLAS_LEVEL2_HPLR_TCC 1
 
 #include <ulmblas/auxiliary/conjugate.h>
-#include <ulmblas/auxiliary/real.h>
+#include <complex>
 #include <ulmblas/level1/axpy.h>
 #include <ulmblas/level2/hplr.h>
 
@@ -21,14 +21,14 @@ hplr(IndexType n, const Alpha &alpha, bool conjX, const TX *x, IndexType incX,
 	for (IndexType j = 0; j < n; ++j) {
 	    axpy(n - j, alpha * conjugate(x[j * incX]), &x[j * incX], incX, A,
 	         IndexType(1));
-	    A[0] = real(A[0]);
+	    A[0] = std::real(A[0]);
 	    A += n - j;
 	}
     } else {
 	for (IndexType j = 0; j < n; ++j) {
 	    acxpy(n - j, alpha * x[j * incX], &x[j * incX], incX, A,
 	          IndexType(1));
-	    A[0] = real(A[0]);
+	    A[0] = std::real(A[0]);
 	    A += n - j;
 	}
     }

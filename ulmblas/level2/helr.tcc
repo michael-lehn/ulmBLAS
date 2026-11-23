@@ -2,7 +2,7 @@
 #define ULMBLAS_LEVEL2_HELR_TCC 1
 
 #include <ulmblas/auxiliary/conjugate.h>
-#include <ulmblas/auxiliary/real.h>
+#include <complex>
 #include <ulmblas/level2/helr.h>
 
 namespace ulmBLAS {
@@ -36,7 +36,7 @@ helr(IndexType n, const Alpha &alpha, bool conjX, const TX *x, IndexType incX,
     }
 
     for (IndexType i = 0; i < n; ++i) {
-	A[i * (incRowA + incColA)] = real(A[i * (incRowA + incColA)]);
+	A[i * (incRowA + incColA)] = std::real(A[i * (incRowA + incColA)]);
     }
 }
 

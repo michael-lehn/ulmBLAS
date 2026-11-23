@@ -1,7 +1,7 @@
 #ifndef ULMBLAS_LEVEL2_HPLMV_TCC
 #define ULMBLAS_LEVEL2_HPLMV_TCC 1
 
-#include <ulmblas/auxiliary/real.h>
+#include <complex>
 #include <ulmblas/level1extensions/dotaxpy.h>
 #include <ulmblas/level1/scal.h>
 #include <ulmblas/level2/hplmv.h>
@@ -32,7 +32,7 @@ hplmv(IndexType n, const Alpha &alpha, bool conjA, const TA *A, const TX *x,
 	dotaxpy(n - 1 - j, conjA, !conjA, false, alpha * x[j * incX], &A[1],
 	        IndexType(1), &x[(j + 1) * incX], incX, &y[(j + 1) * incY],
 	        incY, rho);
-	y[j * incY] += alpha * (rho + real(A[0]) * x[j * incX]);
+	y[j * incY] += alpha * (rho + std::real(A[0]) * x[j * incX]);
 	A += n - j;
     }
 }

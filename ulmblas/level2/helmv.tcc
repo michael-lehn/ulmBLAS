@@ -1,7 +1,7 @@
 #ifndef ULMBLAS_LEVEL2_HELMV_TCC
 #define ULMBLAS_LEVEL2_HELMV_TCC 1
 
-#include <ulmblas/auxiliary/real.h>
+#include <complex>
 #include <ulmblas/level1/scal.h>
 #include <ulmblas/level1/axpy.h>
 #include <ulmblas/level1extensions/dotaxpy.h>
@@ -51,7 +51,8 @@ helmv(IndexType n, const Alpha &alpha, bool conjA, const TA *A,
 		        incY, rho);
 		y[(j + l) * incY] += alpha * (rho + rho_[l]);
 		y[(j + l) * incY] +=
-		    alpha * real(A[(j + l) * incRowA + (j + l) * incColA]) *
+		    alpha *
+		    std::real(A[(j + l) * incRowA + (j + l) * incColA]) *
 		    x[(j + l) * incX];
 	    }
 	}
@@ -61,7 +62,7 @@ helmv(IndexType n, const Alpha &alpha, bool conjA, const TA *A,
 	            &x[(j + 1) * incX], incX, &y[(j + 1) * incY], incY, rho);
 	    y[j * incY] +=
 	        alpha *
-	        (real(A[j * incRowA + j * incColA]) * x[j * incX] + rho);
+	        (std::real(A[j * incRowA + j * incColA]) * x[j * incX] + rho);
 	}
     } else if (homogeneousTypes && incColA == UnitStride) {
 	constexpr IndexType bf = FuseFactor<T>::dotxaxpyf;
@@ -81,7 +82,8 @@ helmv(IndexType n, const Alpha &alpha, bool conjA, const TA *A,
 		        &x[i * incX], incX, &y[i * incY], incY, rho);
 		y[(i + l) * incY] += alpha * (rho + rho_[l]);
 		y[(i + l) * incY] +=
-		    alpha * real(A[(i + l) * incRowA + (i + l) * incColA]) *
+		    alpha *
+		    std::real(A[(i + l) * incRowA + (i + l) * incColA]) *
 		    x[(i + l) * incX];
 	    }
 	}
@@ -91,7 +93,7 @@ helmv(IndexType n, const Alpha &alpha, bool conjA, const TA *A,
 	            incY, rho);
 	    y[i * incY] +=
 	        alpha *
-	        (real(A[i * incRowA + i * incColA]) * x[i * incX] + rho);
+	        (std::real(A[i * incRowA + i * incColA]) * x[i * incX] + rho);
 	}
     } else {
 	//
@@ -104,8 +106,8 @@ helmv(IndexType n, const Alpha &alpha, bool conjA, const TA *A,
 	    for (IndexType i = 0; i < n; ++i) {
 		acxpy(i, alpha * x[i * incX], &A[i * incRowA], incColA,
 		      &y[0 * incY], incY);
-		y[i * incY] +=
-		    alpha * real(A[i * incRowA + i * incColA]) * x[i * incX];
+		y[i * incY] += alpha * std::real(A[i * incRowA + i * incColA]) *
+		               x[i * incX];
 		axpy(n - 1 - i, alpha * x[i * incX],
 		     &A[(i + 1) * incRowA + i * incColA], incRowA,
 		     &y[(i + 1) * incY], incY);
@@ -114,8 +116,8 @@ helmv(IndexType n, const Alpha &alpha, bool conjA, const TA *A,
 	    for (IndexType i = 0; i < n; ++i) {
 		axpy(i, alpha * x[i * incX], &A[i * incRowA], incColA,
 		     &y[0 * incY], incY);
-		y[i * incY] +=
-		    alpha * real(A[i * incRowA + i * incColA]) * x[i * incX];
+		y[i * incY] += alpha * std::real(A[i * incRowA + i * incColA]) *
+		               x[i * incX];
 		acxpy(n - 1 - i, alpha * x[i * incX],
 		      &A[(i + 1) * incRowA + i * incColA], incRowA,
 		      &y[(i + 1) * incY], incY);

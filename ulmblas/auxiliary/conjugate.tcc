@@ -1,37 +1,37 @@
 #ifndef ULMBLAS_AUXILIARY_CONJ_TCC
 #define ULMBLAS_AUXILIARY_CONJ_TCC 1
 
-#include <complex>
 #include <ulmblas/auxiliary/conjugate.h>
 
 namespace ulmBLAS {
 
 template <typename T>
-typename std::enable_if<std::is_fundamental<T>::value, const T &>::type
+T
 conjugate(const T &x)
 {
     return x;
 }
 
 template <typename T>
-typename std::enable_if<std::is_fundamental<T>::value, const T &>::type
-conjugate(const T &x, bool conj)
-{
-    return x;
-}
-
-template <typename T>
-typename std::enable_if<!std::is_fundamental<T>::value, const T>::type
-conjugate(const T &x)
-{
-    return std::conj(x);
-}
-
-template <typename T>
-typename std::enable_if<!std::is_fundamental<T>::value, const T>::type
+T
 conjugate(const T &x, bool apply)
 {
-    return (apply) ? std::conj(x) : x;
+    (void)apply;
+    return x;
+}
+
+template <typename T>
+std::complex<T>
+conjugate(const std::complex<T> &z)
+{
+    return std::conj(z);
+}
+
+template <typename T>
+std::complex<T>
+conjugate(const std::complex<T> &z, bool apply)
+{
+    return apply ? std::conj(z) : z;
 }
 
 } // namespace ulmBLAS

@@ -9,6 +9,5 @@
 #include <ulmblas/auxiliary/isaligned.h>
 #include <ulmblas/auxiliary/memorypool.h>
 #include <ulmblas/auxiliary/printmatrix.h>
-#include <ulmblas/auxiliary/real.h>
 
 #endif // ULMBLAS_AUXILIARY_AUXILIARY_H

@@ -3,7 +3,7 @@
 
 #include <ulmblas/level2/helr2.h>
 #include <ulmblas/auxiliary/conjugate.h>
-#include <ulmblas/auxiliary/real.h>
+#include <complex>
 
 namespace ulmBLAS {
 
@@ -30,7 +30,7 @@ helr2(IndexType n, bool conj, const Alpha &alpha, const TX *x, IndexType incX,
 	}
     }
     for (IndexType j = 0; j < n; ++j) {
-	A[j * (incRowA + incColA)] = real(A[j * (incRowA + incColA)]);
+	A[j * (incRowA + incColA)] = std::real(A[j * (incRowA + incColA)]);
     }
 }
 
