@@ -1,5 +1,5 @@
 Name:           ulmblas
-Version:        0.4.1
+Version:        0.4.2
 Release:        1%{?dist}
 Summary:        BLAS with micro kernels selected for the CPU at load time
 

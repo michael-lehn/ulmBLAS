@@ -12,14 +12,14 @@ class Ulmblas(MakefilePackage):
     micro kernels for the CPU at load time."""
 
     homepage = "https://github.com/michael-lehn/ulmBLAS"
-    url = "https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/v0.4.1.tar.gz"
+    url = "https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/v0.4.2.tar.gz"
     git = "https://github.com/michael-lehn/ulmBLAS.git"
 
     maintainers("michael-lehn")
 
     license("BSD-3-Clause")
 
-    version("0.4.1", sha256="7b8f961438a00ddb35e258fba6322a249e9dc9d889831b454372cb0dd68883d2")
+    version("0.4.2", sha256="897ff3e954d973de59e60d9ee1980b02cd8838e7c1fd7ec1b47f7666e66b815b")
 
     provides("blas")
 

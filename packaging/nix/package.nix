@@ -20,11 +20,11 @@ assert !blas64;
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "ulmblas";
-  version = "0.4.1";
+  version = "0.4.2";
 
   src = fetchurl {
     url = "https://github.com/michael-lehn/ulmBLAS/archive/refs/tags/v${finalAttrs.version}.tar.gz";
-    hash = "sha256-e4+WFDigDds14lj7pjIqJJ6dydiJgxtFQ3LLDdaIg9I=";
+    hash = "sha256-iX/z6VTZc95Z5g2e4ZgLAs2IOOfB/X7BtH92ZuZrgVs=";
   };
 
   nativeCheckInputs = [ gfortran ];

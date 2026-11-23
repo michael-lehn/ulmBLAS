@@ -1,6 +1,6 @@
 # Maintainer: Michael Lehn <michael.lehn@uni-ulm.de>
 pkgname=ulmblas
-pkgver=0.4.1
+pkgver=0.4.2
 pkgrel=0
 pkgdesc="BLAS (Fortran 77 and CBLAS interface) with micro kernels selected for the CPU at load time"
 url="https://github.com/michael-lehn/ulmBLAS"
@@ -38,4 +38,4 @@ package() {
 	install -Dm644 -t "$pkgdir"/usr/share/licenses/$pkgname LICENSE NOTICE
 }
 
-sha512sums="fb144848fbea7288651106ce6a292bfc3ba47a0ed3f779657a868d55b1ca8ee7567bf364e760d237c54ce3436fc3d329c4655c270d2200ab650b983ff7e176ab  ulmblas-0.4.1.tar.gz"
+sha512sums="7647ea0e3f80d1addd333af8222ecccdb936271764d72791a517e2914db18809be9e349c2c0461de75dddfb02ba297fe4e82736bb566bf06ca14459df8374a69  ulmblas-0.4.2.tar.gz"
