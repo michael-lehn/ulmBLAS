@@ -30,14 +30,15 @@
  *  (once, InitOnceExecuteOnce) with all argument registers saved.
  *
  *  The error handlers xerbla_ and cblas_xerbla (and xerbla_64_ and
- *  cblas_xerbla_64 of the ILP64 interfaces) are not forwarded.  On macOS
- *  and Linux a handler defined by the program (or a library loaded before
- *  this one) is passed to the backend (ulmblas_set_f77_xerbla,
- *  ulmblas_set_cblas_xerbla, ulmblas_set_f77_xerbla_64,
- *  ulmblas_set_cblas_xerbla_64: weak definitions of a library loaded with
- *  dlopen are not replaced by the program's); otherwise the backend uses
- *  its own.  On Windows the backend calls the handlers the program
- *  exports, if any (../F77/xerbla.cc).
+ *  cblas_xerbla_64 of the ILP64 interfaces) are not forwarded.  A handler
+ *  defined by the program (on Linux also one of a library loaded before
+ *  this one, as the ELF symbol lookup; on macOS only the program's, not
+ *  that of another library such as OpenBLAS) is passed to the backend
+ *  (ulmblas_set_f77_xerbla, ulmblas_set_cblas_xerbla,
+ *  ulmblas_set_f77_xerbla_64, ulmblas_set_cblas_xerbla_64: a library
+ *  loaded with dlopen does not see the program's definitions); otherwise
+ *  the backend uses its own.  On Windows the backend calls the handlers
+ *  the program exports, if any (../F77/xerbla.cc).
  *
  *  ULMBLAS_DISPATCH_INTERFACE64 (macOS and Linux): libulmblas64, a front of
  *  the same backends with their interfaces with 64-bit integers under the
@@ -424,12 +425,12 @@ ulmblas_dispatch_init(void)
 	fail("cannot determine the path of libulmblas", NULL);
     }
 
-    /*  Error handlers defined by the program (or a library loaded before
-     *  this one), searched before the backend is loaded; this library
-     *  does not export the handlers, so it does not find itself.  */
+    /*  Error handlers defined by the program (Linux: or a library loaded
+     *  before this one), searched before the backend is loaded; this
+     *  library does not export the handlers, so it does not find itself.  */
 #if defined(__APPLE__)
-    void *f77_xerbla = dlsym(RTLD_DEFAULT, "xerbla_");
-    void *c_xerbla = dlsym(RTLD_DEFAULT, "cblas_xerbla");
+    void *f77_xerbla = dlsym(RTLD_MAIN_ONLY, "xerbla_");
+    void *c_xerbla = dlsym(RTLD_MAIN_ONLY, "cblas_xerbla");
 #else
     void *f77_xerbla = (void *)&xerbla_;
     void *c_xerbla = (void *)&cblas_xerbla;
@@ -442,8 +443,8 @@ ulmblas_dispatch_init(void)
     set_handler(handle, "ulmblas_set_cblas_xerbla_64", c_xerbla, true);
 #else
 #if defined(__APPLE__)
-    void *f77_xerbla_64 = dlsym(RTLD_DEFAULT, "xerbla_64_");
-    void *c_xerbla_64 = dlsym(RTLD_DEFAULT, "cblas_xerbla_64");
+    void *f77_xerbla_64 = dlsym(RTLD_MAIN_ONLY, "xerbla_64_");
+    void *c_xerbla_64 = dlsym(RTLD_MAIN_ONLY, "cblas_xerbla_64");
 #else
     void *f77_xerbla_64 = (void *)&xerbla_64_;
     void *c_xerbla_64 = (void *)&cblas_xerbla_64;

@@ -12,18 +12,22 @@
 #endif
 #include <windows.h>
 #endif
+#if defined(ULMBLAS_REPLACEABLE_XERBLA) && defined(__APPLE__)
+#include <dlfcn.h>
+#endif
 
 extern "C" {
 
 //
-//  The error handler is a weak definition (as in ../F77/xerbla.cc), so that
-//  a program can replace it (the Netlib test programs do): in the shared
-//  library (interfaces/blas/shared) on macOS calls inside a library are
-//  otherwise bound to its own definition; in the static library this
-//  object is also linked if the program calls cblas_set_xerbla.  On
-//  Windows see ../F77/xerbla.cc.
+//  A program, not another library, can replace the error handler (the
+//  Netlib test programs do), as in ../F77/xerbla.cc: a weak definition in
+//  the static library (this object is also linked if the program calls
+//  cblas_set_xerbla) and in the shared library on Linux; on macOS the
+//  shared library calls the program's handler if the program defines one
+//  (RTLD_MAIN_ONLY), on Windows if the program exports one.
 //
-#if defined(_WIN32)
+#if defined(_WIN32) ||                                                         \
+    (defined(__APPLE__) && defined(ULMBLAS_REPLACEABLE_XERBLA))
 #define ULMBLAS_XERBLA_ATTRIBUTE
 #else
 #define ULMBLAS_XERBLA_ATTRIBUTE __attribute__((weak))
@@ -109,6 +113,14 @@ CBLAS(xerbla)(ULMBLAS_INDEX_TYPE info, const char *rout, const char *form, ...)
 	handler = reinterpret_cast<ulmblas_cblas_xerbla_t>(
 	    reinterpret_cast<void *>(GetProcAddress(
 	        GetModuleHandleW(nullptr), ULMBLAS_XERBLA_STR(CBLAS(xerbla)))));
+    }
+#elif defined(__APPLE__)
+    if (!handler) {
+	//  a definition in the program itself (not this one)
+	void *p = dlsym(RTLD_MAIN_ONLY, ULMBLAS_XERBLA_STR(CBLAS(xerbla)));
+	if (p && p != reinterpret_cast<void *>(&CBLAS(xerbla))) {
+	    handler = reinterpret_cast<ulmblas_cblas_xerbla_t>(p);
+	}
     }
 #endif
     if (handler) {

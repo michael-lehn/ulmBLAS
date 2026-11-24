@@ -14,6 +14,14 @@ the Git repository (procedure: [RELEASING.md](https://github.com/michael-lehn/ul
   0.4.1 look for them there; with 0.4.2 they did not load (e.g. NumPy
   built with `interfaces/python/numpy.sh`: `Symbol not found: _cgesv_`).
 
+- macOS: the shared libraries (also the one for libblastrampoline) no
+  longer define `xerbla_` and `cblas_xerbla` as weak symbols.  dyld (the
+  dynamic linker of macOS) bound them in a library loaded with `dlopen`
+  to the definitions of a library loaded before it (in Julia: OpenBLAS),
+  whose error handler then reported the errors of ulmBLAS (0.4.2).
+  ulmBLAS calls its own handler, which calls the program's if the program
+  defines one (as on Windows).
+
 ## 0.4.2 (2026-11-23)
 
 ### New functions

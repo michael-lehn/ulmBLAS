@@ -38,7 +38,10 @@ lbt.f77.out      := $(lbt.dir)
 lbt.f77.obj      := $(lbt.dir)/obj
 lbt.f77.f        :=
 lbt.f77.index    := int64_t
-lbt.f77.cxxflags := -fPIC
+#  the error handler as in the other shared libraries: replaceable only by
+#  the program (interfaces/blas/F77/xerbla.cc; in Julia OpenBLAS is loaded
+#  first and must not take it over)
+lbt.f77.cxxflags := -fPIC -DULMBLAS_REPLACEABLE_XERBLA
 lbt.f77.asm      := yes
 lbt.f77.tools    := tool-ar
 $(eval $(call f77blas_lib,lbt.f77,lbt))

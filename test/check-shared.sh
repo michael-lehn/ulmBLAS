@@ -169,6 +169,26 @@ for p in sbgemm shgemm i8gemm i16gemm xerbla scal; do
     fi
 done
 
+#  macOS: a library with error handlers loaded before this one (as
+#  OpenBLAS in a Julia process; the library is loaded with dlopen) must
+#  not take over the error handling (on Linux it does: ELF symbol lookup)
+if [ "`uname -s`" = Darwin ]; then
+    if ! $CC $CFLAGS -dynamiclib -install_name @rpath/libxerbla_other.dylib \
+            -o "$B/libxerbla_other.dylib" extensions/xerbla_other_lib.c ||
+       ! $CC $CFLAGS -I$INCDIR -o "$B/c_xerbla_other" extensions/xerbla_other.c \
+            -L"$B" -lxerbla_other -Wl,-rpath,"$B"; then
+        echo "FAIL  c_xerbla_other: not built"
+        n_fail=`expr $n_fail + 1`
+    elif (cd "$B" && ./c_xerbla_other "$LIBDIR/lib$LIBNAME.dylib" \
+              > c_xerbla_other.out 2>&1); then
+        echo "PASS  c_xerbla_other"
+        n_pass=`expr $n_pass + 1`
+    else
+        echo "FAIL  c_xerbla_other: `head -n 1 "$B/c_xerbla_other.out"` (see $B/c_xerbla_other.out)"
+        n_fail=`expr $n_fail + 1`
+    fi
+fi
+
 #  The dispatching library (interfaces/blas/dispatch: backends
 #  lib${LIBNAME}_<backend> next to it): c_scal once more with each backend
 #  (ULMBLAS_BACKEND); a backend the CPU does not support is skipped (the

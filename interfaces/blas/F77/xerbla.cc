@@ -10,25 +10,39 @@
 #endif
 #include <windows.h>
 #endif
+#if defined(ULMBLAS_REPLACEABLE_XERBLA) && defined(__APPLE__)
+#include <dlfcn.h>
+#endif
 
 extern "C" {
 
 //
-//  The error handler is a weak definition, so that a program can replace
-//  it (the Netlib test programs do): in the shared library
-//  (interfaces/blas/shared) on macOS calls inside a library are otherwise
-//  bound to its own definition; in the static library this object is also
-//  linked if the program calls set_blas_xerbla_ or xerbla_array_.  A
-//  library that loads this one at run time (the
-//  dispatching library, interfaces/blas/dispatch) passes the handler of
-//  the program with ulmblas_set_f77_xerbla: the weak definition is not
-//  replaced then.  On Windows a DLL always calls its own definition; the
-//  handler of the program is used if the program exports it (MinGW:
-//  -Wl,--export-all-symbols).  A library with two Fortran 77 interfaces
+//  A program can replace the error handler (the Netlib test programs do).
+//  Only the program, not another library: a BLAS or LAPACK library loaded
+//  before (e.g. OpenBLAS in Julia) must not take over the error messages
+//  of this one.
+//
+//  - Static library: the handler is a weak definition (this object is
+//    also linked if the program calls set_blas_xerbla_ or xerbla_array_).
+//  - Shared library on Linux: the program's definition takes precedence
+//    (ELF symbol lookup; the weak definition changes nothing there).
+//  - Shared library on macOS: the library calls its own definition
+//    (two-level namespace), which calls the program's handler if the
+//    program defines one (dlsym with RTLD_MAIN_ONLY).  Not a weak
+//    definition: the dynamic loader would bind it to the first definition
+//    of any image loaded before (Julia: OpenBLAS's xerbla_64_).
+//  - Windows: a DLL always calls its own definition; the handler of the
+//    program is used if the program exports it (MinGW:
+//    -Wl,--export-all-symbols).
+//
+//  A library that loads this one at run time (the dispatching library,
+//  interfaces/blas/dispatch) passes the handler of the program with
+//  ulmblas_set_f77_xerbla.  A library with two Fortran 77 interfaces
 //  (../shared: LP64 xerbla_ and ILP64 xerbla_64_) has a setter per
 //  interface: ULMBLAS_SET_F77_XERBLA names the one of this build.
 //
-#if defined(_WIN32)
+#if defined(_WIN32) ||                                                         \
+    (defined(__APPLE__) && defined(ULMBLAS_REPLACEABLE_XERBLA))
 #define ULMBLAS_XERBLA_ATTRIBUTE
 #else
 #define ULMBLAS_XERBLA_ATTRIBUTE __attribute__((weak))
@@ -97,6 +111,15 @@ F77BLAS(xerbla)(const char *rout, const ULMBLAS_INDEX_TYPE *info,
 	    reinterpret_cast<ulmblas_f77_xerbla_t>(reinterpret_cast<void *>(
 	        GetProcAddress(GetModuleHandleW(nullptr),
 		               ULMBLAS_XERBLA_STR(F77BLAS(xerbla)))));
+    }
+#elif defined(__APPLE__)
+    if (!handler) {
+	//  a definition in the program itself (not this one, should the
+	//  program contain this library)
+	void *p = dlsym(RTLD_MAIN_ONLY, ULMBLAS_XERBLA_STR(F77BLAS(xerbla)));
+	if (p && p != reinterpret_cast<void *>(&F77BLAS(xerbla))) {
+	    handler = reinterpret_cast<ulmblas_f77_xerbla_t>(p);
+	}
     }
 #endif
     if (handler) {
